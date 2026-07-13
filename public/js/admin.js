@@ -596,27 +596,93 @@ class AdminController {
   }
 
   async loadModalProducts() {
-    const grid = document.getElementById('modal-products-catalog-grid');
-    if (!grid) return;
-
     const est = this.establishments.find(e => e.id === window.activeShopIdForMenu);
     if (!est) return;
 
-    const products = est.products || [];
+    // Load category categories
+    if (typeof MenuBuilder !== 'undefined') {
+      const cats = await MenuBuilder.getCategories();
+      window.categoriesList = cats;
+
+      // Populate Category selector inside create product modal
+      const select = document.getElementById('form-category');
+      if (select) {
+        select.innerHTML = '<option value="">-- Selecciona una categoría --</option>';
+        cats.forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat.id;
+          opt.innerText = cat.name;
+          select.appendChild(opt);
+        });
+      }
+    }
+    
+    window.productsList = est.products || [];
+    this.renderModalCategories();
+    this.renderModalProducts();
+  }
+
+  renderModalCategories() {
+    const sidebar = document.getElementById('modal-categories-sidebar');
+    if (!sidebar) return;
+    sidebar.innerHTML = '';
+
+    const allLi = document.createElement('li');
+    allLi.className = `category-item ${window.activeCategoryId === 'all' ? 'active' : ''}`;
+    allLi.innerText = 'Todos';
+    allLi.style.fontSize = '11.5px';
+    allLi.style.padding = '8px 10px';
+    allLi.style.cursor = 'pointer';
+    allLi.style.borderRadius = '8px';
+    allLi.onclick = () => this.filterCategoryModal('all');
+    sidebar.appendChild(allLi);
+
+    window.categoriesList.forEach(cat => {
+      const li = document.createElement('li');
+      li.className = `category-item ${window.activeCategoryId === cat.id ? 'active' : ''}`;
+      li.innerText = cat.name;
+      li.style.fontSize = '11.5px';
+      li.style.padding = '8px 10px';
+      li.style.cursor = 'pointer';
+      li.style.borderRadius = '8px';
+      li.onclick = () => this.filterCategoryModal(cat.id);
+      sidebar.appendChild(li);
+    });
+  }
+
+  filterCategoryModal(catId) {
+    window.activeCategoryId = catId;
+    this.renderModalCategories();
+    this.renderModalProducts();
+  }
+
+  renderModalProducts() {
+    const grid = document.getElementById('modal-products-catalog-grid');
+    if (!grid) return;
     grid.innerHTML = '';
 
-    if (products.length === 0) {
+    let filtered = window.productsList;
+    if (window.activeCategoryId !== 'all') {
+      filtered = window.productsList.filter(p => {
+        if (p.category_id) return p.category_id === window.activeCategoryId;
+        const cat = window.categoriesList.find(c => c.id === window.activeCategoryId);
+        if (cat && p.category) return p.category.toLowerCase().includes(cat.slug);
+        return false;
+      });
+    }
+
+    if (filtered.length === 0) {
       grid.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 30px; color: var(--text-muted);">
-          <span style="font-size: 28px;">🍔</span>
-          <p style="margin-top: 8px; font-size: 11.5px;">No hay productos asignados. ¡Importa o crea uno!</p>
+        <div style="grid-column: 1 / -1; padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px;">
+          No hay productos en esta categoría.
         </div>
       `;
       return;
     }
 
-    products.forEach(prod => {
+    filtered.forEach(prod => {
       const card = document.createElement('div');
+      card.className = 'product-card';
       card.style.background = 'rgba(255, 255, 255, 0.03)';
       card.style.border = '1px solid rgba(255, 255, 255, 0.05)';
       card.style.borderRadius = '14px';
@@ -625,15 +691,21 @@ class AdminController {
       card.style.flexDirection = 'column';
       card.style.gap = '6px';
       card.style.position = 'relative';
+      card.style.cursor = 'pointer';
+      card.onclick = () => this.openProductSpecsModal(prod.id);
 
       const imgUrl = prod.image || '/images/burger_royale.jpg';
+
       card.innerHTML = `
-        <img src="${imgUrl}" style="width: 100%; aspect-ratio: 1.2/1; object-fit: cover; border-radius: 10px;" onerror="this.src='/images/burger_royale.jpg'">
-        <div style="display: flex; flex-direction: column; gap: 2px;">
+        <img src="${imgUrl}" alt="${prod.name}" style="width: 100%; aspect-ratio: 1.2/1; object-fit: cover; border-radius: 10px;" onerror="this.src='/images/burger_royale.jpg'">
+        <div style="padding: 0;">
           <h4 style="color: #ffffff; font-size: 11px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${prod.name}</h4>
-          <span style="color: var(--accent); font-weight: 700; font-size: 11px;">$${parseFloat(prod.price).toFixed(2)}</span>
+          <p style="font-size: 10px; color: var(--text-muted); line-height: 1.2; margin: 4px 0 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${prod.description || 'Sin descripción.'}</p>
         </div>
-        <button onclick="deleteProductFromModal('${prod.id}')" style="position: absolute; top: 12px; right: 12px; background: rgba(239, 68, 68, 0.9); border: none; border-radius: 50%; color: #fff; width: 20px; height: 20px; font-size: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700;">✕</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+          <span style="color: var(--accent); font-weight: 700; font-size: 11px;">$${parseFloat(prod.price).toFixed(2)}</span>
+          <button onclick="event.stopPropagation(); deleteProductFromModal('${prod.id}')" style="background: rgba(239, 68, 68, 0.9); border: none; border-radius: 50%; color: #fff; width: 20px; height: 20px; font-size: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700;">✕</button>
+        </div>
       `;
       grid.appendChild(card);
     });

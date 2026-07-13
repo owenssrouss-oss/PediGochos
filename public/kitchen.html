@@ -137,8 +137,8 @@
   <div class="toast-container" id="toast-center"></div>
 
   <!-- Glassmorphic Modal: Create Product -->
-  <div class="modal-overlay" id="product-modal">
-    <div class="modal-content" style="background: #16161c; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+  <div class="modal-overlay" id="product-modal" style="z-index: 1200; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+    <div class="modal-content" style="background: #16161c; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin: auto; max-width: 500px; width: 90%;">
       <div class="modal-header">
         <h3 style="color: #ffffff;">🍔 Agregar Producto al Menú</h3>
         <button class="modal-close" onclick="closeMenuModal()">✕</button>
