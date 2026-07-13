@@ -292,10 +292,37 @@
           <input type="text" id="edit-shop-banner" required placeholder="Ej. linear-gradient(135deg, #FF8C00, #FF4500) o url..." style="width: 100%;">
         </div>
 
+        <!-- Time settings (only visible for comidas) -->
+        <div id="edit-shop-times-group" class="form-grid hidden" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div class="form-group">
+            <label for="edit-shop-prep-time">Prepara. Aproximada (mins)</label>
+            <input type="number" id="edit-shop-prep-time" min="0" placeholder="Ej. 25" style="width: 100%;">
+          </div>
+          <div class="form-group">
+            <label for="edit-shop-delivery-time">Envío Aproximado (mins)</label>
+            <input type="number" id="edit-shop-delivery-time" min="0" placeholder="Ej. 15" style="width: 100%;">
+          </div>
+        </div>
+
         <!-- Custom Button / Theme Color -->
         <div class="form-group">
           <label for="edit-shop-theme">Color de Acento / Botones (Hexadecimal) *</label>
           <input type="color" id="edit-shop-theme" value="#FF5E3A" style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: none; cursor: pointer; padding: 0;">
+        </div>
+
+        <!-- Global Products Import Section -->
+        <hr class="card-divider" style="margin: 20px 0; border: 0; border-top: 1px solid rgba(255,255,255,0.08);">
+        <div class="form-group">
+          <label style="color: var(--accent);">📥 Importar Producto del Catálogo Global (Supabase)</label>
+          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Selecciona un producto previamente registrado en Supabase para asociarlo con su foto a este local.</p>
+          <div class="input-with-button" style="display: flex; gap: 8px; align-items: center;">
+            <select id="import-product-select" style="flex: 1; background: rgba(18, 18, 22, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; padding: 10px;">
+              <option value="">Cargando catálogo global...</option>
+            </select>
+            <button type="button" class="btn-neumorphic" onclick="importGlobalProduct()" style="margin: 0; padding: 10px 16px; background-color: var(--accent); color: #121216; border-color: var(--accent); font-size: 13px; height: 42px;">
+              Importar
+            </button>
+          </div>
         </div>
 
         <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
@@ -646,6 +673,10 @@
 
     function handleEditShopSubmit(e) {
       AdminApp.handleEditShopSubmit(e);
+    }
+
+    function importGlobalProduct() {
+      AdminApp.importGlobalProduct();
     }
 
     function showToast(message, isError = false) {

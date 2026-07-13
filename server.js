@@ -288,6 +288,12 @@ app.put('/api/establishments/:id', (req, res) => {
   if (themeColor) {
     est.themeColor = themeColor;
   }
+  if (req.body.prep_time !== undefined) {
+    est.prep_time = req.body.prep_time ? parseInt(req.body.prep_time) : null;
+  }
+  if (req.body.delivery_time !== undefined) {
+    est.delivery_time = req.body.delivery_time ? parseInt(req.body.delivery_time) : null;
+  }
   
   writeDB(db);
   res.json({ success: true, establishment: est });

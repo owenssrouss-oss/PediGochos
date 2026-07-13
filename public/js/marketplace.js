@@ -31,6 +31,15 @@ class MarketplaceController {
     this.selectCategory('comidas');
     this.updateCartBadge();
     await this.checkSupabaseSession();
+
+    // Check if query parameter ?shop=... is provided and auto-open establishment
+    const urlParams = new URLSearchParams(window.location.search);
+    const shopId = urlParams.get('shop');
+    if (shopId) {
+      setTimeout(() => {
+        this.openEstablishment(shopId);
+      }, 500);
+    }
   }
 
   async checkSupabaseSession() {

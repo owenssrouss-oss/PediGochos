@@ -230,6 +230,21 @@ class AdminController {
     document.getElementById('edit-shop-banner').value = est.banner || '';
     document.getElementById('edit-shop-theme').value = est.themeColor || '#FF5E3A';
 
+    // Show preparation & delivery times only for comidas category
+    const timesGroup = document.getElementById('edit-shop-times-group');
+    const prepInput = document.getElementById('edit-shop-prep-time');
+    const deliveryTimeInput = document.getElementById('edit-shop-delivery-time');
+
+    if (est.category === 'comidas') {
+      timesGroup.classList.remove('hidden');
+      prepInput.value = est.prep_time || '';
+      deliveryTimeInput.value = est.delivery_time || '';
+    } else {
+      timesGroup.classList.add('hidden');
+      prepInput.value = '';
+      deliveryTimeInput.value = '';
+    }
+
     const select = document.getElementById('edit-shop-logo');
     select.innerHTML = '';
     const emojis = CATEGORY_EMOJIS[est.category] || ['🏪'];
@@ -240,6 +255,34 @@ class AdminController {
       if (emoji === est.logo) opt.selected = true;
       select.appendChild(opt);
     });
+
+    // Populate global catalog dropdown for product imports
+    const importSelect = document.getElementById('import-product-select');
+    importSelect.innerHTML = `<option value="">Cargando catálogo...</option>`;
+    
+    if (typeof MenuBuilder !== 'undefined' && MenuBuilder.supabase) {
+      MenuBuilder.supabase
+        .from('products')
+        .select('*')
+        .order('name', { ascending: true })
+        .then(({ data, error }) => {
+          if (error) throw error;
+          this.globalProductsCache = data || [];
+          importSelect.innerHTML = `<option value="">-- Selecciona un producto --</option>`;
+          this.globalProductsCache.forEach(prod => {
+            const opt = document.createElement('option');
+            opt.value = prod.id;
+            opt.innerText = `${prod.name} ($${parseFloat(prod.price).toFixed(2)})`;
+            importSelect.appendChild(opt);
+          });
+        })
+        .catch(err => {
+          console.error(err);
+          importSelect.innerHTML = `<option value="">Error cargando catálogo</option>`;
+        });
+    } else {
+      importSelect.innerHTML = `<option value="">Catálogo no disponible</option>`;
+    }
 
     document.getElementById('edit-est-modal').classList.add('active');
 
@@ -262,12 +305,18 @@ class AdminController {
     e.preventDefault();
     if (!this.activeShopId) return;
 
+    const est = this.establishments.find(e => e.id === this.activeShopId);
+    if (!est) return;
+
     const name = document.getElementById('edit-shop-name').value.trim();
     const description = document.getElementById('edit-shop-description').value.trim();
     const logo = document.getElementById('edit-shop-logo').value;
     const delivery_fee = document.getElementById('edit-shop-delivery').value;
     const banner = document.getElementById('edit-shop-banner').value.trim();
     const themeColor = document.getElementById('edit-shop-theme').value;
+
+    const prep_time = document.getElementById('edit-shop-prep-time').value;
+    const delivery_time = document.getElementById('edit-shop-delivery-time').value;
 
     const payload = {
       isOwner: true,
@@ -276,7 +325,9 @@ class AdminController {
       logo,
       delivery_fee,
       banner,
-      themeColor
+      themeColor,
+      prep_time: prep_time ? parseInt(prep_time) : null,
+      delivery_time: delivery_time ? parseInt(delivery_time) : null
     };
 
     try {
@@ -296,6 +347,67 @@ class AdminController {
     } catch (err) {
       console.error(err);
       alert('Error de red al guardar los cambios.');
+    }
+  }
+
+  async importGlobalProduct() {
+    if (!this.activeShopId) return;
+    const select = document.getElementById('import-product-select');
+    const prodId = select.value;
+    if (!prodId) {
+      alert('Por favor, selecciona un producto de la lista para importar.');
+      return;
+    }
+
+    const selected = this.globalProductsCache.find(p => p.id === prodId);
+    if (!selected) return;
+
+    const est = this.establishments.find(e => e.id === this.activeShopId);
+    if (!est) return;
+
+    if (!est.products) est.products = [];
+
+    // Check if duplicate
+    if (est.products.some(p => p.name.toLowerCase() === selected.name.toLowerCase())) {
+      alert(`⚠️ El producto "${selected.name}" ya está en el menú de este establecimiento.`);
+      return;
+    }
+
+    const newLocalProduct = {
+      id: `p-${Date.now()}-${Math.floor(Math.random() * 100)}`,
+      name: selected.name,
+      price: parseFloat(selected.price),
+      description: selected.description || '',
+      image: selected.image_url
+    };
+
+    est.products.push(newLocalProduct);
+
+    try {
+      const res = await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          products: est.products
+        })
+      });
+
+      if (res.ok) {
+        this.showToast(`📥 ¡${selected.name} importado con éxito!`);
+        
+        // Refresh active menu view
+        if (window.activeShopIdForMenu === est.id) {
+          if (typeof window.loadProducts === 'function') {
+            await window.loadProducts();
+          }
+        }
+      } else {
+        alert('Error al guardar el producto importado.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de conexión al importar el producto.');
     }
   }
 
