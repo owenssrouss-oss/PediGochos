@@ -28,7 +28,7 @@
           <option value="">-- Selecciona tu negocio --</option>
           <!-- Filled dynamically -->
         </select>
-        <button id="btn-manage-prices" class="btn-manage-prices hidden" onclick="KitchenApp.openPricesModal()" style="margin-left:12px; background-color:#334155; border:1px solid #475569; color:#fff; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:600; font-size:13px;">⚙️ Gestionar Precios</button>
+        <button id="btn-manage-prices" class="btn-manage-prices hidden" onclick="KitchenApp.openMenuTablesModal()" style="margin-left:12px; background-color:#10b981; border:1px solid #10b981; color:#121216; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🍔 Taller de Local</button>
       </div>
 
       <!-- Connection Status Badge -->
@@ -133,27 +133,266 @@
     🔔
   </button>
 
-  <!-- Prices Management Modal -->
-  <div class="modal-overlay" id="prices-modal">
-    <div class="modal-content prices-modal-content" style="max-width: 600px; width: 90%; background-color: #1E293B; color: #FFFFFF; border-radius: 12px; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow-lg);">
-      <div class="modal-header" style="border-bottom: 1px solid #334155; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background-color: #1E293B;">
-        <h3 style="font-size: 18px; font-weight: 700; margin: 0;">⚙️ Gestionar Precios del Menú</h3>
-        <button class="btn-close" onclick="KitchenApp.closePricesModal()" style="color: #94A3B8; font-size: 20px; border: none; background: none; outline: none; cursor: pointer;">✕</button>
+  <!-- Toast Notification Center -->
+  <div class="toast-container" id="toast-center"></div>
+
+  <!-- Glassmorphic Modal: Create Product -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal-content" style="background: #16161c; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+      <div class="modal-header">
+        <h3 style="color: #ffffff;">🍔 Agregar Producto al Menú</h3>
+        <button class="modal-close" onclick="closeMenuModal()">✕</button>
       </div>
       
-      <div class="modal-body premium-scroll" id="prices-modal-body" style="padding: 20px; overflow-y: auto; flex-grow: 1; text-align: left;">
-        <!-- Filled dynamically -->
-      </div>
+      <form id="product-form" onsubmit="handleProductSubmit(event)">
+        <!-- Category Selector -->
+        <div class="form-group">
+          <label for="form-category">Categoría *</label>
+          <select id="form-category" required style="width: 100%;">
+            <option value="">-- Selecciona una categoría --</option>
+          </select>
+        </div>
+
+        <!-- Product Name -->
+        <div class="form-group">
+          <label for="form-name">Nombre del Producto *</label>
+          <input type="text" id="form-name" required placeholder="Ej. Pepito Mixto Especial" style="width: 100%;">
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="form-desc">Descripción / Ingredientes *</label>
+          <textarea id="form-desc" rows="3" required placeholder="Ej. Carne de res, pollo, aguacate, queso cheddar en pan baguette." style="width: 100%; font-family: inherit; resize: none;"></textarea>
+        </div>
+
+        <!-- Base Price -->
+        <div class="form-group">
+          <label for="form-price">Precio Base ($ USD) *</label>
+          <input type="number" id="form-price" step="0.01" min="0" required placeholder="Ej. 12.50" style="width: 100%;">
+        </div>
+
+        <!-- Image Upload -->
+        <div class="form-group">
+          <label for="form-image">Imagen del Producto *</label>
+          <input type="file" id="form-image" accept="image/*" required style="width: 100%;">
+        </div>
+
+        <!-- Submit Button -->
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" class="btn-neumorphic" onclick="closeMenuModal()" style="box-shadow: none; margin: 0;">Cancelar</button>
+          <button type="submit" id="btn-submit-form" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0;">
+            <span>Guardar Producto</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Glassmorphic Modal: Immersive Menu and Floor Layout Designer -->
+  <div class="modal-overlay" id="menu-tables-modal" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 40px 0;">
+    <div class="modal-content" style="background: rgba(22, 22, 28, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); max-width: 1200px; width: 95%; min-height: 90vh; height: auto; display: flex; flex-direction: column; padding: 24px; border-radius: 24px; margin: auto;">
       
-      <div class="modal-footer" style="border-top: 1px solid #334155; padding: 16px 20px; text-align: right; background-color: #1E293B; display: flex; justify-content: flex-end; gap: 12px;">
-        <button class="btn-card-action archive" onclick="KitchenApp.closePricesModal()" style="width: auto; display: inline-block; padding: 10px 20px; font-size: 13px; margin: 0; border-radius: var(--radius-sm);">Cancelar</button>
-        <button class="btn-card-action ready" onclick="KitchenApp.savePrices()" style="width: auto; display: inline-block; padding: 10px 24px; font-size: 13px; margin: 0; border-radius: var(--radius-sm);">💾 Guardar Cambios</button>
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <h2 id="designer-modal-shop-name" style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 800;">🍔 Taller de Menú y Distribución de Mesas</h2>
+          <span style="font-size: 12.5px; color: var(--accent); font-weight: 600;" id="designer-modal-shop-subtext">Diseñador interactivo en tiempo real</span>
+        </div>
+        <button class="modal-close" onclick="closeMenuTablesModal()" style="font-size: 20px; color: #ffffff; opacity: 0.6; cursor: pointer; transition: all 0.2s;">✕</button>
       </div>
+
+      <!-- Split Layout Workspace -->
+      <div class="designer-workspace" style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; flex: 1; overflow: hidden;">
+        
+        <!-- Left Column: Floor Plan Designer (Mesas y Paredes) -->
+        <div class="floor-plan-column" style="display: flex; flex-direction: column; gap: 16px; overflow: hidden; border-right: 1px solid rgba(255,255,255,0.06); padding-right: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">🧱 Distribución de Mesas y Paredes</h3>
+            <!-- Tool Selector -->
+            <div class="floor-tools" style="display: flex; gap: 8px;">
+              <button class="btn-floor-tool active" onclick="setFloorTool('table')" id="tool-table" style="background: var(--accent); color: #121216; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                🪑 Colocar Mesa
+              </button>
+              <button class="btn-floor-tool" onclick="setFloorTool('wall')" id="tool-wall" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                🧱 Colocar Pared
+              </button>
+              <button class="btn-floor-tool" onclick="setFloorTool('eraser')" id="tool-eraser" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                🧹 Borrador
+              </button>
+            </div>
+          </div>
+          <p style="font-size: 11.5px; color: var(--text-muted); margin: 0;">Selecciona una herramienta y haz clic en las celdas del plano para estructurar tu establecimiento. El plano se actualiza automáticamente.</p>
+          
+          <!-- Visual Grid Area -->
+          <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 12px; overflow: hidden;">
+            <div id="floor-grid-canvas" style="display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 4px; width: 100%; max-width: 360px; aspect-ratio: 1/1;">
+              <!-- Celdas renderizadas dinámicamente -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive Menu Creator (Productos y Catálogo) -->
+        <div class="menu-creator-column" style="display: flex; flex-direction: column; gap: 16px; overflow: hidden;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">🍔 Carta y Categorías de Comida</h3>
+            <button class="btn-neumorphic" onclick="openMenuModal()" style="margin: 0; padding: 6px 12px; font-size: 11.5px;">
+              <span>➕ Nuevo Producto</span>
+            </button>
+          </div>
+          
+          <!-- Fast Global Catalog Import Area -->
+          <div style="background: rgba(255, 94, 58, 0.05); border: 1px solid rgba(255, 94, 58, 0.15); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+            <div style="flex: 1;">
+              <span style="font-size: 11.5px; font-weight: 700; color: var(--accent); display: block; margin-bottom: 2px;">⚡ Importar del Catálogo del Dueño</span>
+              <span style="font-size: 10.5px; color: var(--text-muted);">Asocia platos globales directamente con su foto.</span>
+            </div>
+            <select id="modal-import-product-select" style="max-width: 180px; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 6px; border-radius: 8px; font-size: 11.5px;">
+              <option value="">Cargando catálogo...</option>
+            </select>
+            <button onclick="importGlobalProductFromModal()" style="background: var(--accent); color: #121216; font-weight: 800; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11.5px;">
+              Importar
+            </button>
+          </div>
+
+          <!-- Menu Workspace Sidebar & Catalog Grid -->
+          <div class="modal-menu-workspace" style="display: grid; grid-template-columns: 140px 1fr; gap: 16px; flex: 1; overflow: hidden;">
+            <!-- Categories Sidebar inside modal -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 8px; overflow-y: auto;">
+              <ul class="category-list" id="modal-categories-sidebar" style="gap: 6px; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column;">
+                <li class="category-item active" onclick="filterCategoryModal('all')" style="font-size: 11.5px; padding: 8px 10px; cursor: pointer; border-radius: 8px;">Todos</li>
+              </ul>
+            </div>
+
+            <!-- Products catalog list inside modal -->
+            <div style="overflow-y: auto; padding-right: 4px;" class="premium-scroll">
+              <div class="catalog-grid" id="modal-products-catalog-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;">
+                <!-- Loaded dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Glassmorphic Modal: Edit Product Specifications & Ingredients -->
+  <div class="modal-overlay" id="product-specs-modal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 40px 0; z-index: 1100;">
+    <div class="modal-content" style="background: rgba(22, 22, 28, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 25px 55px rgba(0, 0, 0, 0.6); max-width: 600px; width: 90%; height: auto; padding: 24px; border-radius: 20px; margin: auto;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px; margin-bottom: 16px;">
+        <h3 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: 800;" id="specs-modal-title">⚙️ Especificaciones del Producto</h3>
+        <button class="modal-close" onclick="closeProductSpecsModal()">✕</button>
+      </div>
+
+      <form id="product-specs-form" onsubmit="handleSpecsSubmit(event)">
+        <input type="hidden" id="specs-product-id">
+
+        <!-- Ingredients / Exclusions Section -->
+        <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px;">
+          <h4 style="color: var(--accent); margin: 0 0 8px 0; font-size: 13.5px; font-weight: 700;">📝 Ingredientes / Exclusiones</h4>
+          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">Agrega ingredientes que el cliente puede optar por excluir (quitar) de su plato.</p>
+          <div id="specs-ingredients-list" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+            <!-- Rendered dynamically -->
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="new-ingredient-input" placeholder="Ej. Cebolla, Pepinillos" style="flex: 1; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
+            <button type="button" class="btn-neumorphic" onclick="addIngredientOption()" style="margin: 0; padding: 8px 16px; font-size: 12px; height: 38px;">Agregar</button>
+          </div>
+        </div>
+
+        <!-- Modifier Groups Section -->
+        <div style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h4 style="color: var(--accent); margin: 0; font-size: 13.5px; font-weight: 700;">🎛️ Opciones y Adicionales</h4>
+            <button type="button" class="btn-neumorphic" onclick="addModifierGroup()" style="margin: 0; padding: 6px 12px; font-size: 11px; height: 32px; background: rgba(255,255,255,0.05); color:#fff; border-color: rgba(255,255,255,0.1);">➕ Nuevo Grupo</button>
+          </div>
+          
+          <div id="specs-groups-container" style="display: flex; flex-direction: column; gap: 16px; max-height: 250px; overflow-y: auto; padding-right: 4px;" class="premium-scroll">
+            <!-- Loaded dynamically -->
+          </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
+          <button type="button" class="btn-neumorphic" onclick="closeProductSpecsModal()" style="box-shadow: none; margin: 0; padding: 8px 16px; font-size: 13px;">Cancelar</button>
+          <button type="submit" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0; padding: 8px 16px; font-size: 13px; font-weight: 700;">
+            Guardar Cambios
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
   <script src="/js/sound.js"></script>
+  <script src="/js/menu-builder.js"></script>
   <script src="/js/kitchen.js"></script>
+  <script>
+    let activeCategoryId = 'all';
+    let categoriesList = [];
+    let productsList = [];
+
+    function closeMenuModal() {
+      document.getElementById('product-modal').classList.remove('active');
+      document.getElementById('product-form').reset();
+    }
+
+    function openMenuModal() {
+      document.getElementById('product-modal').classList.add('active');
+    }
+
+    function closeMenuTablesModal() {
+      KitchenApp.closeMenuTablesModal();
+    }
+
+    function setFloorTool(tool) {
+      KitchenApp.setFloorTool(tool);
+    }
+
+    function importGlobalProductFromModal() {
+      KitchenApp.importGlobalProductFromModal();
+    }
+
+    function deleteProductFromModal(prodId) {
+      KitchenApp.deleteProductFromModal(prodId);
+    }
+
+    function filterCategoryModal(catId) {
+      KitchenApp.filterCategoryModal(catId);
+    }
+
+    function closeProductSpecsModal() {
+      KitchenApp.closeProductSpecsModal();
+    }
+
+    function addIngredientOption() {
+      KitchenApp.addIngredientOption();
+    }
+
+    function addModifierGroup() {
+      KitchenApp.addModifierGroup();
+    }
+
+    function addOptionToGroup(groupId) {
+      KitchenApp.addOptionToGroup(groupId);
+    }
+
+    function deleteOptionFromGroup(groupId, optionId) {
+      KitchenApp.deleteOptionFromGroup(groupId, optionId);
+    }
+
+    function deleteModifierGroup(groupId) {
+      KitchenApp.deleteModifierGroup(groupId);
+    }
+
+    function handleSpecsSubmit(e) {
+      KitchenApp.handleSpecsSubmit(e);
+    }
+
+    function handleProductSubmit(e) {
+      KitchenApp.handleProductSubmit(e);
+    }
+  </script>
   <script>
     // Register Service Worker for PWA installability
     if ('serviceWorker' in navigator) {

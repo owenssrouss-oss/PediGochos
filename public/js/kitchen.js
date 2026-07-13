@@ -622,6 +622,712 @@ class KitchenController {
     alert(`🚴 ¡Domicilio Solicitado!\nSe ha asignado un repartidor de DeliverCity para el pedido #${orderNum}. Está en camino al establecimiento.`);
     this.updateOrderStatus(orderId, 'Entregado');
   }
+
+  // Immersive local layout & menu management
+  async openMenuTablesModal() {
+    if (!this.selectedId) return;
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+
+    window.activeShopIdForMenu = est.id; // Sync with global helper references
+    this.activeFloorTool = 'table'; // Default tool
+
+    // Update titles and subtext
+    document.getElementById('designer-modal-shop-name').innerText = `🍔 Taller de Menú y Distribución: ${est.name}`;
+    document.getElementById('designer-modal-shop-subtext').innerText = `Diseño de distribución de mesas y carta de comida para ${est.name}`;
+
+    // Open Modal
+    document.getElementById('menu-tables-modal').classList.add('active');
+
+    // Initialize Layout Grid & Catalog
+    this.renderFloorGrid();
+    this.loadModalProducts();
+    this.loadModalImportCatalog();
+  }
+
+  closeMenuTablesModal() {
+    document.getElementById('menu-tables-modal').classList.remove('active');
+    this.loadEstablishments(); // Reload changes locally
+  }
+
+  setFloorTool(tool) {
+    this.activeFloorTool = tool;
+    
+    // Update button active classes
+    const tools = ['table', 'wall', 'eraser'];
+    tools.forEach(t => {
+      const btn = document.getElementById(`tool-${t}`);
+      if (btn) {
+        if (t === tool) {
+          btn.style.background = 'var(--accent)';
+          btn.style.color = '#121216';
+        } else {
+          btn.style.background = 'rgba(255,255,255,0.05)';
+          btn.style.color = '#ffffff';
+        }
+      }
+    });
+  }
+
+  renderFloorGrid() {
+    const canvas = document.getElementById('floor-grid-canvas');
+    if (!canvas) return;
+    canvas.innerHTML = '';
+
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+
+    if (!est.layout) est.layout = [];
+
+    // Render 10x10 grid cells
+    for (let y = 0; y < 10; y++) {
+      for (let x = 0; x < 10; x++) {
+        const cell = document.createElement('div');
+        cell.className = 'floor-cell';
+        cell.style.background = 'rgba(255, 255, 255, 0.02)';
+        cell.style.border = '1px solid rgba(255, 255, 255, 0.05)';
+        cell.style.borderRadius = '6px';
+        cell.style.display = 'flex';
+        cell.style.alignItems = 'center';
+        cell.style.justifyContent = 'center';
+        cell.style.cursor = 'pointer';
+        cell.style.transition = 'all 0.15s';
+        
+        // Hover effects
+        cell.onmouseenter = () => cell.style.background = 'rgba(255, 255, 255, 0.08)';
+        cell.onmouseleave = () => {
+          const item = est.layout.find(c => c.x === x && c.y === y);
+          if (item) {
+            if (item.type === 'wall') cell.style.background = '#475569';
+            else if (item.type === 'table') cell.style.background = 'rgba(16, 185, 129, 0.15)';
+          } else {
+            cell.style.background = 'rgba(255, 255, 255, 0.02)';
+          }
+        };
+
+        // Check if layout item exists at x, y
+        const item = est.layout.find(c => c.x === x && c.y === y);
+        if (item) {
+          if (item.type === 'wall') {
+            cell.style.background = '#475569';
+            cell.style.borderColor = '#64748b';
+            cell.innerHTML = '<span style="font-size:12px;">🧱</span>';
+          } else if (item.type === 'table') {
+            cell.style.background = 'rgba(16, 185, 129, 0.15)';
+            cell.style.borderColor = 'var(--accent)';
+            cell.innerHTML = `
+              <div style="display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--accent);">
+                <span style="font-size:10px;">🪑</span>
+                <span style="font-size:8.5px; font-weight:800;">#${item.number}</span>
+              </div>
+            `;
+          }
+        }
+
+        cell.onclick = () => this.handleCellClick(x, y);
+        canvas.appendChild(cell);
+      }
+    }
+  }
+
+  async handleCellClick(x, y) {
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+
+    if (!est.layout) est.layout = [];
+
+    const existingIdx = est.layout.findIndex(c => c.x === x && c.y === y);
+
+    if (this.activeFloorTool === 'eraser') {
+      if (existingIdx !== -1) {
+        est.layout.splice(existingIdx, 1);
+      }
+    } else if (this.activeFloorTool === 'wall') {
+      const cellData = { x, y, type: 'wall' };
+      if (existingIdx !== -1) est.layout[existingIdx] = cellData;
+      else est.layout.push(cellData);
+    } else if (this.activeFloorTool === 'table') {
+      // Calculate sequence table number
+      const existingTables = est.layout.filter(c => c.type === 'table');
+      let number = existingTables.length + 1;
+      if (existingIdx !== -1 && est.layout[existingIdx].type === 'table') {
+        number = est.layout[existingIdx].number;
+      }
+      
+      const cellData = { x, y, type: 'table', number };
+      if (existingIdx !== -1) est.layout[existingIdx] = cellData;
+      else est.layout.push(cellData);
+    }
+
+    // Auto sequential normalization for table numbers
+    let tCount = 1;
+    est.layout.forEach(cell => {
+      if (cell.type === 'table') {
+        cell.number = tCount++;
+      }
+    });
+
+    this.renderFloorGrid();
+
+    // Persist layout coordinates to backend server
+    try {
+      await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          layout: est.layout
+        })
+      });
+    } catch (err) {
+      console.error('Error saving layout cell click:', err);
+    }
+  }
+
+  async loadModalProducts() {
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+
+    // Load category categories
+    if (typeof MenuBuilder !== 'undefined') {
+      const cats = await MenuBuilder.getCategories();
+      window.categoriesList = cats;
+
+      // Populate Category selector inside create product modal
+      const select = document.getElementById('form-category');
+      if (select) {
+        select.innerHTML = '<option value="">-- Selecciona una categoría --</option>';
+        cats.forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat.id;
+          opt.innerText = cat.name;
+          select.appendChild(opt);
+        });
+      }
+    }
+    
+    window.productsList = est.products || [];
+    this.renderModalCategories();
+    this.renderModalProducts();
+  }
+
+  renderModalCategories() {
+    const sidebar = document.getElementById('modal-categories-sidebar');
+    if (!sidebar) return;
+    sidebar.innerHTML = '';
+
+    const allLi = document.createElement('li');
+    allLi.className = `category-item ${window.activeCategoryId === 'all' ? 'active' : ''}`;
+    allLi.innerText = 'Todos';
+    allLi.style.fontSize = '11.5px';
+    allLi.style.padding = '8px 10px';
+    allLi.style.cursor = 'pointer';
+    allLi.style.borderRadius = '8px';
+    allLi.onclick = () => this.filterCategoryModal('all');
+    sidebar.appendChild(allLi);
+
+    window.categoriesList.forEach(cat => {
+      const li = document.createElement('li');
+      li.className = `category-item ${window.activeCategoryId === cat.id ? 'active' : ''}`;
+      li.innerText = cat.name;
+      li.style.fontSize = '11.5px';
+      li.style.padding = '8px 10px';
+      li.style.cursor = 'pointer';
+      li.style.borderRadius = '8px';
+      li.onclick = () => this.filterCategoryModal(cat.id);
+      sidebar.appendChild(li);
+    });
+  }
+
+  filterCategoryModal(catId) {
+    window.activeCategoryId = catId;
+    this.renderModalCategories();
+    this.renderModalProducts();
+  }
+
+  renderModalProducts() {
+    const grid = document.getElementById('modal-products-catalog-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    let filtered = window.productsList;
+    if (window.activeCategoryId !== 'all') {
+      filtered = window.productsList.filter(p => {
+        if (p.category_id) return p.category_id === window.activeCategoryId;
+        const cat = window.categoriesList.find(c => c.id === window.activeCategoryId);
+        if (cat && p.category) return p.category.toLowerCase().includes(cat.slug);
+        return false;
+      });
+    }
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px;">
+          No hay productos en esta categoría.
+        </div>
+      `;
+      return;
+    }
+
+    filtered.forEach(prod => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.style.background = 'rgba(255, 255, 255, 0.03)';
+      card.style.border = '1px solid rgba(255, 255, 255, 0.05)';
+      card.style.borderRadius = '14px';
+      card.style.padding = '8px';
+      card.style.display = 'flex';
+      card.style.flexDirection = 'column';
+      card.style.gap = '6px';
+      card.style.position = 'relative';
+      card.style.cursor = 'pointer';
+      card.onclick = () => this.openProductSpecsModal(prod.id);
+
+      const imgUrl = prod.image || '/images/burger_royale.jpg';
+
+      card.innerHTML = `
+        <img src="${imgUrl}" alt="${prod.name}" style="width: 100%; aspect-ratio: 1.2/1; object-fit: cover; border-radius: 10px;" onerror="this.src='/images/burger_royale.jpg'">
+        <div style="padding: 0;">
+          <h4 style="color: #ffffff; font-size: 11px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${prod.name}</h4>
+          <p style="font-size: 10px; color: var(--text-muted); line-height: 1.2; margin: 4px 0 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${prod.description || 'Sin descripción.'}</p>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+          <span style="color: var(--accent); font-weight: 700; font-size: 11px;">$${parseFloat(prod.price).toFixed(2)}</span>
+          <button onclick="event.stopPropagation(); deleteProductFromModal('${prod.id}')" style="background: rgba(239, 68, 68, 0.9); border: none; border-radius: 50%; color: #fff; width: 20px; height: 20px; font-size: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700;">✕</button>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  async loadModalImportCatalog() {
+    const select = document.getElementById('modal-import-product-select');
+    if (!select) return;
+    select.innerHTML = `<option value="">Cargando...</option>`;
+
+    try {
+      if (typeof MenuBuilder !== 'undefined' && MenuBuilder.supabase) {
+        const { data, error } = await MenuBuilder.supabase
+          .from('products')
+          .select('*')
+          .order('name');
+        
+        if (error) throw error;
+
+        this.globalProductsCache = data || [];
+        select.innerHTML = `<option value="">-- Selecciona --</option>`;
+        this.globalProductsCache.forEach(prod => {
+          const opt = document.createElement('option');
+          opt.value = prod.id;
+          opt.innerText = prod.name;
+          select.appendChild(opt);
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      select.innerHTML = `<option value="">Error de carga</option>`;
+    }
+  }
+
+  async importGlobalProductFromModal() {
+    const select = document.getElementById('modal-import-product-select');
+    const prodId = select.value;
+    if (!prodId) {
+      alert('Selecciona un producto del catálogo.');
+      return;
+    }
+
+    const selected = this.globalProductsCache.find(p => p.id === prodId);
+    if (!selected) return;
+
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+
+    if (!est.products) est.products = [];
+
+    // Check duplicate
+    if (est.products.some(p => p.name.toLowerCase() === selected.name.toLowerCase())) {
+      alert(`El producto "${selected.name}" ya está en el menú.`);
+      return;
+    }
+
+    const newLocalProduct = {
+      id: `p-${Date.now()}-${Math.floor(Math.random() * 100)}`,
+      name: selected.name,
+      price: parseFloat(selected.price),
+      description: selected.description || '',
+      image: selected.image_url
+    };
+
+    est.products.push(newLocalProduct);
+
+    try {
+      await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          products: est.products
+        })
+      });
+      
+      this.showLocalToast('📥 Producto importado con éxito.');
+      this.loadModalProducts();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async deleteProductFromModal(prodId) {
+    if (!confirm('¿Seguro que deseas eliminar este producto de la carta?')) return;
+
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+
+    est.products = est.products.filter(p => p.id !== prodId);
+
+    try {
+      await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          products: est.products
+        })
+      });
+      
+      this.showLocalToast('🗑️ Producto eliminado de la carta.');
+      this.loadModalProducts();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // Specifications/Ingredients editor modal
+  openProductSpecsModal(productId) {
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+
+    const prod = est.products.find(p => p.id === productId);
+    if (!prod) return;
+
+    this.activeSpecsProductId = productId;
+    
+    document.getElementById('specs-modal-title').innerText = `⚙️ Especificaciones: ${prod.name}`;
+    document.getElementById('specs-product-id').value = productId;
+
+    this.specsIngredients = prod.exclusions ? prod.exclusions.map(e => e.name) : [];
+    this.renderSpecsIngredients();
+
+    this.specsGroups = prod.modifiers ? JSON.parse(JSON.stringify(prod.modifiers)) : [];
+    this.renderSpecsGroups();
+
+    document.getElementById('product-specs-modal').classList.add('active');
+  }
+
+  closeProductSpecsModal() {
+    document.getElementById('product-specs-modal').classList.remove('active');
+  }
+
+  renderSpecsIngredients() {
+    const container = document.getElementById('specs-ingredients-list');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (this.specsIngredients.length === 0) {
+      container.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted);">Sin ingredientes listados</span>`;
+      return;
+    }
+
+    this.specsIngredients.forEach((ing, idx) => {
+      const tag = document.createElement('div');
+      tag.style.display = 'flex';
+      tag.style.alignItems = 'center';
+      tag.style.gap = '6px';
+      tag.style.background = 'rgba(255, 94, 58, 0.1)';
+      tag.style.border = '1px solid rgba(255, 94, 58, 0.25)';
+      tag.style.color = 'var(--accent)';
+      tag.style.padding = '4px 10px';
+      tag.style.borderRadius = '8px';
+      tag.style.fontSize = '12px';
+      tag.style.fontWeight = '700';
+
+      tag.innerHTML = `
+        <span>${ing}</span>
+        <span onclick="KitchenApp.removeIngredientOption(${idx})" style="cursor: pointer; color: #ef4444; font-weight: 900;">✕</span>
+      `;
+      container.appendChild(tag);
+    });
+  }
+
+  addIngredientOption() {
+    const input = document.getElementById('new-ingredient-input');
+    const val = input.value.trim();
+    if (!val) return;
+
+    if (this.specsIngredients.includes(val)) {
+      alert('Ingrediente duplicado.');
+      return;
+    }
+
+    this.specsIngredients.push(val);
+    input.value = '';
+    this.renderSpecsIngredients();
+  }
+
+  removeIngredientOption(idx) {
+    this.specsIngredients.splice(idx, 1);
+    this.renderSpecsIngredients();
+  }
+
+  renderSpecsGroups() {
+    const container = document.getElementById('specs-groups-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (this.specsGroups.length === 0) {
+      container.innerHTML = `<p style="font-size: 12px; color: #64748b; text-align: center; padding: 10px 0;">Sin modificadores.</p>`;
+      return;
+    }
+
+    this.specsGroups.forEach((group, gIdx) => {
+      const gDiv = document.createElement('div');
+      gDiv.style.background = 'rgba(255,255,255,0.02)';
+      gDiv.style.border = '1px solid rgba(255,255,255,0.05)';
+      gDiv.style.borderRadius = '12px';
+      gDiv.style.padding = '12px';
+      gDiv.style.display = 'flex';
+      gDiv.style.flexDirection = 'column';
+      gDiv.style.gap = '10px';
+      gDiv.style.marginBottom = '12px';
+
+      gDiv.innerHTML = `
+        <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
+          <input type="text" value="${group.group_name}" onchange="KitchenApp.updateGroupName('${group.group_id}', this.value)" placeholder="Nombre del grupo" style="flex: 1; padding: 6px 10px; font-size: 12.5px; background: rgba(18,18,22,0.6); border: 1px solid rgba(255,255,255,0.08); color: #fff; border-radius: 8px;">
+          
+          <select onchange="KitchenApp.updateGroupType('${group.group_id}', this.value)" style="background: rgba(18,18,22,0.6); border: 1px solid rgba(255,255,255,0.08); color: #fff; padding: 6px; border-radius: 8px; font-size: 11.5px;">
+            <option value="single" ${group.selection_type === 'single' ? 'selected' : ''}>Única</option>
+            <option value="multiple" ${group.selection_type === 'multiple' ? 'selected' : ''}>Múltiple</option>
+          </select>
+
+          <label style="display: flex; align-items: center; gap: 4px; font-size: 11.5px; cursor: pointer; color: #64748b; margin:0;">
+            <input type="checkbox" ${group.is_required ? 'checked' : ''} onchange="KitchenApp.updateGroupRequired('${group.group_id}', this.checked)"> Oblig.
+          </label>
+
+          <button type="button" onclick="KitchenApp.deleteModifierGroup('${group.group_id}')" style="background: none; border: none; color: #ef4444; font-size: 14px; cursor: pointer; padding: 0; width: auto; height: auto;">🗑️</button>
+        </div>
+
+        <div style="border-top: 1px dashed rgba(255,255,255,0.04); padding-top: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 11.5px; color: #64748b; font-weight: 700;">Adicionales</span>
+            <button type="button" class="btn-neumorphic" onclick="KitchenApp.addOptionToGroup('${group.group_id}')" style="margin: 0; padding: 4px 8px; font-size: 10px; height: 24px;">➕ Opción</button>
+          </div>
+          <div id="options-list-${group.group_id}" style="display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+      `;
+
+      const optList = gDiv.querySelector(`#options-list-${group.group_id}`);
+      group.options.forEach((opt, oIdx) => {
+        const oDiv = document.createElement('div');
+        oDiv.style.display = 'flex';
+        oDiv.style.gap = '8px';
+        oDiv.style.alignItems = 'center';
+
+        oDiv.innerHTML = `
+          <input type="text" value="${opt.name}" onchange="KitchenApp.updateOptionName('${group.group_id}', '${opt.option_id}', this.value)" style="flex: 1; padding: 4px 8px; font-size: 11.5px; background: rgba(18,18,22,0.4); border: 1px solid rgba(255,255,255,0.05); color: #fff; border-radius: 6px;">
+          <input type="number" value="${opt.price}" onchange="KitchenApp.updateOptionPrice('${group.group_id}', '${opt.option_id}', this.value)" style="width: 80px; padding: 4px 8px; font-size: 11.5px; background: rgba(18,18,22,0.4); border: 1px solid rgba(255,255,255,0.05); color: #fff; border-radius: 6px;">
+          <button type="button" onclick="KitchenApp.deleteOptionFromGroup('${group.group_id}', '${opt.option_id}')" style="background: none; border: none; color: #ef4444; font-size: 11px; cursor: pointer; padding: 0; width: auto; height: auto;">✕</button>
+        `;
+        optList.appendChild(oDiv);
+      });
+
+      container.appendChild(gDiv);
+    });
+  }
+
+  addModifierGroup() {
+    this.specsGroups.push({
+      group_id: 'g-' + Date.now() + '-' + Math.floor(Math.random() * 100),
+      group_name: 'Adicionales',
+      selection_type: 'single',
+      is_required: false,
+      options: []
+    });
+    this.renderSpecsGroups();
+  }
+
+  deleteModifierGroup(groupId) {
+    this.specsGroups = this.specsGroups.filter(g => g.group_id !== groupId);
+    this.renderSpecsGroups();
+  }
+
+  updateGroupName(groupId, val) {
+    const group = this.specsGroups.find(g => g.group_id === groupId);
+    if (group) group.group_name = val.trim();
+  }
+
+  updateGroupType(groupId, val) {
+    const group = this.specsGroups.find(g => g.group_id === groupId);
+    if (group) group.selection_type = val;
+  }
+
+  updateGroupRequired(groupId, val) {
+    const group = this.specsGroups.find(g => g.group_id === groupId);
+    if (group) group.is_required = val;
+  }
+
+  addOptionToGroup(groupId) {
+    const group = this.specsGroups.find(g => g.group_id === groupId);
+    if (group) {
+      group.options.push({
+        option_id: 'opt-' + Date.now() + '-' + Math.floor(Math.random() * 100),
+        name: 'Nuevo adicional',
+        price: 0
+      });
+      this.renderSpecsGroups();
+    }
+  }
+
+  deleteOptionFromGroup(groupId, optionId) {
+    const group = this.specsGroups.find(g => g.group_id === groupId);
+    if (group) {
+      group.options = group.options.filter(o => o.option_id !== optionId);
+      this.renderSpecsGroups();
+    }
+  }
+
+  updateOptionName(groupId, optionId, val) {
+    const group = this.specsGroups.find(g => g.group_id === groupId);
+    if (group) {
+      const opt = group.options.find(o => o.option_id === optionId);
+      if (opt) opt.name = val.trim();
+    }
+  }
+
+  updateOptionPrice(groupId, optionId, val) {
+    const group = this.specsGroups.find(g => g.group_id === groupId);
+    if (group) {
+      const opt = group.options.find(o => o.option_id === optionId);
+      if (opt) opt.price = parseFloat(val) || 0;
+    }
+  }
+
+  async handleSpecsSubmit(e) {
+    e.preventDefault();
+    if (!this.activeSpecsProductId) return;
+
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+
+    const prod = est.products.find(p => p.id === this.activeSpecsProductId);
+    if (!prod) return;
+
+    prod.exclusions = this.specsIngredients.map((name, i) => ({
+      id: `ex-${i}`,
+      name: name
+    }));
+
+    prod.modifiers = this.specsGroups;
+
+    try {
+      await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          products: est.products
+        })
+      });
+
+      this.showLocalToast('✅ Especificaciones guardadas con éxito.');
+      this.closeProductSpecsModal();
+      this.loadModalProducts();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async handleProductSubmit(e) {
+    e.preventDefault();
+    const catSelect = document.getElementById('form-category').value;
+    const nameInput = document.getElementById('form-name').value;
+    const descInput = document.getElementById('form-desc').value;
+    const priceInput = document.getElementById('form-price').value;
+    const fileInput = document.getElementById('form-image').files[0];
+
+    if (!fileInput) {
+      alert('Selecciona una imagen.');
+      return;
+    }
+
+    try {
+      const imageUrl = await MenuBuilder.uploadProductImage(fileInput);
+      const newProduct = await MenuBuilder.createProduct(catSelect, nameInput, descInput, priceInput, imageUrl);
+      
+      await this.importNewProductToActiveShop(newProduct);
+      closeMenuModal();
+      this.showLocalToast('🎉 Producto creado e importado.');
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async importNewProductToActiveShop(newProduct) {
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+
+    if (!est.products) est.products = [];
+
+    const newLocalProduct = {
+      id: `p-${Date.now()}-${Math.floor(Math.random() * 100)}`,
+      name: newProduct.name,
+      price: parseFloat(newProduct.price),
+      description: newProduct.description || '',
+      image: newProduct.image_url
+    };
+
+    est.products.push(newLocalProduct);
+
+    try {
+      await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          products: est.products
+        })
+      });
+      this.loadModalProducts();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  showLocalToast(message, isError = false) {
+    const container = document.getElementById('toast-center');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast ${isError ? 'error' : ''}`;
+    toast.innerHTML = `
+      <span>${isError ? '⚠️' : '⚡'}</span>
+      <p>${message}</p>
+    `;
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.animation = 'slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1) reverse forwards';
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, 4000);
+  }
+
+  callDelivery(orderId) {
+    Sound.playBell();
+    const orderNum = orderId.split('-')[2] || 'ORD';
+    alert(`🚴 ¡Domicilio Solicitado!\nSe ha asignado un repartidor de DeliverCity para el pedido #${orderNum}. Está en camino al establecimiento.`);
+    this.updateOrderStatus(orderId, 'Entregado');
+  }
 }
 
 const KitchenApp = new KitchenController();
