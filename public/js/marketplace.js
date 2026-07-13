@@ -1,7 +1,7 @@
 /* Customer Marketplace App Logic */
 
 const CATEGORY_EMOJIS = {
-  comidas: ['🍔', '🍕', '🍣', '🌮', '🍜', '🍰', '☕'],
+  comidas: ['🍔', '🍕', '🌯', '🫓', '🌽', '🍞', '🥖', '🍣', '🌮', '🍜', '🍰', '☕'],
   farmacias: ['💊', '🩹', '🧪', '🧼', '🧴', '🩺'],
   mercados: ['🛒', '🍎', '🥛', '🍞', '🥩', '🧀', '🍌'],
   ferreterias: ['🛠️', '🔨', '🔩', '🔧', '🪚', '🧰', '📐']
