@@ -1,0 +1,147 @@
+/* Global Design Tokens & Common Styles */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --font-main: 'Outfit', sans-serif;
+  
+  /* Brand Colors */
+  --primary: #FF5E3A; /* Vibrant Coral / Rappi Orange */
+  --primary-hover: #E04D2A;
+  --secondary: #1F2937;
+  --accent: #FFD700; /* Gold */
+  
+  /* Light Theme Colors (Marketplace) */
+  --bg-app: #F8F9FA;
+  --bg-card: #FFFFFF;
+  --text-main: #111827;
+  --text-muted: #6B7280;
+  --border: #E5E7EB;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+  
+  /* Category Colors */
+  --color-comidas: #FF5E3A;
+  --color-farmacias: #10B981;
+  --color-mercados: #8B5CF6;
+  --color-ferreterias: #3B82F6;
+  
+  /* Status Colors */
+  --status-pending: #EF4444; /* Red */
+  --status-preparing: #F59E0B; /* Amber */
+  --status-ready: #10B981; /* Green */
+  --status-delivered: #6B7280; /* Gray */
+  
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  /* Safe Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base resets */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+button {
+  font-family: var(--font-main);
+  cursor: pointer;
+  border: none;
+  background: none;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+input, select, textarea {
+  font-family: var(--font-main);
+  outline: none;
+  border: 1px solid var(--border);
+  transition: all var(--transition-fast);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Animations */
+@keyframes slideUp {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes badgePop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* Common utility classes */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.premium-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.premium-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.premium-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-full);
+}
+.premium-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.hidden {
+  display: none !important;
+}

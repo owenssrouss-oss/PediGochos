@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeliverCity - Tu Delivery y Pedidos al Instante</title>
+  <meta name="description" content="El mejor marketplace de delivery. Comidas, farmacias, mercados y ferreterías, con entregas en minutos o pedidos directamente a tu mesa.">
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/marketplace.css">
+</head>
+<body>
+
+  <!-- App Header (DeliverCity Style) -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="delivery-address-area">
+        <span class="location-icon">📍</span>
+        <div class="address-text-container">
+          <span class="delivery-label">Entrega en</span>
+          <span class="delivery-address">Calle Principal 123</span>
+        </div>
+      </div>
+      
+      <div class="logo-area" onclick="MarketplaceApp.goHome()">
+        <h1 class="logo-text">Deliver<span>City</span></h1>
+      </div>
+
+      <div class="header-actions" style="display: flex; align-items: center; gap: 12px;">
+        <button class="btn-notification" title="Notificaciones">
+          <span class="bell-icon">🔔</span>
+        </button>
+        
+        <div id="auth-status-container" style="display: flex; align-items: center; gap: 8px;">
+          <button class="btn-notification" onclick="MarketplaceApp.loginWithGoogle()" title="Iniciar Sesión" style="background-color: var(--primary); color: #fff; padding: 6px 12px; font-size: 12px; font-weight: 700; width: auto; height: auto; border-radius: 20px; box-shadow: 0 2px 5px rgba(255, 94, 58, 0.25);">
+            🔑 Ingresar
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Search Bar Section -->
+    <div class="search-section-wrapper">
+      <div class="search-bar-container">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="global-search" placeholder="¿Qué necesitas hoy?" oninput="MarketplaceApp.handleSearch(event)">
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-content">
+    <!-- Home View -->
+    <section id="home-view" class="view active">
+      
+      <!-- Categories Section (Asymmetrical Grid) -->
+      <section class="categories-section">
+        <div class="categories-grid-delivercity">
+          <!-- Restaurantes (Tall Vertical Card) -->
+          <div class="category-card-delivercity card-restaurantes active" data-category="comidas" onclick="MarketplaceApp.selectCategory('comidas')">
+            <div class="category-overlay-dark"></div>
+            <div class="category-card-bg" style="background-image: url('/images/burger_royale.jpg');"></div>
+            <div class="category-card-content">
+              <h4>Restaurantes</h4>
+              <p>Los mejores sabores</p>
+            </div>
+          </div>
+          
+          <!-- Farmacias (Horizontal Card 1) -->
+          <div class="category-card-delivercity card-farmacias" data-category="farmacias" onclick="MarketplaceApp.selectCategory('farmacias')">
+            <div class="category-overlay-dark"></div>
+            <div class="category-card-bg" style="background-image: url('/images/vitamina_c.jpg');"></div>
+            <div class="category-card-content">
+              <h4>Farmacias</h4>
+            </div>
+          </div>
+
+          <!-- Mercados (Horizontal Card 2) -->
+          <div class="category-card-delivercity card-mercados" data-category="mercados" onclick="MarketplaceApp.selectCategory('mercados')">
+            <div class="category-overlay-dark"></div>
+            <div class="category-card-bg" style="background-image: url('/images/pack_frutas.jpg');"></div>
+            <div class="category-card-content">
+              <h4>Mercados</h4>
+            </div>
+          </div>
+
+          <!-- Ferreterías (Horizontal Card 3) -->
+          <div class="category-card-delivercity card-ferreterias" data-category="ferreterias" onclick="MarketplaceApp.selectCategory('ferreterias')">
+            <div class="category-overlay-dark"></div>
+            <div class="category-card-bg" style="background-image: url('/images/destornilladores.jpg'); background-color: #B8860B;"></div>
+            <div class="category-card-content">
+              <h4>Ferreterías</h4>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ofertas del día Section -->
+      <section class="deals-section">
+        <div class="section-header-flex">
+          <div>
+            <h3 class="section-title">Ofertas del día</h3>
+            <p class="section-subtitle">Descuentos que no puedes dejar pasar</p>
+          </div>
+          <a href="#" class="btn-view-all" onclick="event.preventDefault()">Ver todas <span class="arrow-icon">›</span></a>
+        </div>
+        
+        <div class="deals-carousel premium-scroll">
+          <!-- Deal 1 -->
+          <div class="deal-card">
+            <div class="deal-badge red-badge">-40% OFF</div>
+            <div class="deal-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=500&q=80" alt="Pizza Hut" onerror="this.src='/images/burger_royale.jpg'">
+            </div>
+            <div class="deal-content">
+              <h4>Pizza Hut</h4>
+              <p>En pizzas medianas seleccionadas</p>
+            </div>
+          </div>
+
+          <!-- Deal 2 -->
+          <div class="deal-badge-container">
+            <div class="deal-card">
+              <div class="deal-badge green-badge">2x1 Rollos</div>
+              <div class="deal-image-wrapper">
+                <img src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=500&q=80" alt="Sushi Roll Co." onerror="this.src='/images/pack_frutas.jpg'">
+              </div>
+              <div class="deal-content">
+                <h4>Sushi Roll Co.</h4>
+                <p>Solo por hoy</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Establishments List (Popular) -->
+      <section class="establishments-section">
+        <div class="section-header-flex">
+          <div>
+            <h3 class="section-title" id="establishments-title">Restaurantes populares</h3>
+          </div>
+          <a href="#" class="btn-view-all" onclick="event.preventDefault()">Ver todos <span class="arrow-icon">›</span></a>
+        </div>
+        <div class="establishments-list-delivercity" id="establishments-grid">
+          <!-- Dynamically filled -->
+        </div>
+      </section>
+    </section>
+
+    <!-- Establishment Details View -->
+    <section id="establishment-view" class="view">
+      <div class="establishment-header" id="est-banner">
+        <button class="btn-back" onclick="MarketplaceApp.goHome()">⬅ Volver a Categorías</button>
+        <div class="est-header-content">
+          <div class="est-logo" id="est-logo">🍔</div>
+          <div class="est-details-text">
+            <h2 id="est-name">Nombre de Comercio</h2>
+            <p id="est-desc">Descripción del comercio</p>
+            <div class="est-meta">
+              <span class="est-badge" id="est-category-badge">Comida</span>
+              <span class="est-delivery-time">⏱️ 20-30 min</span>
+              <span class="est-rating">⭐ 4.8</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="establishment-body">
+        <div class="products-section">
+          <h3 class="section-title">Nuestros Productos</h3>
+          <div class="products-grid" id="products-grid">
+            <!-- Dynamically filled -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating Cart Button -->
+  <button class="floating-cart-btn" id="floating-cart" onclick="MarketplaceApp.openCartModal()">
+    <span class="cart-icon">🛒</span>
+    <span class="cart-count badge-pop" id="cart-badge-count">0</span>
+    <span class="cart-total" id="cart-badge-total">$0.00</span>
+  </button>
+
+  <!-- Cart Modal -->
+  <div class="modal-overlay" id="cart-modal">
+    <div class="modal-content cart-modal-content">
+      <div class="modal-header">
+        <h3>Tu Carrito</h3>
+        <button class="btn-close" onclick="MarketplaceApp.closeCartModal()">✕</button>
+      </div>
+      
+      <div class="modal-body premium-scroll" id="cart-items-container">
+        <!-- Dynamically filled -->
+      </div>
+      
+      <div class="cart-checkout-form" id="checkout-form">
+        <h4>Detalles del Pedido</h4>
+        
+        <div class="order-type-toggle">
+          <button class="btn-toggle active" id="type-delivery-btn" onclick="MarketplaceApp.setOrderType('delivery')">🚴 Delivery</button>
+          <button class="btn-toggle" id="type-mesa-btn" onclick="MarketplaceApp.setOrderType('mesa')">🍽️ Consumo en Mesa</button>
+        </div>
+
+        <!-- Mesa Form Fields -->
+        <div class="form-group-dynamic hidden" id="group-mesa">
+          <label for="order-table-number">Número de Mesa <span class="required">*</span></label>
+          <input type="number" id="order-table-number" placeholder="Ej. 5" min="1">
+        </div>
+
+        <!-- Delivery Form Fields -->
+        <div class="form-group-dynamic" id="group-delivery">
+          <div class="form-group">
+            <label for="order-customer-name">Tu Nombre <span class="required">*</span></label>
+            <input type="text" id="order-customer-name" placeholder="Ej. Owen Pérez">
+          </div>
+          <div class="form-group">
+            <label for="order-phone">Teléfono de Contacto <span class="required">*</span></label>
+            <input type="tel" id="order-phone" placeholder="Ej. +58 412 1234567">
+          </div>
+          <div class="form-group">
+            <label for="order-address">Dirección de Entrega <span class="required">*</span></label>
+            <textarea id="order-address" placeholder="Ej. Av. Principal, Edf. Coral, Apto 4B"></textarea>
+          </div>
+        </div>
+
+        <!-- Warning for Multi-Establishment delivery fees -->
+        <div id="multi-delivery-warning" class="multi-delivery-warning-container hidden">
+          <!-- Filled dynamically -->
+        </div>
+
+        <div class="cart-summary-totals">
+          <div class="total-row">
+            <span>Subtotal</span>
+            <span id="cart-subtotal">$0.00</span>
+          </div>
+          <div class="total-row delivery-cost-row">
+            <span>Costo de Envío</span>
+            <span id="cart-delivery-cost">$2.00</span>
+          </div>
+          <hr>
+          <div class="total-row grand-total">
+            <span>Total</span>
+            <span id="cart-grand-total">$0.00</span>
+          </div>
+        </div>
+
+        <!-- Terms & verification checkbox -->
+        <div class="checkout-terms-container" style="margin-top: 20px; margin-bottom: 15px; display: flex; align-items: flex-start; gap: 8px; text-align: left; font-size: 13px; color: var(--text-muted);">
+          <input type="checkbox" id="checkout-accept-terms" style="width: auto; height: auto; margin-top: 3px; cursor: pointer;">
+          <label for="checkout-accept-terms" style="cursor: pointer; line-height: 1.4;">
+            Acepto los <a href="#" onclick="MarketplaceApp.openTermsModal(event)" style="color: var(--primary); text-decoration: underline; font-weight: 700;">Términos y Condiciones</a> y autorizo la verificación telefónica de mi pedido para evitar fraudes.
+          </label>
+        </div>
+
+        <button class="btn-submit-order" onclick="MarketplaceApp.submitOrder()">
+          🚀 Enviar Pedido en Tiempo Real
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Terms and Conditions Modal -->
+  <div class="modal-overlay" id="terms-modal">
+    <div class="modal-content" style="max-width: 480px; margin: auto; border-radius: 16px; box-shadow: var(--shadow-lg);">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+        <h3 style="font-weight: 800; font-size: 18px;">📋 Términos & Verificación</h3>
+        <button class="btn-close" onclick="MarketplaceApp.closeTermsModal()">✕</button>
+      </div>
+      <div class="modal-body premium-scroll" style="max-height: 50vh; font-size: 13.5px; line-height: 1.5; color: #475569; text-align: left; padding: 15px 0;">
+        <h4 style="color: #0F172A; margin-top: 0; font-size: 14.5px; font-weight: 700;">1. Verificación Telefónica Antifraude</h4>
+        <p style="margin-bottom: 12px;">Para proteger a nuestros repartidores y establecimientos afiliados, <strong>todo pedido está sujeto a verificación telefónica</strong>. El comercio podrá llamarle al número provisto para confirmar la orden antes de comenzar la preparación.</p>
+        
+        <h4 style="color: #0F172A; font-size: 14.5px; font-weight: 700;">2. Compromiso de Recepción y Pago</h4>
+        <p style="margin-bottom: 12px;">Al enviar esta solicitud, el cliente asume el compromiso formal de recibir el pedido y realizar el pago total indicado (en efectivo o mediante la plataforma, según corresponda).</p>
+        
+        <h4 style="color: #0F172A; font-size: 14.5px; font-weight: 700;">3. Política de Privacidad de Datos</h4>
+        <p style="margin-bottom: 12px;">Sus datos de contacto y dirección se compartirán únicamente con el comercio y el repartidor para completar la entrega física de esta orden específica.</p>
+      </div>
+      <div class="modal-footer" style="padding-top: 12px; border-top: 1px solid var(--border); text-align: right;">
+        <button class="btn-submit-order" onclick="MarketplaceApp.closeTermsModal()" style="padding: 10px 18px; font-size: 13px; margin: 0; width: auto; display: inline-block;">Entendido y Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Customizer Modal -->
+  <div class="modal-overlay" id="customizer-modal">
+    <div class="modal-content customizer-modal-content">
+      <div class="modal-header">
+        <h3 id="customizer-title">Personalizar Producto</h3>
+        <button class="btn-close" onclick="MarketplaceApp.closeCustomizerModal()">✕</button>
+      </div>
+      
+      <div class="modal-body premium-scroll">
+        <!-- Product Main Info (Header) -->
+        <div class="customizer-product-header">
+          <div class="customizer-product-img-wrapper" id="customizer-product-img-wrapper">
+            <!-- image or placeholder -->
+          </div>
+          <div class="customizer-product-info">
+            <h4 id="customizer-product-name">Nombre de Producto</h4>
+            <p id="customizer-product-desc" style="color: var(--text-muted); font-size: 13px; margin-top: 4px;"></p>
+            <span class="customizer-base-price-tag" id="customizer-base-price">$0</span>
+          </div>
+        </div>
+
+        <!-- Pizza Halves Switch (Special Case) -->
+        <div class="pizza-halves-container hidden" id="pizza-halves-section">
+          <div class="pizza-switch-row">
+            <span class="pizza-switch-label">🍕 Preparación de la Pizza</span>
+            <div class="pizza-toggle-buttons">
+              <button class="btn-pizza-toggle active" id="pizza-whole-btn" onclick="MarketplaceApp.setPizzaMode('whole')">Toda la pizza</button>
+              <button class="btn-pizza-toggle" id="pizza-halves-btn" onclick="MarketplaceApp.setPizzaMode('halves')">Por Mitades</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columns Container (for halves/normal) -->
+        <div class="customizer-columns-wrapper" id="customizer-columns">
+          <!-- Column A (Single / Whole / Mitad A) -->
+          <div class="customizer-column" id="customizer-col-a">
+            <div class="customizer-column-header hidden" id="col-a-header">Mitad A</div>
+            <div class="modifiers-groups-container" id="modifiers-groups-a">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+
+          <!-- Column B (Mitad B) -->
+          <div class="customizer-column hidden" id="customizer-col-b">
+            <div class="customizer-column-header">Mitad B</div>
+            <div class="modifiers-groups-container" id="modifiers-groups-b">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Special Notes Area -->
+        <div class="form-group" style="margin-top: 20px;">
+          <label for="customizer-special-notes">Observaciones / Notas Especiales</label>
+          <textarea id="customizer-special-notes" placeholder="Ej. Enviar salsas aparte, carne bien cocida, etc." style="width: 100%; border-radius: 8px; padding: 10px; font-size: 13.5px; height: 60px; resize: none;"></textarea>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="customizer-footer">
+        <div class="quantity-selector-container">
+          <button class="btn-qty-large" onclick="MarketplaceApp.updateCustomizerQty(-1)">-</button>
+          <span id="customizer-quantity-display">1</span>
+          <button class="btn-qty-large" onclick="MarketplaceApp.updateCustomizerQty(1)">+</button>
+        </div>
+        <button class="btn-add-to-cart-large" id="btn-confirm-add" onclick="MarketplaceApp.confirmCustomizerAdd()">
+          Agregar al Carrito • $0
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-nav-bar">
+    <!-- Home Tab -->
+    <button class="mobile-nav-item active" id="m-nav-home" onclick="MarketplaceApp.goHome()">
+      <span class="mobile-nav-icon">🏠</span>
+      <span class="mobile-nav-label">Inicio</span>
+    </button>
+    
+    <!-- Cart Tab -->
+    <button class="mobile-nav-item" id="m-nav-cart" onclick="MarketplaceApp.openCartModal()">
+      <span class="mobile-nav-icon">🛒</span>
+      <span class="mobile-nav-label">Carrito</span>
+    </button>
+  </nav>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast hidden">Mensaje de notificación</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-helper.js"></script>
+  <script src="/js/sound.js"></script>
+  <script src="/js/marketplace.js"></script>
+</body>
+</html>

@@ -1,0 +1,441 @@
+/* Merchant Portal CSS (Dark Mode Kitchen Display System) */
+
+body {
+  background-color: #0F172A; /* Slate 900 */
+  color: #F1F5F9; /* Slate 100 */
+}
+
+/* Header style override */
+.merchant-header {
+  background-color: #1E293B; /* Slate 800 */
+  border-bottom: 1px solid #334155;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.header-container-merchant {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.brand-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.portal-icon {
+  font-size: 26px;
+}
+
+.brand-area h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.brand-area h2 span {
+  color: var(--primary);
+}
+
+/* Shop selector */
+.shop-select-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.shop-select-area label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #94A3B8;
+}
+
+#merchant-shop-select {
+  background-color: #0F172A;
+  color: #FFFFFF;
+  border: 1px solid #475569;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#merchant-shop-select:focus {
+  border-color: var(--primary);
+}
+
+/* Connection Status Badge */
+.status-badge {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.status-badge.online {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.status-badge.offline {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #EF4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+/* Dashboard content */
+.merchant-dashboard-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  position: relative;
+  min-height: calc(100vh - 75px);
+}
+
+/* Overlay when no shop is selected */
+.no-shop-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.95);
+  z-index: 5;
+  transition: opacity 0.3s ease;
+}
+
+.overlay-card {
+  text-align: center;
+  background-color: #1E293B;
+  padding: 48px;
+  border-radius: var(--radius-lg);
+  border: 1px solid #334155;
+  max-width: 450px;
+  box-shadow: var(--shadow-lg);
+}
+
+.overlay-icon {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 20px;
+  animation: float 4s ease-in-out infinite;
+}
+
+.overlay-card h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.overlay-card p {
+  color: #94A3B8;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Stats Ribbon */
+.stats-ribbon {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  flex: 1;
+  background-color: #1E293B;
+  border: 1px solid #334155;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stat-num {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+#stat-pending { color: #EF4444; }
+#stat-preparing { color: #F59E0B; }
+#stat-completed { color: #10B981; }
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Kanban Board layout */
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  height: calc(100vh - 240px);
+  min-height: 500px;
+}
+
+.kanban-column {
+  background-color: #1E293B;
+  border-radius: var(--radius-lg);
+  border: 1px solid #334155;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.column-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #334155;
+}
+
+.column-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.column-header.pending { border-bottom-color: #EF4444; color: #EF4444; }
+.column-header.preparing { border-bottom-color: #F59E0B; color: #F59E0B; }
+.column-header.ready { border-bottom-color: #10B981; color: #10B981; }
+
+.column-count {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.column-cards {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Order Card style */
+.order-card {
+  background-color: #0F172A;
+  border: 1px solid #334155;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all var(--transition-fast);
+  animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+  border-color: #475569;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #1E293B;
+  padding-bottom: 10px;
+}
+
+.order-id-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748B;
+}
+
+.order-type-badge {
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.order-type-badge.delivery {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #F87171;
+}
+
+.order-type-badge.mesa {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #60A5FA;
+}
+
+.order-timer {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.order-timer.late {
+  color: #EF4444;
+  animation: pulse 1s infinite alternate;
+}
+
+.customer-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #F8FAFC;
+}
+
+.order-items-list {
+  list-style: none;
+  padding: 0;
+}
+
+.order-item-detail {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding: 4px 0;
+  border-bottom: 1px dashed #1E293B;
+}
+
+.order-item-qty {
+  font-weight: 700;
+  color: var(--primary);
+  margin-right: 8px;
+}
+
+.order-item-name {
+  flex: 1;
+  color: #CBD5E1;
+}
+
+.order-address-box {
+  background-color: #1E293B;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  border-left: 3px solid var(--primary);
+}
+
+.order-address-box strong {
+  display: block;
+  margin-bottom: 2px;
+  color: #94A3B8;
+}
+
+.order-address-box p {
+  color: #E2E8F0;
+  word-break: break-all;
+}
+
+.order-total-price {
+  font-size: 14px;
+  font-weight: 700;
+  text-align: right;
+  color: #10B981;
+}
+
+.btn-card-action {
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 13px;
+  color: #FFFFFF;
+  text-align: center;
+}
+
+.btn-card-action.start {
+  background-color: #F59E0B;
+}
+.btn-card-action.start:hover {
+  background-color: #D97706;
+}
+
+.btn-card-action.ready {
+  background-color: #10B981;
+}
+.btn-card-action.ready:hover {
+  background-color: #059669;
+}
+
+.btn-card-action.archive {
+  background-color: #475569;
+}
+.btn-card-action.archive:hover {
+  background-color: #334155;
+}
+
+/* Sound play test floating button */
+.sound-test-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background-color: #334155;
+  color: #FFFFFF;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  font-size: 18px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+}
+
+.sound-test-btn:hover {
+  background-color: #475569;
+  transform: scale(1.05);
+}
+
+@keyframes pulse {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+/* Responsive KDS */
+@media (max-width: 1024px) {
+  .kanban-board {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .kanban-column {
+    height: 450px;
+  }
+  .stats-ribbon {
+    flex-wrap: wrap;
+  }
+}
+
+/* Specs rendering in Kitchen comanda */
+.order-item-specs {
+  font-size: 11.5px;
+  color: #94A3B8; /* Slate 400 */
+  margin-top: 4px;
+  padding-left: 28px;
+  line-height: 1.4;
+  font-style: italic;
+  white-space: pre-wrap;
+  border-left: 2px solid #475569; /* Slate 600 line */
+  margin-left: 10px;
+}
+

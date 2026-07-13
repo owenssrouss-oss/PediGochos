@@ -1,0 +1,462 @@
+{
+  "establishments": [
+    {
+      "id": "pizza-1",
+      "name": "Pizzería Bella Italia",
+      "description": "Pizzas artesanales al horno de leña con ingredientes frescos de la nonna.",
+      "category": "comidas",
+      "logo": "🍕",
+      "bannerType": "gradient",
+      "banner": "linear-gradient(135deg, #E52D27, #B31217)",
+      "linkKey": "123456",
+      "delivery_fee": 3500,
+      "products": [
+        {
+          "id": "p1-p1",
+          "name": "Pizza Margherita",
+          "description": "Salsa Pomodoro San Marzano, mozzarella fior di latte fresca, hojas de albahaca y aceite de oliva virgen extra.",
+          "price": 15000,
+          "base_price": 15000,
+          "category": "Pizzas",
+          "image": "/images/pack_frutas.jpg",
+          "exclusions": [
+            "Albahaca",
+            "Orégano"
+          ],
+          "modifiers": [
+            {
+              "group_id": "mod_pizza_01",
+              "group_name": "Elegir salsa de base",
+              "selection_type": "single",
+              "is_required": true,
+              "options": [
+                {
+                  "option_id": "opt_s1",
+                  "name": "Salsa Pomodoro",
+                  "extra_price": 0
+                },
+                {
+                  "option_id": "opt_s2",
+                  "name": "Salsa Blanca (Alfredo)",
+                  "extra_price": 1000
+                }
+              ]
+            },
+            {
+              "group_id": "mod_pizza_02",
+              "group_name": "Ingredientes Adicionales",
+              "selection_type": "multiple",
+              "is_required": false,
+              "options": [
+                {
+                  "option_id": "opt_ia1",
+                  "name": "Queso Mozzarella Extra",
+                  "extra_price": 2000,
+                  "allow_quantity": true
+                },
+                {
+                  "option_id": "opt_ia2",
+                  "name": "Pepperoni",
+                  "extra_price": 2500,
+                  "allow_quantity": false
+                },
+                {
+                  "option_id": "opt_ia3",
+                  "name": "Champiñones",
+                  "extra_price": 1500,
+                  "allow_quantity": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "farmacia-1",
+      "name": "FarmaSalud 24/7",
+      "description": "Tu bienestar es nuestra prioridad. Medicamentos y cuidado personal siempre cerca.",
+      "category": "farmacias",
+      "logo": "💊",
+      "bannerType": "gradient",
+      "banner": "linear-gradient(135deg, #00FF87, #60EFFF)",
+      "linkKey": "123456",
+      "delivery_fee": 3000,
+      "products": [
+        {
+          "id": "f1-p1",
+          "name": "Botiquín de Primeros Auxilios",
+          "description": "Contiene gasas, vendas, alcohol, algodón, curitas y tijeras para emergencias del hogar.",
+          "price": 15900,
+          "base_price": 15900,
+          "image": "/images/botiquin.jpg"
+        },
+        {
+          "id": "f1-p2",
+          "name": "Suplemento Vitamina C 1000mg",
+          "description": "Frasco con 30 tabletas efervescentes sabor naranja para reforzar el sistema inmunológico.",
+          "price": 8500,
+          "base_price": 8500,
+          "image": "/images/vitamina_c.jpg"
+        },
+        {
+          "id": "f1-p3",
+          "name": "Termómetro Digital Rápido",
+          "description": "Medición precisa de temperatura en 10 segundos, pantalla LCD de fácil lectura.",
+          "price": 12000,
+          "base_price": 12000,
+          "image": "/images/termometro.jpg"
+        }
+      ]
+    },
+    {
+      "id": "mercado-1",
+      "name": "Súper Mercadito Fresh",
+      "description": "Frutas, verduras y abarrotes frescos entregados directo a tu puerta.",
+      "category": "mercados",
+      "logo": "🛒",
+      "bannerType": "gradient",
+      "banner": "linear-gradient(135deg, #4B0082, #8A2BE2)",
+      "linkKey": "123456",
+      "delivery_fee": 4000,
+      "products": [
+        {
+          "id": "m1-p1",
+          "name": "Pack de Frutas de Temporada",
+          "description": "Selección de 2kg de frutas variadas: manzanas rojas, plátanos, naranjas y fresas.",
+          "price": 9900,
+          "base_price": 9900,
+          "image": "/images/pack_frutas.jpg"
+        },
+        {
+          "id": "m1-p2",
+          "name": "Queso Maduro Artesanal 500g",
+          "description": "Queso de leche de vaca seleccionado con 3 meses de maduración, textura cremosa.",
+          "price": 7500,
+          "base_price": 7500,
+          "image": "/images/queso_artesanal.jpg"
+        },
+        {
+          "id": "m1-p3",
+          "name": "Café de Especialidad Molido 250g",
+          "description": "Café de grano selecto con notas de chocolate y avellanas tostadas, tueste medio.",
+          "price": 6800,
+          "base_price": 6800,
+          "image": "/images/cafe_especialidad.jpg"
+        }
+      ]
+    },
+    {
+      "id": "ferreteria-1",
+      "name": "Ferretería El Tornillo Dorado",
+      "description": "Todo lo que necesitas para remodelar, construir y reparar en tu hogar.",
+      "category": "ferreterias",
+      "logo": "🛠️",
+      "bannerType": "gradient",
+      "banner": "linear-gradient(135deg, #1D2671, #C33764)",
+      "linkKey": "123456",
+      "delivery_fee": 5000,
+      "products": [
+        {
+          "id": "t1-p1",
+          "name": "Set de Destornilladores Pro (8 piezas)",
+          "description": "Puntas magnéticas de acero cromo vanadio, mangos ergonómicos antideslizantes.",
+          "price": 18500,
+          "base_price": 18500,
+          "image": "/images/destornilladores.jpg"
+        },
+        {
+          "id": "t1-p2",
+          "name": "Taladro Inalámbrico 20V",
+          "description": "Incluye batería recargable, cargador rápido y juego de brocas estándar.",
+          "price": 65000,
+          "base_price": 65000,
+          "image": "/images/taladro.jpg"
+        },
+        {
+          "id": "t1-p3",
+          "name": "Cinta Métrica Profesional 5m",
+          "description": "Carcasa resistente a impactos y cinta de acero flexible con freno automático.",
+          "price": 5500,
+          "base_price": 5500,
+          "image": "/images/cinta_metrica.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Sabor Urbano Express",
+      "category": "comidas",
+      "description": "Exquisitas hamburguesas al carbón y papas fritas con ingredientes locales de primera.",
+      "logo": "🍔",
+      "bannerType": "gradient",
+      "banner": "linear-gradient(135deg, #FF8C00, #FF4500)",
+      "linkKey": "X53IX6",
+      "products": [
+        {
+          "id": "p-1783668304748-0",
+          "name": "Combo Burguer Clásica",
+          "price": 8500,
+          "description": "Carne de res a la parrilla (150g), queso cheddar derretido, lechuga romana, tomate fresco, pepinillos dulces y salsa tártara en pan de papa.",
+          "exclusions": [
+            "Cebolla",
+            "Pepinillos",
+            "Tomate",
+            "Lechuga"
+          ],
+          "image": "/images/burger_royale.jpg"
+        },
+        {
+          "id": "p-1783668304748-1",
+          "name": "Papas Supremas Cheddar & Tocino",
+          "price": 5500,
+          "description": "Papas fritas cortadas a mano, salsa de queso cheddar fundido, trocitos de tocino crocante y cebollín picado.",
+          "exclusions": [
+            "Tocino",
+            "Cebollín"
+          ],
+          "image": "/images/burger_royale.jpg"
+        }
+      ],
+      "id": "dxfdsfd-1783668304751"
+    },
+    {
+      "name": "Jorge's Hawaian Burguer",
+      "category": "comidas",
+      "description": "Especialistas en hamburguesas hawaianas y sabores tropicales únicos.",
+      "logo": "🍕",
+      "bannerType": "gradient",
+      "banner": "linear-gradient(135deg, #FF8C00, #FF4500)",
+      "linkKey": "X92K51",
+      "products": [
+        {
+          "id": "p-1783668347203-0",
+          "name": "Hamburguesa Hawaiana Especial",
+          "price": 10500,
+          "description": "Carne de res seleccionada (150g), queso mozzarella fundido, jamón ahumado, rodaja de piña caramelizada, lechuga fresca y salsa de piña en pan de ajonjolí.",
+          "exclusions": [
+            "Jamón",
+            "Piña",
+            "Lechuga"
+          ],
+          "image": "/images/burger_royale.jpg"
+        }
+      ],
+      "id": "llano-jjorge-burguer-1783668347206"
+    },
+    {
+      "name": "Burguer Free & Drinks",
+      "category": "comidas",
+      "description": "Comida rápida clásica, snacks deliciosos y refrescos helados.",
+      "logo": "🍔",
+      "bannerType": "gradient",
+      "banner": "linear-gradient(135deg, #FF8C00, #FF4500)",
+      "linkKey": "4FLWVZ",
+      "products": [
+        {
+          "id": "p-1783668377723-0",
+          "name": "Refresco Coca-Cola Sabor Original 350ml",
+          "price": 2500,
+          "description": "Bebida refrescante gaseosa sabor original. Ingredientes: agua carbonatada, azúcares, extractos naturales, cafeína.",
+          "image": "/images/burger_royale.jpg"
+        }
+      ],
+      "id": "burguer-free-1783668377730"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ord-1783668642842-735",
+      "establishmentId": "dxfdsfd-1783668304751",
+      "establishmentName": "dxfdsfd",
+      "items": [
+        {
+          "id": "p-1783668304748-0",
+          "name": "dfsfdfs",
+          "price": 3654,
+          "quantity": 1
+        }
+      ],
+      "total": 3656,
+      "orderType": "delivery",
+      "customerName": "daniel mendez",
+      "tableNumber": null,
+      "deliveryDetails": {
+        "phone": "0414232",
+        "address": "llano jorege"
+      },
+      "status": "Pendiente",
+      "createdAt": "2026-07-10T07:30:42.842Z",
+      "updatedAt": "2026-07-10T07:30:42.842Z"
+    },
+    {
+      "id": "ord-1783668874361-740",
+      "establishmentId": "llano-jjorge-burguer-1783668347206",
+      "establishmentName": "llano jjorge burguer",
+      "items": [
+        {
+          "id": "p-1783668347203-0",
+          "name": "dfsfdfs",
+          "price": 3654,
+          "quantity": 5
+        }
+      ],
+      "total": 18272,
+      "orderType": "delivery",
+      "customerName": "daniel mendez",
+      "tableNumber": null,
+      "deliveryDetails": {
+        "phone": "0414324",
+        "address": "avenida 8 carrera  12- 54 edif"
+      },
+      "status": "Entregado",
+      "createdAt": "2026-07-10T07:34:34.361Z",
+      "updatedAt": "2026-07-10T07:35:37.039Z"
+    },
+    {
+      "id": "ord-1783668962632-304",
+      "establishmentId": "llano-jjorge-burguer-1783668347206",
+      "establishmentName": "llano jjorge burguer",
+      "items": [
+        {
+          "id": "p-1783668347203-0",
+          "name": "dfsfdfs",
+          "price": 3654,
+          "quantity": 2
+        }
+      ],
+      "total": 7310,
+      "orderType": "delivery",
+      "customerName": "sfdfdsd",
+      "tableNumber": null,
+      "deliveryDetails": {
+        "phone": "sfsfd",
+        "address": "sdffd"
+      },
+      "status": "Entregado",
+      "createdAt": "2026-07-10T07:36:02.632Z",
+      "updatedAt": "2026-07-10T07:37:13.718Z"
+    },
+    {
+      "id": "ord-1783668979440-545",
+      "establishmentId": "comida-1",
+      "establishmentName": "Burgers & Co.",
+      "items": [
+        {
+          "id": "c1-p1",
+          "name": "Burger Royale",
+          "price": 12.5,
+          "quantity": 1
+        },
+        {
+          "id": "c1-p2",
+          "name": "Papas Rústicas Trufadas",
+          "price": 5,
+          "quantity": 1
+        },
+        {
+          "id": "c1-p3",
+          "name": "Milkshake Oreo",
+          "price": 6,
+          "quantity": 1
+        }
+      ],
+      "total": 25.5,
+      "orderType": "delivery",
+      "customerName": "dsffsdf",
+      "tableNumber": null,
+      "deliveryDetails": {
+        "phone": "dfsd",
+        "address": "sffsdf"
+      },
+      "status": "Pendiente",
+      "createdAt": "2026-07-10T07:36:19.440Z",
+      "updatedAt": "2026-07-10T07:36:19.440Z"
+    },
+    {
+      "id": "ord-1783668994832-0",
+      "establishmentId": "llano-jjorge-burguer-1783668347206",
+      "establishmentName": "llano jjorge burguer",
+      "items": [
+        {
+          "id": "p-1783668347203-0",
+          "name": "dfsfdfs",
+          "price": 3654,
+          "quantity": 5
+        }
+      ],
+      "total": 18272,
+      "orderType": "delivery",
+      "customerName": "fsdfsdf",
+      "tableNumber": null,
+      "deliveryDetails": {
+        "phone": "fsdfsd",
+        "address": "dfsfds"
+      },
+      "status": "Entregado",
+      "createdAt": "2026-07-10T07:36:34.832Z",
+      "updatedAt": "2026-07-10T07:37:14.079Z"
+    },
+    {
+      "id": "ord-1783669021952-215",
+      "establishmentId": "llano-jjorge-burguer-1783668347206",
+      "establishmentName": "llano jjorge burguer",
+      "items": [
+        {
+          "id": "p-1783668347203-0",
+          "name": "dfsfdfs",
+          "price": 3654,
+          "quantity": 3
+        }
+      ],
+      "total": 10964,
+      "orderType": "delivery",
+      "customerName": "131331",
+      "tableNumber": null,
+      "deliveryDetails": {
+        "phone": "1331",
+        "address": "133"
+      },
+      "status": "Entregado",
+      "createdAt": "2026-07-10T07:37:01.952Z",
+      "updatedAt": "2026-07-10T07:37:14.566Z"
+    },
+    {
+      "id": "ord-1783918580064-131",
+      "establishmentId": "pizza-1",
+      "establishmentName": "Pizzería Bella Italia",
+      "items": [
+        {
+          "id": "p1-p1",
+          "name": "Pizza Margherita",
+          "price": 15000,
+          "quantity": 1,
+          "specifications": "Elegir salsa de base: Salsa Pomodoro",
+          "selected_specifications": {
+            "single_selections": [
+              {
+                "group_name": "Elegir salsa de base",
+                "chosen_option": "Salsa Pomodoro"
+              }
+            ],
+            "add_ons": [],
+            "exclusions": [],
+            "special_notes": ""
+          },
+          "unit_total_calculated": 15000,
+          "subtotal_combined": 15000
+        }
+      ],
+      "total": 18500,
+      "orderType": "delivery",
+      "customerName": "dsds",
+      "tableNumber": null,
+      "deliveryDetails": {
+        "phone": "aasdsa",
+        "address": "asdsadasd"
+      },
+      "status": "Pendiente",
+      "createdAt": "2026-07-13T04:56:20.064Z",
+      "updatedAt": "2026-07-13T04:56:20.064Z"
+    }
+  ]
+}

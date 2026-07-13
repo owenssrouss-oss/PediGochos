@@ -1,0 +1,11 @@
+# Node dependencies
+node_modules/
+
+# Local configuration / credentials
+.env
+
+# System / IDE files
+.DS_Store
+.idea/
+.vscode/
+*.log
