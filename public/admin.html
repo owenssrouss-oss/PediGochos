@@ -198,7 +198,7 @@
       <!-- Interactive Menu Builder Section (Supabase Integrated) -->
       <section class="admin-card" style="grid-column: 1 / -1; margin-top: 30px; display: flex; flex-direction: column; gap: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 16px;">
-          <h3 style="margin: 0; font-size: 20px; font-weight: 800; color: #FFFFFF;">🍔 Creador de Menú Interactivo (Supabase Realtime)</h3>
+          <h3 id="menu-builder-shop-name" style="margin: 0; font-size: 20px; font-weight: 800; color: #FFFFFF;">🍔 Creador de Menú (Selecciona un local para ver su menú)</h3>
           <button class="btn-neumorphic" onclick="openMenuModal()" style="margin: 0;">
             <span>➕</span> Nuevo Producto
           </button>
@@ -233,6 +233,80 @@
 
   <!-- Toast notification -->
   <div id="toast" class="toast hidden">Notificación</div>
+
+  <!-- Glassmorphic Modal: Select Action for Establishment -->
+  <div class="modal-overlay" id="est-action-modal">
+    <div class="modal-content" style="background: #16161c; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); max-width: 400px; text-align: center;">
+      <div class="modal-header">
+        <h3 style="color: #ffffff; text-align: center; width: 100%;">🏪 Acciones del Comercio</h3>
+        <button class="modal-close" onclick="closeEstActionModal()">✕</button>
+      </div>
+      <p id="action-modal-shop-name" style="color: var(--accent); font-weight: 700; margin-bottom: 24px; font-size: 16px;"></p>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <button class="btn-neumorphic" onclick="viewShopMenu()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700;">
+          🔍 Ver Menú en Marketplace
+        </button>
+        <button class="btn-neumorphic" onclick="openEditShopModal()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; background-color: var(--accent); color: #121216; border-color: var(--accent);">
+          ⚙️ Modificar Establecimiento
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glassmorphic Modal: Edit Establishment -->
+  <div class="modal-overlay" id="edit-est-modal">
+    <div class="modal-content" style="background: #16161c; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); max-width: 500px;">
+      <div class="modal-header">
+        <h3 style="color: #ffffff;">⚙️ Modificar Establecimiento</h3>
+        <button class="modal-close" onclick="closeEditShopModal()">✕</button>
+      </div>
+      
+      <form id="edit-shop-form" onsubmit="handleEditShopSubmit(event)">
+        <input type="hidden" id="edit-shop-id">
+
+        <div class="form-group">
+          <label for="edit-shop-name">Nombre del Comercio *</label>
+          <input type="text" id="edit-shop-name" required placeholder="Ej. Parrilla Don Julio" style="width: 100%;">
+        </div>
+
+        <div class="form-group">
+          <label for="edit-shop-description">Descripción *</label>
+          <input type="text" id="edit-shop-description" required placeholder="Ej. Carnes a la parrilla..." style="width: 100%;">
+        </div>
+
+        <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div class="form-group">
+             <label for="edit-shop-logo">Logo (Emoji) *</label>
+             <select id="edit-shop-logo" required style="width: 100%;">
+               <!-- Options dynamically loaded -->
+             </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-shop-delivery">Tasa Domicilio ($) *</label>
+            <input type="number" id="edit-shop-delivery" required min="0" placeholder="Ej. 3000" style="width: 100%;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-shop-banner">URL de Imagen o Gradiente de Portada *</label>
+          <input type="text" id="edit-shop-banner" required placeholder="Ej. linear-gradient(135deg, #FF8C00, #FF4500) o url..." style="width: 100%;">
+        </div>
+
+        <!-- Custom Button / Theme Color -->
+        <div class="form-group">
+          <label for="edit-shop-theme">Color de Acento / Botones (Hexadecimal) *</label>
+          <input type="color" id="edit-shop-theme" value="#FF5E3A" style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: none; cursor: pointer; padding: 0;">
+        </div>
+
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" class="btn-neumorphic" onclick="closeEditShopModal()" style="box-shadow: none; margin: 0;">Cancelar</button>
+          <button type="submit" id="btn-submit-edit-shop" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0;">
+            <span>Guardar Cambios</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Glassmorphic Modal: Create Product -->
   <div class="modal-overlay" id="product-modal">
@@ -291,11 +365,12 @@
 
   <script src="/js/admin.js"></script>
   <script src="/js/menu-builder.js"></script>
-  
+
   <script>
     let activeCategoryId = 'all';
     let categoriesList = [];
     let productsList = [];
+    window.activeShopIdForMenu = '';
 
     // Trigger Supabase MenuBuilder once Admin app determines authentication
     async function initMenuBuilderSection() {
@@ -306,7 +381,7 @@
       await loadCategories();
       await loadProducts();
 
-      // Subscribe to realtime database updates!
+      // Subscribe to realtime database updates for Supabase sync
       MenuBuilder.subscribeToMenuUpdates(
         (newProd) => {
           showToast(`¡Nuevo producto "${newProd.name}" sincronizado en vivo! 🚀`);
@@ -323,9 +398,8 @@
       );
     }
 
-    // Call initMenuBuilderSection once document is loaded, or when admin session validates
+    // Call initMenuBuilderSection once document is loaded
     document.addEventListener('DOMContentLoaded', () => {
-      // Small delay to ensure SupabaseApp initializes
       setTimeout(initMenuBuilderSection, 800);
     });
 
@@ -340,6 +414,17 @@
     }
 
     async function loadProducts() {
+      // If a specific shop is selected in the dashboard, load its local products from db.json
+      if (window.activeShopIdForMenu) {
+        const est = AdminApp.establishments.find(e => e.id === window.activeShopIdForMenu);
+        if (est) {
+          productsList = est.products || [];
+          renderProducts();
+          return;
+        }
+      }
+
+      // Default fallback: load all general products from Supabase
       try {
         const { data, error } = await MenuBuilder.supabase
           .from('products')
@@ -382,9 +467,19 @@
       const grid = document.getElementById('products-catalog-grid');
       grid.innerHTML = '';
 
-      const filtered = activeCategoryId === 'all' 
-        ? productsList 
-        : productsList.filter(p => p.category_id === activeCategoryId);
+      // If category filter is active (only makes sense for general view, but we support it for local too)
+      let filtered = productsList;
+      if (activeCategoryId !== 'all') {
+        // Match by slug or category_id
+        filtered = productsList.filter(p => {
+          if (p.category_id) return p.category_id === activeCategoryId;
+          
+          // Match local category
+          const cat = categoriesList.find(c => c.id === activeCategoryId);
+          if (cat && p.category) return p.category.toLowerCase().includes(cat.slug);
+          return false;
+        });
+      }
 
       if (filtered.length === 0) {
         grid.innerHTML = `
@@ -401,7 +496,7 @@
         card.className = 'product-card';
         card.id = `prod-card-${prod.id}`;
         
-        const imgUrl = prod.image_url || '/images/burger_royale.jpg';
+        const imgUrl = prod.image_url || prod.image || '/images/burger_royale.jpg';
         
         card.innerHTML = `
           <img src="${imgUrl}" alt="${prod.name}" class="product-img" onerror="this.src='/images/burger_royale.jpg'">
@@ -412,7 +507,7 @@
           <div class="product-footer">
             <span class="product-price" style="color: var(--accent);">$${parseFloat(prod.price).toFixed(2)}</span>
             <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
-              ${getCategoryName(prod.category_id)}
+              ${prod.category_id ? getCategoryName(prod.category_id) : 'Menú Local'}
             </span>
           </div>
         `;
@@ -435,6 +530,10 @@
     }
 
     function openMenuModal() {
+      if (!window.activeShopIdForMenu) {
+        alert('⚠️ Selecciona primero un establecimiento de la lista para agregarle productos.');
+        return;
+      }
       document.getElementById('product-modal').classList.add('active');
     }
 

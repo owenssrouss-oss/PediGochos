@@ -242,10 +242,10 @@ app.post('/api/orders', (req, res) => {
   res.status(201).json(order);
 });
 
-// PUT to update establishment details (authorized by linkKey)
+// PUT to update establishment details (authorized by linkKey or isOwner flag)
 app.put('/api/establishments/:id', (req, res) => {
   const { id } = req.params;
-  const { linkKey, products } = req.body;
+  const { linkKey, products, name, description, logo, bannerType, banner, delivery_fee, themeColor, isOwner } = req.body;
   
   const db = readDB();
   const estIndex = db.establishments.findIndex(e => e.id === id);
@@ -254,12 +254,33 @@ app.put('/api/establishments/:id', (req, res) => {
   }
   
   const est = db.establishments[estIndex];
-  if (est.linkKey !== linkKey) {
+  if (!isOwner && est.linkKey !== linkKey) {
     return res.status(401).json({ error: 'Clave de vinculación incorrecta' });
   }
   
   if (products) {
     est.products = products;
+  }
+  if (name) {
+    est.name = name;
+  }
+  if (description) {
+    est.description = description;
+  }
+  if (logo) {
+    est.logo = logo;
+  }
+  if (bannerType) {
+    est.bannerType = bannerType;
+  }
+  if (banner) {
+    est.banner = banner;
+  }
+  if (delivery_fee !== undefined) {
+    est.delivery_fee = parseFloat(delivery_fee);
+  }
+  if (themeColor) {
+    est.themeColor = themeColor;
   }
   
   writeDB(db);

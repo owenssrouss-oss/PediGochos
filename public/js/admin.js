@@ -172,14 +172,14 @@ class AdminController {
     }
 
     this.establishments.forEach(est => {
-      // Find orders matching establishment ID
       const estOrders = this.orders.filter(o => o.establishmentId === est.id);
       const ordersCount = estOrders.length;
-      
-      // Calculate total money generated
       const totalRevenue = estOrders.reduce((sum, o) => sum + (o.total || 0), 0);
 
       const row = document.createElement('tr');
+      row.style.cursor = 'pointer';
+      row.onclick = () => AdminApp.showEstablishmentActions(est.id);
+
       row.innerHTML = `
         <td class="shop-title-cell" style="font-weight: 700;">${est.logo || '🏪'} ${est.name}</td>
         <td><span class="shop-category-cell">${est.category}</span></td>
@@ -187,7 +187,7 @@ class AdminController {
         <td style="font-weight: 700; color: var(--primary);">${this.formatPesos(totalRevenue)}</td>
         <td class="shop-key-cell" style="font-family: monospace; font-size: 13px; font-weight: 700;">${est.linkKey}</td>
         <td style="text-align: center;">
-          <button class="btn-goto-kitchen" onclick="AdminApp.deleteEstablishment('${est.id}', '${est.name}')" style="background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; font-size: 12px; padding: 6px 12px; border-radius: var(--radius-sm); font-weight: 700; margin: 0; width: auto; display: inline-block;">
+          <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.deleteEstablishment('${est.id}', '${est.name}')" style="background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; font-size: 12px; padding: 6px 12px; border-radius: var(--radius-sm); font-weight: 700; margin: 0; width: auto; display: inline-block; cursor: pointer;">
             🗑️ Eliminar
           </button>
         </td>
@@ -196,29 +196,127 @@ class AdminController {
     });
   }
 
+  showEstablishmentActions(id) {
+    const est = this.establishments.find(e => e.id === id);
+    if (!est) return;
+
+    this.activeShopId = id;
+    const nameEl = document.getElementById('action-modal-shop-name');
+    if (nameEl) nameEl.innerText = `${est.logo || '🏪'} ${est.name}`;
+
+    document.getElementById('est-action-modal').classList.add('active');
+  }
+
+  closeEstActionModal() {
+    document.getElementById('est-action-modal').classList.remove('active');
+  }
+
+  viewShopMenu() {
+    if (!this.activeShopId) return;
+    this.closeEstActionModal();
+    window.open(window.location.origin + '/?shop=' + this.activeShopId, '_blank');
+  }
+
+  openEditShopModal() {
+    if (!this.activeShopId) return;
+    const est = this.establishments.find(e => e.id === this.activeShopId);
+    if (!est) return;
+
+    this.closeEstActionModal();
+
+    document.getElementById('edit-shop-id').value = est.id;
+    document.getElementById('edit-shop-name').value = est.name;
+    document.getElementById('edit-shop-description').value = est.description || '';
+    document.getElementById('edit-shop-delivery').value = est.delivery_fee || 0;
+    document.getElementById('edit-shop-banner').value = est.banner || '';
+    document.getElementById('edit-shop-theme').value = est.themeColor || '#FF5E3A';
+
+    const select = document.getElementById('edit-shop-logo');
+    select.innerHTML = '';
+    const emojis = CATEGORY_EMOJIS[est.category] || ['🏪'];
+    emojis.forEach(emoji => {
+      const opt = document.createElement('option');
+      opt.value = emoji;
+      opt.innerText = `${emoji} Icono`;
+      if (emoji === est.logo) opt.selected = true;
+      select.appendChild(opt);
+    });
+
+    document.getElementById('edit-est-modal').classList.add('active');
+
+    // Also select this shop dynamically in the Menu Builder below
+    if (typeof window.activeShopIdForMenu !== 'undefined') {
+      window.activeShopIdForMenu = est.id;
+      const builderTitle = document.getElementById('menu-builder-shop-name');
+      if (builderTitle) builderTitle.innerText = `🍔 Creador de Menú: ${est.name}`;
+      if (typeof window.loadProducts === 'function') {
+        window.loadProducts();
+      }
+    }
+  }
+
+  closeEditShopModal() {
+    document.getElementById('edit-est-modal').classList.remove('active');
+  }
+
+  async handleEditShopSubmit(e) {
+    e.preventDefault();
+    if (!this.activeShopId) return;
+
+    const name = document.getElementById('edit-shop-name').value.trim();
+    const description = document.getElementById('edit-shop-description').value.trim();
+    const logo = document.getElementById('edit-shop-logo').value;
+    const delivery_fee = document.getElementById('edit-shop-delivery').value;
+    const banner = document.getElementById('edit-shop-banner').value.trim();
+    const themeColor = document.getElementById('edit-shop-theme').value;
+
+    const payload = {
+      isOwner: true,
+      name,
+      description,
+      logo,
+      delivery_fee,
+      banner,
+      themeColor
+    };
+
+    try {
+      const res = await fetch(`/api/establishments/${this.activeShopId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        this.showToast('✅ Cambios guardados con éxito.');
+        this.closeEditShopModal();
+        await this.reloadData();
+      } else {
+        alert('Error al guardar los cambios.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de red al guardar los cambios.');
+    }
+  }
+
   async deleteEstablishment(id, name) {
     const code = prompt(`⚠️ ATENCIÓN: Estás a punto de eliminar permanentemente el comercio "${name}".\n\nPor favor, ingresa el código maestro de seguridad 0424 para confirmar:`);
     if (code === null) return;
-    
+
     if (code !== '0424') {
       alert('❌ Código maestro incorrecto. Operación cancelada.');
       return;
     }
-    
+
     try {
       const response = await fetch(`/api/establishments/${id}?code=0424`, {
         method: 'DELETE'
       });
-      
+
       if (response.ok) {
         alert(`🗑️ El establecimiento "${name}" ha sido eliminado del sistema con éxito.`);
-        const pass = localStorage.getItem('owner_password');
-        if (pass) {
-          const res = await fetch('/api/establishments');
-          this.establishments = await res.json();
-          await this.loadOrders();
-          this.renderTable();
-        }
+        await this.reloadData();
       } else {
         const data = await response.json();
         alert('Error al eliminar establecimiento: ' + (data.error || 'Problema desconocido'));
@@ -226,6 +324,17 @@ class AdminController {
     } catch (err) {
       console.error(err);
       alert('Error de red al eliminar el establecimiento.');
+    }
+  }
+
+  async reloadData() {
+    try {
+      const res = await fetch('/api/establishments');
+      this.establishments = await res.json();
+      await this.loadOrders();
+      this.renderTable();
+    } catch (err) {
+      console.error('Error reloading admin dashboard data:', err);
     }
   }
 
