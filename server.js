@@ -39,7 +39,7 @@ function writeDB(data) {
 }
 
 // Owner Master Key Configuration
-const OWNER_PASSWORDS = ['DUEÑO123', 'DUENO123', 'OWNER123'];
+const OWNER_PASSWORDS = ['0424', 'DUEÑO123', 'DUENO123', 'OWNER123'];
 
 // REST API Endpoints
 // Verify Owner login and return complete establishments list with keys

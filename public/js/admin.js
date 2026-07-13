@@ -484,9 +484,8 @@ class AdminController {
         this.addNewProductRow();
         this.generateRandomLinkKey();
 
-        // Reload data
-        const savedPass = localStorage.getItem('owner_password');
-        await this.login(savedPass); // Force table reload with complete data
+        // Reload data from api
+        await this.reloadData();
       } else {
         alert('Error al registrar establecimiento.');
       }
