@@ -370,6 +370,20 @@ class MarketplaceController {
     // UI setup
     document.getElementById('customizer-product-name').innerText = product.name;
     document.getElementById('customizer-product-desc').innerText = product.description || '';
+    
+    const ingredientsEl = document.getElementById('customizer-product-ingredients');
+    if (ingredientsEl) {
+      if (product.ingredients && product.ingredients.length > 0) {
+        ingredientsEl.innerText = `📝 Ingredientes: ${product.ingredients.join(', ')}`;
+        ingredientsEl.style.display = 'block';
+      } else if (product.exclusions && product.exclusions.length > 0) {
+        ingredientsEl.innerText = `📝 Ingredientes: ${product.exclusions.map(e => e.name).join(', ')}`;
+        ingredientsEl.style.display = 'block';
+      } else {
+        ingredientsEl.style.display = 'none';
+      }
+    }
+    
     document.getElementById('customizer-base-price').innerText = this.formatPesos(product.price);
     document.getElementById('customizer-quantity-display').innerText = '1';
     document.getElementById('customizer-special-notes').value = '';

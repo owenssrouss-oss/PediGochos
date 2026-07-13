@@ -370,8 +370,8 @@
   <div class="toast-container" id="toast-center"></div>
 
   <!-- Glassmorphic Modal: Immersive Menu and Floor Layout Designer -->
-  <div class="modal-overlay" id="menu-tables-modal" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
-    <div class="modal-content" style="background: rgba(22, 22, 28, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); max-width: 1200px; width: 95%; height: 90vh; display: flex; flex-direction: column; padding: 24px; border-radius: 24px;">
+  <div class="modal-overlay" id="menu-tables-modal" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 40px 0;">
+    <div class="modal-content" style="background: rgba(22, 22, 28, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); max-width: 1200px; width: 95%; min-height: 90vh; height: auto; display: flex; flex-direction: column; padding: 24px; border-radius: 24px; margin: auto;">
       
       <!-- Modal Header -->
       <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
@@ -455,6 +455,53 @@
 
       </div>
 
+    </div>
+  </div>
+
+  <!-- Glassmorphic Modal: Edit Product Specifications & Ingredients -->
+  <div class="modal-overlay" id="product-specs-modal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 40px 0; z-index: 1100;">
+    <div class="modal-content" style="background: rgba(22, 22, 28, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 25px 55px rgba(0, 0, 0, 0.6); max-width: 600px; width: 90%; height: auto; padding: 24px; border-radius: 20px; margin: auto;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px; margin-bottom: 16px;">
+        <h3 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: 800;" id="specs-modal-title">⚙️ Especificaciones del Producto</h3>
+        <button class="modal-close" onclick="closeProductSpecsModal()">✕</button>
+      </div>
+
+      <form id="product-specs-form" onsubmit="handleSpecsSubmit(event)">
+        <input type="hidden" id="specs-product-id">
+
+        <!-- Ingredients / Exclusions Section -->
+        <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px;">
+          <h4 style="color: var(--accent); margin: 0 0 8px 0; font-size: 13.5px; font-weight: 700;">📝 Ingredientes / Exclusiones</h4>
+          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">Agrega ingredientes que el cliente puede optar por excluir (quitar) de su plato.</p>
+          <div id="specs-ingredients-list" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+            <!-- Rendered dynamically -->
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="new-ingredient-input" placeholder="Ej. Cebolla, Pepinillos" style="flex: 1; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
+            <button type="button" class="btn-neumorphic" onclick="addIngredientOption()" style="margin: 0; padding: 8px 16px; font-size: 12px; height: 38px;">Agregar</button>
+          </div>
+        </div>
+
+        <!-- Modifier Groups Section -->
+        <div style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h4 style="color: var(--accent); margin: 0; font-size: 13.5px; font-weight: 700;">🎛️ Opciones y Adicionales</h4>
+            <button type="button" class="btn-neumorphic" onclick="addModifierGroup()" style="margin: 0; padding: 6px 12px; font-size: 11px; height: 32px; background: rgba(255,255,255,0.05); color:#fff; border-color: rgba(255,255,255,0.1);">➕ Nuevo Grupo</button>
+          </div>
+          
+          <div id="specs-groups-container" style="display: flex; flex-direction: column; gap: 16px; max-height: 250px; overflow-y: auto; padding-right: 4px;" class="premium-scroll">
+            <!-- Loaded dynamically -->
+          </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
+          <button type="button" class="btn-neumorphic" onclick="closeProductSpecsModal()" style="box-shadow: none; margin: 0; padding: 8px 16px; font-size: 13px;">Cancelar</button>
+          <button type="submit" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0; padding: 8px 16px; font-size: 13px; font-weight: 700;">
+            Guardar Cambios
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -598,6 +645,8 @@
         card.style.flexDirection = 'column';
         card.style.gap = '6px';
         card.style.position = 'relative';
+        card.style.cursor = 'pointer';
+        card.onclick = () => AdminApp.openProductSpecsModal(prod.id);
         
         const imgUrl = prod.image_url || prod.image || '/images/burger_royale.jpg';
         
@@ -609,7 +658,7 @@
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
             <span style="color: var(--accent); font-weight: 700; font-size: 11px;">$${parseFloat(prod.price).toFixed(2)}</span>
-            <button onclick="deleteProductFromModal('${prod.id}')" style="background: rgba(239, 68, 68, 0.9); border: none; border-radius: 50%; color: #fff; width: 20px; height: 20px; font-size: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700;">✕</button>
+            <button onclick="event.stopPropagation(); deleteProductFromModal('${prod.id}')" style="background: rgba(239, 68, 68, 0.9); border: none; border-radius: 50%; color: #fff; width: 20px; height: 20px; font-size: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700;">✕</button>
           </div>
         `;
         grid.appendChild(card);
@@ -780,6 +829,28 @@
 
     function filterCategoryModal(catId) {
       filterCategory(catId);
+    }
+
+    function closeProductSpecsModal() {
+      AdminApp.closeProductSpecsModal();
+    }
+    function addIngredientOption() {
+      AdminApp.addIngredientOption();
+    }
+    function addModifierGroup() {
+      AdminApp.addModifierGroup();
+    }
+    function addOptionToGroup(groupId) {
+      AdminApp.addOptionToGroup(groupId);
+    }
+    function deleteOptionFromGroup(groupId, optionId) {
+      AdminApp.deleteOptionFromGroup(groupId, optionId);
+    }
+    function deleteModifierGroup(groupId) {
+      AdminApp.deleteModifierGroup(groupId);
+    }
+    function handleSpecsSubmit(e) {
+      AdminApp.handleSpecsSubmit(e);
     }
 
     function showToast(message, isError = false) {

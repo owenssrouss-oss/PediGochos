@@ -974,6 +974,264 @@ class AdminController {
     }
   }
 
+  openProductSpecsModal(productId) {
+    const est = this.establishments.find(e => e.id === window.activeShopIdForMenu);
+    if (!est) return;
+
+    const prod = est.products.find(p => p.id === productId);
+    if (!prod) return;
+
+    this.activeSpecsProductId = productId;
+    
+    // Set title
+    document.getElementById('specs-modal-title').innerText = `⚙️ Especificaciones: ${prod.name}`;
+    document.getElementById('specs-product-id').value = productId;
+
+    // Load exclusions / ingredients
+    this.specsIngredients = prod.exclusions ? prod.exclusions.map(e => e.name) : [];
+    this.renderSpecsIngredients();
+
+    // Load modifier groups
+    this.specsGroups = prod.modifiers ? JSON.parse(JSON.stringify(prod.modifiers)) : [];
+    this.renderSpecsGroups();
+
+    // Open Modal
+    document.getElementById('product-specs-modal').classList.add('active');
+  }
+
+  closeProductSpecsModal() {
+    document.getElementById('product-specs-modal').classList.remove('active');
+  }
+
+  renderSpecsIngredients() {
+    const container = document.getElementById('specs-ingredients-list');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (this.specsIngredients.length === 0) {
+      container.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted);">Sin ingredientes listados (se permiten todas las opciones por defecto)</span>`;
+      return;
+    }
+
+    this.specsIngredients.forEach((ing, idx) => {
+      const tag = document.createElement('div');
+      tag.style.display = 'flex';
+      tag.style.alignItems = 'center';
+      tag.style.gap = '6px';
+      tag.style.background = 'rgba(255, 94, 58, 0.1)';
+      tag.style.border = '1px solid rgba(255, 94, 58, 0.25)';
+      tag.style.color = 'var(--accent)';
+      tag.style.padding = '4px 10px';
+      tag.style.borderRadius = '8px';
+      tag.style.fontSize = '12px';
+      tag.style.fontWeight = '700';
+
+      tag.innerHTML = `
+        <span>${ing}</span>
+        <span onclick="AdminApp.removeIngredientOption(${idx})" style="cursor: pointer; color: #ef4444; font-weight: 900;">✕</span>
+      `;
+      container.appendChild(tag);
+    });
+  }
+
+  addIngredientOption() {
+    const input = document.getElementById('new-ingredient-input');
+    const val = input.value.trim();
+    if (!val) return;
+
+    if (this.specsIngredients.includes(val)) {
+      alert('Este ingrediente ya está listado.');
+      return;
+    }
+
+    this.specsIngredients.push(val);
+    input.value = '';
+    this.renderSpecsIngredients();
+  }
+
+  removeIngredientOption(idx) {
+    this.specsIngredients.splice(idx, 1);
+    this.renderSpecsIngredients();
+  }
+
+  renderSpecsGroups() {
+    const container = document.getElementById('specs-groups-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (this.specsGroups.length === 0) {
+      container.innerHTML = `<p style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 10px 0;">No hay grupos de adicionales configurados.</p>`;
+      return;
+    }
+
+    this.specsGroups.forEach((group, gIdx) => {
+      const gDiv = document.createElement('div');
+      gDiv.style.background = 'rgba(255,255,255,0.02)';
+      gDiv.style.border = '1px solid rgba(255,255,255,0.05)';
+      gDiv.style.borderRadius = '12px';
+      gDiv.style.padding = '12px';
+      gDiv.style.display = 'flex';
+      gDiv.style.flexDirection = 'column';
+      gDiv.style.gap = '10px';
+      gDiv.style.marginBottom = '12px';
+
+      gDiv.innerHTML = `
+        <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
+          <input type="text" value="${group.group_name}" onchange="AdminApp.updateGroupName('${group.group_id}', this.value)" placeholder="Nombre del grupo (ej. Salsas)" style="flex: 1; padding: 6px 10px; font-size: 12.5px; background: rgba(18,18,22,0.6); border: 1px solid rgba(255,255,255,0.08); color: #fff; border-radius: 8px;">
+          
+          <select onchange="AdminApp.updateGroupType('${group.group_id}', this.value)" style="background: rgba(18,18,22,0.6); border: 1px solid rgba(255,255,255,0.08); color: #fff; padding: 6px; border-radius: 8px; font-size: 11.5px;">
+            <option value="single" ${group.selection_type === 'single' ? 'selected' : ''}>Selección Única</option>
+            <option value="multiple" ${group.selection_type === 'multiple' ? 'selected' : ''}>Selección Múltiple</option>
+          </select>
+
+          <label style="display: flex; align-items: center; gap: 4px; font-size: 11.5px; cursor: pointer; color: var(--text-muted); margin: 0;">
+            <input type="checkbox" ${group.is_required ? 'checked' : ''} onchange="AdminApp.updateGroupRequired('${group.group_id}', this.checked)"> Oblig.
+          </label>
+
+          <button type="button" onclick="AdminApp.deleteModifierGroup('${group.group_id}')" style="background: none; border: none; color: #ef4444; font-size: 14px; cursor: pointer; padding: 0; width: auto; height: auto;">🗑️</button>
+        </div>
+
+        <div style="border-top: 1px dashed rgba(255,255,255,0.04); padding-top: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">Opciones de Selección</span>
+            <button type="button" class="btn-neumorphic" onclick="AdminApp.addOptionToGroup('${group.group_id}')" style="margin: 0; padding: 4px 8px; font-size: 10px; height: 24px;">➕ Opción</button>
+          </div>
+          <div id="options-list-${group.group_id}" style="display: flex; flex-direction: column; gap: 6px;">
+            <!-- Rendered dynamically below -->
+          </div>
+        </div>
+      `;
+
+      const optList = gDiv.querySelector(`#options-list-${group.group_id}`);
+      group.options.forEach((opt, oIdx) => {
+        const oDiv = document.createElement('div');
+        oDiv.style.display = 'flex';
+        oDiv.style.gap = '8px';
+        oDiv.style.alignItems = 'center';
+
+        oDiv.innerHTML = `
+          <input type="text" value="${opt.name}" onchange="AdminApp.updateOptionName('${group.group_id}', '${opt.option_id}', this.value)" placeholder="Opción" style="flex: 1; padding: 4px 8px; font-size: 11.5px; background: rgba(18,18,22,0.4); border: 1px solid rgba(255,255,255,0.05); color: #fff; border-radius: 6px;">
+          <input type="number" value="${opt.price}" onchange="AdminApp.updateOptionPrice('${group.group_id}', '${opt.option_id}', this.value)" placeholder="Precio ($)" style="width: 80px; padding: 4px 8px; font-size: 11.5px; background: rgba(18,18,22,0.4); border: 1px solid rgba(255,255,255,0.05); color: #fff; border-radius: 6px;">
+          <button type="button" onclick="AdminApp.deleteOptionFromGroup('${group.group_id}', '${opt.option_id}')" style="background: none; border: none; color: #ef4444; font-size: 11px; cursor: pointer; padding: 0; width: auto; height: auto;">✕</button>
+        `;
+        optList.appendChild(oDiv);
+      });
+
+      container.appendChild(gDiv);
+    });
+  }
+
+  addModifierGroup() {
+    this.specsGroups.push({
+      group_id: 'g-' + Date.now() + '-' + Math.floor(Math.random() * 100),
+      group_name: 'Adicionales',
+      selection_type: 'single',
+      is_required: false,
+      options: []
+    });
+    this.renderSpecsGroups();
+  }
+
+  deleteModifierGroup(groupId) {
+    this.specsGroups = this.specsGroups.filter(g => g.group_id !== groupId);
+    this.renderSpecsGroups();
+  }
+
+  updateGroupName(groupId, val) {
+    const group = this.specsGroups.find(g => g.group_id === groupId);
+    if (group) group.group_name = val.trim();
+  }
+
+  updateGroupType(groupId, val) {
+    const group = this.specsGroups.find(g => g.group_id === groupId);
+    if (group) group.selection_type = val;
+  }
+
+  updateGroupRequired(groupId, val) {
+    const group = this.specsGroups.find(g => g.group_id === groupId);
+    if (group) group.is_required = val;
+  }
+
+  addOptionToGroup(groupId) {
+    const group = this.specsGroups.find(g => g.group_id === groupId);
+    if (group) {
+      group.options.push({
+        option_id: 'opt-' + Date.now() + '-' + Math.floor(Math.random() * 100),
+        name: 'Nuevo adicional',
+        price: 0
+      });
+      this.renderSpecsGroups();
+    }
+  }
+
+  deleteOptionFromGroup(groupId, optionId) {
+    const group = this.specsGroups.find(g => g.group_id === groupId);
+    if (group) {
+      group.options = group.options.filter(o => o.option_id !== optionId);
+      this.renderSpecsGroups();
+    }
+  }
+
+  updateOptionName(groupId, optionId, val) {
+    const group = this.specsGroups.find(g => g.group_id === groupId);
+    if (group) {
+      const opt = group.options.find(o => o.option_id === optionId);
+      if (opt) opt.name = val.trim();
+    }
+  }
+
+  updateOptionPrice(groupId, optionId, val) {
+    const group = this.specsGroups.find(g => g.group_id === groupId);
+    if (group) {
+      const opt = group.options.find(o => o.option_id === optionId);
+      if (opt) opt.price = parseFloat(val) || 0;
+    }
+  }
+
+  async handleSpecsSubmit(e) {
+    e.preventDefault();
+    if (!this.activeSpecsProductId) return;
+
+    const est = this.establishments.find(e => e.id === window.activeShopIdForMenu);
+    if (!est) return;
+
+    const prod = est.products.find(p => p.id === this.activeSpecsProductId);
+    if (!prod) return;
+
+    // Filter exclusions
+    prod.exclusions = this.specsIngredients.map((name, i) => ({
+      id: `ex-${i}`,
+      name: name
+    }));
+
+    // Save modifiers groups
+    prod.modifiers = this.specsGroups;
+
+    try {
+      const res = await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          products: est.products
+        })
+      });
+
+      if (res.ok) {
+        this.showToast('✅ Especificaciones guardadas correctamente.');
+        this.closeProductSpecsModal();
+        if (typeof window.loadProducts === 'function') {
+          await window.loadProducts();
+        }
+      } else {
+        alert('Error al guardar especificaciones.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de conexión.');
+    }
+  }
+
   showToast(message) {
     const toast = document.getElementById('toast');
     toast.innerText = message;
