@@ -369,6 +369,95 @@
   <!-- Toast Notification Center -->
   <div class="toast-container" id="toast-center"></div>
 
+  <!-- Glassmorphic Modal: Immersive Menu and Floor Layout Designer -->
+  <div class="modal-overlay" id="menu-tables-modal" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+    <div class="modal-content" style="background: rgba(22, 22, 28, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); max-width: 1200px; width: 95%; height: 90vh; display: flex; flex-direction: column; padding: 24px; border-radius: 24px;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <h2 id="designer-modal-shop-name" style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 800;">🍔 Taller de Menú y Distribución de Mesas</h2>
+          <span style="font-size: 12.5px; color: var(--accent); font-weight: 600;" id="designer-modal-shop-subtext">Diseñador interactivo en tiempo real</span>
+        </div>
+        <button class="modal-close" onclick="closeMenuTablesModal()" style="font-size: 20px; color: #ffffff; opacity: 0.6; cursor: pointer; transition: all 0.2s;">✕</button>
+      </div>
+
+      <!-- Split Layout Workspace -->
+      <div class="designer-workspace" style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; flex: 1; overflow: hidden;">
+        
+        <!-- Left Column: Floor Plan Designer (Mesas y Paredes) -->
+        <div class="floor-plan-column" style="display: flex; flex-direction: column; gap: 16px; overflow: hidden; border-right: 1px solid rgba(255,255,255,0.06); padding-right: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">🧱 Distribución de Mesas y Paredes</h3>
+            <!-- Tool Selector -->
+            <div class="floor-tools" style="display: flex; gap: 8px;">
+              <button class="btn-floor-tool active" onclick="setFloorTool('table')" id="tool-table" style="background: var(--accent); color: #121216; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                🪑 Colocar Mesa
+              </button>
+              <button class="btn-floor-tool" onclick="setFloorTool('wall')" id="tool-wall" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                🧱 Colocar Pared
+              </button>
+              <button class="btn-floor-tool" onclick="setFloorTool('eraser')" id="tool-eraser" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                🧹 Borrador
+              </button>
+            </div>
+          </div>
+          <p style="font-size: 11.5px; color: var(--text-muted); margin: 0;">Selecciona una herramienta y haz clic en las celdas del plano para estructurar tu establecimiento. El plano se actualiza automáticamente.</p>
+          
+          <!-- Visual Grid Area -->
+          <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 12px; overflow: hidden;">
+            <div id="floor-grid-canvas" style="display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 4px; width: 100%; max-width: 360px; aspect-ratio: 1/1;">
+              <!-- Celdas renderizadas dinámicamente -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive Menu Creator (Productos y Catálogo) -->
+        <div class="menu-creator-column" style="display: flex; flex-direction: column; gap: 16px; overflow: hidden;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">🍔 Carta y Categorías de Comida</h3>
+            <button class="btn-neumorphic" onclick="openMenuModal()" style="margin: 0; padding: 6px 12px; font-size: 11.5px;">
+              <span>➕ Nuevo Producto</span>
+            </button>
+          </div>
+          
+          <!-- Fast Global Catalog Import Area -->
+          <div style="background: rgba(255, 94, 58, 0.05); border: 1px solid rgba(255, 94, 58, 0.15); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+            <div style="flex: 1;">
+              <span style="font-size: 11.5px; font-weight: 700; color: var(--accent); display: block; margin-bottom: 2px;">⚡ Importar del Catálogo del Dueño</span>
+              <span style="font-size: 10.5px; color: var(--text-muted);">Asocia platos globales directamente con su foto.</span>
+            </div>
+            <select id="modal-import-product-select" style="max-width: 180px; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 6px; border-radius: 8px; font-size: 11.5px;">
+              <option value="">Cargando catálogo...</option>
+            </select>
+            <button onclick="importGlobalProductFromModal()" style="background: var(--accent); color: #121216; font-weight: 800; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11.5px;">
+              Importar
+            </button>
+          </div>
+
+          <!-- Menu Workspace Sidebar & Catalog Grid -->
+          <div class="modal-menu-workspace" style="display: grid; grid-template-columns: 140px 1fr; gap: 16px; flex: 1; overflow: hidden;">
+            <!-- Categories Sidebar inside modal -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 8px; overflow-y: auto;">
+              <ul class="category-list" id="modal-categories-sidebar" style="gap: 6px; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column;">
+                <li class="category-item active" onclick="filterCategoryModal('all')" style="font-size: 11.5px; padding: 8px 10px; cursor: pointer; border-radius: 8px;">Todos</li>
+              </ul>
+            </div>
+
+            <!-- Products catalog list inside modal -->
+            <div style="overflow-y: auto; padding-right: 4px;" class="premium-scroll">
+              <div class="catalog-grid" id="modal-products-catalog-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;">
+                <!-- Loaded dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
   <script src="/js/admin.js"></script>
   <script src="/js/menu-builder.js"></script>
 
@@ -710,94 +799,6 @@
         }, 300);
       }, 4000);
     }
-  <!-- Glassmorphic Modal: Immersive Menu and Floor Layout Designer -->
-  <div class="modal-overlay" id="menu-tables-modal" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
-    <div class="modal-content" style="background: rgba(22, 22, 28, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); max-width: 1200px; width: 95%; height: 90vh; display: flex; flex-direction: column; padding: 24px; border-radius: 24px;">
-      
-      <!-- Modal Header -->
-      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
-        <div style="display: flex; flex-direction: column; gap: 4px;">
-          <h2 id="designer-modal-shop-name" style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 800;">🍔 Taller de Menú y Distribución de Mesas</h2>
-          <span style="font-size: 12.5px; color: var(--accent); font-weight: 600;" id="designer-modal-shop-subtext">Diseñador interactivo en tiempo real</span>
-        </div>
-        <button class="modal-close" onclick="closeMenuTablesModal()" style="font-size: 20px; color: #ffffff; opacity: 0.6; cursor: pointer; transition: all 0.2s;">✕</button>
-      </div>
-
-      <!-- Split Layout Workspace -->
-      <div class="designer-workspace" style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; flex: 1; overflow: hidden;">
-        
-        <!-- Left Column: Floor Plan Designer (Mesas y Paredes) -->
-        <div class="floor-plan-column" style="display: flex; flex-direction: column; gap: 16px; overflow: hidden; border-right: 1px solid rgba(255,255,255,0.06); padding-right: 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">🧱 Distribución de Mesas y Paredes</h3>
-            <!-- Tool Selector -->
-            <div class="floor-tools" style="display: flex; gap: 8px;">
-              <button class="btn-floor-tool active" onclick="setFloorTool('table')" id="tool-table" style="background: var(--accent); color: #121216; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                🪑 Colocar Mesa
-              </button>
-              <button class="btn-floor-tool" onclick="setFloorTool('wall')" id="tool-wall" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                🧱 Colocar Pared
-              </button>
-              <button class="btn-floor-tool" onclick="setFloorTool('eraser')" id="tool-eraser" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                🧹 Borrador
-              </button>
-            </div>
-          </div>
-          <p style="font-size: 11.5px; color: var(--text-muted); margin: 0;">Selecciona una herramienta y haz clic en las celdas del plano para estructurar tu establecimiento. El plano se actualiza automáticamente.</p>
-          
-          <!-- Visual Grid Area -->
-          <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 12px; overflow: hidden;">
-            <div id="floor-grid-canvas" style="display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 4px; width: 100%; max-width: 360px; aspect-ratio: 1/1;">
-              <!-- Celdas renderizadas dinámicamente -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Column: Interactive Menu Creator (Productos y Catálogo) -->
-        <div class="menu-creator-column" style="display: flex; flex-direction: column; gap: 16px; overflow: hidden;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">🍔 Carta y Categorías de Comida</h3>
-            <button class="btn-neumorphic" onclick="openMenuModal()" style="margin: 0; padding: 6px 12px; font-size: 11.5px;">
-              <span>➕ Nuevo Producto</span>
-            </button>
-          </div>
-          
-          <!-- Fast Global Catalog Import Area -->
-          <div style="background: rgba(255, 94, 58, 0.05); border: 1px solid rgba(255, 94, 58, 0.15); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-            <div style="flex: 1;">
-              <span style="font-size: 11.5px; font-weight: 700; color: var(--accent); display: block; margin-bottom: 2px;">⚡ Importar del Catálogo del Dueño</span>
-              <span style="font-size: 10.5px; color: var(--text-muted);">Asocia platos globales directamente con su foto.</span>
-            </div>
-            <select id="modal-import-product-select" style="max-width: 180px; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 6px; border-radius: 8px; font-size: 11.5px;">
-              <option value="">Cargando catálogo...</option>
-            </select>
-            <button onclick="importGlobalProductFromModal()" style="background: var(--accent); color: #121216; font-weight: 800; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11.5px;">
-              Importar
-            </button>
-          </div>
-
-          <!-- Menu Workspace Sidebar & Catalog Grid -->
-          <div class="modal-menu-workspace" style="display: grid; grid-template-columns: 140px 1fr; gap: 16px; flex: 1; overflow: hidden;">
-            <!-- Categories Sidebar inside modal -->
-            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 8px; overflow-y: auto;">
-              <ul class="category-list" id="modal-categories-sidebar" style="gap: 6px; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column;">
-                <li class="category-item active" onclick="filterCategoryModal('all')" style="font-size: 11.5px; padding: 8px 10px; cursor: pointer; border-radius: 8px;">Todos</li>
-              </ul>
-            </div>
-
-            <!-- Products catalog list inside modal -->
-            <div style="overflow-y: auto; padding-right: 4px;" class="premium-scroll">
-              <div class="catalog-grid" id="modal-products-catalog-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;">
-                <!-- Loaded dynamically -->
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  </div>
   </script>
 </body>
 </html>
