@@ -1325,8 +1325,40 @@
     font-size: 14px;
   }
 
+  .delivery-address-area {
+    max-width: 30%;
+  }
+
+  .delivery-label {
+    display: none !important;
+  }
+
+  .delivery-address {
+    font-size: 11px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    max-width: 100%;
+  }
+
+  .logo-area {
+    position: static !important;
+    transform: none !important;
+  }
+
+  .logo-text {
+    font-size: 18px !important;
+  }
+
   .header-actions {
-    display: none !important; /* Hide header buttons on mobile, links are in bottom nav! */
+    display: flex !important;
+    gap: 6px;
+  }
+
+  /* Hide the bell icon button on mobile, but keep the auth status container */
+  .header-actions > .btn-notification:not(#auth-status-container button) {
+    display: none !important;
   }
 
   .mobile-nav-bar {
