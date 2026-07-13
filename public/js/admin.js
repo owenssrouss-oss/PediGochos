@@ -308,29 +308,51 @@ class AdminController {
     const est = this.establishments.find(e => e.id === this.activeShopId);
     if (!est) return;
 
+    const submitBtn = document.getElementById('btn-submit-edit-shop');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span>Guardando Cambios...</span>`;
+
     const name = document.getElementById('edit-shop-name').value.trim();
     const description = document.getElementById('edit-shop-description').value.trim();
     const logo = document.getElementById('edit-shop-logo').value;
     const delivery_fee = document.getElementById('edit-shop-delivery').value;
-    const banner = document.getElementById('edit-shop-banner').value.trim();
     const themeColor = document.getElementById('edit-shop-theme').value;
 
     const prep_time = document.getElementById('edit-shop-prep-time').value;
     const delivery_time = document.getElementById('edit-shop-delivery-time').value;
 
-    const payload = {
-      isOwner: true,
-      name,
-      description,
-      logo,
-      delivery_fee,
-      banner,
-      themeColor,
-      prep_time: prep_time ? parseInt(prep_time) : null,
-      delivery_time: delivery_time ? parseInt(delivery_time) : null
-    };
+    const logoFile = document.getElementById('edit-shop-logo-file').files[0];
+    const bannerFile = document.getElementById('edit-shop-banner-file').files[0];
+
+    let logoImage = est.logoImage || null;
+    let banner = est.banner || '';
 
     try {
+      // 1. Upload custom logo file if selected
+      if (logoFile) {
+        submitBtn.innerHTML = `<span>Subiendo Logo...</span>`;
+        logoImage = await MenuBuilder.uploadProductImage(logoFile);
+      }
+
+      // 2. Upload cover banner file if selected
+      if (bannerFile) {
+        submitBtn.innerHTML = `<span>Subiendo Portada...</span>`;
+        banner = await MenuBuilder.uploadProductImage(bannerFile);
+      }
+
+      const payload = {
+        isOwner: true,
+        name,
+        description,
+        logo,
+        delivery_fee,
+        banner,
+        themeColor,
+        logoImage,
+        prep_time: prep_time ? parseInt(prep_time) : null,
+        delivery_time: delivery_time ? parseInt(delivery_time) : null
+      };
+
       const res = await fetch(`/api/establishments/${this.activeShopId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -340,6 +362,11 @@ class AdminController {
       if (res.ok) {
         this.showToast('✅ Cambios guardados con éxito.');
         this.closeEditShopModal();
+        
+        // Reset file inputs
+        document.getElementById('edit-shop-logo-file').value = '';
+        document.getElementById('edit-shop-banner-file').value = '';
+        
         await this.reloadData();
       } else {
         alert('Error al guardar los cambios.');
@@ -347,6 +374,9 @@ class AdminController {
     } catch (err) {
       console.error(err);
       alert('Error de red al guardar los cambios.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<span>Guardar Cambios</span>`;
     }
   }
 
@@ -408,6 +438,30 @@ class AdminController {
     } catch (err) {
       console.error(err);
       alert('Error de conexión al importar el producto.');
+    }
+  }
+
+  modifyMenuAndTables() {
+    if (!this.activeShopId) return;
+    const est = this.establishments.find(e => e.id === this.activeShopId);
+    if (!est) return;
+
+    this.closeEstActionModal();
+
+    window.activeShopIdForMenu = est.id;
+    const builderTitle = document.getElementById('menu-builder-shop-name');
+    if (builderTitle) builderTitle.innerText = `🍔 Creador de Menú: ${est.name}`;
+
+    if (typeof window.loadProducts === 'function') {
+      window.loadProducts();
+    }
+    if (typeof window.loadTables === 'function') {
+      window.loadTables();
+    }
+
+    const target = document.getElementById('menu-builder-section');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
     }
   }
 

@@ -204,7 +204,7 @@
           </button>
         </div>
         
-        <div class="menu-container" style="max-width: 100%; display: grid; grid-template-columns: 260px 1fr; gap: 24px; margin: 0;">
+        <div class="menu-container" style="max-width: 100%; display: grid; grid-template-columns: 240px 1fr 300px; gap: 24px; margin: 0;" id="menu-builder-section">
           <!-- Categories Sidebar -->
           <aside class="sidebar-panel" style="box-shadow: none; border: 1px solid var(--border-light); background: rgba(22, 22, 28, 0.4); padding: 18px; border-radius: 16px;">
             <div class="section-title" style="margin-bottom: 14px; font-size: 15px;">
@@ -223,6 +223,17 @@
                 <span style="font-size: 32px;">🍔</span>
                 <p style="margin-top: 10px; color: var(--text-muted); font-size: 13.5px;">Cargando catálogo desde Supabase...</p>
               </div>
+            </div>
+          </div>
+
+          <!-- Tables Management Panel -->
+          <div class="tables-panel" style="background: rgba(22, 22, 28, 0.4); border: 1px solid var(--border-light); padding: 18px; border-radius: 16px; display: flex; flex-direction: column; gap: 14px; height: fit-content;">
+            <div class="section-title" style="margin-bottom: 8px; font-size: 15px; display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: #ffffff; font-weight: 700;">🪑 Mesas del local</span>
+              <button onclick="promptAddTable()" style="background:none; border:none; color:var(--accent); font-size:16px; cursor:pointer;">➕ Nueva Mesa</button>
+            </div>
+            <div id="restaurant-tables-container" style="display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 4px;">
+              <p style="font-size: 12.5px; color: var(--text-muted); text-align: center; padding: 20px;">Selecciona un local para ver sus mesas.</p>
             </div>
           </div>
         </div>
@@ -246,8 +257,11 @@
         <button class="btn-neumorphic" onclick="viewShopMenu()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700;">
           🔍 Ver Menú en Marketplace
         </button>
-        <button class="btn-neumorphic" onclick="openEditShopModal()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; background-color: var(--accent); color: #121216; border-color: var(--accent);">
-          ⚙️ Modificar Establecimiento
+        <button class="btn-neumorphic" onclick="openEditShopModal()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700;">
+          ⚙️ Modificar Datos del Local
+        </button>
+        <button class="btn-neumorphic" onclick="modifyMenuAndTables()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; background-color: var(--accent); color: #121216; border-color: var(--accent);">
+          🍔 Modificar Menú y Mesas
         </button>
       </div>
     </div>
@@ -287,9 +301,16 @@
           </div>
         </div>
 
+        <!-- Upload Custom Logo Photo File (Optional) -->
         <div class="form-group">
-          <label for="edit-shop-banner">URL de Imagen o Gradiente de Portada *</label>
-          <input type="text" id="edit-shop-banner" required placeholder="Ej. linear-gradient(135deg, #FF8C00, #FF4500) o url..." style="width: 100%;">
+          <label for="edit-shop-logo-file">Foto de Logo Personalizada (Opcional - Reemplaza Emoji)</label>
+          <input type="file" id="edit-shop-logo-file" accept="image/*" style="width: 100%;">
+        </div>
+
+        <!-- Upload Cover Banner Photo File (Optional) -->
+        <div class="form-group">
+          <label for="edit-shop-banner-file">Foto de Portada / Banner (Opcional - PNG/JPG)</label>
+          <input type="file" id="edit-shop-banner-file" accept="image/*" style="width: 100%;">
         </div>
 
         <!-- Time settings (only visible for comidas) -->
@@ -677,6 +698,178 @@
 
     function importGlobalProduct() {
       AdminApp.importGlobalProduct();
+    }
+
+    function modifyMenuAndTables() {
+      AdminApp.modifyMenuAndTables();
+    }
+
+    // Tables management CRUD
+    function loadTables() {
+      const container = document.getElementById('restaurant-tables-container');
+      if (!container) return;
+
+      if (!window.activeShopIdForMenu) {
+        container.innerHTML = `<p style="font-size: 12.5px; color: var(--text-muted); text-align: center; padding: 20px;">Selecciona un local para ver sus mesas.</p>`;
+        return;
+      }
+
+      const est = AdminApp.establishments.find(e => e.id === window.activeShopIdForMenu);
+      if (!est) return;
+
+      const tables = est.tables || [];
+      if (tables.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 20px; color: var(--text-muted);">
+            <span style="font-size: 24px;">🪑</span>
+            <p style="margin-top: 8px; font-size: 12px;">No hay mesas registradas. ¡Agrega una!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      tables.forEach(table => {
+        const div = document.createElement('div');
+        div.className = 'table-row-item';
+        div.style.display = 'flex';
+        div.style.justifyContent = 'space-between';
+        div.style.alignItems = 'center';
+        div.style.background = 'rgba(18, 18, 22, 0.6)';
+        div.style.border = '1px solid rgba(255, 255, 255, 0.05)';
+        div.style.padding = '10px 14px';
+        div.style.borderRadius = '12px';
+        div.style.fontSize = '13.5px';
+        div.style.marginBottom = '6px';
+
+        const isDisp = table.status === 'Disponible';
+        
+        div.innerHTML = `
+          <div>
+            <span style="font-weight: 700; color: #ffffff;">${table.name || ('Mesa ' + table.number)}</span>
+            <span class="status-badge" onclick="toggleTableStatus('${table.id}')" style="margin-left: 8px; cursor: pointer; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; background: ${isDisp ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)'}; color: ${isDisp ? '#10b981' : '#ef4444'};">
+              ${table.status}
+            </span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button onclick="viewTableQR('${table.number}')" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; font-weight: 700;">Ver QR</button>
+            <button onclick="deleteTable('${table.id}')" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 12px; font-weight: 700;">✕</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    async function promptAddTable() {
+      if (!window.activeShopIdForMenu) {
+        alert('⚠️ Selecciona primero un establecimiento para gestionar sus mesas.');
+        return;
+      }
+      const est = AdminApp.establishments.find(e => e.id === window.activeShopIdForMenu);
+      if (!est) return;
+
+      const name = prompt('Ingresa el número o nombre de la mesa (ej. Mesa 5 o VIP 1):');
+      if (!name) return;
+
+      if (!est.tables) est.tables = [];
+
+      // Extract table number (for QR code mapping)
+      const numMatch = name.match(/\d+/);
+      const number = numMatch ? parseInt(numMatch[0]) : (est.tables.length + 1);
+
+      const newTable = {
+        id: 't-' + Date.now(),
+        name: name,
+        number: number,
+        status: 'Disponible'
+      };
+
+      est.tables.push(newTable);
+
+      try {
+        const res = await fetch(`/api/establishments/${est.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isOwner: true,
+            tables: est.tables
+          })
+        });
+
+        if (res.ok) {
+          showToast(`🎉 ¡${name} agregada con éxito!`);
+          loadTables();
+        } else {
+          alert('Error al guardar la mesa.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error de conexión.');
+      }
+    }
+
+    async function toggleTableStatus(tableId) {
+      if (!window.activeShopIdForMenu) return;
+      const est = AdminApp.establishments.find(e => e.id === window.activeShopIdForMenu);
+      if (!est) return;
+
+      const table = est.tables.find(t => t.id === tableId);
+      if (!table) return;
+
+      table.status = table.status === 'Disponible' ? 'Ocupada' : 'Disponible';
+
+      try {
+        const res = await fetch(`/api/establishments/${est.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isOwner: true,
+            tables: est.tables
+          })
+        });
+
+        if (res.ok) {
+          showToast(`Estado de mesa cambiado a ${table.status}`);
+          loadTables();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function deleteTable(tableId) {
+      if (!window.activeShopIdForMenu) return;
+      const est = AdminApp.establishments.find(e => e.id === window.activeShopIdForMenu);
+      if (!est) return;
+
+      if (!confirm('¿Seguro que deseas eliminar esta mesa?')) return;
+
+      est.tables = est.tables.filter(t => t.id !== tableId);
+
+      try {
+        const res = await fetch(`/api/establishments/${est.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isOwner: true,
+            tables: est.tables
+          })
+        });
+
+        if (res.ok) {
+          showToast('Mesa eliminada con éxito.');
+          loadTables();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function viewTableQR(tableNumber) {
+      if (!window.activeShopIdForMenu) return;
+      const origin = window.location.origin;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(origin + '/?shop=' + window.activeShopIdForMenu + '&table=' + tableNumber)}`;
+      window.open(qrUrl, '_blank');
     }
 
     function showToast(message, isError = false) {

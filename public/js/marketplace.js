@@ -130,7 +130,12 @@ class MarketplaceController {
       bannerDiv.style.backgroundPosition = 'center';
     }
 
-    document.getElementById('est-logo').innerText = est.logo || '🏪';
+    const logoDiv = document.getElementById('est-logo');
+    if (est.logoImage) {
+      logoDiv.innerHTML = `<img src="${est.logoImage}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+    } else {
+      logoDiv.innerHTML = est.logo || '🏪';
+    }
     document.getElementById('est-name').innerText = est.name;
     document.getElementById('est-desc').innerText = est.description;
     

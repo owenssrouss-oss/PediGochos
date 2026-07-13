@@ -251,7 +251,7 @@ app.post('/api/orders', (req, res) => {
 // PUT to update establishment details (authorized by linkKey or isOwner flag)
 app.put('/api/establishments/:id', (req, res) => {
   const { id } = req.params;
-  const { linkKey, products, name, description, logo, bannerType, banner, delivery_fee, themeColor, isOwner } = req.body;
+  const { linkKey, products, name, description, logo, bannerType, banner, delivery_fee, themeColor, isOwner, logoImage, tables } = req.body;
   
   const db = readDB();
   const estIndex = db.establishments.findIndex(e => e.id === id);
@@ -287,6 +287,12 @@ app.put('/api/establishments/:id', (req, res) => {
   }
   if (themeColor) {
     est.themeColor = themeColor;
+  }
+  if (logoImage !== undefined) {
+    est.logoImage = logoImage;
+  }
+  if (tables !== undefined) {
+    est.tables = tables;
   }
   if (req.body.prep_time !== undefined) {
     est.prep_time = req.body.prep_time ? parseInt(req.body.prep_time) : null;
