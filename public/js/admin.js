@@ -466,6 +466,7 @@ class AdminController {
 
   closeMenuTablesModal() {
     document.getElementById('menu-tables-modal').classList.remove('active');
+    this.closeProductSpecsModal();
     this.reloadData();
   }
 
@@ -995,12 +996,14 @@ class AdminController {
     this.specsGroups = prod.modifiers ? JSON.parse(JSON.stringify(prod.modifiers)) : [];
     this.renderSpecsGroups();
 
-    // Open Modal
-    document.getElementById('product-specs-modal').classList.add('active');
+    // Switch container view (embed specs inside floor plan grid slot)
+    document.getElementById('floor-plan-grid-container').style.display = 'none';
+    document.getElementById('floor-specs-editor-container').style.display = 'block';
   }
 
   closeProductSpecsModal() {
-    document.getElementById('product-specs-modal').classList.remove('active');
+    document.getElementById('floor-specs-editor-container').style.display = 'none';
+    document.getElementById('floor-plan-grid-container').style.display = 'flex';
   }
 
   renderSpecsIngredients() {
