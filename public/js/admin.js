@@ -51,7 +51,7 @@ class AdminController {
         
         // Load all establishments and orders
         try {
-          const res = await fetch('/api/establishments');
+          const res = await fetch('/api/owner/establishments');
           this.establishments = await res.json();
           await this.loadOrders();
           
@@ -328,7 +328,7 @@ class AdminController {
 
   async reloadData() {
     try {
-      const res = await fetch('/api/establishments');
+      const res = await fetch('/api/owner/establishments');
       this.establishments = await res.json();
       await this.loadOrders();
       this.renderTable();

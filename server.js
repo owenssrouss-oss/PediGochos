@@ -65,6 +65,12 @@ app.get('/api/establishments', (req, res) => {
   res.json(sanitized);
 });
 
+// Get all establishments with linkKeys (For Platform Owner only)
+app.get('/api/owner/establishments', (req, res) => {
+  const db = readDB();
+  res.json(db.establishments);
+});
+
 // Register a new establishment
 app.post('/api/establishments', (req, res) => {
   const db = readDB();

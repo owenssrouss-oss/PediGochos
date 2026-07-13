@@ -627,6 +627,27 @@
       renderProducts();
     }
 
+    function closeEstActionModal() {
+      AdminApp.closeEstActionModal();
+    }
+
+    function viewShopMenu() {
+      AdminApp.viewShopMenu();
+    }
+
+    // Toggle edit modal
+    function openEditShopModal() {
+      AdminApp.openEditShopModal();
+    }
+
+    function closeEditShopModal() {
+      AdminApp.closeEditShopModal();
+    }
+
+    function handleEditShopSubmit(e) {
+      AdminApp.handleEditShopSubmit(e);
+    }
+
     function showToast(message, isError = false) {
       const container = document.getElementById('toast-center');
       const toast = document.createElement('div');
