@@ -6,6 +6,7 @@
   <title>Dueño DeliverCity - Panel de Administración Central</title>
   <link rel="stylesheet" href="/css/common.css">
   <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/menu-builder.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/supabase-helper.js"></script>
 </head>
@@ -194,12 +195,356 @@
         </div>
       </section>
 
+      <!-- Interactive Menu Builder Section (Supabase Integrated) -->
+      <section class="admin-card" style="grid-column: 1 / -1; margin-top: 30px; display: flex; flex-direction: column; gap: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 16px;">
+          <h3 style="margin: 0; font-size: 20px; font-weight: 800; color: #FFFFFF;">🍔 Creador de Menú Interactivo (Supabase Realtime)</h3>
+          <button class="btn-neumorphic" onclick="openMenuModal()" style="margin: 0;">
+            <span>➕</span> Nuevo Producto
+          </button>
+        </div>
+        
+        <div class="menu-container" style="max-width: 100%; display: grid; grid-template-columns: 260px 1fr; gap: 24px; margin: 0;">
+          <!-- Categories Sidebar -->
+          <aside class="sidebar-panel" style="box-shadow: none; border: 1px solid var(--border-light); background: rgba(22, 22, 28, 0.4); padding: 18px; border-radius: 16px;">
+            <div class="section-title" style="margin-bottom: 14px; font-size: 15px;">
+              <span>📁 Categorías</span>
+              <button onclick="promptCreateCategory()" style="background:none; border:none; color:var(--accent); font-size:16px; cursor:pointer;">➕</button>
+            </div>
+            <ul class="category-list" id="categories-sidebar" style="gap: 8px;">
+              <li class="category-item active" onclick="filterCategory('all')" style="font-size: 13px; padding: 10px 12px;">Todos los Productos</li>
+            </ul>
+          </aside>
+
+          <!-- Catalog Grid -->
+          <div class="catalog-panel">
+            <div class="catalog-grid" id="products-catalog-grid">
+              <div class="cart-empty-state" style="grid-column: 1 / -1; background: var(--bg-card); padding: 40px; border-radius: 16px; text-align: center; border: 1px dashed var(--border-light);">
+                <span style="font-size: 32px;">🍔</span>
+                <p style="margin-top: 10px; color: var(--text-muted); font-size: 13.5px;">Cargando catálogo desde Supabase...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
   <!-- Toast notification -->
   <div id="toast" class="toast hidden">Notificación</div>
 
+  <!-- Glassmorphic Modal: Create Product -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal-content" style="background: #16161c; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+      <div class="modal-header">
+        <h3 style="color: #ffffff;">🍔 Agregar Producto al Menú</h3>
+        <button class="modal-close" onclick="closeMenuModal()">✕</button>
+      </div>
+      
+      <form id="product-form" onsubmit="handleProductSubmit(event)">
+        <!-- Category Selector -->
+        <div class="form-group">
+          <label for="form-category">Categoría *</label>
+          <select id="form-category" required style="width: 100%;">
+            <option value="">-- Selecciona una categoría --</option>
+          </select>
+        </div>
+
+        <!-- Product Name -->
+        <div class="form-group">
+          <label for="form-name">Nombre del Producto *</label>
+          <input type="text" id="form-name" required placeholder="Ej. Pepito Mixto Especial" style="width: 100%;">
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="form-desc">Descripción / Ingredientes *</label>
+          <textarea id="form-desc" rows="3" required placeholder="Ej. Carne de res, pollo, aguacate, queso cheddar en pan baguette." style="width: 100%; font-family: inherit; resize: none;"></textarea>
+        </div>
+
+        <!-- Base Price -->
+        <div class="form-group">
+          <label for="form-price">Precio Base ($ USD) *</label>
+          <input type="number" id="form-price" step="0.01" min="0" required placeholder="Ej. 12.50" style="width: 100%;">
+        </div>
+
+        <!-- Image Upload -->
+        <div class="form-group">
+          <label for="form-image">Imagen del Producto *</label>
+          <input type="file" id="form-image" accept="image/*" required style="width: 100%;">
+        </div>
+
+        <!-- Submit Button -->
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" class="btn-neumorphic" onclick="closeMenuModal()" style="box-shadow: none; margin: 0;">Cancelar</button>
+          <button type="submit" id="btn-submit-form" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0;">
+            <span>Guardar Producto</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Center -->
+  <div class="toast-container" id="toast-center"></div>
+
   <script src="/js/admin.js"></script>
+  <script src="/js/menu-builder.js"></script>
+  
+  <script>
+    let activeCategoryId = 'all';
+    let categoriesList = [];
+    let productsList = [];
+
+    // Trigger Supabase MenuBuilder once Admin app determines authentication
+    async function initMenuBuilderSection() {
+      const ok = await MenuBuilder.init();
+      if (!ok) return;
+
+      // Load UI lists
+      await loadCategories();
+      await loadProducts();
+
+      // Subscribe to realtime database updates!
+      MenuBuilder.subscribeToMenuUpdates(
+        (newProd) => {
+          showToast(`¡Nuevo producto "${newProd.name}" sincronizado en vivo! 🚀`);
+          handleRealtimeInsert(newProd);
+        },
+        (updatedProd) => {
+          showToast(`Producto "${updatedProd.name}" actualizado en vivo! 🔄`);
+          handleRealtimeUpdate(updatedProd);
+        },
+        (deletedProd) => {
+          showToast(`Un producto fue eliminado del menú 🗑️`, true);
+          handleRealtimeDelete(deletedProd);
+        }
+      );
+    }
+
+    // Call initMenuBuilderSection once document is loaded, or when admin session validates
+    document.addEventListener('DOMContentLoaded', () => {
+      // Small delay to ensure SupabaseApp initializes
+      setTimeout(initMenuBuilderSection, 800);
+    });
+
+    async function loadCategories() {
+      try {
+        categoriesList = await MenuBuilder.getCategories();
+        renderCategories();
+      } catch (err) {
+        console.error(err);
+        showToast('Error cargando categorías de Supabase', true);
+      }
+    }
+
+    async function loadProducts() {
+      try {
+        const { data, error } = await MenuBuilder.supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        productsList = data || [];
+        renderProducts();
+      } catch (err) {
+        console.error(err);
+        showToast('Error cargando el catálogo', true);
+      }
+    }
+
+    function renderCategories() {
+      const sidebar = document.getElementById('categories-sidebar');
+      const select = document.getElementById('form-category');
+      
+      sidebar.innerHTML = `<li class="category-item ${activeCategoryId === 'all' ? 'active' : ''}" onclick="filterCategory('all')" style="font-size: 13px; padding: 10px 12px;">Todos los Productos</li>`;
+      select.innerHTML = `<option value="">-- Selecciona una categoría --</option>`;
+
+      categoriesList.forEach(cat => {
+        const li = document.createElement('li');
+        li.className = `category-item ${activeCategoryId === cat.id ? 'active' : ''}`;
+        li.innerText = cat.name;
+        li.style.fontSize = '13px';
+        li.style.padding = '10px 12px';
+        li.onclick = () => filterCategory(cat.id);
+        sidebar.appendChild(li);
+
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.innerText = cat.name;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById('products-catalog-grid');
+      grid.innerHTML = '';
+
+      const filtered = activeCategoryId === 'all' 
+        ? productsList 
+        : productsList.filter(p => p.category_id === activeCategoryId);
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="cart-empty-state" style="grid-column: 1 / -1; background: var(--bg-card); padding: 40px; border-radius: 16px; text-align: center; border: 1px dashed var(--border-light);">
+            <span style="font-size: 32px;">📦</span>
+            <p style="margin-top: 10px; color: var(--text-muted); font-size: 13.5px;">No hay productos en esta categoría.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(prod => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.id = `prod-card-${prod.id}`;
+        
+        const imgUrl = prod.image_url || '/images/burger_royale.jpg';
+        
+        card.innerHTML = `
+          <img src="${imgUrl}" alt="${prod.name}" class="product-img" onerror="this.src='/images/burger_royale.jpg'">
+          <div class="product-info">
+            <h4 style="color: #ffffff;">${prod.name}</h4>
+            <p>${prod.description || 'Sin descripción.'}</p>
+          </div>
+          <div class="product-footer">
+            <span class="product-price" style="color: var(--accent);">$${parseFloat(prod.price).toFixed(2)}</span>
+            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+              ${getCategoryName(prod.category_id)}
+            </span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function getCategoryName(catId) {
+      const cat = categoriesList.find(c => c.id === catId);
+      return cat ? cat.name : 'Varios';
+    }
+
+    function filterCategory(catId) {
+      activeCategoryId = catId;
+      document.querySelectorAll('.category-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      renderCategories();
+      renderProducts();
+    }
+
+    function openMenuModal() {
+      document.getElementById('product-modal').classList.add('active');
+    }
+
+    function closeMenuModal() {
+      document.getElementById('product-modal').classList.remove('active');
+      document.getElementById('product-form').reset();
+    }
+
+    async function promptCreateCategory() {
+      const name = prompt('Ingresa el nombre de la nueva categoría (ej. Pepitos, Bebidas):');
+      if (!name) return;
+      const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
+      
+      try {
+        await MenuBuilder.createCategory(name, slug);
+        showToast(`Categoría "${name}" creada con éxito!`);
+        await loadCategories();
+      } catch (err) {
+        showToast('Error al crear categoría: ' + err.message, true);
+      }
+    }
+
+    async function handleProductSubmit(e) {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('btn-submit-form');
+      const catSelect = document.getElementById('form-category').value;
+      const nameInput = document.getElementById('form-name').value;
+      const descInput = document.getElementById('form-desc').value;
+      const priceInput = document.getElementById('form-price').value;
+      const fileInput = document.getElementById('form-image').files[0];
+
+      if (!fileInput) {
+        showToast('Por favor, selecciona una foto del producto.', true);
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.classList.add('heartbeat-pulse');
+      submitBtn.innerHTML = `<span class="spinner"></span> <span style="margin-left: 8px;">Subiendo Imagen...</span>`;
+
+      try {
+        const imageUrl = await MenuBuilder.uploadProductImage(fileInput);
+        
+        submitBtn.innerHTML = `<span class="spinner"></span> <span style="margin-left: 8px;">Guardando Producto...</span>`;
+        
+        const newProduct = await MenuBuilder.createProduct(catSelect, nameInput, descInput, priceInput, imageUrl);
+        
+        closeMenuModal();
+        showToast(`🎉 ¡${newProduct.name} agregado al menú con éxito!`);
+        
+      } catch (err) {
+        console.error(err);
+        showToast(`❌ Error: ${err.message || 'Problema de red. Intenta nuevamente.'}`, true);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('heartbeat-pulse');
+        submitBtn.innerHTML = `<span>Guardar Producto</span>`;
+      }
+    }
+
+    function handleRealtimeInsert(newProd) {
+      if (productsList.some(p => p.id === newProd.id)) return;
+      
+      productsList.unshift(newProd);
+      renderProducts();
+      
+      const card = document.getElementById(`prod-card-${newProd.id}`);
+      if (card) {
+        const badge = document.createElement('div');
+        badge.className = 'new-indicator';
+        badge.innerText = 'NUEVO';
+        card.appendChild(badge);
+        
+        setTimeout(() => {
+          badge.remove();
+        }, 5000);
+      }
+    }
+
+    function handleRealtimeUpdate(updatedProd) {
+      const idx = productsList.findIndex(p => p.id === updatedProd.id);
+      if (idx !== -1) {
+        productsList[idx] = updatedProd;
+        renderProducts();
+      }
+    }
+
+    function handleRealtimeDelete(deletedProd) {
+      productsList = productsList.filter(p => p.id !== deletedProd.id);
+      renderProducts();
+    }
+
+    function showToast(message, isError = false) {
+      const container = document.getElementById('toast-center');
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `
+        <span>${isError ? '⚠️' : '⚡'}</span>
+        <p>${message}</p>
+      `;
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1) reverse forwards';
+        setTimeout(() => {
+          toast.remove();
+        }, 300);
+      }, 4000);
+    }
+  </script>
 </body>
 </html>
