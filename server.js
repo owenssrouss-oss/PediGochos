@@ -16,10 +16,59 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Helper functions for Database read/write
+async function syncFromSupabase() {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+    console.log('Supabase env vars missing. Skipping cloud DB sync.');
+    return;
+  }
+  try {
+    const url = `${process.env.SUPABASE_URL}/storage/v1/object/public/menu_images/db_backup.json`;
+    console.log('Syncing database state from Supabase:', url);
+    const res = await fetch(url);
+    if (res.ok) {
+      const text = await res.text();
+      const data = JSON.parse(text);
+      if (data && data.establishments) {
+        fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
+        console.log('🎉 Database synced successfully from Supabase Storage!');
+      }
+    } else {
+      console.log('No backup db.json found in Supabase Storage or request failed. Status:', res.status);
+    }
+  } catch (err) {
+    console.error('Error syncing database from Supabase:', err);
+  }
+}
+
+async function uploadToSupabase() {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) return;
+  try {
+    const url = `${process.env.SUPABASE_URL}/storage/v1/object/menu_images/db_backup.json`;
+    const fileContent = fs.readFileSync(DB_FILE, 'utf8');
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        'apikey': process.env.SUPABASE_ANON_KEY,
+        'x-upsert': 'true',
+        'Content-Type': 'application/json'
+      },
+      body: fileContent
+    });
+    if (res.ok) {
+      console.log('☁️ Database state backup updated successfully in Supabase Storage!');
+    } else {
+      const errText = await res.text();
+      console.error('Failed to backup database to Supabase:', res.status, errText);
+    }
+  } catch (err) {
+    console.error('Error backing up database to Supabase:', err);
+  }
+}
+
 function readDB() {
   try {
     if (!fs.existsSync(DB_FILE)) {
-      // Return default empty structure if file doesn't exist
       return { establishments: [], orders: [] };
     }
     const data = fs.readFileSync(DB_FILE, 'utf8');
@@ -33,6 +82,7 @@ function readDB() {
 function writeDB(data) {
   try {
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
+    uploadToSupabase();
   } catch (err) {
     console.error('Error writing DB:', err);
   }
@@ -334,6 +384,7 @@ app.get('*', (req, res, next) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
+  await syncFromSupabase();
 });
