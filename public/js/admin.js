@@ -23,7 +23,6 @@ class AdminController {
 
   async init() {
     this.populateLogoSelect('comidas');
-    this.addNewProductRow();
     this.generateRandomLinkKey();
 
     // Check if Google OAuth session is active
@@ -413,10 +412,6 @@ class AdminController {
   removeProductRow(index) {
     const container = document.getElementById('dynamic-products-container');
     const rows = Array.from(container.children);
-    if (rows.length <= 1) {
-      alert('Debes incluir al menos un producto.');
-      return;
-    }
     const target = rows.find(r => parseInt(r.dataset.index, 10) === index);
     if (target) {
       container.removeChild(target);
@@ -440,21 +435,27 @@ class AdminController {
       banner = document.getElementById('reg-banner-image').value.trim() || 'linear-gradient(135deg, #1D2671, #C33764)';
     }
 
-    // Parse products
+    // Parse products (optional)
     const productRows = document.querySelectorAll('.reg-product-row');
     const products = [];
     productRows.forEach((row, i) => {
-      const prodName = row.querySelector('.prod-name').value.trim();
-      const prodPrice = parseFloat(row.querySelector('.prod-price').value);
-      const prodDesc = row.querySelector('.prod-desc').value.trim();
+      const nameInput = row.querySelector('.prod-name');
+      const priceInput = row.querySelector('.prod-price');
+      const descInput = row.querySelector('.prod-desc');
+
+      const prodName = nameInput ? nameInput.value.trim() : '';
+      const prodPrice = priceInput ? parseFloat(priceInput.value) : 0;
+      const prodDesc = descInput ? descInput.value.trim() : '';
       
-      products.push({
-        id: `p-${Date.now()}-${i}`,
-        name: prodName,
-        price: prodPrice,
-        description: prodDesc,
-        image: DEFAULT_IMAGES[category]
-      });
+      if (prodName) {
+        products.push({
+          id: `p-${Date.now()}-${i}`,
+          name: prodName,
+          price: isNaN(prodPrice) ? 0 : prodPrice,
+          description: prodDesc,
+          image: DEFAULT_IMAGES[category]
+        });
+      }
     });
 
     const payload = {
@@ -481,7 +482,6 @@ class AdminController {
         // Reset form
         document.getElementById('reg-est-form').reset();
         document.getElementById('dynamic-products-container').innerHTML = '';
-        this.addNewProductRow();
         this.generateRandomLinkKey();
 
         // Reload data from api
