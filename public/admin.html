@@ -195,49 +195,7 @@
         </div>
       </section>
 
-      <!-- Interactive Menu Builder Section (Supabase Integrated) -->
-      <section class="admin-card" style="grid-column: 1 / -1; margin-top: 30px; display: flex; flex-direction: column; gap: 20px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 16px;">
-          <h3 id="menu-builder-shop-name" style="margin: 0; font-size: 20px; font-weight: 800; color: #FFFFFF;">🍔 Creador de Menú (Selecciona un local para ver su menú)</h3>
-          <button class="btn-neumorphic" onclick="openMenuModal()" style="margin: 0;">
-            <span>➕</span> Nuevo Producto
-          </button>
-        </div>
-        
-        <div class="menu-container" style="max-width: 100%; display: grid; grid-template-columns: 240px 1fr 300px; gap: 24px; margin: 0;" id="menu-builder-section">
-          <!-- Categories Sidebar -->
-          <aside class="sidebar-panel" style="box-shadow: none; border: 1px solid var(--border-light); background: rgba(22, 22, 28, 0.4); padding: 18px; border-radius: 16px;">
-            <div class="section-title" style="margin-bottom: 14px; font-size: 15px;">
-              <span>📁 Categorías</span>
-              <button onclick="promptCreateCategory()" style="background:none; border:none; color:var(--accent); font-size:16px; cursor:pointer;">➕</button>
-            </div>
-            <ul class="category-list" id="categories-sidebar" style="gap: 8px;">
-              <li class="category-item active" onclick="filterCategory('all')" style="font-size: 13px; padding: 10px 12px;">Todos los Productos</li>
-            </ul>
-          </aside>
 
-          <!-- Catalog Grid -->
-          <div class="catalog-panel">
-            <div class="catalog-grid" id="products-catalog-grid">
-              <div class="cart-empty-state" style="grid-column: 1 / -1; background: var(--bg-card); padding: 40px; border-radius: 16px; text-align: center; border: 1px dashed var(--border-light);">
-                <span style="font-size: 32px;">🍔</span>
-                <p style="margin-top: 10px; color: var(--text-muted); font-size: 13.5px;">Cargando catálogo desde Supabase...</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tables Management Panel -->
-          <div class="tables-panel" style="background: rgba(22, 22, 28, 0.4); border: 1px solid var(--border-light); padding: 18px; border-radius: 16px; display: flex; flex-direction: column; gap: 14px; height: fit-content;">
-            <div class="section-title" style="margin-bottom: 8px; font-size: 15px; display: flex; justify-content: space-between; align-items: center;">
-              <span style="color: #ffffff; font-weight: 700;">🪑 Mesas del local</span>
-              <button onclick="promptAddTable()" style="background:none; border:none; color:var(--accent); font-size:16px; cursor:pointer;">➕ Nueva Mesa</button>
-            </div>
-            <div id="restaurant-tables-container" style="display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 4px;">
-              <p style="font-size: 12.5px; color: var(--text-muted); text-align: center; padding: 20px;">Selecciona un local para ver sus mesas.</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
     </main>
   </div>
@@ -489,18 +447,21 @@
     }
 
     function renderCategories() {
-      const sidebar = document.getElementById('categories-sidebar');
+      const sidebar = document.getElementById('modal-categories-sidebar');
       const select = document.getElementById('form-category');
+      if (!sidebar) return;
       
-      sidebar.innerHTML = `<li class="category-item ${activeCategoryId === 'all' ? 'active' : ''}" onclick="filterCategory('all')" style="font-size: 13px; padding: 10px 12px;">Todos los Productos</li>`;
+      sidebar.innerHTML = `<li class="category-item ${activeCategoryId === 'all' ? 'active' : ''}" onclick="filterCategory('all')" style="font-size: 11.5px; padding: 8px 10px; cursor: pointer; border-radius: 8px;">Todos</li>`;
       select.innerHTML = `<option value="">-- Selecciona una categoría --</option>`;
 
       categoriesList.forEach(cat => {
         const li = document.createElement('li');
         li.className = `category-item ${activeCategoryId === cat.id ? 'active' : ''}`;
         li.innerText = cat.name;
-        li.style.fontSize = '13px';
-        li.style.padding = '10px 12px';
+        li.style.fontSize = '11.5px';
+        li.style.padding = '8px 10px';
+        li.style.cursor = 'pointer';
+        li.style.borderRadius = '8px';
         li.onclick = () => filterCategory(cat.id);
         sidebar.appendChild(li);
 
@@ -512,17 +473,14 @@
     }
 
     function renderProducts() {
-      const grid = document.getElementById('products-catalog-grid');
+      const grid = document.getElementById('modal-products-catalog-grid');
+      if (!grid) return;
       grid.innerHTML = '';
 
-      // If category filter is active (only makes sense for general view, but we support it for local too)
       let filtered = productsList;
       if (activeCategoryId !== 'all') {
-        // Match by slug or category_id
         filtered = productsList.filter(p => {
           if (p.category_id) return p.category_id === activeCategoryId;
-          
-          // Match local category
           const cat = categoriesList.find(c => c.id === activeCategoryId);
           if (cat && p.category) return p.category.toLowerCase().includes(cat.slug);
           return false;
@@ -531,9 +489,9 @@
 
       if (filtered.length === 0) {
         grid.innerHTML = `
-          <div class="cart-empty-state" style="grid-column: 1 / -1; background: var(--bg-card); padding: 40px; border-radius: 16px; text-align: center; border: 1px dashed var(--border-light);">
-            <span style="font-size: 32px;">📦</span>
-            <p style="margin-top: 10px; color: var(--text-muted); font-size: 13.5px;">No hay productos en esta categoría.</p>
+          <div class="cart-empty-state" style="grid-column: 1 / -1; background: var(--bg-card); padding: 30px; border-radius: 16px; text-align: center; border: 1px dashed var(--border-light);">
+            <span style="font-size: 24px;">📦</span>
+            <p style="margin-top: 10px; color: var(--text-muted); font-size: 12.5px;">No hay productos en esta categoría.</p>
           </div>
         `;
         return;
@@ -543,20 +501,26 @@
         const card = document.createElement('div');
         card.className = 'product-card';
         card.id = `prod-card-${prod.id}`;
+        card.style.background = 'rgba(255, 255, 255, 0.03)';
+        card.style.border = '1px solid rgba(255, 255, 255, 0.05)';
+        card.style.borderRadius = '14px';
+        card.style.padding = '8px';
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.gap = '6px';
+        card.style.position = 'relative';
         
         const imgUrl = prod.image_url || prod.image || '/images/burger_royale.jpg';
         
         card.innerHTML = `
-          <img src="${imgUrl}" alt="${prod.name}" class="product-img" onerror="this.src='/images/burger_royale.jpg'">
-          <div class="product-info">
-            <h4 style="color: #ffffff;">${prod.name}</h4>
-            <p>${prod.description || 'Sin descripción.'}</p>
+          <img src="${imgUrl}" alt="${prod.name}" style="width: 100%; aspect-ratio: 1.2/1; object-fit: cover; border-radius: 10px;" onerror="this.src='/images/burger_royale.jpg'">
+          <div class="product-info" style="padding: 0;">
+            <h4 style="color: #ffffff; font-size: 11px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${prod.name}</h4>
+            <p style="font-size: 10px; color: var(--text-muted); line-height: 1.2; margin: 4px 0 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${prod.description || 'Sin descripción.'}</p>
           </div>
-          <div class="product-footer">
-            <span class="product-price" style="color: var(--accent);">$${parseFloat(prod.price).toFixed(2)}</span>
-            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
-              ${prod.category_id ? getCategoryName(prod.category_id) : 'Menú Local'}
-            </span>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+            <span style="color: var(--accent); font-weight: 700; font-size: 11px;">$${parseFloat(prod.price).toFixed(2)}</span>
+            <button onclick="deleteProductFromModal('${prod.id}')" style="background: rgba(239, 68, 68, 0.9); border: none; border-radius: 50%; color: #fff; width: 20px; height: 20px; font-size: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700;">✕</button>
           </div>
         `;
         grid.appendChild(card);
@@ -629,6 +593,10 @@
         submitBtn.innerHTML = `<span class="spinner"></span> <span style="margin-left: 8px;">Guardando Producto...</span>`;
         
         const newProduct = await MenuBuilder.createProduct(catSelect, nameInput, descInput, priceInput, imageUrl);
+        
+        if (window.activeShopIdForMenu) {
+          await AdminApp.importNewProductToActiveShop(newProduct);
+        }
         
         closeMenuModal();
         showToast(`🎉 ¡${newProduct.name} agregado al menú con éxito!`);
@@ -704,172 +672,25 @@
       AdminApp.modifyMenuAndTables();
     }
 
-    // Tables management CRUD
-    function loadTables() {
-      const container = document.getElementById('restaurant-tables-container');
-      if (!container) return;
-
-      if (!window.activeShopIdForMenu) {
-        container.innerHTML = `<p style="font-size: 12.5px; color: var(--text-muted); text-align: center; padding: 20px;">Selecciona un local para ver sus mesas.</p>`;
-        return;
-      }
-
-      const est = AdminApp.establishments.find(e => e.id === window.activeShopIdForMenu);
-      if (!est) return;
-
-      const tables = est.tables || [];
-      if (tables.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; padding: 20px; color: var(--text-muted);">
-            <span style="font-size: 24px;">🪑</span>
-            <p style="margin-top: 8px; font-size: 12px;">No hay mesas registradas. ¡Agrega una!</p>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = '';
-      tables.forEach(table => {
-        const div = document.createElement('div');
-        div.className = 'table-row-item';
-        div.style.display = 'flex';
-        div.style.justifyContent = 'space-between';
-        div.style.alignItems = 'center';
-        div.style.background = 'rgba(18, 18, 22, 0.6)';
-        div.style.border = '1px solid rgba(255, 255, 255, 0.05)';
-        div.style.padding = '10px 14px';
-        div.style.borderRadius = '12px';
-        div.style.fontSize = '13.5px';
-        div.style.marginBottom = '6px';
-
-        const isDisp = table.status === 'Disponible';
-        
-        div.innerHTML = `
-          <div>
-            <span style="font-weight: 700; color: #ffffff;">${table.name || ('Mesa ' + table.number)}</span>
-            <span class="status-badge" onclick="toggleTableStatus('${table.id}')" style="margin-left: 8px; cursor: pointer; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; background: ${isDisp ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)'}; color: ${isDisp ? '#10b981' : '#ef4444'};">
-              ${table.status}
-            </span>
-          </div>
-          <div style="display: flex; gap: 8px;">
-            <button onclick="viewTableQR('${table.number}')" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; font-weight: 700;">Ver QR</button>
-            <button onclick="deleteTable('${table.id}')" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 12px; font-weight: 700;">✕</button>
-          </div>
-        `;
-        container.appendChild(div);
-      });
+    // Designer Modal wrappers
+    function closeMenuTablesModal() {
+      AdminApp.closeMenuTablesModal();
     }
 
-    async function promptAddTable() {
-      if (!window.activeShopIdForMenu) {
-        alert('⚠️ Selecciona primero un establecimiento para gestionar sus mesas.');
-        return;
-      }
-      const est = AdminApp.establishments.find(e => e.id === window.activeShopIdForMenu);
-      if (!est) return;
-
-      const name = prompt('Ingresa el número o nombre de la mesa (ej. Mesa 5 o VIP 1):');
-      if (!name) return;
-
-      if (!est.tables) est.tables = [];
-
-      // Extract table number (for QR code mapping)
-      const numMatch = name.match(/\d+/);
-      const number = numMatch ? parseInt(numMatch[0]) : (est.tables.length + 1);
-
-      const newTable = {
-        id: 't-' + Date.now(),
-        name: name,
-        number: number,
-        status: 'Disponible'
-      };
-
-      est.tables.push(newTable);
-
-      try {
-        const res = await fetch(`/api/establishments/${est.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            isOwner: true,
-            tables: est.tables
-          })
-        });
-
-        if (res.ok) {
-          showToast(`🎉 ¡${name} agregada con éxito!`);
-          loadTables();
-        } else {
-          alert('Error al guardar la mesa.');
-        }
-      } catch (err) {
-        console.error(err);
-        alert('Error de conexión.');
-      }
+    function setFloorTool(tool) {
+      AdminApp.setFloorTool(tool);
     }
 
-    async function toggleTableStatus(tableId) {
-      if (!window.activeShopIdForMenu) return;
-      const est = AdminApp.establishments.find(e => e.id === window.activeShopIdForMenu);
-      if (!est) return;
-
-      const table = est.tables.find(t => t.id === tableId);
-      if (!table) return;
-
-      table.status = table.status === 'Disponible' ? 'Ocupada' : 'Disponible';
-
-      try {
-        const res = await fetch(`/api/establishments/${est.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            isOwner: true,
-            tables: est.tables
-          })
-        });
-
-        if (res.ok) {
-          showToast(`Estado de mesa cambiado a ${table.status}`);
-          loadTables();
-        }
-      } catch (err) {
-        console.error(err);
-      }
+    function importGlobalProductFromModal() {
+      AdminApp.importGlobalProductFromModal();
     }
 
-    async function deleteTable(tableId) {
-      if (!window.activeShopIdForMenu) return;
-      const est = AdminApp.establishments.find(e => e.id === window.activeShopIdForMenu);
-      if (!est) return;
-
-      if (!confirm('¿Seguro que deseas eliminar esta mesa?')) return;
-
-      est.tables = est.tables.filter(t => t.id !== tableId);
-
-      try {
-        const res = await fetch(`/api/establishments/${est.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            isOwner: true,
-            tables: est.tables
-          })
-        });
-
-        if (res.ok) {
-          showToast('Mesa eliminada con éxito.');
-          loadTables();
-        }
-      } catch (err) {
-        console.error(err);
-      }
+    function deleteProductFromModal(prodId) {
+      AdminApp.deleteProductFromModal(prodId);
     }
 
-    function viewTableQR(tableNumber) {
-      if (!window.activeShopIdForMenu) return;
-      const origin = window.location.origin;
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(origin + '/?shop=' + window.activeShopIdForMenu + '&table=' + tableNumber)}`;
-      window.open(qrUrl, '_blank');
+    function filterCategoryModal(catId) {
+      filterCategory(catId);
     }
 
     function showToast(message, isError = false) {
@@ -889,6 +710,94 @@
         }, 300);
       }, 4000);
     }
+  <!-- Glassmorphic Modal: Immersive Menu and Floor Layout Designer -->
+  <div class="modal-overlay" id="menu-tables-modal" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+    <div class="modal-content" style="background: rgba(22, 22, 28, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); max-width: 1200px; width: 95%; height: 90vh; display: flex; flex-direction: column; padding: 24px; border-radius: 24px;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <h2 id="designer-modal-shop-name" style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 800;">🍔 Taller de Menú y Distribución de Mesas</h2>
+          <span style="font-size: 12.5px; color: var(--accent); font-weight: 600;" id="designer-modal-shop-subtext">Diseñador interactivo en tiempo real</span>
+        </div>
+        <button class="modal-close" onclick="closeMenuTablesModal()" style="font-size: 20px; color: #ffffff; opacity: 0.6; cursor: pointer; transition: all 0.2s;">✕</button>
+      </div>
+
+      <!-- Split Layout Workspace -->
+      <div class="designer-workspace" style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; flex: 1; overflow: hidden;">
+        
+        <!-- Left Column: Floor Plan Designer (Mesas y Paredes) -->
+        <div class="floor-plan-column" style="display: flex; flex-direction: column; gap: 16px; overflow: hidden; border-right: 1px solid rgba(255,255,255,0.06); padding-right: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">🧱 Distribución de Mesas y Paredes</h3>
+            <!-- Tool Selector -->
+            <div class="floor-tools" style="display: flex; gap: 8px;">
+              <button class="btn-floor-tool active" onclick="setFloorTool('table')" id="tool-table" style="background: var(--accent); color: #121216; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                🪑 Colocar Mesa
+              </button>
+              <button class="btn-floor-tool" onclick="setFloorTool('wall')" id="tool-wall" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                🧱 Colocar Pared
+              </button>
+              <button class="btn-floor-tool" onclick="setFloorTool('eraser')" id="tool-eraser" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                🧹 Borrador
+              </button>
+            </div>
+          </div>
+          <p style="font-size: 11.5px; color: var(--text-muted); margin: 0;">Selecciona una herramienta y haz clic en las celdas del plano para estructurar tu establecimiento. El plano se actualiza automáticamente.</p>
+          
+          <!-- Visual Grid Area -->
+          <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 12px; overflow: hidden;">
+            <div id="floor-grid-canvas" style="display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 4px; width: 100%; max-width: 360px; aspect-ratio: 1/1;">
+              <!-- Celdas renderizadas dinámicamente -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive Menu Creator (Productos y Catálogo) -->
+        <div class="menu-creator-column" style="display: flex; flex-direction: column; gap: 16px; overflow: hidden;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">🍔 Carta y Categorías de Comida</h3>
+            <button class="btn-neumorphic" onclick="openMenuModal()" style="margin: 0; padding: 6px 12px; font-size: 11.5px;">
+              <span>➕ Nuevo Producto</span>
+            </button>
+          </div>
+          
+          <!-- Fast Global Catalog Import Area -->
+          <div style="background: rgba(255, 94, 58, 0.05); border: 1px solid rgba(255, 94, 58, 0.15); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+            <div style="flex: 1;">
+              <span style="font-size: 11.5px; font-weight: 700; color: var(--accent); display: block; margin-bottom: 2px;">⚡ Importar del Catálogo del Dueño</span>
+              <span style="font-size: 10.5px; color: var(--text-muted);">Asocia platos globales directamente con su foto.</span>
+            </div>
+            <select id="modal-import-product-select" style="max-width: 180px; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 6px; border-radius: 8px; font-size: 11.5px;">
+              <option value="">Cargando catálogo...</option>
+            </select>
+            <button onclick="importGlobalProductFromModal()" style="background: var(--accent); color: #121216; font-weight: 800; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11.5px;">
+              Importar
+            </button>
+          </div>
+
+          <!-- Menu Workspace Sidebar & Catalog Grid -->
+          <div class="modal-menu-workspace" style="display: grid; grid-template-columns: 140px 1fr; gap: 16px; flex: 1; overflow: hidden;">
+            <!-- Categories Sidebar inside modal -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 8px; overflow-y: auto;">
+              <ul class="category-list" id="modal-categories-sidebar" style="gap: 6px; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column;">
+                <li class="category-item active" onclick="filterCategoryModal('all')" style="font-size: 11.5px; padding: 8px 10px; cursor: pointer; border-radius: 8px;">Todos</li>
+              </ul>
+            </div>
+
+            <!-- Products catalog list inside modal -->
+            <div style="overflow-y: auto; padding-right: 4px;" class="premium-scroll">
+              <div class="catalog-grid" id="modal-products-catalog-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;">
+                <!-- Loaded dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
   </script>
 </body>
 </html>
