@@ -226,7 +226,7 @@
       "id": "burguer-free-1783668377730"
     },
     {
-      "name": "Sabor Larense",
+      "name": "Sabor Tachirense",
       "category": "comidas",
       "description": "Nsjsj",
       "logo": "🍔",
@@ -234,7 +234,7 @@
       "banner": "linear-gradient(135deg, #FF8C00, #FF4500)",
       "linkKey": "NOSIWC",
       "products": [],
-      "id": "sabor-larense-1784000392371"
+      "id": "sabor-tachirense-1784000392371"
     }
   ],
   "orders": [
@@ -433,5 +433,5 @@
       "updatedAt": "2026-07-13T04:56:20.064Z"
     }
   ],
-  "lastUpdated": "2026-07-14T03:53:59.532Z"
+  "lastUpdated": "2026-07-14T03:59:00.000Z"
 }
