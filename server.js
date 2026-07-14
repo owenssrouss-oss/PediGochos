@@ -79,6 +79,142 @@ async function uploadToSupabase() {
   }
 }
 
+// Sync database state from Supabase PostgreSQL tables
+async function syncFromPostgres() {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+    console.log('Supabase env vars missing. Skipping Postgres sync.');
+    return false;
+  }
+  try {
+    const estUrl = `${process.env.SUPABASE_URL}/rest/v1/establishments`;
+    const ordUrl = `${process.env.SUPABASE_URL}/rest/v1/orders`;
+    const headers = {
+      'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+      'apikey': process.env.SUPABASE_ANON_KEY
+    };
+
+    console.log('Syncing database state from Supabase PostgreSQL...');
+    const [estRes, ordRes] = await Promise.all([
+      fetch(estUrl, { headers }),
+      fetch(ordUrl, { headers })
+    ]);
+
+    if (estRes.ok && ordRes.ok) {
+      const establishments = await estRes.json();
+      const orders = await ordRes.json();
+      
+      const dbState = {
+        establishments: establishments || [],
+        orders: orders || [],
+        lastUpdated: new Date().toISOString()
+      };
+      
+      fs.writeFileSync(DB_FILE, JSON.stringify(dbState, null, 2), 'utf8');
+      console.log('🎉 Database synced successfully from Supabase PostgreSQL tables!');
+      return true;
+    } else {
+      console.log(`Supabase PostgreSQL tables might not be created yet. Status: ${estRes.status} / ${ordRes.status}`);
+      console.log('Please run the database script "supabase_setup_tables.sql" in your Supabase SQL Editor.');
+      return false;
+    }
+  } catch (err) {
+    console.error('Error syncing database from Supabase PostgreSQL:', err);
+    return false;
+  }
+}
+
+// Backup database state to Supabase PostgreSQL tables
+async function saveToPostgres() {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) return;
+  try {
+    const localData = readDB();
+    const headers = {
+      'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+      'apikey': process.env.SUPABASE_ANON_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'resolution=merge-duplicates'
+    };
+
+    // 1. Bulk Upsert Establishments
+    if (localData.establishments && localData.establishments.length > 0) {
+      const estRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/establishments`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(localData.establishments)
+      });
+      if (!estRes.ok) {
+        const errText = await estRes.text();
+        console.error('Failed to upsert establishments to Postgres:', estRes.status, errText);
+      }
+    }
+
+    // Delete removed establishments from PostgreSQL
+    const cloudEstRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/establishments?select=id`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        'apikey': process.env.SUPABASE_ANON_KEY
+      }
+    });
+    if (cloudEstRes.ok) {
+      const cloudEsts = await cloudEstRes.json();
+      const localIds = new Set((localData.establishments || []).map(e => e.id));
+      const deletedIds = cloudEsts.map(e => e.id).filter(id => !localIds.has(id));
+      if (deletedIds.length > 0) {
+        console.log('Deleting removed establishments from Postgres:', deletedIds);
+        const delUrl = `${process.env.SUPABASE_URL}/rest/v1/establishments?id=in.(${deletedIds.map(id => `"${id}"`).join(',')})`;
+        await fetch(delUrl, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+            'apikey': process.env.SUPABASE_ANON_KEY
+          }
+        });
+      }
+    }
+
+    // 2. Bulk Upsert Orders
+    if (localData.orders && localData.orders.length > 0) {
+      const ordRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/orders`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(localData.orders)
+      });
+      if (!ordRes.ok) {
+        const errText = await ordRes.text();
+        console.error('Failed to upsert orders to Postgres:', ordRes.status, errText);
+      }
+    }
+
+    // Delete removed orders from PostgreSQL
+    const cloudOrdRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/orders?select=id`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        'apikey': process.env.SUPABASE_ANON_KEY
+      }
+    });
+    if (cloudOrdRes.ok) {
+      const cloudOrds = await cloudOrdRes.json();
+      const localOrderIds = new Set((localData.orders || []).map(o => o.id));
+      const deletedOrderIds = cloudOrds.map(o => o.id).filter(id => !localOrderIds.has(id));
+      if (deletedOrderIds.length > 0) {
+        console.log('Deleting removed orders from Postgres:', deletedOrderIds);
+        const delUrl = `${process.env.SUPABASE_URL}/rest/v1/orders?id=in.(${deletedOrderIds.map(id => `"${id}"`).join(',')})`;
+        await fetch(delUrl, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+            'apikey': process.env.SUPABASE_ANON_KEY
+          }
+        });
+      }
+    }
+
+    console.log('☁️ Database state backup updated successfully in Supabase PostgreSQL tables!');
+  } catch (err) {
+    console.error('Error backing up database to Supabase PostgreSQL:', err);
+  }
+}
+
 function readDB() {
   try {
     if (!fs.existsSync(DB_FILE)) {
@@ -97,6 +233,7 @@ function writeDB(data) {
     data.lastUpdated = new Date().toISOString();
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
     uploadToSupabase();
+    saveToPostgres();
   } catch (err) {
     console.error('Error writing DB:', err);
   }
@@ -400,5 +537,8 @@ app.get('*', (req, res, next) => {
 
 server.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
-  await syncFromSupabase();
+  const syncedFromPostgres = await syncFromPostgres();
+  if (!syncedFromPostgres) {
+    await syncFromSupabase();
+  }
 });
