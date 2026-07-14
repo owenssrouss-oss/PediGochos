@@ -1326,10 +1326,16 @@ class KitchenController {
         return;
       }
       
-      const session = (await MenuBuilder.supabase.auth.getSession()).data.session;
+      let session = (await MenuBuilder.supabase.auth.getSession()).data.session;
       if (!session) {
-        console.warn('No authenticated session found. Skipping cloud backup.');
-        return;
+        console.log('No active session, attempting anonymous sign in for cloud backup...');
+        const { data: authData, error: authError } = await MenuBuilder.supabase.auth.signInAnonymously();
+        if (authError) {
+          console.error('Anonymous auth failed:', authError.message);
+          return;
+        }
+        session = authData.session;
+        console.log('Anonymous sign in successful for backup!');
       }
       
       const estRes = await fetch('/api/owner/establishments');
