@@ -59,6 +59,9 @@ class AdminController {
           document.getElementById('login-gate').classList.add('hidden');
           document.getElementById('admin-panel').classList.remove('hidden');
           
+          const warningBanner = document.getElementById('backup-warning-banner');
+          if (warningBanner) warningBanner.classList.add('hidden');
+          
           this.renderTable();
           this.showToast('👑 Acceso de Dueño verificado con Google');
         } catch (err) {
@@ -112,6 +115,9 @@ class AdminController {
         // Render data
         this.renderTable();
         this.showToast('👑 Acceso de Dueño verificado con éxito');
+        
+        const warningBanner = document.getElementById('backup-warning-banner');
+        if (warningBanner) warningBanner.classList.remove('hidden');
       } else {
         if (!customPassword) {
           errorMsg.classList.remove('hidden');
@@ -1368,13 +1374,21 @@ class AdminController {
     }
   }
 
-  showToast(message) {
-    const toast = document.getElementById('toast');
-    toast.innerText = message;
-    toast.classList.add('show');
-    setTimeout(() => {
-      toast.classList.remove('show');
-    }, 3000);
+  showToast(message, isError = false) {
+    if (typeof window.showToast === 'function') {
+      window.showToast(message, isError);
+    } else {
+      const toast = document.getElementById('toast');
+      if (toast) {
+        toast.innerText = message;
+        toast.classList.remove('hidden');
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+          toast.classList.add('hidden');
+        }, 3000);
+      }
+    }
   }
 }
 
