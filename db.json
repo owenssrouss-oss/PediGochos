@@ -147,43 +147,6 @@
       ]
     },
     {
-      "id": "ferreteria-1",
-      "name": "Ferretería El Tornillo Dorado",
-      "description": "Todo lo que necesitas para remodelar, construir y reparar en tu hogar.",
-      "category": "ferreterias",
-      "logo": "🛠️",
-      "bannerType": "gradient",
-      "banner": "linear-gradient(135deg, #1D2671, #C33764)",
-      "linkKey": "123456",
-      "delivery_fee": 5000,
-      "products": [
-        {
-          "id": "t1-p1",
-          "name": "Set de Destornilladores Pro (8 piezas)",
-          "description": "Puntas magnéticas de acero cromo vanadio, mangos ergonómicos antideslizantes.",
-          "price": 18500,
-          "base_price": 18500,
-          "image": "/images/destornilladores.jpg"
-        },
-        {
-          "id": "t1-p2",
-          "name": "Taladro Inalámbrico 20V",
-          "description": "Incluye batería recargable, cargador rápido y juego de brocas estándar.",
-          "price": 65000,
-          "base_price": 65000,
-          "image": "/images/taladro.jpg"
-        },
-        {
-          "id": "t1-p3",
-          "name": "Cinta Métrica Profesional 5m",
-          "description": "Carcasa resistente a impactos y cinta de acero flexible con freno automático.",
-          "price": 5500,
-          "base_price": 5500,
-          "image": "/images/cinta_metrica.jpg"
-        }
-      ]
-    },
-    {
       "name": "Sabor Urbano Express",
       "category": "comidas",
       "description": "Exquisitas hamburguesas al carbón y papas fritas con ingredientes locales de primera.",

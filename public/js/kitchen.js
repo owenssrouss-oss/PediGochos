@@ -606,6 +606,7 @@ class KitchenController {
         est.products = updatedProducts;
         alert('💾 ¡Precios actualizados con éxito en todo el sistema!');
         this.closePricesModal();
+        await this.triggerCloudBackup();
       } else {
         const data = await res.json();
         alert('Error al guardar precios: ' + (data.error || 'Problema desconocido'));
@@ -770,9 +771,8 @@ class KitchenController {
 
     this.renderFloorGrid();
 
-    // Persist layout coordinates to backend server
     try {
-      await fetch(`/api/establishments/${est.id}`, {
+      const res = await fetch(`/api/establishments/${est.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -780,6 +780,9 @@ class KitchenController {
           layout: est.layout
         })
       });
+      if (res.ok) {
+        await this.triggerCloudBackup();
+      }
     } catch (err) {
       console.error('Error saving layout cell click:', err);
     }
@@ -963,7 +966,7 @@ class KitchenController {
     est.products.push(newLocalProduct);
 
     try {
-      await fetch(`/api/establishments/${est.id}`, {
+      const res = await fetch(`/api/establishments/${est.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -971,9 +974,11 @@ class KitchenController {
           products: est.products
         })
       });
-      
-      this.showLocalToast('📥 Producto importado con éxito.');
-      this.loadModalProducts();
+      if (res.ok) {
+        this.showLocalToast('📥 Producto importado con éxito.');
+        this.loadModalProducts();
+        await this.triggerCloudBackup();
+      }
     } catch (err) {
       console.error(err);
     }
@@ -988,7 +993,7 @@ class KitchenController {
     est.products = est.products.filter(p => p.id !== prodId);
 
     try {
-      await fetch(`/api/establishments/${est.id}`, {
+      const res = await fetch(`/api/establishments/${est.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -996,9 +1001,11 @@ class KitchenController {
           products: est.products
         })
       });
-      
-      this.showLocalToast('🗑️ Producto eliminado de la carta.');
-      this.loadModalProducts();
+      if (res.ok) {
+        this.showLocalToast('🗑️ Producto eliminado de la carta.');
+        this.loadModalProducts();
+        await this.triggerCloudBackup();
+      }
     } catch (err) {
       console.error(err);
     }
@@ -1234,7 +1241,7 @@ class KitchenController {
     prod.modifiers = this.specsGroups;
 
     try {
-      await fetch(`/api/establishments/${est.id}`, {
+      const res = await fetch(`/api/establishments/${est.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1242,10 +1249,12 @@ class KitchenController {
           products: est.products
         })
       });
-
-      this.showLocalToast('✅ Especificaciones guardadas con éxito.');
-      this.closeProductSpecsModal();
-      this.loadModalProducts();
+      if (res.ok) {
+        this.showLocalToast('✅ Especificaciones guardadas con éxito.');
+        this.closeProductSpecsModal();
+        this.loadModalProducts();
+        await this.triggerCloudBackup();
+      }
     } catch (err) {
       console.error(err);
     }
@@ -1293,7 +1302,7 @@ class KitchenController {
     est.products.push(newLocalProduct);
 
     try {
-      await fetch(`/api/establishments/${est.id}`, {
+      const res = await fetch(`/api/establishments/${est.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1301,9 +1310,54 @@ class KitchenController {
           products: est.products
         })
       });
-      this.loadModalProducts();
+      if (res.ok) {
+        this.loadModalProducts();
+        await this.triggerCloudBackup();
+      }
     } catch (err) {
       console.error(err);
+    }
+  }
+
+  async triggerCloudBackup() {
+    try {
+      if (typeof MenuBuilder === 'undefined' || !MenuBuilder.supabase) {
+        console.warn('MenuBuilder not initialized. Cannot run cloud backup.');
+        return;
+      }
+      
+      const session = (await MenuBuilder.supabase.auth.getSession()).data.session;
+      if (!session) {
+        console.warn('No authenticated session found. Skipping cloud backup.');
+        return;
+      }
+      
+      const estRes = await fetch('/api/owner/establishments');
+      if (!estRes.ok) throw new Error('Failed to fetch establishments for backup');
+      const establishments = await estRes.json();
+      
+      const ordRes = await fetch('/api/orders');
+      if (!ordRes.ok) throw new Error('Failed to fetch orders for backup');
+      const orders = await ordRes.json();
+      
+      const dbState = { establishments, orders };
+      const blob = new Blob([JSON.stringify(dbState, null, 2)], { type: 'application/json' });
+      
+      console.log('☁️ Triggering cloud backup of db.json to Supabase Storage...');
+      const { data, error } = await MenuBuilder.supabase.storage
+        .from('menu_images')
+        .upload('uploads/db_backup.json', blob, {
+          contentType: 'application/json',
+          upsert: true
+        });
+        
+      if (error) {
+        console.error('Failed to upload db_backup.json:', error.message);
+      } else {
+        console.log('🎉 Cloud backup of db.json completed successfully!');
+      }
+    } catch (err) {
+      console.error('Error during cloud backup:', err);
     }
   }
 

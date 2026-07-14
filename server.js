@@ -22,9 +22,14 @@ async function syncFromSupabase() {
     return;
   }
   try {
-    const url = `${process.env.SUPABASE_URL}/storage/v1/object/public/menu_images/db_backup.json`;
+    const url = `${process.env.SUPABASE_URL}/storage/v1/object/public/menu_images/uploads/db_backup.json`;
     console.log('Syncing database state from Supabase:', url);
-    const res = await fetch(url);
+    let res = await fetch(url);
+    if (!res.ok) {
+      const legacyUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/menu_images/db_backup.json`;
+      console.log('Trying legacy path fallback:', legacyUrl);
+      res = await fetch(legacyUrl);
+    }
     if (res.ok) {
       const text = await res.text();
       const data = JSON.parse(text);

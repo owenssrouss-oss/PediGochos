@@ -368,6 +368,7 @@ class AdminController {
         document.getElementById('edit-shop-banner-file').value = '';
         
         await this.reloadData();
+        await this.triggerCloudBackup();
       } else {
         alert('Error al guardar los cambios.');
       }
@@ -432,6 +433,7 @@ class AdminController {
             await window.loadProducts();
           }
         }
+        await this.triggerCloudBackup();
       } else {
         alert('Error al guardar el producto importado.');
       }
@@ -587,6 +589,7 @@ class AdminController {
 
       if (res.ok) {
         this.renderFloorGrid();
+        await this.triggerCloudBackup();
       } else {
         console.error('Failed to save layout to server');
       }
@@ -785,6 +788,7 @@ class AdminController {
         this.showToast(`📥 ¡${selected.name} importado con éxito!`);
         select.value = '';
         this.loadModalProducts();
+        await this.triggerCloudBackup();
       }
     } catch (err) {
       console.error(err);
@@ -812,6 +816,7 @@ class AdminController {
       if (res.ok) {
         this.showToast('Producto eliminado del local.');
         this.loadModalProducts();
+        await this.triggerCloudBackup();
       }
     } catch (err) {
       console.error(err);
@@ -836,7 +841,7 @@ class AdminController {
     est.products.push(newLocalProduct);
 
     try {
-      await fetch(`/api/establishments/${est.id}`, {
+      const res = await fetch(`/api/establishments/${est.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -844,8 +849,11 @@ class AdminController {
           products: est.products
         })
       });
-      this.loadModalProducts();
-      this.loadModalImportCatalog();
+      if (res.ok) {
+        this.loadModalProducts();
+        this.loadModalImportCatalog();
+        await this.triggerCloudBackup();
+      }
     } catch (err) {
       console.error('Error importing newly created product:', err);
     }
@@ -868,6 +876,7 @@ class AdminController {
       if (response.ok) {
         alert(`🗑️ El establecimiento "${name}" ha sido eliminado del sistema con éxito.`);
         await this.reloadData();
+        await this.triggerCloudBackup();
       } else {
         const data = await response.json();
         alert('Error al eliminar establecimiento: ' + (data.error || 'Problema desconocido'));
@@ -1038,6 +1047,7 @@ class AdminController {
 
         // Reload data from api
         await this.reloadData();
+        await this.triggerCloudBackup();
       } else {
         alert('Error al registrar establecimiento.');
       }
@@ -1298,12 +1308,55 @@ class AdminController {
         if (typeof window.loadProducts === 'function') {
           await window.loadProducts();
         }
+        await this.triggerCloudBackup();
       } else {
         alert('Error al guardar especificaciones.');
       }
     } catch (err) {
       console.error(err);
       alert('Error de conexión.');
+    }
+  }
+
+  async triggerCloudBackup() {
+    try {
+      if (typeof MenuBuilder === 'undefined' || !MenuBuilder.supabase) {
+        console.warn('MenuBuilder not initialized. Cannot run cloud backup.');
+        return;
+      }
+      
+      const session = (await MenuBuilder.supabase.auth.getSession()).data.session;
+      if (!session) {
+        console.warn('No authenticated session found. Skipping cloud backup.');
+        return;
+      }
+      
+      const estRes = await fetch('/api/owner/establishments');
+      if (!estRes.ok) throw new Error('Failed to fetch establishments for backup');
+      const establishments = await estRes.json();
+      
+      const ordRes = await fetch('/api/orders');
+      if (!ordRes.ok) throw new Error('Failed to fetch orders for backup');
+      const orders = await ordRes.json();
+      
+      const dbState = { establishments, orders };
+      const blob = new Blob([JSON.stringify(dbState, null, 2)], { type: 'application/json' });
+      
+      console.log('☁️ Triggering cloud backup of db.json to Supabase Storage...');
+      const { data, error } = await MenuBuilder.supabase.storage
+        .from('menu_images')
+        .upload('uploads/db_backup.json', blob, {
+          contentType: 'application/json',
+          upsert: true
+        });
+        
+      if (error) {
+        console.error('Failed to upload db_backup.json:', error.message);
+      } else {
+        console.log('🎉 Cloud backup of db.json completed successfully!');
+      }
+    } catch (err) {
+      console.error('Error during cloud backup:', err);
     }
   }
 
