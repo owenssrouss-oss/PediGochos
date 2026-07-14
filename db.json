@@ -224,6 +224,17 @@
         }
       ],
       "id": "burguer-free-1783668377730"
+    },
+    {
+      "name": "Sabor Larense",
+      "category": "comidas",
+      "description": "Nsjsj",
+      "logo": "🍔",
+      "bannerType": "gradient",
+      "banner": "linear-gradient(135deg, #FF8C00, #FF4500)",
+      "linkKey": "NOSIWC",
+      "products": [],
+      "id": "sabor-larense-1784000392371"
     }
   ],
   "orders": [
@@ -421,5 +432,6 @@
       "createdAt": "2026-07-13T04:56:20.064Z",
       "updatedAt": "2026-07-13T04:56:20.064Z"
     }
-  ]
+  ],
+  "lastUpdated": "2026-07-14T03:53:59.532Z"
 }

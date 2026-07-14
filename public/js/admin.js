@@ -1352,8 +1352,10 @@ class AdminController {
         
       if (error) {
         console.error('Failed to upload db_backup.json:', error.message);
+        this.showToast('❌ Error al guardar el respaldo en la nube.');
       } else {
         console.log('🎉 Cloud backup of db.json completed successfully!');
+        this.showToast('☁️ Respaldo en la nube guardado con éxito.');
       }
     } catch (err) {
       console.error('Error during cloud backup:', err);

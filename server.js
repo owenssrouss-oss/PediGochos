@@ -32,10 +32,18 @@ async function syncFromSupabase() {
     }
     if (res.ok) {
       const text = await res.text();
-      const data = JSON.parse(text);
-      if (data && data.establishments) {
-        fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
-        console.log('🎉 Database synced successfully from Supabase Storage!');
+      const cloudData = JSON.parse(text);
+      if (cloudData && cloudData.establishments) {
+        const localData = readDB();
+        const localTime = new Date(localData.lastUpdated || 0).getTime();
+        const cloudTime = new Date(cloudData.lastUpdated || 0).getTime();
+        
+        if (cloudTime > localTime) {
+          fs.writeFileSync(DB_FILE, JSON.stringify(cloudData, null, 2), 'utf8');
+          console.log('🎉 Database synced successfully from Supabase Storage (Cloud is newer)!');
+        } else {
+          console.log('Skipping cloud sync: Local database is newer or equal to Cloud backup.');
+        }
       }
     } else {
       console.log('No backup db.json found in Supabase Storage or request failed. Status:', res.status);
@@ -86,6 +94,7 @@ function readDB() {
 
 function writeDB(data) {
   try {
+    data.lastUpdated = new Date().toISOString();
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
     uploadToSupabase();
   } catch (err) {
