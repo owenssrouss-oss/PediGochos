@@ -232,11 +232,19 @@ class KitchenController {
 
   updatePricesButtonVisibility(visible) {
     const btn = document.getElementById('btn-manage-prices');
+    const btnCust = document.getElementById('btn-customize-shop');
     if (btn) {
       if (visible) {
         btn.classList.remove('hidden');
       } else {
         btn.classList.add('hidden');
+      }
+    }
+    if (btnCust) {
+      if (visible) {
+        btnCust.classList.remove('hidden');
+      } else {
+        btnCust.classList.add('hidden');
       }
     }
   }
@@ -1391,6 +1399,116 @@ class KitchenController {
     const orderNum = orderId.split('-')[2] || 'ORD';
     alert(`🚴 ¡Domicilio Solicitado!\nSe ha asignado un repartidor de DeliverCity para el pedido #${orderNum}. Está en camino al establecimiento.`);
     this.updateOrderStatus(orderId, 'Entregado');
+  }
+
+  openCustomizeShopModal() {
+    if (!this.selectedId) {
+      alert('Por favor, selecciona y vincula un establecimiento primero.');
+      return;
+    }
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+
+    // Populate inputs
+    document.getElementById('custom-shop-name').value = est.name || '';
+    document.getElementById('custom-shop-desc').value = est.description || '';
+    document.getElementById('custom-shop-logo').value = est.logo || '🍔';
+    document.getElementById('custom-shop-delivery').value = est.delivery_fee !== undefined ? est.delivery_fee : 0;
+    document.getElementById('custom-shop-prep-time').value = est.prep_time || '';
+    document.getElementById('custom-shop-delivery-time').value = est.delivery_time || '';
+    document.getElementById('custom-shop-theme').value = est.themeColor || '#FF5E3A';
+
+    // Clear file inputs
+    document.getElementById('custom-shop-logo-file').value = '';
+    document.getElementById('custom-shop-banner-file').value = '';
+
+    document.getElementById('customize-shop-modal').classList.add('active');
+  }
+
+  closeCustomizeShopModal() {
+    document.getElementById('customize-shop-modal').classList.remove('active');
+  }
+
+  async handleCustomizeShopSubmit(e) {
+    e.preventDefault();
+    if (!this.selectedId) return;
+
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+
+    const submitBtn = document.getElementById('btn-submit-customize-shop');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span>Guardando Cambios...</span>`;
+
+    const name = document.getElementById('custom-shop-name').value.trim();
+    const description = document.getElementById('custom-shop-desc').value.trim();
+    const logo = document.getElementById('custom-shop-logo').value;
+    const delivery_fee = document.getElementById('custom-shop-delivery').value;
+    const themeColor = document.getElementById('custom-shop-theme').value;
+    const prep_time = document.getElementById('custom-shop-prep-time').value;
+    const delivery_time = document.getElementById('custom-shop-delivery-time').value;
+
+    const logoFile = document.getElementById('custom-shop-logo-file').files[0];
+    const bannerFile = document.getElementById('custom-shop-banner-file').files[0];
+
+    let logoImage = est.logoImage || null;
+    let banner = est.banner || '';
+
+    try {
+      // 1. Upload custom logo file if selected
+      if (logoFile) {
+        submitBtn.innerHTML = `<span>Subiendo Logo...</span>`;
+        logoImage = await MenuBuilder.uploadProductImage(logoFile);
+      }
+
+      // 2. Upload cover banner file if selected
+      if (bannerFile) {
+        submitBtn.innerHTML = `<span>Subiendo Portada...</span>`;
+        banner = await MenuBuilder.uploadProductImage(bannerFile);
+      }
+
+      // Read linked code/key from storage
+      const storageKey = `linked_shop_${this.selectedId}`;
+      const linkKey = localStorage.getItem(storageKey);
+
+      const payload = {
+        isOwner: false,
+        linkKey,
+        name,
+        description,
+        logo,
+        delivery_fee: delivery_fee ? parseFloat(delivery_fee) : 0,
+        banner,
+        themeColor,
+        logoImage,
+        prep_time: prep_time ? parseInt(prep_time) : null,
+        delivery_time: delivery_time ? parseInt(delivery_time) : null
+      };
+
+      const res = await fetch(`/api/establishments/${this.selectedId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        this.showLocalToast('✅ Cambios estéticos guardados con éxito.');
+        this.closeCustomizeShopModal();
+        await this.loadEstablishments();
+        
+        // Trigger backup to Supabase
+        await this.triggerCloudBackup();
+      } else {
+        const errText = await res.text();
+        alert('Error al guardar cambios: ' + errText);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de red al actualizar establecimiento.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<span>Guardar Cambios</span>`;
+    }
   }
 }
 

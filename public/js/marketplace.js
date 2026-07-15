@@ -110,6 +110,11 @@ class MarketplaceController {
     this.selectedEstablishment = null;
     document.getElementById('establishment-view').classList.remove('active');
     document.getElementById('home-view').classList.add('active');
+    
+    // Reset global theme to default
+    document.documentElement.style.setProperty('--primary', '#FF5E3A');
+    document.documentElement.style.setProperty('--primary-hover', '#E04A27');
+    
     this.renderEstablishments();
     this.setActiveMobileTab('home');
   }
@@ -119,6 +124,27 @@ class MarketplaceController {
     if (!est) return;
 
     this.selectedEstablishment = est;
+
+    // Apply custom accent theme color
+    if (est.themeColor) {
+      document.documentElement.style.setProperty('--primary', est.themeColor);
+      // Darken accent color for hover state
+      const darken = (hex, pct) => {
+        hex = hex.replace(/^\s*#|\s*$/g, '');
+        if (hex.length === 3) hex = hex.replace(/(.)/g, '$1$1');
+        let r = parseInt(hex.substr(0, 2), 16),
+            g = parseInt(hex.substr(2, 2), 16),
+            b = parseInt(hex.substr(4, 2), 16);
+        r = Math.max(0, Math.min(255, r - r * (pct / 100)));
+        g = Math.max(0, Math.min(255, g - g * (pct / 100)));
+        b = Math.max(0, Math.min(255, b - b * (pct / 100)));
+        return `#${Math.round(r).toString(16).padStart(2, '0')}${Math.round(g).toString(16).padStart(2, '0')}${Math.round(b).toString(16).padStart(2, '0')}`;
+      };
+      document.documentElement.style.setProperty('--primary-hover', darken(est.themeColor, 12));
+    } else {
+      document.documentElement.style.setProperty('--primary', '#FF5E3A');
+      document.documentElement.style.setProperty('--primary-hover', '#E04A27');
+    }
 
     // Set header details
     const bannerDiv = document.getElementById('est-banner');
@@ -132,16 +158,29 @@ class MarketplaceController {
 
     const logoDiv = document.getElementById('est-logo');
     if (est.logoImage) {
-      logoDiv.innerHTML = `<img src="${est.logoImage}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+      logoDiv.innerHTML = `<img src="${est.logoImage}" style="width: 100%; height: 100%; object-fit: cover;">`;
     } else {
       logoDiv.innerHTML = est.logo || '🏪';
     }
     document.getElementById('est-name').innerText = est.name;
-    document.getElementById('est-desc').innerText = est.description;
+    document.getElementById('est-desc').innerText = est.description || '';
     
+    // Category mapping
+    const categoryEmojis = {
+      comidas: '🍔 Comida',
+      farmacias: '💊 Farmacia',
+      mercados: '🛒 Mercado',
+      ferreterias: '🛠️ Ferretería'
+    };
     const categoryBadge = document.getElementById('est-category-badge');
-    categoryBadge.innerText = est.category;
+    categoryBadge.innerText = categoryEmojis[est.category] || est.category;
     categoryBadge.className = 'est-badge ' + est.category;
+
+    // Delivery time (minutes)
+    const deliverySpan = document.querySelector('.est-delivery-time');
+    if (deliverySpan) {
+      deliverySpan.innerText = est.delivery_time ? `⏱️ ${est.delivery_time} min` : '⏱️ 20-30 min';
+    }
 
     // Render products
     this.renderProducts(est.products);

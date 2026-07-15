@@ -613,8 +613,8 @@
 /* Establishment Details Screen */
 .establishment-header {
   border-radius: var(--radius-lg);
-  padding: 32px;
-  margin-bottom: 32px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
   color: #FFFFFF;
   position: relative;
   overflow: hidden;
@@ -624,52 +624,56 @@
 .btn-back {
   background-color: rgba(0, 0, 0, 0.4);
   color: #FFFFFF;
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: var(--radius-full);
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 24px;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-bottom: 16px;
   display: inline-block;
   backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all var(--transition-fast);
 }
 
 .btn-back:hover {
   background-color: rgba(0, 0, 0, 0.6);
-  transform: translateX(-4px);
+  transform: translateX(-3px);
 }
 
 .est-header-content {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
   z-index: 1;
   position: relative;
 }
 
 .est-logo {
-  width: 90px;
-  height: 90px;
-  border-radius: var(--radius-full);
+  width: 68px;
+  height: 68px;
+  min-width: 68px;
+  border-radius: 16px;
   background-color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
+  font-size: 28px;
+  border: 3px solid rgba(255, 255, 255, 0.25);
   box-shadow: var(--shadow-md);
+  overflow: hidden;
 }
 
 .est-details-text h2 {
-  font-size: 32px;
+  font-size: 22px;
   font-weight: 800;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .est-details-text p {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 15px;
-  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12.5px;
+  margin-bottom: 8px;
   max-width: 600px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
@@ -677,15 +681,15 @@
 .est-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 13px;
-  font-weight: 600;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .est-badge {
-  background-color: rgba(255, 255, 255, 0.2);
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
+  background-color: rgba(255, 255, 255, 0.15);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
   backdrop-filter: blur(4px);
   text-transform: capitalize;
 }
@@ -693,10 +697,10 @@
 .est-delivery-time, .est-rating {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background-color: rgba(0, 0, 0, 0.2);
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
+  gap: 3px;
+  background-color: rgba(0, 0, 0, 0.25);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
 }
 
 /* Products Grid */

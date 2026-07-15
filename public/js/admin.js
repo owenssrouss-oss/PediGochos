@@ -233,7 +233,8 @@ class AdminController {
     document.getElementById('edit-shop-name').value = est.name;
     document.getElementById('edit-shop-description').value = est.description || '';
     document.getElementById('edit-shop-delivery').value = est.delivery_fee || 0;
-    document.getElementById('edit-shop-banner').value = est.banner || '';
+    const bannerInput = document.getElementById('edit-shop-banner');
+    if (bannerInput) bannerInput.value = est.banner || '';
     document.getElementById('edit-shop-theme').value = est.themeColor || '#FF5E3A';
 
     // Show preparation & delivery times only for comidas category

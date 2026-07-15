@@ -6,6 +6,7 @@
   <title>Portal de Cocina - Panel de Pedidos Real-Time</title>
   <link rel="stylesheet" href="/css/common.css">
   <link rel="stylesheet" href="/css/kitchen.css">
+  <link rel="stylesheet" href="/css/menu-builder.css">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#FF5E3A">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -29,6 +30,7 @@
           <!-- Filled dynamically -->
         </select>
         <button id="btn-manage-prices" class="btn-manage-prices hidden" onclick="KitchenApp.openMenuTablesModal()" style="margin-left:12px; background-color:#10b981; border:1px solid #10b981; color:#121216; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🍔 Taller de Local</button>
+        <button id="btn-customize-shop" class="btn-manage-prices hidden" onclick="KitchenApp.openCustomizeShopModal()" style="margin-left:8px; background-color:#3b82f6; border:1px solid #3b82f6; color:#ffffff; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">⚙️ Personalizar Local</button>
       </div>
 
       <!-- Connection Status Badge -->
@@ -187,7 +189,80 @@
       </form>
     </div>
   </div>
+  <!-- Glassmorphic Modal: Personalizar Establecimiento (Merchant Settings) -->
+  <div class="modal-overlay" id="customize-shop-modal" style="z-index: 1200; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+    <div class="modal-content" style="background: #16161c; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin: auto; max-width: 500px; width: 90%;">
+      <div class="modal-header">
+        <h3 style="color: #ffffff;">⚙️ Personalizar mi Local</h3>
+        <button class="modal-close" onclick="KitchenApp.closeCustomizeShopModal()">✕</button>
+      </div>
+      
+      <form id="customize-shop-form" onsubmit="KitchenApp.handleCustomizeShopSubmit(event)">
+        <div class="form-group">
+          <label for="custom-shop-name">Nombre del Comercio *</label>
+          <input type="text" id="custom-shop-name" required placeholder="Ej. Mack Pizza" style="width: 100%;">
+        </div>
 
+        <div class="form-group">
+          <label for="custom-shop-desc">Descripción *</label>
+          <input type="text" id="custom-shop-desc" required placeholder="Ej. El auténtico sabor a leña..." style="width: 100%;">
+        </div>
+
+        <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div class="form-group">
+             <label for="custom-shop-logo">Logo (Emoji Fallback) *</label>
+             <select id="custom-shop-logo" required style="width: 100%;">
+               <option value="🍔">🍔 Comida / Hamburguesas</option>
+               <option value="🍕">🍕 Pizzería</option>
+               <option value="🍣">🍣 Sushi</option>
+               <option value="🌮">🌮 Comida Mexicana</option>
+               <option value="🍦">🍦 Heladería</option>
+               <option value="💊">💊 Farmacia</option>
+               <option value="🛒">🛒 Supermercado</option>
+               <option value="🏪">🏪 Tienda / Conveniencia</option>
+             </select>
+          </div>
+          <div class="form-group">
+            <label for="custom-shop-delivery">Tasa Domicilio ($ Cop/Mxn) *</label>
+            <input type="number" id="custom-shop-delivery" required min="0" placeholder="Ej. 3000" style="width: 100%;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="custom-shop-logo-file">Foto de Logotipo Personalizado (Opcional)</label>
+          <input type="file" id="custom-shop-logo-file" accept="image/*" style="width: 100%;">
+        </div>
+
+        <div class="form-group">
+          <label for="custom-shop-banner-file">Foto de Portada / Banner (Opcional)</label>
+          <input type="file" id="custom-shop-banner-file" accept="image/*" style="width: 100%;">
+        </div>
+
+        <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div class="form-group">
+            <label for="custom-shop-prep-time">Preparación Aprox (min)</label>
+            <input type="number" id="custom-shop-prep-time" min="0" placeholder="Ej. 25" style="width: 100%;">
+          </div>
+          <div class="form-group">
+            <label for="custom-shop-delivery-time">Envío Aprox (min)</label>
+            <input type="number" id="custom-shop-delivery-time" min="0" placeholder="Ej. 15" style="width: 100%;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="custom-shop-theme">Color de Acento / Marca *</label>
+          <input type="color" id="custom-shop-theme" value="#FF5E3A" style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: none; cursor: pointer; padding: 0;">
+        </div>
+
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" class="btn-neumorphic" onclick="KitchenApp.closeCustomizeShopModal()" style="box-shadow: none; margin: 0;">Cancelar</button>
+          <button type="submit" id="btn-submit-customize-shop" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0;">
+            <span>Guardar Cambios</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
   <!-- Glassmorphic Modal: Immersive Menu and Floor Layout Designer -->
   <div class="modal-overlay" id="menu-tables-modal" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 40px 0;">
     <div class="modal-content" style="background: rgba(22, 22, 28, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); max-width: 1200px; width: 95%; height: auto; min-height: 90vh; display: flex; flex-direction: column; padding: 24px; border-radius: 24px; margin: auto;">
