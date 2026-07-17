@@ -13,14 +13,14 @@ create table if not exists establishments (
   "bannerType" text,
   banner text,
   "linkKey" text,
-  "deliveryFee" numeric(10, 2) default 0.00,
+  delivery_fee numeric(10, 2) default 0.00,
   "themeColor" text,
   "logoImage" text,
   tables jsonb default '[]'::jsonb,
   layout jsonb default '[]'::jsonb,
   products jsonb default '[]'::jsonb,
-  "prepTime" integer,
-  "deliveryTime" integer,
+  prep_time integer,
+  delivery_time integer,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
@@ -36,8 +36,8 @@ create table if not exists orders (
   "tableNumber" text,
   "deliveryDetails" jsonb default '{}'::jsonb,
   status text default 'Pendiente',
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+  "createdAt" timestamp with time zone default timezone('utc'::text, now()) not null,
+  "updatedAt" timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
 -- 3. Habilitar RLS (Row Level Security) en ambas tablas
@@ -72,3 +72,29 @@ create policy "Actualización pública de pedidos" on orders for update using (t
 
 drop policy if exists "Eliminación pública de pedidos" on orders;
 create policy "Eliminación pública de pedidos" on orders for delete using (true);
+
+-- =======================================================
+-- 5. CONFIGURACIÓN DEL BUCKET DE ALMACENAMIENTO (STORAGE)
+-- =======================================================
+
+-- Asegurar que el bucket "menu_images" existe y es público
+insert into storage.buckets (id, name, public)
+values ('menu_images', 'menu_images', true)
+on conflict (id) do update set public = true;
+
+-- Habilitar políticas de lectura pública para las imágenes del menú
+drop policy if exists "Lectura pública de imágenes" on storage.objects;
+create policy "Lectura pública de imágenes" on storage.objects for select using ( bucket_id = 'menu_images' );
+
+-- Habilitar políticas de subida (inserción) pública y anónima
+drop policy if exists "Inserción pública de imágenes" on storage.objects;
+create policy "Inserción pública de imágenes" on storage.objects for insert with check ( bucket_id = 'menu_images' );
+
+-- Habilitar políticas de actualización pública (para sobrescribir db_backup.json)
+drop policy if exists "Actualización pública de imágenes" on storage.objects;
+create policy "Actualización pública de imágenes" on storage.objects for update using ( bucket_id = 'menu_images' );
+
+-- Habilitar políticas de eliminación de imágenes
+drop policy if exists "Eliminación pública de imágenes" on storage.objects;
+create policy "Eliminación pública de imágenes" on storage.objects for delete using ( bucket_id = 'menu_images' );
+
