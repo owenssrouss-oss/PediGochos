@@ -137,10 +137,29 @@ async function saveToPostgres() {
 
     // 1. Bulk Upsert Establishments
     if (localData.establishments && localData.establishments.length > 0) {
+      const normalizedEsts = localData.establishments.map(est => ({
+        id: est.id,
+        name: est.name || '',
+        category: est.category || '',
+        description: est.description || null,
+        logo: est.logo || null,
+        bannerType: est.bannerType || null,
+        banner: est.banner || null,
+        linkKey: est.linkKey || null,
+        delivery_fee: est.delivery_fee !== undefined ? parseFloat(est.delivery_fee) : 0,
+        themeColor: est.themeColor || null,
+        logoImage: est.logoImage || null,
+        tables: est.tables || [],
+        layout: est.layout || [],
+        products: est.products || [],
+        prep_time: est.prep_time !== undefined ? est.prep_time : null,
+        delivery_time: est.delivery_time !== undefined ? est.delivery_time : null
+      }));
+
       const estRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/establishments`, {
         method: 'POST',
         headers,
-        body: JSON.stringify(localData.establishments)
+        body: JSON.stringify(normalizedEsts)
       });
       if (!estRes.ok) {
         const errText = await estRes.text();
@@ -161,7 +180,7 @@ async function saveToPostgres() {
       const deletedIds = cloudEsts.map(e => e.id).filter(id => !localIds.has(id));
       if (deletedIds.length > 0) {
         console.log('Deleting removed establishments from Postgres:', deletedIds);
-        const delUrl = `${process.env.SUPABASE_URL}/rest/v1/establishments?id=in.(${deletedIds.map(id => `"${id}"`).join(',')})`;
+        const delUrl = `${process.env.SUPABASE_URL}/rest/v1/establishments?id=in.(${deletedIds.map(id => encodeURIComponent(id)).join(',')})`;
         await fetch(delUrl, {
           method: 'DELETE',
           headers: {
@@ -174,10 +193,25 @@ async function saveToPostgres() {
 
     // 2. Bulk Upsert Orders
     if (localData.orders && localData.orders.length > 0) {
+      const normalizedOrders = localData.orders.map(ord => ({
+        id: ord.id,
+        establishmentId: ord.establishmentId || null,
+        establishmentName: ord.establishmentName || null,
+        items: ord.items || [],
+        total: ord.total !== undefined ? parseFloat(ord.total) : 0,
+        orderType: ord.orderType || null,
+        customerName: ord.customerName || null,
+        tableNumber: ord.tableNumber || null,
+        deliveryDetails: ord.deliveryDetails || {},
+        status: ord.status || 'Pendiente',
+        createdAt: ord.createdAt || new Date().toISOString(),
+        updatedAt: ord.updatedAt || new Date().toISOString()
+      }));
+
       const ordRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/orders`, {
         method: 'POST',
         headers,
-        body: JSON.stringify(localData.orders)
+        body: JSON.stringify(normalizedOrders)
       });
       if (!ordRes.ok) {
         const errText = await ordRes.text();
@@ -198,7 +232,7 @@ async function saveToPostgres() {
       const deletedOrderIds = cloudOrds.map(o => o.id).filter(id => !localOrderIds.has(id));
       if (deletedOrderIds.length > 0) {
         console.log('Deleting removed orders from Postgres:', deletedOrderIds);
-        const delUrl = `${process.env.SUPABASE_URL}/rest/v1/orders?id=in.(${deletedOrderIds.map(id => `"${id}"`).join(',')})`;
+        const delUrl = `${process.env.SUPABASE_URL}/rest/v1/orders?id=in.(${deletedOrderIds.map(id => encodeURIComponent(id)).join(',')})`;
         await fetch(delUrl, {
           method: 'DELETE',
           headers: {
