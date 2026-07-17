@@ -100,6 +100,7 @@ async function uploadToSupabase() {
     } else {
       const errText = await res.text();
       console.error('Failed to backup database to Supabase:', res.status, errText);
+      logAppError('uploadToSupabase_http_error', new Error(`Status: ${res.status}, Body: ${errText}`));
     }
   } catch (err) {
     console.error('Error backing up database to Supabase:', err);
@@ -193,6 +194,7 @@ async function saveToPostgres() {
       if (!estRes.ok) {
         const errText = await estRes.text();
         console.error('Failed to upsert establishments to Postgres:', estRes.status, errText);
+        logAppError('saveToPostgres_establishments_http_error', new Error(`Status: ${estRes.status}, Body: ${errText}`));
       }
     }
 
@@ -245,6 +247,7 @@ async function saveToPostgres() {
       if (!ordRes.ok) {
         const errText = await ordRes.text();
         console.error('Failed to upsert orders to Postgres:', ordRes.status, errText);
+        logAppError('saveToPostgres_orders_http_error', new Error(`Status: ${ordRes.status}, Body: ${errText}`));
       }
     }
 
