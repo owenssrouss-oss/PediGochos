@@ -989,55 +989,80 @@ class AdminController {
   async handleRegisterSubmit(e) {
     e.preventDefault();
 
+    const submitBtn = document.getElementById('btn-submit-registration');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerText = '⏳ Registrando...';
+    }
+
     const name = document.getElementById('reg-name').value.trim();
     const category = document.getElementById('reg-category').value;
     const description = document.getElementById('reg-description').value.trim();
     const logo = document.getElementById('reg-logo-select').value;
-    const bannerType = document.getElementById('reg-banner-type').value;
+    let bannerType = document.getElementById('reg-banner-type').value;
     const linkKey = document.getElementById('reg-link-key').value.trim().toUpperCase();
 
+    const logoFile = document.getElementById('reg-logo-file').files[0];
+    const bannerFile = document.getElementById('reg-banner-file').files[0];
+
+    let logoImage = null;
     let banner = '';
+    
     if (bannerType === 'gradient') {
       banner = document.querySelector('input[name="reg-gradient"]:checked').value;
     } else {
       banner = document.getElementById('reg-banner-image').value.trim() || 'linear-gradient(135deg, #1D2671, #C33764)';
     }
 
-    // Parse products (optional)
-    const productRows = document.querySelectorAll('.reg-product-row');
-    const products = [];
-    productRows.forEach((row, i) => {
-      const nameInput = row.querySelector('.prod-name');
-      const priceInput = row.querySelector('.prod-price');
-      const descInput = row.querySelector('.prod-desc');
-
-      const prodName = nameInput ? nameInput.value.trim() : '';
-      const prodPrice = priceInput ? parseFloat(priceInput.value) : 0;
-      const prodDesc = descInput ? descInput.value.trim() : '';
-      
-      if (prodName) {
-        products.push({
-          id: `p-${Date.now()}-${i}`,
-          name: prodName,
-          price: isNaN(prodPrice) ? 0 : prodPrice,
-          description: prodDesc,
-          image: DEFAULT_IMAGES[category]
-        });
-      }
-    });
-
-    const payload = {
-      name,
-      category,
-      description,
-      logo,
-      bannerType,
-      banner,
-      linkKey,
-      products
-    };
-
     try {
+      // 1. Upload custom logo file if selected
+      if (logoFile) {
+        if (submitBtn) submitBtn.innerText = '📤 Subiendo Logo...';
+        logoImage = await MenuBuilder.uploadProductImage(logoFile);
+      }
+
+      // 2. Upload cover banner file if selected
+      if (bannerFile) {
+        if (submitBtn) submitBtn.innerText = '📤 Subiendo Portada...';
+        banner = await MenuBuilder.uploadProductImage(bannerFile);
+        bannerType = 'image';
+      }
+
+      // Parse products (optional)
+      const productRows = document.querySelectorAll('.reg-product-row');
+      const products = [];
+      productRows.forEach((row, i) => {
+        const nameInput = row.querySelector('.prod-name');
+        const priceInput = row.querySelector('.prod-price');
+        const descInput = row.querySelector('.prod-desc');
+
+        const prodName = nameInput ? nameInput.value.trim() : '';
+        const prodPrice = priceInput ? parseFloat(priceInput.value) : 0;
+        const prodDesc = descInput ? descInput.value.trim() : '';
+        
+        if (prodName) {
+          products.push({
+            id: `p-${Date.now()}-${i}`,
+            name: prodName,
+            price: isNaN(prodPrice) ? 0 : prodPrice,
+            description: prodDesc,
+            image: DEFAULT_IMAGES[category]
+          });
+        }
+      });
+
+      const payload = {
+        name,
+        category,
+        description,
+        logo,
+        bannerType,
+        banner,
+        linkKey,
+        products,
+        logoImage
+      };
+
       const response = await fetch('/api/establishments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1050,6 +1075,8 @@ class AdminController {
         // Reset form
         document.getElementById('reg-est-form').reset();
         document.getElementById('dynamic-products-container').innerHTML = '';
+        document.getElementById('reg-logo-file').value = '';
+        document.getElementById('reg-banner-file').value = '';
         this.generateRandomLinkKey();
 
         // Reload data from api
@@ -1061,6 +1088,11 @@ class AdminController {
     } catch (err) {
       console.error(err);
       alert('Error de conexión al servidor.');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = '💼 Crear Establecimiento y Registrar';
+      }
     }
   }
 

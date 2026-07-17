@@ -109,6 +109,18 @@
               </div>
             </div>
 
+            <!-- Upload Custom Logo Photo File (Optional) -->
+            <div class="form-group">
+              <label for="reg-logo-file">Foto de Logo de Empresa (Opcional - Reemplaza Emoji)</label>
+              <input type="file" id="reg-logo-file" accept="image/*" style="width: 100%;">
+            </div>
+
+            <!-- Upload Cover Banner Photo File (Optional) -->
+            <div class="form-group">
+              <label for="reg-banner-file">Foto de Portada / Banner de Fondo (Opcional - Reemplaza Gradiente/URL)</label>
+              <input type="file" id="reg-banner-file" accept="image/*" style="width: 100%;">
+            </div>
+
             <div class="form-grid">
               <div class="form-group">
                 <label for="reg-banner-type">Tipo de Fondo de Portada</label>
@@ -168,7 +180,7 @@
               ➕ Añadir Otro Producto
             </button>
 
-            <button type="submit" class="btn-submit-registration">
+            <button type="submit" id="btn-submit-registration" class="btn-submit-registration">
               💼 Crear Establecimiento y Registrar
             </button>
           </form>
