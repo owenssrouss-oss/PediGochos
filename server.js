@@ -12,6 +12,33 @@ const wss = new WebSocket.Server({ server });
 const PORT = process.env.PORT || 3000;
 const DB_FILE = path.join(__dirname, 'db.json');
 
+// Write uncaught errors to debug_logs.txt
+process.on('uncaughtException', (err) => {
+  const time = new Date().toISOString();
+  fs.appendFileSync(path.join(__dirname, 'debug_logs.txt'), `[${time}] [UNCAUGHT EXCEPTION] ${err.stack || err}\n`);
+  process.exit(1);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  const time = new Date().toISOString();
+  fs.appendFileSync(path.join(__dirname, 'debug_logs.txt'), `[${time}] [UNHANDLED REJECTION] ${reason.stack || reason}\n`);
+});
+
+// Helper function to log application errors
+function logAppError(context, err) {
+  const time = new Date().toISOString();
+  fs.appendFileSync(path.join(__dirname, 'debug_logs.txt'), `[${time}] [${context}] ${err.stack || err}\n`);
+}
+
+// Endpoint to view server logs
+app.get('/api/debug/logs', (req, res) => {
+  const logFile = path.join(__dirname, 'debug_logs.txt');
+  if (fs.existsSync(logFile)) {
+    res.type('text/plain').send(fs.readFileSync(logFile, 'utf8'));
+  } else {
+    res.send('No logs yet.');
+  }
+});
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -76,6 +103,7 @@ async function uploadToSupabase() {
     }
   } catch (err) {
     console.error('Error backing up database to Supabase:', err);
+    logAppError('uploadToSupabase', err);
   }
 }
 
@@ -119,6 +147,7 @@ async function syncFromPostgres() {
     }
   } catch (err) {
     console.error('Error syncing database from Supabase PostgreSQL:', err);
+    logAppError('syncFromPostgres', err);
     return false;
   }
 }
@@ -246,6 +275,7 @@ async function saveToPostgres() {
     console.log('☁️ Database state backup updated successfully in Supabase PostgreSQL tables!');
   } catch (err) {
     console.error('Error backing up database to Supabase PostgreSQL:', err);
+    logAppError('saveToPostgres', err);
   }
 }
 
@@ -258,6 +288,7 @@ function readDB() {
     return JSON.parse(data);
   } catch (err) {
     console.error('Error reading DB:', err);
+    logAppError('readDB', err);
     return { establishments: [], orders: [] };
   }
 }
@@ -270,6 +301,7 @@ function writeDB(data) {
     saveToPostgres();
   } catch (err) {
     console.error('Error writing DB:', err);
+    logAppError('writeDB', err);
   }
 }
 
