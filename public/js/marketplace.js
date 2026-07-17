@@ -197,7 +197,16 @@ class MarketplaceController {
     const grid = document.getElementById('establishments-grid');
     grid.innerHTML = '';
 
-    const displayTitle = filtered ? 'Resultados de la búsqueda' : `${this.capitalize(this.currentCategory)} populares`;
+    let displayTitle = '';
+    if (filtered) {
+      displayTitle = 'Resultados de la búsqueda';
+    } else {
+      if (this.currentCategory === 'comidas') {
+        displayTitle = 'Restaurantes';
+      } else {
+        displayTitle = this.capitalize(this.currentCategory);
+      }
+    }
     document.getElementById('establishments-title').innerText = displayTitle;
 
     if (list.length === 0) {
