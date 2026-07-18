@@ -356,7 +356,7 @@
         <!-- Category Selector -->
         <div class="form-group">
           <label for="form-category">Categoría *</label>
-          <select id="form-category" required style="width: 100%;">
+          <select id="form-category" required style="width: 100%;" onchange="togglePizzaSizes(this)">
             <option value="">-- Selecciona una categoría --</option>
           </select>
         </div>
@@ -374,9 +374,29 @@
         </div>
 
         <!-- Base Price -->
-        <div class="form-group">
+        <div class="form-group" id="base-price-container">
           <label for="form-price">Precio Base ($ USD) *</label>
           <input type="number" id="form-price" step="0.01" min="0" required placeholder="Ej. 12.50" style="width: 100%;">
+        </div>
+
+        <!-- Pizza Sizes -->
+        <div id="pizza-sizes-container" style="display: none; background: rgba(255, 193, 7, 0.05); padding: 12px; border-radius: 12px; border: 1px dashed rgba(255, 193, 7, 0.3); margin-bottom: 16px;">
+          <label style="color: #ffc107; margin-bottom: 8px; display: block;">🍕 Precios de la Pizza</label>
+          <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+              <label for="form-pizza-small" style="font-size: 11px;">Pequeña ($)</label>
+              <input type="number" id="form-pizza-small" step="0.01" min="0" placeholder="Ej. 10" style="width: 100%;">
+            </div>
+            <div style="flex: 1;">
+              <label for="form-pizza-medium" style="font-size: 11px;">Mediana ($)</label>
+              <input type="number" id="form-pizza-medium" step="0.01" min="0" placeholder="Ej. 15" style="width: 100%;">
+            </div>
+            <div style="flex: 1;">
+              <label for="form-pizza-large" style="font-size: 11px;">Grande ($)</label>
+              <input type="number" id="form-pizza-large" step="0.01" min="0" placeholder="Ej. 20" style="width: 100%;">
+            </div>
+          </div>
+          <p style="font-size: 10px; color: var(--text-muted); margin-top: 6px;">Nota: El Precio Base se ajustará automáticamente si llenas estos tamaños.</p>
         </div>
 
         <!-- Image Upload -->
@@ -788,6 +808,21 @@
       }
     }
 
+    function togglePizzaSizes(selectElem) {
+      const selectedText = selectElem.options[selectElem.selectedIndex].text.toLowerCase();
+      const pizzaContainer = document.getElementById('pizza-sizes-container');
+      const basePriceInput = document.getElementById('form-price');
+      
+      if (selectedText.includes('pizza')) {
+        pizzaContainer.style.display = 'block';
+        basePriceInput.required = false;
+        basePriceInput.value = '0';
+      } else {
+        pizzaContainer.style.display = 'none';
+        basePriceInput.required = true;
+      }
+    }
+
     function handleFastAdd() {
       const text = document.getElementById('form-fast-add').value;
       if (!text) return;
@@ -823,7 +858,9 @@
       const catSelect = document.getElementById('form-category').value;
       const nameInput = document.getElementById('form-name').value;
       const descInput = document.getElementById('form-desc').value;
-      const priceInput = document.getElementById('form-price').value;
+      const pizzaSmall = document.getElementById('form-pizza-small')?.value;
+      const isPizza = document.getElementById('pizza-sizes-container')?.style.display === 'block';
+      const priceInput = isPizza && pizzaSmall ? pizzaSmall : document.getElementById('form-price').value;
       const tamanosInput = document.getElementById('form-tamanos') ? document.getElementById('form-tamanos').value : '';
       const extrasInput = document.getElementById('form-adicionales') ? document.getElementById('form-adicionales').value : '';
       const fileInput = document.getElementById('form-image').files[0];
@@ -846,8 +883,30 @@
         
         let modifiers = [];
         
-        // Tamaños parsing
-        if (tamanosInput && tamanosInput.trim() !== '') {
+        // Pizza explicit sizes override
+        const pizzaSmall = document.getElementById('form-pizza-small')?.value;
+        const pizzaMedium = document.getElementById('form-pizza-medium')?.value;
+        const pizzaLarge = document.getElementById('form-pizza-large')?.value;
+        const isPizza = document.getElementById('pizza-sizes-container')?.style.display === 'block';
+
+        if (isPizza && (pizzaSmall || pizzaMedium || pizzaLarge)) {
+            const options = [];
+            if (pizzaSmall) options.push({ id: 'opt-' + Date.now() + 1, name: 'Pequeña', price: parseFloat(pizzaSmall), option_id: 'opt-' + Date.now() + 1 });
+            if (pizzaMedium) options.push({ id: 'opt-' + Date.now() + 2, name: 'Mediana', price: parseFloat(pizzaMedium), option_id: 'opt-' + Date.now() + 2 });
+            if (pizzaLarge) options.push({ id: 'opt-' + Date.now() + 3, name: 'Grande', price: parseFloat(pizzaLarge), option_id: 'opt-' + Date.now() + 3 });
+            
+            if (options.length > 0) {
+                modifiers.push({
+                    group_id: 'g-tamanos-' + Date.now(),
+                    group_name: 'Tamaño',
+                    selection_type: 'single',
+                    required: true,
+                    options: options
+                });
+            }
+        }
+        // Tamaños parsing (fallback for other variants)
+        else if (tamanosInput && tamanosInput.trim() !== '') {
             const options = tamanosInput.split(',').map(ext => {
                const extParts = ext.trim().split(' ');
                let price = parseFloat(extParts.pop());

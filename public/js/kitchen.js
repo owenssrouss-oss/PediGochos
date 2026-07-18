@@ -1584,3 +1584,20 @@ window.KitchenApp = KitchenApp;
 document.addEventListener('DOMContentLoaded', () => {
   KitchenApp.init();
 });
+
+window.togglePizzaSizes = function(selectElem) {
+  const selectedText = selectElem.options[selectElem.selectedIndex].text.toLowerCase();
+  const pizzaContainer = document.getElementById('pizza-sizes-container');
+  const basePriceInput = document.getElementById('form-price');
+  
+  if (selectedText.includes('pizza')) {
+    pizzaContainer.style.display = 'block';
+    if(basePriceInput) {
+      basePriceInput.required = false;
+      basePriceInput.value = '0';
+    }
+  } else {
+    pizzaContainer.style.display = 'none';
+    if(basePriceInput) basePriceInput.required = true;
+  }
+};
