@@ -1320,15 +1320,35 @@ class KitchenController {
           }
       }
 
+      let extrasText = [];
+      if (parts.length >= 2) {
+          const descStr = parts[1];
+          const ingredients = descStr.split(/,| y | e /i).map(i => i.trim().replace(/\.$/, '')).filter(i => i.length > 2);
+          extrasText.push(...ingredients);
+      }
+
       const addMatch = text.match(/adicionales?:?\s*(.+)/i);
+      let addStr = '';
       if (addMatch) {
-          document.getElementById('form-adicionales').value = addMatch[1];
+          addStr = addMatch[1];
       } else if (parts.length >= 4) {
           const lastPart = parts[parts.length - 1];
           if (!lastPart.toLowerCase().includes('pequeña') && !lastPart.toLowerCase().includes('personal') && !lastPart.toLowerCase().includes('mediana')) {
-              document.getElementById('form-adicionales').value = lastPart;
+              addStr = lastPart;
           }
       }
+
+      if (addStr) {
+          const addParts = addStr.split(',').map(s => s.trim());
+          const filteredAddParts = addParts.filter(s => {
+              const lower = s.toLowerCase();
+              if (lower.match(/^(pequeña|personal|mediana|grande)\s*\d+(?:\.\d+)?$/)) return false;
+              return true;
+          });
+          extrasText.push(...filteredAddParts);
+      }
+      
+      document.getElementById('form-adicionales').value = extrasText.join(', ');
       
       this.showLocalToast('✨ Formulario autocompletado');
   }
