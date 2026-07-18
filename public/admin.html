@@ -890,10 +890,17 @@
         const isPizza = document.getElementById('pizza-sizes-container')?.style.display === 'block';
 
         if (isPizza && (pizzaSmall || pizzaMedium || pizzaLarge)) {
+            const smallPriceNum = parseFloat(pizzaSmall) || 0;
             const options = [];
-            if (pizzaSmall) options.push({ id: 'opt-' + Date.now() + 1, name: 'Pequeña', price: parseFloat(pizzaSmall), option_id: 'opt-' + Date.now() + 1 });
-            if (pizzaMedium) options.push({ id: 'opt-' + Date.now() + 2, name: 'Mediana', price: parseFloat(pizzaMedium), option_id: 'opt-' + Date.now() + 2 });
-            if (pizzaLarge) options.push({ id: 'opt-' + Date.now() + 3, name: 'Grande', price: parseFloat(pizzaLarge), option_id: 'opt-' + Date.now() + 3 });
+            if (pizzaSmall) options.push({ id: 'opt-' + Date.now() + 1, name: 'Pequeña', extra_price: 0, option_id: 'opt-' + Date.now() + 1 });
+            if (pizzaMedium) {
+               const mPrice = parseFloat(pizzaMedium);
+               options.push({ id: 'opt-' + Date.now() + 2, name: 'Mediana', extra_price: mPrice - smallPriceNum, option_id: 'opt-' + Date.now() + 2 });
+            }
+            if (pizzaLarge) {
+               const lPrice = parseFloat(pizzaLarge);
+               options.push({ id: 'opt-' + Date.now() + 3, name: 'Grande', extra_price: lPrice - smallPriceNum, option_id: 'opt-' + Date.now() + 3 });
+            }
             
             if (options.length > 0) {
                 modifiers.push({
@@ -921,7 +928,7 @@
                    val = parseFloat(priceMatch2[0]);
                    name = ext.replace(/\d+(?:\.\d+)?$/, '').trim();
                }
-               return { id: 'opt-' + Date.now() + Math.random(), name: name, price: val, option_id: 'opt-' + Date.now() + Math.random() };
+               return { id: 'opt-' + Date.now() + Math.random(), name: name, extra_price: val, option_id: 'opt-' + Date.now() + Math.random() };
             }).filter(opt => opt.name !== '');
 
             if (options.length > 0) {
@@ -951,7 +958,7 @@
                    val = parseFloat(priceMatch2[0]);
                    name = ext.replace(/\d+(?:\.\d+)?$/, '').trim();
                }
-               return { id: 'opt-' + Date.now() + Math.random(), name: name, price: val, option_id: 'opt-' + Date.now() + Math.random() };
+               return { id: 'opt-' + Date.now() + Math.random(), name: name, extra_price: val, option_id: 'opt-' + Date.now() + Math.random() };
             }).filter(opt => opt.name !== '');
 
             if (options.length > 0) {

@@ -1273,7 +1273,9 @@ class KitchenController {
     const catSelect = document.getElementById('form-category').value;
     const nameInput = document.getElementById('form-name').value;
     const descInput = document.getElementById('form-desc').value;
-    const priceInput = document.getElementById('form-price').value;
+    const pizzaSmall = document.getElementById('form-pizza-small')?.value;
+    const isPizza = document.getElementById('pizza-sizes-container')?.style.display === 'block';
+    const priceInput = isPizza && pizzaSmall ? pizzaSmall : document.getElementById('form-price').value;
     const tamanosInput = document.getElementById('form-tamanos') ? document.getElementById('form-tamanos').value : '';
     const extrasInput = document.getElementById('form-adicionales') ? document.getElementById('form-adicionales').value : '';
     const fileInput = document.getElementById('form-image').files[0];
@@ -1289,8 +1291,36 @@ class KitchenController {
       
       let modifiers = [];
       
-      // Tamaños parsing
-      if (tamanosInput && tamanosInput.trim() !== '') {
+      // Pizza explicit sizes override
+      const pizzaSmallVal = document.getElementById('form-pizza-small')?.value;
+      const pizzaMediumVal = document.getElementById('form-pizza-medium')?.value;
+      const pizzaLargeVal = document.getElementById('form-pizza-large')?.value;
+
+      if (isPizza && (pizzaSmallVal || pizzaMediumVal || pizzaLargeVal)) {
+          const smallPriceNum = parseFloat(pizzaSmallVal) || 0;
+          const options = [];
+          if (pizzaSmallVal) options.push({ id: 'opt-' + Date.now() + 1, name: 'Pequeña', extra_price: 0, option_id: 'opt-' + Date.now() + 1 });
+          if (pizzaMediumVal) {
+             const mPrice = parseFloat(pizzaMediumVal);
+             options.push({ id: 'opt-' + Date.now() + 2, name: 'Mediana', extra_price: mPrice - smallPriceNum, option_id: 'opt-' + Date.now() + 2 });
+          }
+          if (pizzaLargeVal) {
+             const lPrice = parseFloat(pizzaLargeVal);
+             options.push({ id: 'opt-' + Date.now() + 3, name: 'Grande', extra_price: lPrice - smallPriceNum, option_id: 'opt-' + Date.now() + 3 });
+          }
+          
+          if (options.length > 0) {
+              modifiers.push({
+                  group_id: 'g-tamanos-' + Date.now(),
+                  group_name: 'Tamaño',
+                  selection_type: 'single',
+                  required: true,
+                  options: options
+              });
+          }
+      }
+      // Tamaños parsing (fallback)
+      else if (tamanosInput && tamanosInput.trim() !== '') {
           const options = tamanosInput.split(',').map(ext => {
              const extParts = ext.trim().split(' ');
              let price = parseFloat(extParts.pop());
@@ -1305,7 +1335,7 @@ class KitchenController {
                  val = parseFloat(priceMatch2[0]);
                  name = ext.replace(/\d+(?:\.\d+)?$/, '').trim();
              }
-             return { id: 'opt-' + Date.now() + Math.random(), name: name, price: val, option_id: 'opt-' + Date.now() + Math.random() };
+             return { id: 'opt-' + Date.now() + Math.random(), name: name, extra_price: val, option_id: 'opt-' + Date.now() + Math.random() };
           }).filter(opt => opt.name !== '');
 
           if (options.length > 0) {
@@ -1335,7 +1365,7 @@ class KitchenController {
                  val = parseFloat(priceMatch2[0]);
                  name = ext.replace(/\d+(?:\.\d+)?$/, '').trim();
              }
-             return { id: 'opt-' + Date.now() + Math.random(), name: name, price: val, option_id: 'opt-' + Date.now() + Math.random() };
+             return { id: 'opt-' + Date.now() + Math.random(), name: name, extra_price: val, option_id: 'opt-' + Date.now() + Math.random() };
           }).filter(opt => opt.name !== '');
 
           if (options.length > 0) {
