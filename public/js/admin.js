@@ -838,6 +838,39 @@ class AdminController {
     }
   }
 
+  async deleteGlobalProductFromModal() {
+    const select = document.getElementById('modal-import-product-select');
+    const prodId = select.value;
+    if (!prodId) {
+      alert('⚠️ Por favor, selecciona un producto del catálogo para eliminar.');
+      return;
+    }
+
+    const selected = this.globalProductsCache.find(p => p.id === prodId);
+    if (!selected) return;
+
+    if (!confirm(`⚠️ ATENCIÓN: Estás a punto de eliminar permanentemente "${selected.name}" del catálogo GLOBAL de Supabase.\n\nEsto no lo borrará de las tiendas que ya lo importaron, pero nadie más podrá importarlo.\n\n¿Estás seguro?`)) {
+      return;
+    }
+
+    if (typeof MenuBuilder !== 'undefined' && MenuBuilder.supabase) {
+      try {
+        const { error } = await MenuBuilder.supabase
+          .from('products')
+          .delete()
+          .eq('id', prodId);
+        
+        if (error) throw error;
+        
+        this.showToast(`🗑️ "${selected.name}" eliminado del catálogo global.`);
+        await this.loadModalImportCatalog();
+      } catch (err) {
+        console.error(err);
+        alert('Error al eliminar el producto global: ' + err.message);
+      }
+    }
+  }
+
   async deleteProductFromModal(prodId) {
     if (!confirm('¿Seguro que deseas eliminar este producto de la carta del local?')) return;
 

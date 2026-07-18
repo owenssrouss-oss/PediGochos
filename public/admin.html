@@ -443,6 +443,9 @@
             <button onclick="importGlobalProductFromModal()" style="background: var(--accent); color: #121216; font-weight: 800; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; height: 36px; transition: all 0.2s;">
               Importar Producto
             </button>
+            <button onclick="AdminApp.deleteGlobalProductFromModal()" style="background: rgba(239, 68, 68, 0.9); color: #fff; font-weight: 800; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; height: 36px; transition: all 0.2s;" title="Eliminar permanentemente del catálogo global">
+              🗑️
+            </button>
           </div>
         </div>
 
@@ -541,7 +544,10 @@
           <div style="display: grid; grid-template-columns: 200px 1fr; gap: 20px; min-height: 350px;">
             <!-- Left Side: Categories -->
             <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; max-height: 400px; overflow-y: auto;">
-              <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">📂 CATEGORÍAS</span>
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; margin-bottom: 10px;">
+                <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">📂 CATEGORÍAS</span>
+                <button onclick="createNewCategory()" style="background: none; border: none; color: var(--accent); font-size: 11.5px; font-weight: 800; cursor: pointer;">➕ Nueva</button>
+              </div>
               <ul class="category-list" id="modal-categories-sidebar" style="gap: 6px; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column;">
                 <li class="category-item active" onclick="filterCategoryModal('all')" style="font-size: 12px; padding: 8px 12px; cursor: pointer; border-radius: 8px;">Todos</li>
               </ul>
@@ -734,6 +740,25 @@
       });
       renderCategories();
       renderProducts();
+    }
+
+    async function createNewCategory() {
+      const emoji = prompt("Ingresa el EMOJI para la categoría (Ej: 🍕, 🍔, ☕):");
+      if (!emoji) return;
+      const nameText = prompt("Ingresa el NOMBRE de la categoría (Ej: Pizzas, Hamburguesas):");
+      if (!nameText) return;
+      
+      const fullName = `${emoji} ${nameText}`;
+      const slug = nameText.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      
+      try {
+        await MenuBuilder.createCategory(fullName, slug);
+        showToast(`Categoría "${fullName}" creada con éxito.`);
+        await loadCategories();
+      } catch(err) {
+        console.error(err);
+        alert('Error creando categoría: ' + err.message);
+      }
     }
 
     function openMenuModal() {
