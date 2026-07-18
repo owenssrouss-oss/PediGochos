@@ -912,7 +912,8 @@ class AdminController {
       price: parseFloat(newProduct.price),
       description: newProduct.description || '',
       image: newProduct.image_url,
-      modifiers: newProduct.modifiers
+      modifiers: newProduct.modifiers,
+      exclusions: newProduct.exclusions ? newProduct.exclusions.map(name => ({ name })) : undefined
     };
 
     est.products.push(newLocalProduct);

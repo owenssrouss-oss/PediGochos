@@ -1268,6 +1268,71 @@ class KitchenController {
     }
   }
 
+  handleFastAdd() {
+      const text = document.getElementById('form-fast-add').value;
+      if (!text) return;
+      
+      const parts = text.split(/-|\n/).map(p => p.trim()).filter(p => p.length > 0);
+      if (parts.length >= 1) {
+          const extractedName = parts[0];
+          document.getElementById('form-name').value = extractedName;
+          
+          const catSelect = document.getElementById('form-category');
+          const firstWord = extractedName.split(' ')[0].toLowerCase();
+          for (let i = 0; i < catSelect.options.length; i++) {
+              if (catSelect.options[i].text.toLowerCase().includes(firstWord)) {
+                  catSelect.selectedIndex = i;
+                  if (typeof togglePizzaSizes === 'function') togglePizzaSizes(catSelect);
+                  break;
+              }
+          }
+      }
+      if (parts.length >= 2) document.getElementById('form-desc').value = parts[1];
+      
+      const priceMatch = text.match(/\$\s*(\d+(?:\.\d+)?)|(?:precio)?\s*(\d+(?:\.\d+)?)\s*(?:\$|usd)/i) || text.match(/\b\d+(?:\.\d+)?\b/);
+      if (parts.length >= 3) {
+          const pMatch = parts[2].match(/\d+(?:\.\d+)?/);
+          if (pMatch) document.getElementById('form-price').value = pMatch[0];
+      } else if (priceMatch) {
+          document.getElementById('form-price').value = priceMatch[1] || priceMatch[2] || priceMatch[0];
+      }
+
+      // Try to parse sizes if Pizza sizes container is visible
+      const pizzaContainer = document.getElementById('pizza-sizes-container');
+      if (pizzaContainer && pizzaContainer.style.display === 'block') {
+          const sizesPart = parts.find(p => p.toLowerCase().includes('pequeña') || p.toLowerCase().includes('personal') || p.toLowerCase().includes('mediana'));
+          if (sizesPart) {
+              const sizesArr = sizesPart.split(',');
+              sizesArr.forEach(s => {
+                  const sLower = s.toLowerCase();
+                  const valMatch = s.match(/\d+(?:\.\d+)?$/);
+                  if (valMatch) {
+                      const pVal = valMatch[0];
+                      if (sLower.includes('pequeña') || sLower.includes('personal')) {
+                          document.getElementById('form-pizza-small').value = pVal;
+                      } else if (sLower.includes('mediana')) {
+                          document.getElementById('form-pizza-medium').value = pVal;
+                      } else if (sLower.includes('grande')) {
+                          document.getElementById('form-pizza-large').value = pVal;
+                      }
+                  }
+              });
+          }
+      }
+
+      const addMatch = text.match(/adicionales?:?\s*(.+)/i);
+      if (addMatch) {
+          document.getElementById('form-adicionales').value = addMatch[1];
+      } else if (parts.length >= 4) {
+          const lastPart = parts[parts.length - 1];
+          if (!lastPart.toLowerCase().includes('pequeña') && !lastPart.toLowerCase().includes('personal') && !lastPart.toLowerCase().includes('mediana')) {
+              document.getElementById('form-adicionales').value = lastPart;
+          }
+      }
+      
+      this.showLocalToast('✨ Formulario autocompletado');
+  }
+
   async handleProductSubmit(e) {
     e.preventDefault();
     const catSelect = document.getElementById('form-category').value;
@@ -1348,6 +1413,14 @@ class KitchenController {
       }
       newProduct.modifiers = modifiers.length > 0 ? modifiers : undefined;
 
+      // Base ingredients from description
+      if (descInput && descInput.trim() !== '') {
+          const excls = descInput.split(/,| y | e /i).map(i => i.trim().replace(/\.$/, '')).filter(i => i.length > 2);
+          if (excls.length > 0) {
+              newProduct.exclusions = excls;
+          }
+      }
+
       await this.importNewProductToActiveShop(newProduct);
       closeMenuModal();
       this.showLocalToast('🎉 Producto creado e importado.');
@@ -1368,7 +1441,8 @@ class KitchenController {
       price: parseFloat(newProduct.price),
       description: newProduct.description || '',
       image: newProduct.image_url,
-      modifiers: newProduct.modifiers
+      modifiers: newProduct.modifiers,
+      exclusions: newProduct.exclusions ? newProduct.exclusions.map(name => ({ name })) : undefined
     };
 
     est.products.push(newLocalProduct);
