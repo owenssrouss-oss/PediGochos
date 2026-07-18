@@ -389,7 +389,8 @@ class MarketplaceController {
       // 1. Initialize base ingredients to 1
       if (product.exclusions) {
         product.exclusions.forEach(item => {
-          this.customizerState.quantities[sideKey]['base_' + item] = 1;
+          const itemName = item.name || item;
+          this.customizerState.quantities[sideKey]['base_' + itemName] = 1;
         });
       }
 
@@ -551,7 +552,8 @@ class MarketplaceController {
       const list = groupDiv.querySelector('.modifier-options-list');
 
       product.exclusions.forEach(item => {
-        const qty = this.customizerState.quantities[sideKey]['base_' + item] || 0;
+        const itemName = item.name || item;
+        const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
         
         const optionDiv = document.createElement('div');
         let stateClass = '';
@@ -567,14 +569,14 @@ class MarketplaceController {
         optionDiv.className = `modifier-option ${stateClass}`;
         optionDiv.innerHTML = `
           <div class="option-label-container">
-            <span class="option-name">${item}</span>
+            <span class="option-name">${itemName}</span>
           </div>
           <div style="display: flex; align-items: center;">
             ${extraText}
             <div class="option-qty-control">
-              <button class="btn-qty-mini" onclick="event.preventDefault(); MarketplaceApp.updateUnifiedQty('base_${item}', '${sideKey}', -1)">-</button>
+              <button class="btn-qty-mini" onclick="event.preventDefault(); MarketplaceApp.updateUnifiedQty('base_${itemName}', '${sideKey}', -1)">-</button>
               <span class="option-qty-val">${qty}</span>
-              <button class="btn-qty-mini" onclick="event.preventDefault(); MarketplaceApp.updateUnifiedQty('base_${item}', '${sideKey}', 1)">+</button>
+              <button class="btn-qty-mini" onclick="event.preventDefault(); MarketplaceApp.updateUnifiedQty('base_${itemName}', '${sideKey}', 1)">+</button>
             </div>
           </div>
         `;
@@ -722,7 +724,8 @@ class MarketplaceController {
       // 1. Base Ingredients: if quantity > 1, charge $500 per extra portion
       if (product.exclusions) {
         product.exclusions.forEach(item => {
-          const qty = this.customizerState.quantities[sideKey]['base_' + item] || 0;
+          const itemName = item.name || item;
+          const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
           if (qty > 1) {
             sideSum += (qty - 1) * 500;
           }
@@ -758,6 +761,11 @@ class MarketplaceController {
     
     const unitPrice = basePrice + extrasTotal;
     const combinedTotal = unitPrice * qty;
+    
+    const topPriceEl = document.getElementById('customizer-base-price');
+    if (topPriceEl) {
+      topPriceEl.innerText = this.formatPesos(unitPrice);
+    }
     
     const allValid = this.validateRequiredModifiers();
     
@@ -802,12 +810,13 @@ class MarketplaceController {
       // 1. Base ingredients (exclusions and extras)
       if (product.exclusions) {
         product.exclusions.forEach(item => {
-          const qty = this.customizerState.quantities[sideKey]['base_' + item] || 0;
+          const itemName = item.name || item;
+          const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
           if (qty === 0) {
-            exclusions.push({ name: prefix + `Sin ${item}` });
+            exclusions.push({ name: prefix + `Sin ${itemName}` });
           } else if (qty > 1) {
             addOns.push({
-              name: prefix + `${item} Extra`,
+              name: prefix + `${itemName} Extra`,
               price_per_unit: 500,
               quantity: qty - 1
             });
