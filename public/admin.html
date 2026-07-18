@@ -349,7 +349,7 @@
         <!-- Fast Add -->
         <div class="form-group" style="background: rgba(46, 213, 115, 0.05); padding: 12px; border-radius: 12px; border: 1px dashed rgba(46, 213, 115, 0.3);">
           <label for="form-fast-add" style="color: #2ed573; margin-bottom: 8px;">⚡ Auto-completado Mágico (Pega el texto aquí)</label>
-          <textarea id="form-fast-add" rows="2" placeholder="Ej: Pizza - Con queso - 15 - Adicionales: Tocineta 2, Borde 3" style="width: 100%; font-family: inherit; resize: none; background: rgba(0,0,0,0.2);"></textarea>
+          <textarea id="form-fast-add" rows="2" placeholder="Ej: Pizza - 15 - Tamaños: Pequeña 10, Grande 20 - Adicionales: Tocineta 2" style="width: 100%; font-family: inherit; resize: none; background: rgba(0,0,0,0.2);"></textarea>
           <button type="button" class="btn-neumorphic" onclick="handleFastAdd()" style="margin-top: 8px; width: 100%; background: transparent; border: 1px solid #2ed573; color: #2ed573; box-shadow: none;">✨ Extraer y Rellenar Información</button>
         </div>
 
@@ -385,9 +385,15 @@
           <input type="file" id="form-image" accept="image/*" required style="width: 100%;">
         </div>
 
+        <!-- Tamaños / Variantes Únicas -->
+        <div class="form-group">
+          <label for="form-tamanos">Tamaños o Variantes (Solo permite seleccionar uno. Ej: Pequeña 10, Mediana 15, Grande 20)</label>
+          <input type="text" id="form-tamanos" placeholder="Ej. Pequeña 10, Mediana 15" style="width: 100%;">
+        </div>
+
         <!-- Adicionales -->
         <div class="form-group">
-          <label for="form-adicionales">Adicionales / Extras (Formato: Nombre Precio, Nombre Precio...)</label>
+          <label for="form-adicionales">Adicionales / Extras (Permite seleccionar varios. Ej: Tocineta 2, Huevo 1)</label>
           <input type="text" id="form-adicionales" placeholder="Ej. Tocineta 2, Huevo 1" style="width: 100%;">
         </div>
 
@@ -772,10 +778,15 @@
           document.getElementById('form-price').value = priceMatch[1] || priceMatch[2] || priceMatch[0];
       }
 
+      const sizeMatch = text.match(/tamaños?:?\s*([^-]+)/i);
+      if (sizeMatch) {
+          document.getElementById('form-tamanos').value = sizeMatch[1].trim();
+      }
+
       const addMatch = text.match(/adicionales?:?\s*(.+)/i);
       if (addMatch) {
           document.getElementById('form-adicionales').value = addMatch[1];
-      } else if (parts.length >= 4) {
+      } else if (parts.length >= 4 && !sizeMatch) {
           document.getElementById('form-adicionales').value = parts.slice(3).join(', ');
       }
     }
@@ -788,6 +799,7 @@
       const nameInput = document.getElementById('form-name').value;
       const descInput = document.getElementById('form-desc').value;
       const priceInput = document.getElementById('form-price').value;
+      const tamanosInput = document.getElementById('form-tamanos') ? document.getElementById('form-tamanos').value : '';
       const extrasInput = document.getElementById('form-adicionales') ? document.getElementById('form-adicionales').value : '';
       const fileInput = document.getElementById('form-image').files[0];
 
@@ -808,15 +820,16 @@
         const newProduct = await MenuBuilder.createProduct(catSelect, nameInput, descInput, priceInput, imageUrl);
         
         let modifiers = [];
-        if (extrasInput && extrasInput.trim() !== '') {
-            const options = extrasInput.split(',').map(ext => {
+        
+        // Tamaños parsing
+        if (tamanosInput && tamanosInput.trim() !== '') {
+            const options = tamanosInput.split(',').map(ext => {
                const extParts = ext.trim().split(' ');
                let price = parseFloat(extParts.pop());
                if (isNaN(price)) {
                   price = 0;
-                  extParts.push(String(price)); // this means the last part wasn't a number, so we messed up, let's just ignore
+                  extParts.push(String(price));
                }
-               // actually, better parsing:
                const priceMatch2 = ext.match(/\d+(?:\.\d+)?$/);
                let val = 0;
                let name = ext.trim();
@@ -824,14 +837,44 @@
                    val = parseFloat(priceMatch2[0]);
                    name = ext.replace(/\d+(?:\.\d+)?$/, '').trim();
                }
-               return { id: 'opt-' + Date.now() + Math.random(), name: name, price: val };
+               return { id: 'opt-' + Date.now() + Math.random(), name: name, price: val, option_id: 'opt-' + Date.now() + Math.random() };
+            }).filter(opt => opt.name !== '');
+
+            if (options.length > 0) {
+                modifiers.push({
+                    group_id: 'g-tamanos-' + Date.now(),
+                    group_name: 'Tamaño',
+                    selection_type: 'single',
+                    required: true,
+                    options: options
+                });
+            }
+        }
+
+        // Extras parsing
+        if (extrasInput && extrasInput.trim() !== '') {
+            const options = extrasInput.split(',').map(ext => {
+               const extParts = ext.trim().split(' ');
+               let price = parseFloat(extParts.pop());
+               if (isNaN(price)) {
+                  price = 0;
+                  extParts.push(String(price));
+               }
+               const priceMatch2 = ext.match(/\d+(?:\.\d+)?$/);
+               let val = 0;
+               let name = ext.trim();
+               if (priceMatch2) {
+                   val = parseFloat(priceMatch2[0]);
+                   name = ext.replace(/\d+(?:\.\d+)?$/, '').trim();
+               }
+               return { id: 'opt-' + Date.now() + Math.random(), name: name, price: val, option_id: 'opt-' + Date.now() + Math.random() };
             }).filter(opt => opt.name !== '');
 
             if (options.length > 0) {
                 modifiers.push({
                     group_id: 'g-extras-' + Date.now(),
                     group_name: 'Adicionales',
-                    type: 'multiple',
+                    selection_type: 'multiple',
                     required: false,
                     options: options
                 });

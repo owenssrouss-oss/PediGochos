@@ -1274,6 +1274,7 @@ class KitchenController {
     const nameInput = document.getElementById('form-name').value;
     const descInput = document.getElementById('form-desc').value;
     const priceInput = document.getElementById('form-price').value;
+    const tamanosInput = document.getElementById('form-tamanos') ? document.getElementById('form-tamanos').value : '';
     const extrasInput = document.getElementById('form-adicionales') ? document.getElementById('form-adicionales').value : '';
     const fileInput = document.getElementById('form-image').files[0];
 
@@ -1287,6 +1288,38 @@ class KitchenController {
       const newProduct = await MenuBuilder.createProduct(catSelect, nameInput, descInput, priceInput, imageUrl);
       
       let modifiers = [];
+      
+      // Tamaños parsing
+      if (tamanosInput && tamanosInput.trim() !== '') {
+          const options = tamanosInput.split(',').map(ext => {
+             const extParts = ext.trim().split(' ');
+             let price = parseFloat(extParts.pop());
+             if (isNaN(price)) {
+                price = 0;
+                extParts.push(String(price));
+             }
+             const priceMatch2 = ext.match(/\d+(?:\.\d+)?$/);
+             let val = 0;
+             let name = ext.trim();
+             if (priceMatch2) {
+                 val = parseFloat(priceMatch2[0]);
+                 name = ext.replace(/\d+(?:\.\d+)?$/, '').trim();
+             }
+             return { id: 'opt-' + Date.now() + Math.random(), name: name, price: val, option_id: 'opt-' + Date.now() + Math.random() };
+          }).filter(opt => opt.name !== '');
+
+          if (options.length > 0) {
+              modifiers.push({
+                  group_id: 'g-tamanos-' + Date.now(),
+                  group_name: 'Tamaño',
+                  selection_type: 'single',
+                  required: true,
+                  options: options
+              });
+          }
+      }
+
+      // Extras parsing
       if (extrasInput && extrasInput.trim() !== '') {
           const options = extrasInput.split(',').map(ext => {
              const extParts = ext.trim().split(' ');
@@ -1302,14 +1335,14 @@ class KitchenController {
                  val = parseFloat(priceMatch2[0]);
                  name = ext.replace(/\d+(?:\.\d+)?$/, '').trim();
              }
-             return { id: 'opt-' + Date.now() + Math.random(), name: name, price: val };
+             return { id: 'opt-' + Date.now() + Math.random(), name: name, price: val, option_id: 'opt-' + Date.now() + Math.random() };
           }).filter(opt => opt.name !== '');
 
           if (options.length > 0) {
               modifiers.push({
                   group_id: 'g-extras-' + Date.now(),
                   group_name: 'Adicionales',
-                  type: 'multiple',
+                  selection_type: 'multiple',
                   required: false,
                   options: options
               });
