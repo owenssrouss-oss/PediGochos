@@ -63,6 +63,7 @@ class AdminController {
           if (warningBanner) warningBanner.classList.add('hidden');
           
           this.renderTable();
+          this.initPresence(user.email);
           this.showToast('👑 Acceso de Dueño verificado con Google');
         } catch (err) {
           console.error(err);
@@ -73,6 +74,41 @@ class AdminController {
         await SupabaseApp.logout();
       }
     }
+  }
+
+  async initPresence(email) {
+    if (typeof SupabaseApp === 'undefined' || !SupabaseApp.client) return;
+    const client = SupabaseApp.client;
+    
+    // Configurar canal de presence
+    const channel = client.channel('online-owners', {
+      config: {
+        presence: {
+          key: email,
+        },
+      },
+    });
+
+    channel.on('presence', { event: 'sync' }, () => {
+      const state = channel.presenceState();
+      const onlineUsers = Object.keys(state).map(key => state[key][0].email);
+      const uniqueUsers = [...new Set(onlineUsers)];
+      
+      const indicator = document.getElementById('online-owners-indicator');
+      const countSpan = document.getElementById('online-owners-count');
+      
+      if (indicator && countSpan) {
+        indicator.classList.remove('hidden');
+        countSpan.textContent = `${uniqueUsers.length} activo${uniqueUsers.length !== 1 ? 's' : ''}`;
+        indicator.title = `Dueños en línea:\n${uniqueUsers.join('\n')}`;
+      }
+    });
+
+    channel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await channel.track({ email: email, online_at: new Date().toISOString() });
+      }
+    });
   }
 
   async loginWithGoogle() {

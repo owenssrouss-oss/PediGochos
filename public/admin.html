@@ -50,6 +50,10 @@
           <h2>Deliver<span>City</span> - Panel de Dueño</h2>
         </div>
         <div style="display: flex; gap: 12px; align-items: center;">
+          <div id="online-owners-indicator" class="hidden" style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 20px; font-size: 12px; font-weight: 700; color: #10b981; cursor: help;" title="Dueños en línea">
+            <span class="status-dot" style="width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; animation: pulse 2s infinite;"></span>
+            <span id="online-owners-count">1 activo</span>
+          </div>
           <button class="btn-logout" onclick="AdminApp.triggerCloudBackup()" style="background-color: #10b981; color: #121216; font-weight: 800; border: 1px solid #10b981;">☁️ Respaldar Cloud</button>
           <button class="btn-logout" onclick="AdminApp.logout()">🚪 Cerrar Sesión</button>
         </div>
