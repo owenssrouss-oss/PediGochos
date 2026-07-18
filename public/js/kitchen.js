@@ -1274,6 +1274,7 @@ class KitchenController {
     const nameInput = document.getElementById('form-name').value;
     const descInput = document.getElementById('form-desc').value;
     const priceInput = document.getElementById('form-price').value;
+    const extrasInput = document.getElementById('form-adicionales') ? document.getElementById('form-adicionales').value : '';
     const fileInput = document.getElementById('form-image').files[0];
 
     if (!fileInput) {
@@ -1285,6 +1286,37 @@ class KitchenController {
       const imageUrl = await MenuBuilder.uploadProductImage(fileInput);
       const newProduct = await MenuBuilder.createProduct(catSelect, nameInput, descInput, priceInput, imageUrl);
       
+      let modifiers = [];
+      if (extrasInput && extrasInput.trim() !== '') {
+          const options = extrasInput.split(',').map(ext => {
+             const extParts = ext.trim().split(' ');
+             let price = parseFloat(extParts.pop());
+             if (isNaN(price)) {
+                price = 0;
+                extParts.push(String(price));
+             }
+             const priceMatch2 = ext.match(/\d+(?:\.\d+)?$/);
+             let val = 0;
+             let name = ext.trim();
+             if (priceMatch2) {
+                 val = parseFloat(priceMatch2[0]);
+                 name = ext.replace(/\d+(?:\.\d+)?$/, '').trim();
+             }
+             return { id: 'opt-' + Date.now() + Math.random(), name: name, price: val };
+          }).filter(opt => opt.name !== '');
+
+          if (options.length > 0) {
+              modifiers.push({
+                  group_id: 'g-extras-' + Date.now(),
+                  group_name: 'Adicionales',
+                  type: 'multiple',
+                  required: false,
+                  options: options
+              });
+          }
+      }
+      newProduct.modifiers = modifiers.length > 0 ? modifiers : undefined;
+
       await this.importNewProductToActiveShop(newProduct);
       closeMenuModal();
       this.showLocalToast('🎉 Producto creado e importado.');
@@ -1304,7 +1336,8 @@ class KitchenController {
       name: newProduct.name,
       price: parseFloat(newProduct.price),
       description: newProduct.description || '',
-      image: newProduct.image_url
+      image: newProduct.image_url,
+      modifiers: newProduct.modifiers
     };
 
     est.products.push(newLocalProduct);
