@@ -24,10 +24,16 @@ class MarketplaceController {
       items: [] // { product, quantity }
     };
     this.orderType = 'delivery'; // 'delivery' or 'mesa'
+    this.currentLocation = localStorage.getItem('selected_location') || 'San Antonio';
   }
 
   async init() {
     await this.loadEstablishments();
+    
+    // Update active location display in header on startup
+    const display = document.getElementById('active-location-display');
+    if (display) display.innerText = this.currentLocation;
+
     this.selectCategory('comidas');
     this.updateCartBadge();
     await this.checkSupabaseSession();
@@ -193,7 +199,7 @@ class MarketplaceController {
 
   // Render lists
   renderEstablishments(filtered = null) {
-    const list = filtered || this.establishments.filter(e => e.category === this.currentCategory);
+    const list = filtered || this.establishments.filter(e => e.category === this.currentCategory && (e.location === this.currentLocation || !e.location));
     const grid = document.getElementById('establishments-grid');
     grid.innerHTML = '';
 
@@ -1335,8 +1341,10 @@ class MarketplaceController {
       return;
     }
 
-    // Filter establishments that match query (or have matching products)
+    // Filter establishments that match query (or have matching products) and active location
     const filtered = this.establishments.filter(est => {
+      const matchLoc = est.location === this.currentLocation || !est.location;
+      if (!matchLoc) return false;
       const matchEst = est.name.toLowerCase().includes(query) || est.description.toLowerCase().includes(query);
       const matchProd = est.products.some(p => p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query));
       return matchEst || matchProd;
@@ -1353,6 +1361,37 @@ class MarketplaceController {
   closeTermsModal() {
     document.getElementById('terms-modal').classList.remove('open');
     document.getElementById('checkout-accept-terms').checked = true;
+  }
+
+  openLocationModal() {
+    const modal = document.getElementById('location-modal');
+    if (modal) {
+      modal.classList.add('open');
+      // Highlight selected button
+      document.querySelectorAll('.btn-location-option').forEach(btn => btn.style.borderColor = 'var(--border)');
+      let activeBtnId = 'btn-loc-san-antonio';
+      if (this.currentLocation === 'Ureña') activeBtnId = 'btn-loc-urena';
+      else if (this.currentLocation === 'San Cristóbal') activeBtnId = 'btn-loc-san-cristobal';
+      
+      const activeBtn = document.getElementById(activeBtnId);
+      if (activeBtn) activeBtn.style.borderColor = 'var(--primary)';
+    }
+  }
+
+  closeLocationModal() {
+    const modal = document.getElementById('location-modal');
+    if (modal) modal.classList.remove('open');
+  }
+
+  setLocation(location) {
+    this.currentLocation = location;
+    localStorage.setItem('selected_location', location);
+    
+    const display = document.getElementById('active-location-display');
+    if (display) display.innerText = location;
+    
+    this.closeLocationModal();
+    this.renderEstablishments();
   }
 }
 

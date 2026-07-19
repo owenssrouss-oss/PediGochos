@@ -21,6 +21,7 @@ create table if not exists establishments (
   products jsonb default '[]'::jsonb,
   prep_time integer,
   delivery_time integer,
+  location text default 'San Antonio',
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
@@ -97,4 +98,10 @@ create policy "Actualización pública de imágenes" on storage.objects for upda
 -- Habilitar políticas de eliminación de imágenes
 drop policy if exists "Eliminación pública de imágenes" on storage.objects;
 create policy "Eliminación pública de imágenes" on storage.objects for delete using ( bucket_id = 'menu_images' );
+
+-- =======================================================
+-- NOTA DE MIGRACIÓN PARA BASES DE DATOS EXISTENTES
+-- Si tu base de datos ya tiene la tabla "establishments", ejecuta esto en Supabase SQL Editor:
+-- ALTER TABLE establishments ADD COLUMN IF NOT EXISTS location TEXT DEFAULT 'San Antonio';
+-- =======================================================
 

@@ -222,7 +222,10 @@ class AdminController {
       row.onclick = () => AdminApp.showEstablishmentActions(est.id);
 
       row.innerHTML = `
-        <td class="shop-title-cell" style="font-weight: 700;">${est.logo || '🏪'} ${est.name}</td>
+        <td class="shop-title-cell" style="font-weight: 700;">
+          ${est.logo || '🏪'} ${est.name}
+          <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">📍 ${est.location || 'San Antonio'}</span>
+        </td>
         <td><span class="shop-category-cell">${est.category}</span></td>
         <td style="font-weight: 600;">${ordersCount}</td>
         <td style="font-weight: 700; color: var(--primary);">${this.formatPesos(totalRevenue)}</td>
@@ -268,6 +271,7 @@ class AdminController {
     document.getElementById('edit-shop-id').value = est.id;
     document.getElementById('edit-shop-name').value = est.name;
     document.getElementById('edit-shop-description').value = est.description || '';
+    document.getElementById('edit-shop-location').value = est.location || 'San Antonio';
     document.getElementById('edit-shop-delivery').value = est.delivery_fee || 0;
     const bannerInput = document.getElementById('edit-shop-banner');
     if (bannerInput) bannerInput.value = est.banner || '';
@@ -357,6 +361,7 @@ class AdminController {
 
     const name = document.getElementById('edit-shop-name').value.trim();
     const description = document.getElementById('edit-shop-description').value.trim();
+    const location = document.getElementById('edit-shop-location').value;
     const logo = document.getElementById('edit-shop-logo').value;
     const delivery_fee = document.getElementById('edit-shop-delivery').value;
     const themeColor = document.getElementById('edit-shop-theme').value;
@@ -387,6 +392,7 @@ class AdminController {
         isOwner: true,
         name,
         description,
+        location,
         logo,
         delivery_fee,
         banner,
@@ -1068,6 +1074,7 @@ class AdminController {
 
     const name = document.getElementById('reg-name').value.trim();
     const category = document.getElementById('reg-category').value;
+    const location = document.getElementById('reg-location').value;
     const description = document.getElementById('reg-description').value.trim();
     const logo = document.getElementById('reg-logo-select').value;
     let bannerType = document.getElementById('reg-banner-type').value;
@@ -1125,6 +1132,7 @@ class AdminController {
       const payload = {
         name,
         category,
+        location,
         description,
         logo,
         bannerType,

@@ -30,7 +30,8 @@
       ],
       "prep_time": null,
       "delivery_time": null,
-      "created_at": "2026-07-17T05:41:11.979533+00:00"
+      "created_at": "2026-07-17T05:41:11.979533+00:00",
+      "location": "San Antonio"
     },
     {
       "id": "sabor-venezolano-arepas-1784413922154",
@@ -789,7 +790,8 @@
       ],
       "prep_time": null,
       "delivery_time": null,
-      "created_at": "2026-07-18T22:32:02.444972+00:00"
+      "created_at": "2026-07-18T22:32:02.444972+00:00",
+      "location": "Ureña"
     },
     {
       "id": "boby-burgers-1784410785941",
@@ -1438,7 +1440,8 @@
       ],
       "prep_time": null,
       "delivery_time": null,
-      "created_at": "2026-07-18T21:39:46.549824+00:00"
+      "created_at": "2026-07-18T21:39:46.549824+00:00",
+      "location": "San Cristóbal"
     },
     {
       "id": "carritos-de-manuel-1784411690116",
@@ -3188,7 +3191,8 @@
       ],
       "prep_time": null,
       "delivery_time": null,
-      "created_at": "2026-07-18T21:54:50.715682+00:00"
+      "created_at": "2026-07-18T21:54:50.715682+00:00",
+      "location": "San Antonio"
     },
     {
       "id": "shawarma-dunes-1784412375653",
@@ -3597,7 +3601,8 @@
       ],
       "prep_time": null,
       "delivery_time": null,
-      "created_at": "2026-07-18T22:06:16.169331+00:00"
+      "created_at": "2026-07-18T22:06:16.169331+00:00",
+      "location": "Ureña"
     },
     {
       "id": "mak-pizza-1784350135697",
@@ -6211,7 +6216,8 @@
       ],
       "prep_time": null,
       "delivery_time": null,
-      "created_at": "2026-07-18T04:48:55.94933+00:00"
+      "created_at": "2026-07-18T04:48:55.94933+00:00",
+      "location": "San Cristóbal"
     },
     {
       "id": "m-ster-cachapa-1784291108772",
@@ -7397,7 +7403,8 @@
       ],
       "prep_time": null,
       "delivery_time": null,
-      "created_at": "2026-07-17T12:25:09.043063+00:00"
+      "created_at": "2026-07-17T12:25:09.043063+00:00",
+      "location": "San Antonio"
     }
   ],
   "orders": [

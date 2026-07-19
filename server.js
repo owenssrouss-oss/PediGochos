@@ -183,7 +183,8 @@ async function saveToPostgres() {
         layout: est.layout || [],
         products: est.products || [],
         prep_time: est.prep_time !== undefined ? est.prep_time : null,
-        delivery_time: est.delivery_time !== undefined ? est.delivery_time : null
+        delivery_time: est.delivery_time !== undefined ? est.delivery_time : null,
+        location: est.location || 'San Antonio'
       }));
 
       const estRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/establishments`, {
@@ -379,6 +380,7 @@ app.post('/api/establishments', (req, res) => {
 
   // Save/generate the administration key
   newEstablishment.linkKey = newEstablishment.linkKey || Math.random().toString(36).substring(2, 8).toUpperCase();
+  newEstablishment.location = newEstablishment.location || 'San Antonio';
 
   db.establishments.push(newEstablishment);
   writeDB(db);
@@ -586,6 +588,9 @@ app.put('/api/establishments/:id', (req, res) => {
   }
   if (req.body.delivery_time !== undefined) {
     est.delivery_time = req.body.delivery_time ? parseInt(req.body.delivery_time) : null;
+  }
+  if (req.body.location) {
+    est.location = req.body.location;
   }
   
   writeDB(db);
