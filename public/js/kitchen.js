@@ -815,6 +815,13 @@ class KitchenController {
           opt.innerText = cat.name;
           select.appendChild(opt);
         });
+        
+        const newOpt = document.createElement('option');
+        newOpt.value = 'new';
+        newOpt.innerText = '+ Crear nueva categoría...';
+        newOpt.style.fontWeight = 'bold';
+        newOpt.style.color = 'var(--primary)';
+        select.appendChild(newOpt);
       }
     }
     
@@ -1278,14 +1285,24 @@ class KitchenController {
           document.getElementById('form-name').value = extractedName;
           
           const catSelect = document.getElementById('form-category');
-          const firstWord = extractedName.split(' ')[0].toLowerCase();
+          const firstWord = extractedName.split(' ')[0];
+          const firstWordLower = firstWord.toLowerCase();
+          
+          let foundCategory = false;
           for (let i = 0; i < catSelect.options.length; i++) {
-              if (catSelect.options[i].text.toLowerCase().includes(firstWord)) {
+              if (catSelect.options[i].value !== 'new' && catSelect.options[i].text.toLowerCase().includes(firstWordLower)) {
                   catSelect.selectedIndex = i;
-                  if (typeof togglePizzaSizes === 'function') togglePizzaSizes(catSelect);
+                  foundCategory = true;
                   break;
               }
           }
+          
+          if (!foundCategory) {
+              catSelect.value = 'new';
+              document.getElementById('form-new-category-name').value = firstWord;
+          }
+          
+          if (typeof window.handleCategoryChange === 'function') window.handleCategoryChange(catSelect);
       }
       if (parts.length >= 2) document.getElementById('form-desc').value = parts[1];
       
@@ -1355,7 +1372,7 @@ class KitchenController {
 
   async handleProductSubmit(e) {
     e.preventDefault();
-    const catSelect = document.getElementById('form-category').value;
+    let catSelect = document.getElementById('form-category').value;
     const nameInput = document.getElementById('form-name').value;
     const descInput = document.getElementById('form-desc').value;
     const pizzaSmall = document.getElementById('form-pizza-small')?.value;
@@ -1365,6 +1382,19 @@ class KitchenController {
     const fileInput = document.getElementById('form-image').files[0];
 
     try {
+      if (catSelect === 'new') {
+          const newCatName = document.getElementById('form-new-category-name').value;
+          const newCatSlug = newCatName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+          const createdCat = await MenuBuilder.createCategory(newCatName, newCatSlug);
+          catSelect = createdCat.id;
+          
+          // Re-fetch categories silently so the select is updated for next time
+          if (typeof MenuBuilder !== 'undefined') {
+              window.categoriesList = await MenuBuilder.getCategories();
+              this.renderModalCategories();
+          }
+      }
+
       let imageUrl = '';
       if (fileInput) {
         imageUrl = await MenuBuilder.uploadProductImage(fileInput);
@@ -1677,12 +1707,29 @@ document.addEventListener('DOMContentLoaded', () => {
   KitchenApp.init();
 });
 
+window.handleCategoryChange = function(selectElem) {
+  const selectedValue = selectElem.value;
+  const newCategoryContainer = document.getElementById('form-new-category-container');
+  const newCategoryInput = document.getElementById('form-new-category-name');
+  
+  if (selectedValue === 'new') {
+    newCategoryContainer.style.display = 'block';
+    newCategoryInput.required = true;
+  } else {
+    newCategoryContainer.style.display = 'none';
+    newCategoryInput.required = false;
+    newCategoryInput.value = '';
+  }
+  
+  if (typeof togglePizzaSizes === 'function') togglePizzaSizes(selectElem);
+};
+
 window.togglePizzaSizes = function(selectElem) {
   const selectedText = selectElem.options[selectElem.selectedIndex].text.toLowerCase();
   const pizzaContainer = document.getElementById('pizza-sizes-container');
   const basePriceInput = document.getElementById('form-price');
   
-  if (selectedText.includes('pizza')) {
+  if (selectedText.includes('pizza') || (selectElem.value === 'new' && document.getElementById('form-new-category-name').value.toLowerCase().includes('pizza'))) {
     pizzaContainer.style.display = 'block';
     if(basePriceInput) {
       basePriceInput.required = false;

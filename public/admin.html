@@ -356,9 +356,14 @@
         <!-- Category Selector -->
         <div class="form-group">
           <label for="form-category">Categoría *</label>
-          <select id="form-category" required style="width: 100%;" onchange="togglePizzaSizes(this)">
-            <option value="">-- Selecciona una categoría --</option>
+          <select id="form-category" required style="width: 100%;" onchange="handleCategoryChange(this)">
           </select>
+        </div>
+        
+        <!-- New Category Input (Hidden by default) -->
+        <div class="form-group" id="form-new-category-container" style="display: none;">
+          <label for="form-new-category-name">Nombre de la Nueva Categoría *</label>
+          <input type="text" id="form-new-category-name" placeholder="Ej. Promociones" style="width: 100%;">
         </div>
 
         <!-- Product Name -->
@@ -683,6 +688,13 @@
         opt.innerText = cat.name;
         select.appendChild(opt);
       });
+      
+      const newOpt = document.createElement('option');
+      newOpt.value = 'new';
+      newOpt.innerText = '+ Crear nueva categoría...';
+      newOpt.style.fontWeight = 'bold';
+      newOpt.style.color = 'var(--primary)';
+      select.appendChild(newOpt);
     }
 
     function renderProducts() {
@@ -801,13 +813,33 @@
         showToast('Error al crear categoría: ' + err.message, true);
       }
     }
+    
+    // Handle Category Dropdown Changes
+    function handleCategoryChange(selectElem) {
+      const selectedValue = selectElem.value;
+      const newCategoryContainer = document.getElementById('form-new-category-container');
+      const newCategoryInput = document.getElementById('form-new-category-name');
+      
+      if (selectedValue === 'new') {
+        newCategoryContainer.style.display = 'block';
+        newCategoryInput.required = true;
+      } else {
+        newCategoryContainer.style.display = 'none';
+        newCategoryInput.required = false;
+        newCategoryInput.value = '';
+      }
+      
+      // Also trigger pizza logic
+      togglePizzaSizes(selectElem);
+    }
 
+    // Add specific pizza sizes UI toggler
     function togglePizzaSizes(selectElem) {
       const selectedText = selectElem.options[selectElem.selectedIndex].text.toLowerCase();
       const pizzaContainer = document.getElementById('pizza-sizes-container');
       const basePriceInput = document.getElementById('form-price');
       
-      if (selectedText.includes('pizza')) {
+      if (selectedText.includes('pizza') || (selectElem.value === 'new' && document.getElementById('form-new-category-name').value.toLowerCase().includes('pizza'))) {
         pizzaContainer.style.display = 'block';
         basePriceInput.required = false;
         basePriceInput.value = '0';
@@ -827,14 +859,24 @@
           document.getElementById('form-name').value = extractedName;
           
           const catSelect = document.getElementById('form-category');
-          const firstWord = extractedName.split(' ')[0].toLowerCase();
+          const firstWord = extractedName.split(' ')[0];
+          const firstWordLower = firstWord.toLowerCase();
+          
+          let foundCategory = false;
           for (let i = 0; i < catSelect.options.length; i++) {
-              if (catSelect.options[i].text.toLowerCase().includes(firstWord)) {
+              if (catSelect.options[i].value !== 'new' && catSelect.options[i].text.toLowerCase().includes(firstWordLower)) {
                   catSelect.selectedIndex = i;
-                  if (typeof togglePizzaSizes === 'function') togglePizzaSizes(catSelect);
+                  foundCategory = true;
                   break;
               }
           }
+          
+          if (!foundCategory) {
+              catSelect.value = 'new';
+              document.getElementById('form-new-category-name').value = firstWord;
+          }
+          
+          if (typeof handleCategoryChange === 'function') handleCategoryChange(catSelect);
       }
       if (parts.length >= 2) document.getElementById('form-desc').value = parts[1];
       
@@ -906,7 +948,7 @@
       e.preventDefault();
       
       const submitBtn = e.target.querySelector('button[type="submit"]');
-      const catSelect = document.getElementById('form-category').value;
+      let catSelect = document.getElementById('form-category').value;
       const nameInput = document.getElementById('form-name').value;
       const descInput = document.getElementById('form-desc').value;
       const isPizza = document.getElementById('pizza-sizes-container')?.style.display === 'block';
@@ -920,6 +962,19 @@
       submitBtn.innerHTML = `<span class="spinner"></span> <span style="margin-left: 8px;">Procesando...</span>`;
 
       try {
+        if (catSelect === 'new') {
+            const newCatName = document.getElementById('form-new-category-name').value;
+            const newCatSlug = newCatName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            const createdCat = await MenuBuilder.createCategory(newCatName, newCatSlug);
+            catSelect = createdCat.id;
+            
+            // Re-fetch categories silently so the select is updated for next time
+            MenuBuilder.getCategories().then(c => {
+               categoriesList = c;
+               renderCategories();
+            });
+        }
+        
         let imageUrl = '';
         if (fileInput) {
            imageUrl = await MenuBuilder.uploadProductImage(fileInput);
