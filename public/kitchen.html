@@ -24,8 +24,12 @@
 
       <!-- Select active establishment -->
       <div class="shop-select-area">
-        <label for="merchant-shop-select">Tu Comercio:</label>
-        <select id="merchant-shop-select" onchange="KitchenApp.switchEstablishment(this.value)">
+        <div id="active-shop-info" class="hidden" style="display: flex; align-items: center; gap: 8px;">
+          <span id="active-shop-logo" style="font-size: 20px;"></span>
+          <span id="active-shop-name" style="font-weight: 800; font-size: 16px; color: #fff;"></span>
+          <button onclick="KitchenApp.logoutMerchant()" style="margin-left: 12px; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444; border-radius: var(--radius-sm); padding: 6px 12px; cursor: pointer; font-weight: 700; font-size: 12px; transition: all 0.2s; outline: none; border-style: solid;">🚪 Salir</button>
+        </div>
+        <select id="merchant-shop-select" style="display: none;">
           <option value="">-- Selecciona tu negocio --</option>
           <!-- Filled dynamically -->
         </select>
@@ -44,23 +48,14 @@
   <main class="merchant-dashboard-content">
     <div id="no-shop-overlay" class="no-shop-overlay flex-center">
       <div class="overlay-card">
-        <span class="overlay-icon">🏪</span>
-        <h3>Selecciona tu Establecimiento</h3>
-        <p>Elige tu comercio desde el selector superior para ingresar al panel de cocina en tiempo real.</p>
-      </div>
-    </div>
-
-    <!-- Admin Authorization Overlay -->
-    <div id="auth-shop-overlay" class="no-shop-overlay flex-center hidden">
-      <div class="overlay-card">
         <span class="overlay-icon">🔒</span>
-        <h3 id="auth-shop-name">Comercio Protegido</h3>
-        <p style="margin-bottom: 16px;">Accede con tu cuenta autorizada o introduce la clave de vinculación del local.</p>
+        <h3>Acceso a Cocina</h3>
+        <p style="margin-bottom: 16px; color: #94a3b8; font-size: 14px;">Ingresa la clave de vinculación de tu establecimiento para gestionar tus pedidos en tiempo real.</p>
         
         <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
-          <button class="btn-card-action ready" onclick="KitchenApp.loginWithGoogle()" style="width: 100%; padding: 12px; font-size: 14px; background-color: #4285F4; border-color: #4285F4; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
+          <button class="btn-card-action ready" onclick="KitchenApp.loginWithGoogle()" style="width: 100%; padding: 12px; font-size: 14px; background-color: #4285F4; border-color: #4285F4; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; font-weight: 700; border-radius: 8px; color: white;">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.909c1.702-1.567 2.683-3.874 2.683-6.616z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.909-2.258c-.806.54-1.837.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.59.102-1.167.282-1.707V4.96H.956C.347 6.173 0 7.549 0 9c0 1.451.347 2.827.956 4.04l3.008-2.333z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.508.454 3.44 1.348l2.582-2.58C13.463.896 11.426 0 9 0 5.482 0 2.438 2.017.956 4.96l3.008 2.332C4.672 5.164 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
-            🔑 Acceder con Google
+            🔑 Acceder con Google (Asociado)
           </button>
           
           <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #475569; font-size: 12px; font-weight: 700;">
@@ -68,11 +63,11 @@
           </div>
         </div>
 
-        <div>
-          <input type="text" id="auth-link-key" placeholder="CLAVE DE VINCULACIÓN" style="width: 100%; text-align: center; text-transform: uppercase; padding: 12px; font-size: 16px; font-weight: 700; border-radius: 8px; border: 1px solid #475569; background-color: #0F172A; color: #FFFFFF; margin-bottom: 12px; outline: none;">
-          <button class="btn-card-action ready" onclick="KitchenApp.verifyAndLinkKey()" style="width: 100%; padding: 12px; font-size: 14px;">🔑 Vincular y Activar Recibo</button>
-          <p id="auth-error-msg" style="color: #EF4444; font-size: 13px; margin-top: 12px; font-weight: bold;" class="hidden">Clave incorrecta. Inténtalo de nuevo.</p>
-        </div>
+        <form onsubmit="event.preventDefault(); KitchenApp.verifyAndLinkKeyDirect()">
+          <input type="text" id="auth-link-key" placeholder="CLAVE DE VINCULACIÓN" style="width: 100%; text-align: center; text-transform: uppercase; padding: 12px; font-size: 16px; font-weight: 700; border-radius: 8px; border: 1px solid #475569; background-color: #0F172A; color: #FFFFFF; margin-bottom: 12px; outline: none; letter-spacing: 2px;">
+          <button type="submit" class="btn-card-action ready" style="width: 100%; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer;">🔑 Ingresar a Cocina</button>
+        </form>
+        <p id="auth-error-msg" style="color: #EF4444; font-size: 13px; margin-top: 12px; font-weight: bold;" class="hidden">Clave incorrecta. Inténtalo de nuevo.</p>
       </div>
     </div>
 

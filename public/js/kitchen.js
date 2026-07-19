@@ -14,6 +14,7 @@ class KitchenController {
     await this.loadEstablishments();
     this.setupTimer();
     await this.checkSupabaseSession();
+    this.checkLocalSession();
   }
 
   async checkSupabaseSession() {
@@ -35,9 +36,17 @@ class KitchenController {
           
           this.selectedId = estId;
           document.getElementById('no-shop-overlay').classList.add('hidden');
-          document.getElementById('auth-shop-overlay').classList.add('hidden');
           
-          this.connectWS(est.linkKey);
+          // Show active shop info in header
+          const activeShopInfo = document.getElementById('active-shop-info');
+          const activeLogo = document.getElementById('active-shop-logo');
+          const activeName = document.getElementById('active-shop-name');
+          
+          if (activeShopInfo) activeShopInfo.classList.remove('hidden');
+          if (activeLogo) activeLogo.innerText = est.logo || '🏪';
+          if (activeName) activeName.innerText = est.name || '';
+          
+          this.connectWS(est.linkKey || localStorage.getItem('admin_key_' + estId));
         } else {
           console.warn('Asociado a comercio inexistente:', estId);
         }
@@ -47,6 +56,34 @@ class KitchenController {
       } else {
         alert('Tu cuenta de Google (' + user.email + ') no tiene permisos de Cocina (merchant).');
         await SupabaseApp.logout();
+      }
+    }
+  }
+
+  checkLocalSession() {
+    const savedShopId = localStorage.getItem('active_merchant_shop_id');
+    const savedKey = localStorage.getItem('admin_key_' + savedShopId);
+    
+    if (savedShopId && savedKey) {
+      const est = this.establishments.find(e => e.id === savedShopId);
+      if (est) {
+        this.selectedId = savedShopId;
+        
+        // Show active shop info in header
+        const activeShopInfo = document.getElementById('active-shop-info');
+        const activeLogo = document.getElementById('active-shop-logo');
+        const activeName = document.getElementById('active-shop-name');
+        
+        if (activeShopInfo) activeShopInfo.classList.remove('hidden');
+        if (activeLogo) activeLogo.innerText = est.logo || '🏪';
+        if (activeName) activeName.innerText = est.name || '';
+        
+        // Update hidden select
+        const select = document.getElementById('merchant-shop-select');
+        if (select) select.value = savedShopId;
+        
+        document.getElementById('no-shop-overlay').classList.add('hidden');
+        this.connectWS(savedKey);
       }
     }
   }
@@ -76,10 +113,104 @@ class KitchenController {
     }
   }
 
+  async verifyAndLinkKeyDirect() {
+    const keyInput = document.getElementById('auth-link-key').value.trim().toUpperCase();
+    const errorMsg = document.getElementById('auth-error-msg');
+    
+    if (!keyInput) {
+      alert('Por favor, introduce la clave de vinculación.');
+      return;
+    }
+    
+    try {
+      const res = await fetch('/api/merchant/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: keyInput })
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok && data.success) {
+        errorMsg.classList.add('hidden');
+        
+        const est = data.establishment;
+        this.selectedId = est.id;
+        
+        // Save session locally
+        localStorage.setItem('active_merchant_shop_id', est.id);
+        localStorage.setItem('admin_key_' + est.id, keyInput);
+        
+        // Show active shop info in header
+        const activeShopInfo = document.getElementById('active-shop-info');
+        const activeLogo = document.getElementById('active-shop-logo');
+        const activeName = document.getElementById('active-shop-name');
+        
+        if (activeShopInfo) activeShopInfo.classList.remove('hidden');
+        if (activeLogo) activeLogo.innerText = est.logo || '🏪';
+        if (activeName) activeName.innerText = est.name || '';
+        
+        // Update hidden select element
+        const select = document.getElementById('merchant-shop-select');
+        if (select) select.value = est.id;
+        
+        document.getElementById('no-shop-overlay').classList.add('hidden');
+        document.getElementById('auth-link-key').value = '';
+        
+        // Reload establishments list in memory to make sure we have product/menu details
+        await this.loadEstablishments();
+        
+        this.connectWS(keyInput);
+      } else {
+        errorMsg.innerText = data.error || 'Clave incorrecta. Inténtalo de nuevo.';
+        errorMsg.classList.remove('hidden');
+      }
+    } catch (e) {
+      console.error(e);
+      errorMsg.innerText = 'Error de conexión al verificar la clave.';
+      errorMsg.classList.remove('hidden');
+    }
+  }
+
+  async logoutMerchant() {
+    this.closeWS();
+    
+    // Clear storage
+    const savedShopId = localStorage.getItem('active_merchant_shop_id');
+    if (savedShopId) {
+      localStorage.removeItem('admin_key_' + savedShopId);
+      localStorage.removeItem('active_merchant_shop_id');
+    }
+    
+    // Clear Google session
+    if (typeof SupabaseApp !== 'undefined') {
+      await SupabaseApp.logout();
+    }
+    
+    this.selectedId = '';
+    
+    // Hide active shop info in header
+    const activeShopInfo = document.getElementById('active-shop-info');
+    if (activeShopInfo) activeShopInfo.classList.add('hidden');
+    
+    // Reset hidden select element value
+    const select = document.getElementById('merchant-shop-select');
+    if (select) select.value = '';
+    
+    // Show login overlay
+    document.getElementById('no-shop-overlay').classList.remove('hidden');
+    document.getElementById('auth-error-msg').classList.add('hidden');
+    document.getElementById('auth-link-key').value = '';
+    
+    // Reset page view
+    this.orders = [];
+    this.renderOrders();
+    this.updatePricesButtonVisibility(false);
+  }
+
   switchEstablishment(id) {
     this.selectedId = id;
     const overlay = document.getElementById('no-shop-overlay');
-    const authOverlay = document.getElementById('auth-shop-overlay');
 
     // Reset error message and inputs
     document.getElementById('auth-error-msg').classList.add('hidden');
@@ -88,7 +219,6 @@ class KitchenController {
 
     if (!id) {
       overlay.classList.remove('hidden');
-      authOverlay.classList.add('hidden');
       this.closeWS();
       this.orders = [];
       this.renderOrders();
@@ -100,12 +230,9 @@ class KitchenController {
     // Check if we have a saved linked key for this establishment
     const savedKey = localStorage.getItem('admin_key_' + id);
     if (savedKey) {
-      authOverlay.classList.add('hidden');
       this.connectWS(savedKey);
     } else {
-      const est = this.establishments.find(e => e.id === id);
-      document.getElementById('auth-shop-name').innerText = est ? est.name : 'Comercio Protegido';
-      authOverlay.classList.remove('hidden');
+      overlay.classList.remove('hidden');
       this.closeWS();
       this.orders = [];
       this.renderOrders();
@@ -159,14 +286,23 @@ class KitchenController {
 
         if (data.type === 'AUTH_ERROR') {
           console.error(data.message);
-          // Show authorization overlay and show error text
-          document.getElementById('auth-shop-overlay').classList.remove('hidden');
-          const errorMsg = document.getElementById('auth-error-msg');
-          errorMsg.innerText = data.message;
-          errorMsg.classList.remove('hidden');
+          // Show login overlay and error text
+          const overlay = document.getElementById('no-shop-overlay');
+          if (overlay) overlay.classList.remove('hidden');
           
-          // Clear invalid key
+          const errorMsg = document.getElementById('auth-error-msg');
+          if (errorMsg) {
+            errorMsg.innerText = data.message;
+            errorMsg.classList.remove('hidden');
+          }
+          
+          const activeShopInfo = document.getElementById('active-shop-info');
+          if (activeShopInfo) activeShopInfo.classList.add('hidden');
+          
+          // Clear invalid key and session
           localStorage.removeItem('admin_key_' + this.selectedId);
+          localStorage.removeItem('active_merchant_shop_id');
+          
           this.closeWS();
           this.orders = [];
           this.renderOrders();
@@ -174,14 +310,6 @@ class KitchenController {
         }
 
         if (data.type === 'INITIAL_ORDERS') {
-          // Key was correct, save it in localStorage if it was typed just now
-          const currentInputKey = document.getElementById('auth-link-key').value.trim().toUpperCase();
-          if (currentInputKey) {
-            localStorage.setItem('admin_key_' + this.selectedId, currentInputKey);
-            document.getElementById('auth-shop-overlay').classList.add('hidden');
-            document.getElementById('auth-link-key').value = '';
-          }
-          
           this.orders = data.orders;
           this.renderOrders();
           this.updatePricesButtonVisibility(true);
@@ -1656,8 +1784,7 @@ class KitchenController {
       }
 
       // Read linked code/key from storage
-      const storageKey = `linked_shop_${this.selectedId}`;
-      const linkKey = localStorage.getItem(storageKey);
+      const linkKey = localStorage.getItem(`admin_key_${this.selectedId}`);
 
       const payload = {
         isOwner: false,

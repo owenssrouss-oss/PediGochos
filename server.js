@@ -327,6 +327,23 @@ app.post('/api/owner/login', (req, res) => {
   }
 });
 
+// Verify Merchant login by linkKey and return establishment info
+app.post('/api/merchant/login', (req, res) => {
+  const { key } = req.body;
+  if (!key) {
+    return res.status(400).json({ success: false, error: 'La clave de vinculación es requerida' });
+  }
+  const normalizedKey = key.trim().toUpperCase();
+  const db = readDB();
+  const est = db.establishments.find(e => e.linkKey === normalizedKey);
+  
+  if (est) {
+    res.json({ success: true, establishment: est });
+  } else {
+    res.status(401).json({ success: false, error: 'Clave de vinculación incorrecta' });
+  }
+});
+
 // Get all establishments (Sanitized for habitual users)
 app.get('/api/establishments', (req, res) => {
   const db = readDB();
