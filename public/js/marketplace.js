@@ -278,7 +278,7 @@ class MarketplaceController {
 
       // Check if image exists, otherwise use category fallback or emoji
       let imgHTML = '';
-      if (prod.image && prod.image.startsWith('/images/')) {
+      if (prod.image) {
         imgHTML = `<img src="${prod.image}" alt="${prod.name}" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                    <div class="product-image-placeholder hidden">${this.selectedEstablishment.logo}</div>`;
       } else {
