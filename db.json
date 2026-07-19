@@ -235,6 +235,25 @@
       "linkKey": "NOSIWC",
       "products": [],
       "id": "sabor-tachirense-1784000392371"
+    },
+    {
+      "id": "test-shop-1784290177001-1784290177001",
+      "name": "Test Shop 1784290177001",
+      "category": "comidas",
+      "description": "A test shop",
+      "logo": "🍔",
+      "bannerType": "gradient",
+      "banner": "linear-gradient(135deg, #FF8C00, #FF4500)",
+      "linkKey": "TESTKEY",
+      "products": [
+        {
+          "id": "p-test-1",
+          "name": "Test Burger",
+          "price": 15,
+          "description": "Yummy",
+          "image": "/images/burger.jpg"
+        }
+      ]
     }
   ],
   "orders": [
@@ -433,5 +452,5 @@
       "updatedAt": "2026-07-13T04:56:20.064Z"
     }
   ],
-  "lastUpdated": "2026-07-14T03:59:00.000Z"
+  "lastUpdated": "2026-07-17T12:09:37.017Z"
 }
