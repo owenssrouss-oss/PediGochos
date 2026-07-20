@@ -1728,6 +1728,7 @@ class KitchenController {
     // Populate inputs
     document.getElementById('custom-shop-name').value = est.name || '';
     document.getElementById('custom-shop-desc').value = est.description || '';
+    document.getElementById('custom-shop-location').value = est.location || 'San Antonio';
     document.getElementById('custom-shop-logo').value = est.logo || '🍔';
     document.getElementById('custom-shop-delivery').value = est.delivery_fee !== undefined ? est.delivery_fee : 0;
     document.getElementById('custom-shop-prep-time').value = est.prep_time || '';
@@ -1758,6 +1759,7 @@ class KitchenController {
 
     const name = document.getElementById('custom-shop-name').value.trim();
     const description = document.getElementById('custom-shop-desc').value.trim();
+    const location = document.getElementById('custom-shop-location').value;
     const logo = document.getElementById('custom-shop-logo').value;
     const delivery_fee = document.getElementById('custom-shop-delivery').value;
     const themeColor = document.getElementById('custom-shop-theme').value;
@@ -1791,6 +1793,7 @@ class KitchenController {
         linkKey,
         name,
         description,
+        location,
         logo,
         delivery_fee: delivery_fee ? parseFloat(delivery_fee) : 0,
         banner,
