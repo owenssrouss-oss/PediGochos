@@ -28,6 +28,10 @@ class MarketplaceController {
   }
 
   async init() {
+    // Set initial history state
+    window.history.replaceState({ view: 'home' }, '');
+    window.addEventListener('popstate', (e) => this.handlePopState(e));
+
     await this.loadEstablishments();
     
     // Update active location display in header on startup
@@ -119,7 +123,7 @@ class MarketplaceController {
     this.renderEstablishments();
   }
 
-  goHome() {
+  goHome(pushState = true) {
     this.selectedEstablishment = null;
     document.getElementById('establishment-view').classList.remove('active');
     document.getElementById('home-view').classList.add('active');
@@ -130,13 +134,23 @@ class MarketplaceController {
     
     this.renderEstablishments();
     this.setActiveMobileTab('home');
+
+    this.closeAllModals();
+
+    if (pushState) {
+      window.history.pushState({ view: 'home' }, '');
+    }
   }
 
-  openEstablishment(estId) {
+  openEstablishment(estId, pushState = true) {
     const est = this.establishments.find(e => e.id === estId);
     if (!est) return;
 
     this.selectedEstablishment = est;
+
+    if (pushState) {
+      window.history.pushState({ view: 'establishment', estId: estId }, '');
+    }
 
     // Apply custom accent theme color
     if (est.themeColor) {
@@ -477,6 +491,7 @@ class MarketplaceController {
 
     // Show modal
     document.getElementById('customizer-modal').classList.add('open');
+    window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
   }
 
   renderCustomizerModifiers() {
@@ -801,6 +816,9 @@ class MarketplaceController {
 
   closeCustomizerModal() {
     document.getElementById('customizer-modal').classList.remove('open');
+    if (window.history.state && window.history.state.view === 'modal' && window.history.state.modalId === 'customizer-modal') {
+      window.history.back();
+    }
   }
 
   confirmCustomizerAdd() {
@@ -1004,11 +1022,15 @@ class MarketplaceController {
     modal.classList.add('open');
     this.renderCartItems();
     this.setActiveMobileTab('cart');
+    window.history.pushState({ view: 'modal', modalId: 'cart-modal' }, '');
   }
 
   closeCartModal() {
     document.getElementById('cart-modal').classList.remove('open');
     this.setActiveMobileTab('home');
+    if (window.history.state && window.history.state.view === 'modal' && window.history.state.modalId === 'cart-modal') {
+      window.history.back();
+    }
   }
 
   renderCartItems() {
@@ -1366,11 +1388,15 @@ class MarketplaceController {
   openTermsModal(e) {
     if (e) e.preventDefault();
     document.getElementById('terms-modal').classList.add('open');
+    window.history.pushState({ view: 'modal', modalId: 'terms-modal' }, '');
   }
 
   closeTermsModal() {
     document.getElementById('terms-modal').classList.remove('open');
     document.getElementById('checkout-accept-terms').checked = true;
+    if (window.history.state && window.history.state.view === 'modal' && window.history.state.modalId === 'terms-modal') {
+      window.history.back();
+    }
   }
 
   openLocationModal() {
@@ -1386,12 +1412,17 @@ class MarketplaceController {
       
       const activeBtn = document.getElementById(activeBtnId);
       if (activeBtn) activeBtn.style.borderColor = 'var(--primary)';
+      
+      window.history.pushState({ view: 'modal', modalId: 'location-modal' }, '');
     }
   }
 
   closeLocationModal() {
     const modal = document.getElementById('location-modal');
     if (modal) modal.classList.remove('open');
+    if (window.history.state && window.history.state.view === 'modal' && window.history.state.modalId === 'location-modal') {
+      window.history.back();
+    }
   }
 
   setLocation(location) {
@@ -1403,6 +1434,32 @@ class MarketplaceController {
     
     this.closeLocationModal();
     this.renderEstablishments();
+  }
+
+  closeAllModals() {
+    document.getElementById('cart-modal')?.classList.remove('open');
+    document.getElementById('location-modal')?.classList.remove('open');
+    document.getElementById('terms-modal')?.classList.remove('open');
+    document.getElementById('customizer-modal')?.classList.remove('open');
+  }
+
+  handlePopState(event) {
+    const state = event.state;
+    
+    // Deactivate open classes without modifying history again
+    document.getElementById('cart-modal')?.classList.remove('open');
+    document.getElementById('location-modal')?.classList.remove('open');
+    document.getElementById('terms-modal')?.classList.remove('open');
+    document.getElementById('customizer-modal')?.classList.remove('open');
+
+    if (!state || state.view === 'home') {
+      this.goHome(false);
+    } else if (state.view === 'establishment') {
+      this.openEstablishment(state.estId, false);
+    } else if (state.view === 'modal') {
+      const modal = document.getElementById(state.modalId);
+      if (modal) modal.classList.add('open');
+    }
   }
 
   showLocationTutorial() {
