@@ -1630,7 +1630,21 @@ class KitchenController {
       if (fileInput) {
         imageUrl = await MenuBuilder.uploadProductImage(fileInput);
       }
-      const newProduct = await MenuBuilder.createProduct(catSelect, nameInput, descInput, priceInput, imageUrl);
+      let newProduct;
+      try {
+        newProduct = await MenuBuilder.createProduct(catSelect, nameInput, descInput, priceInput, imageUrl);
+      } catch (err) {
+        console.warn('Supabase products table insert failed. Saving locally to active shop only. Reason:', err);
+        newProduct = {
+          id: 'p-local-' + Date.now() + Math.floor(Math.random() * 1000),
+          category_id: catSelect,
+          name: nameInput,
+          description: descInput,
+          price: parseFloat(priceInput) || 0,
+          image_url: imageUrl || '',
+          created_at: new Date().toISOString()
+        };
+      }
       
       let modifiers = [];
       
