@@ -1,7 +1,7 @@
 /* Superadmin Platform Owner Portal Logic (admin.js) */
 
 const CATEGORY_EMOJIS = {
-  comidas: ['🍔', '🍕', '🌯', '🫓', '🌽', '🍞', '🥖', '🍣', '🌮', '🍜', '🍰', '☕'],
+  comidas: ['🍔', '🍕', '🌭', '🥤', '🍲', '🌯', '🫓', '🌽', '🍞', '🥖', '🍣', '🌮', '🍜', '🍰', '☕'],
   farmacias: ['💊', '🩹', '🧪', '🧼', '🧴', '🩺'],
   mercados: ['🛒', '🍎', '🥛', '🍞', '🥩', '🧀', '🍌'],
   ferreterias: ['🛠️', '🔨', '🔩', '🔧', '🪚', '🧰', '📐']
