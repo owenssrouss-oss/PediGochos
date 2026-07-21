@@ -316,7 +316,7 @@ class MarketplaceController {
         <div class="product-info">
           <div>
             <h4>${prod.name}</h4>
-            <p>${prod.description}</p>
+            <p>${prod.description || ''}</p>
           </div>
           <div class="product-price-row">
             <span class="product-price">${this.formatPesos(prod.price)}</span>
