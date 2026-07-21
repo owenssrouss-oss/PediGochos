@@ -1231,6 +1231,9 @@ class MarketplaceController {
         const shopSubtotal = shop.items.reduce((sum, item) => sum + item.subtotal_combined, 0);
         const shopDeliveryCost = this.orderType === 'delivery' ? shop.delivery_fee : 0;
         
+        // Generate random 4-digit security code for delivery
+        const randomCode = this.orderType === 'delivery' ? Math.floor(1000 + Math.random() * 9000).toString() : null;
+        
         const orderData = {
           establishmentId: shop.id,
           establishmentName: shop.name,
@@ -1248,7 +1251,7 @@ class MarketplaceController {
           orderType: this.orderType,
           customerName,
           tableNumber: tableNumber ? parseInt(tableNumber, 10) : null,
-          deliveryDetails: this.orderType === 'delivery' ? { phone, address } : null
+          deliveryDetails: this.orderType === 'delivery' ? { phone, address, code: randomCode } : null
         };
 
         const response = await fetch('/api/orders', {

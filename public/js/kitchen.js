@@ -422,9 +422,15 @@ class KitchenController {
     let countPreparing = 0;
     let countCompleted = 0;
 
-    const activeOrders = this.orders.filter(o => o.status !== 'Entregado');
+    const activeOrders = this.orders.filter(o => o.status !== 'Entregado' && o.status !== 'Cancelado');
 
     activeOrders.forEach(order => {
+      // Auto-generate code for old delivery orders if not present
+      if (order.orderType === 'delivery') {
+        if (!order.deliveryDetails) order.deliveryDetails = {};
+        order.deliveryDetails.code = order.deliveryDetails.code || Math.floor(1000 + Math.random() * 9000).toString();
+      }
+
       const card = document.createElement('div');
       card.className = 'order-card';
 
@@ -454,17 +460,22 @@ class KitchenController {
         detailsHTML = `<div class="order-address-box"><strong>📍 Consumo Local</strong><p>Servir en Mesa #${order.tableNumber}</p></div>`;
       } else {
         typeBadge = `<span class="order-type-badge delivery">Delivery</span>`;
+        const phoneLink = `<a href="#" onclick="KitchenApp.handleCustomerWhatsAppClick(event, '${order.id}')" style="color: #10B981; text-decoration: underline; font-weight: 700;">${order.deliveryDetails.phone}</a>`;
+        const codeHTML = order.deliveryDetails.code ? `<p><strong>Código de Seguridad:</strong> <span style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-weight: 700; color: var(--accent);">${order.deliveryDetails.code}</span></p>` : '';
         detailsHTML = `
           <div class="order-address-box">
             <strong>🚴 Envío a Domicilio</strong>
-            <p><strong>Tlf:</strong> ${order.deliveryDetails.phone}</p>
+            <p><strong>Tlf:</strong> ${phoneLink}</p>
             <p><strong>Dir:</strong> ${order.deliveryDetails.address}</p>
+            ${codeHTML}
           </div>
         `;
       }
 
       const elapsedMins = Math.floor((new Date() - new Date(order.createdAt)) / 60000);
       const isLate = elapsedMins >= 15 ? 'late' : '';
+
+      const paymentBadge = order.paymentStatus === 'Pagado' ? '<span class="payment-badge paid" style="background-color: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 6px;">💳 Pagado</span>' : '<span class="payment-badge pending" style="background-color: #f59e0b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 6px;">💳 Pendiente</span>';
 
       let actionBtnHTML = '';
       if (order.status === 'Pendiente') {
@@ -486,7 +497,7 @@ class KitchenController {
         <div class="order-card-header">
           <div>
             <span class="order-id-label">#${order.id.split('-')[2] || 'ORD'}</span>
-            <h4 class="customer-name">${order.customerName}</h4>
+            <h4 class="customer-name">${order.customerName} ${paymentBadge}</h4>
           </div>
           <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
             ${typeBadge}
@@ -502,7 +513,10 @@ class KitchenController {
         
         <div class="order-total-price">Total: $${Math.round(order.total).toLocaleString('de-DE')}</div>
 
-        ${actionBtnHTML}
+        <div class="order-card-actions" style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px; width: 100%;">
+          ${actionBtnHTML}
+          <button class="btn-card-action cancel" onclick="KitchenApp.cancelOrderPrompt('${order.id}')">❌ Cancelar Pedido</button>
+        </div>
       `;
 
       if (order.status === 'Pendiente') {
@@ -754,10 +768,99 @@ class KitchenController {
   }
 
   callDelivery(orderId) {
+    const order = this.orders.find(o => o.id === orderId);
+    if (!order) return;
+
     Sound.playBell();
-    const orderNum = orderId.split('-')[2] || 'ORD';
-    alert(`🚴 ¡Domicilio Solicitado!\nSe ha asignado un repartidor de DeliverCity para el pedido #${orderNum}. Está en camino al establecimiento.`);
+    
+    // Auto-generate code if missing
+    if (order.orderType === 'delivery') {
+      if (!order.deliveryDetails) order.deliveryDetails = {};
+      order.deliveryDetails.code = order.deliveryDetails.code || Math.floor(1000 + Math.random() * 9000).toString();
+    }
+
+    // Build driver notification message
+    const storeName = this.establishments.find(e => e.id === this.selectedId)?.name || 'El Local';
+    const clientName = order.customerName || 'Cliente';
+    const clientPhone = order.deliveryDetails.phone || 'N/A';
+    const clientAddress = order.deliveryDetails.address || 'N/A';
+    const securityCode = order.deliveryDetails.code || 'N/A';
+    const totalAmount = Math.round(order.total).toLocaleString('de-DE');
+
+    const messageText = `🚴 *DeliverCity - Nuevo Servicio Solicitado*
+*Establecimiento:* ${storeName}
+*Cliente:* ${clientName}
+*Teléfono:* ${clientPhone}
+*Dirección:* ${clientAddress}
+*Código de Entrega:* ${securityCode}
+*Total a Cobrar:* $${totalAmount}`;
+
+    const whatsappUrl = `https://wa.me/573227949751?text=${encodeURIComponent(messageText)}`;
+    
+    // Open whatsapp link
+    window.open(whatsappUrl, '_blank');
+
     this.updateOrderStatus(orderId, 'Entregado');
+  }
+
+  cancelOrderPrompt(orderId) {
+    const reason = prompt('Por favor, ingresa la razón de la cancelación del pedido:');
+    if (reason === null) return; // User cancelled prompt
+    
+    const cleanReason = reason.trim();
+    if (!cleanReason) {
+      alert('Debes ingresar una razón válida para cancelar el pedido.');
+      return;
+    }
+
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({
+        type: 'UPDATE_STATUS',
+        orderId: orderId,
+        status: 'Cancelado',
+        reason: cleanReason
+      }));
+    }
+  }
+
+  async handleCustomerWhatsAppClick(event, orderId) {
+    if (event) event.preventDefault();
+    
+    const order = this.orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    if (!confirm('¿Deseas confirmar este pedido y concretar el pago?')) {
+      return;
+    }
+
+    // 1. Mark order as paid in database
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({
+        type: 'UPDATE_STATUS',
+        orderId: orderId,
+        paymentStatus: 'Pagado'
+      }));
+    }
+
+    // Auto-generate security code if missing
+    if (order.orderType === 'delivery') {
+      if (!order.deliveryDetails) order.deliveryDetails = {};
+      order.deliveryDetails.code = order.deliveryDetails.code || Math.floor(1000 + Math.random() * 9000).toString();
+    }
+
+    // 2. Open WhatsApp link to client
+    const rawPhone = order.deliveryDetails.phone || '';
+    const cleanPhone = rawPhone.replace(/\D/g, ''); // Keep only digits
+    
+    const storeName = this.establishments.find(e => e.id === this.selectedId)?.name || 'El Local';
+    const clientName = order.customerName || 'Cliente';
+    const totalAmount = Math.round(order.total).toLocaleString('de-DE');
+    const securityCode = order.deliveryDetails.code || 'N/A';
+
+    const confirmationMessage = `Hola *${clientName}*, confirmamos tu pedido de *${storeName}* por un valor de *$${totalAmount}*. Tu código de entrega de seguridad es *${securityCode}*. Por favor, entrégalo al repartidor cuando recibas tu pedido. ¡Gracias por tu compra!`;
+
+    const clientWhatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(confirmationMessage)}`;
+    window.open(clientWhatsappUrl, '_blank');
   }
 
   // Immersive local layout & menu management

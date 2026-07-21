@@ -236,6 +236,8 @@ async function saveToPostgres() {
         tableNumber: ord.tableNumber || null,
         deliveryDetails: ord.deliveryDetails || {},
         status: ord.status || 'Pendiente',
+        cancelReason: ord.cancelReason || null,
+        paymentStatus: ord.paymentStatus || 'Pendiente',
         createdAt: ord.createdAt || new Date().toISOString(),
         updatedAt: ord.updatedAt || new Date().toISOString()
       }));
@@ -439,22 +441,24 @@ wss.on('connection', (ws) => {
       }
 
       if (message.type === 'UPDATE_STATUS') {
-        const { orderId, status } = message;
+        const { orderId, status, reason, paymentStatus } = message;
         const db = readDB();
         const order = db.orders.find(o => o.id === orderId);
         
         if (order) {
-          order.status = status;
+          if (status) order.status = status;
+          if (reason) order.cancelReason = reason;
+          if (paymentStatus) order.paymentStatus = paymentStatus;
           order.updatedAt = new Date().toISOString();
           writeDB(db);
-          console.log(`Order ${orderId} updated to status ${status}`);
+          console.log(`Order ${orderId} updated: status=${status || 'unchanged'}, reason=${reason || 'none'}, paymentStatus=${paymentStatus || 'unchanged'}`);
 
           // Broadcast status update to all connected clients for this establishment
           const estId = order.establishmentId;
           broadcastToMerchant(estId, {
             type: 'ORDER_UPDATED',
             orderId,
-            status,
+            status: order.status,
             order
           });
         }

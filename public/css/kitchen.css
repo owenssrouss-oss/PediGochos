@@ -387,6 +387,13 @@ body {
   background-color: #334155;
 }
 
+.btn-card-action.cancel {
+  background-color: #EF4444;
+}
+.btn-card-action.cancel:hover {
+  background-color: #DC2626;
+}
+
 /* Sound play test floating button */
 .sound-test-btn {
   position: fixed;

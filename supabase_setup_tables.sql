@@ -37,6 +37,8 @@ create table if not exists orders (
   "tableNumber" text,
   "deliveryDetails" jsonb default '{}'::jsonb,
   status text default 'Pendiente',
+  "cancelReason" text,
+  "paymentStatus" text default 'Pendiente',
   "createdAt" timestamp with time zone default timezone('utc'::text, now()) not null,
   "updatedAt" timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -101,7 +103,9 @@ create policy "Eliminación pública de imágenes" on storage.objects for delete
 
 -- =======================================================
 -- NOTA DE MIGRACIÓN PARA BASES DE DATOS EXISTENTES
--- Si tu base de datos ya tiene la tabla "establishments", ejecuta esto en Supabase SQL Editor:
+-- Si tu base de datos ya tiene las tablas "establishments" y "orders", ejecuta esto en Supabase SQL Editor:
 -- ALTER TABLE establishments ADD COLUMN IF NOT EXISTS location TEXT DEFAULT 'San Antonio';
+-- ALTER TABLE orders ADD COLUMN IF NOT EXISTS "cancelReason" TEXT;
+-- ALTER TABLE orders ADD COLUMN IF NOT EXISTS "paymentStatus" TEXT DEFAULT 'Pendiente';
 -- =======================================================
 
