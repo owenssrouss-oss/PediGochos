@@ -113,6 +113,18 @@ class MenuBuilderService {
       .order('name', { ascending: true });
 
     if (error) throw error;
+
+    // Ensure "🌭 Hot Dogs / Perros Calientes" is always present in list
+    const hasHotDog = data.some(c => c.slug.includes('hot-dog') || c.name.toLowerCase().includes('perro'));
+    if (!hasHotDog) {
+      data.push({
+        id: 'd17d8481-80a5-4eb8-a720-bd7085fb38fa',
+        name: '🌭 Hot Dogs / Perros Calientes',
+        slug: 'hot-dogs-perros-calientes',
+        created_at: new Date().toISOString()
+      });
+    }
+
     return data;
   }
 

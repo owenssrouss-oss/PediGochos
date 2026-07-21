@@ -526,7 +526,79 @@
         if (numMatch) price = numMatch[0];
       }
 
-      if (name) document.getElementById('form-name').value = name;
+      if (name) {
+        document.getElementById('form-name').value = name;
+        
+        const catSelect = document.getElementById('form-category');
+        if (catSelect) {
+          const nameLower = name.toLowerCase();
+          
+          const categoryMapping = {
+            'perro': 'hot-dogs-perros-calientes',
+            'hot': 'hot-dogs-perros-calientes',
+            'dog': 'hot-dogs-perros-calientes',
+            'hamburguesa': 'hamburguesas',
+            'burguer': 'hamburguesas',
+            'burger': 'hamburguesas',
+            'pizza': 'pizzas',
+            'shawarma': 'shawarmas',
+            'arepa': 'arepas',
+            'cachapa': 'cachapas',
+            'pan': 'pan',
+            'sándwich': 'pan',
+            'sandwich': 'pan',
+            'baguette': 'baguettes',
+            'sushi': 'sushi',
+            'taco': 'tacos',
+            'ramen': 'ramen',
+            'postre': 'postres',
+            'dulce': 'postres',
+            'café': 'cafe',
+            'cafe': 'cafe',
+            'bebida': 'cafe',
+            'jugo': 'cafe',
+            'batido': 'cafe'
+          };
+
+          let matchedSlug = '';
+          for (const [keyword, slug] of Object.entries(categoryMapping)) {
+            if (nameLower.includes(keyword)) {
+              matchedSlug = slug;
+              break;
+            }
+          }
+
+          let foundCategory = false;
+          for (let i = 0; i < catSelect.options.length; i++) {
+            const optVal = catSelect.options[i].value;
+            const optText = catSelect.options[i].text.toLowerCase();
+            
+            if (optVal !== 'new') {
+              if (matchedSlug && (optVal === matchedSlug || optText.includes('perro') || optText.includes('hot dog') || optText.includes(matchedSlug.split('-')[0]))) {
+                catSelect.selectedIndex = i;
+                foundCategory = true;
+                break;
+              }
+              const firstWord = name.split(' ')[0].toLowerCase();
+              if (optText.includes(firstWord)) {
+                catSelect.selectedIndex = i;
+                foundCategory = true;
+                break;
+              }
+            }
+          }
+          
+          if (!foundCategory) {
+            catSelect.value = 'new';
+            const newCatInput = document.getElementById('form-new-category-name');
+            if (newCatInput) newCatInput.value = name.split(' ')[0];
+            const container = document.getElementById('form-new-category-container');
+            if (container) container.style.display = 'block';
+          }
+          
+          if (typeof handleCategoryChange === 'function') handleCategoryChange(catSelect);
+        }
+      }
       if (desc) document.getElementById('form-desc').value = desc;
       if (price) document.getElementById('form-price').value = price;
 
