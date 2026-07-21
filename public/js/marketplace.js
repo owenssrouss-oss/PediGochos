@@ -46,6 +46,13 @@ class MarketplaceController {
         this.openEstablishment(shopId);
       }, 500);
     }
+
+    // Show location selector tutorial if visiting for the first time
+    if (!localStorage.getItem('location_tutorial_seen')) {
+      setTimeout(() => {
+        this.showLocationTutorial();
+      }, 1000);
+    }
   }
 
   async checkSupabaseSession() {
@@ -1367,6 +1374,7 @@ class MarketplaceController {
   }
 
   openLocationModal() {
+    this.dismissLocationTutorial();
     const modal = document.getElementById('location-modal');
     if (modal) {
       modal.classList.add('open');
@@ -1395,6 +1403,42 @@ class MarketplaceController {
     
     this.closeLocationModal();
     this.renderEstablishments();
+  }
+
+  showLocationTutorial() {
+    const target = document.querySelector('.delivery-address-area');
+    if (!target) return;
+
+    target.classList.add('pulse-effect');
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tutorial-tooltip';
+    tooltip.id = 'location-tutorial-tooltip';
+    tooltip.innerHTML = `
+      <div class="tutorial-tooltip-header">📍 ¡Selecciona tu zona!</div>
+      <p style="margin: 0; font-size: 12px; font-weight: 500;">Haz clic aquí para cambiar tu pueblo y ver los establecimientos de tu zona: San Antonio, Ureña o San Cristóbal.</p>
+      <button class="tutorial-tooltip-btn" onclick="MarketplaceApp.dismissLocationTutorial(event)">Entendido</button>
+    `;
+
+    const originalPosition = window.getComputedStyle(target).position;
+    if (originalPosition === 'static') {
+      target.style.position = 'relative';
+    }
+
+    target.appendChild(tooltip);
+  }
+
+  dismissLocationTutorial(event) {
+    if (event) event.stopPropagation();
+    const tooltip = document.getElementById('location-tutorial-tooltip');
+    if (tooltip) {
+      tooltip.remove();
+    }
+    const target = document.querySelector('.delivery-address-area');
+    if (target) {
+      target.classList.remove('pulse-effect');
+    }
+    localStorage.setItem('location_tutorial_seen', 'true');
   }
 }
 
