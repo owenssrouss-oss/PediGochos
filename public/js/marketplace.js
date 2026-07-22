@@ -209,7 +209,8 @@ class MarketplaceController {
       deliverySpan.innerText = est.delivery_time ? `⏱️ ${est.delivery_time} min` : '⏱️ 20-30 min';
     }
 
-    // Render products
+    // Render internal categories and products
+    this.renderInternalCategories(est);
     this.renderProducts(est.products);
 
     // Switch views
@@ -283,6 +284,110 @@ class MarketplaceController {
     });
   }
 
+  renderInternalCategories(est) {
+    const listContainer = document.getElementById('internal-categories-list');
+    if (!listContainer) return;
+    listContainer.innerHTML = '';
+
+    // Collect all unique category names from products
+    const rawCategories = {};
+    if (est.products) {
+      est.products.forEach(p => {
+        // Try to identify category
+        let catName = 'Otros';
+        if (p.category) {
+          catName = p.category;
+        } else if (p.category_id) {
+          // Find matching category in global categoriesList if loaded
+          const found = (window.categoriesList || []).find(c => c.id === p.category_id);
+          if (found) catName = found.name;
+        }
+        
+        if (!rawCategories[catName]) {
+          // Attempt to find a representative image for this category
+          rawCategories[catName] = p.image || null;
+        }
+      });
+    }
+
+    const categories = Object.keys(rawCategories);
+    if (categories.length <= 1) {
+      // Hide category bar if there's only one category or none
+      listContainer.parentElement.style.display = 'none';
+      return;
+    }
+    listContainer.parentElement.style.display = 'block';
+
+    // Add 'Todos' option first
+    const allBtn = document.createElement('div');
+    allBtn.className = 'internal-category-card active';
+    allBtn.onclick = () => this.filterInternalCategory('all', allBtn);
+    
+    // Representative image for all
+    const allImg = est.products && est.products.length > 0 && est.products[0].image ? est.products[0].image : DEFAULT_IMAGES[est.category];
+    allBtn.innerHTML = `
+      <div class="internal-category-img">
+        <img src="${allImg}" alt="Todos">
+      </div>
+      <span>Todos</span>
+    `;
+    listContainer.appendChild(allBtn);
+
+    // Add specific categories
+    categories.forEach(cat => {
+      const catBtn = document.createElement('div');
+      catBtn.className = 'internal-category-card';
+      catBtn.onclick = () => this.filterInternalCategory(cat, catBtn);
+
+      const catImg = rawCategories[cat] || DEFAULT_IMAGES[est.category];
+      catBtn.innerHTML = `
+        <div class="internal-category-img">
+          <img src="${catImg}" alt="${cat}">
+        </div>
+        <span>${cat}</span>
+      `;
+      listContainer.appendChild(catBtn);
+    });
+  }
+
+  filterInternalCategory(categoryName, element) {
+    if (!this.selectedEstablishment) return;
+
+    // Toggle active classes
+    document.querySelectorAll('.internal-category-card').forEach(btn => btn.classList.remove('active'));
+    element.classList.add('active');
+
+    // Filter products
+    let filteredProducts = this.selectedEstablishment.products || [];
+    if (categoryName !== 'all') {
+      filteredProducts = (this.selectedEstablishment.products || []).filter(p => {
+        let pCat = 'Otros';
+        if (p.category) {
+          pCat = p.category;
+        } else if (p.category_id) {
+          const found = (window.categoriesList || []).find(c => c.id === p.category_id);
+          if (found) pCat = found.name;
+        }
+        return pCat === categoryName;
+      });
+      document.getElementById('internal-section-title').innerText = categoryName;
+    } else {
+      document.getElementById('internal-section-title').innerText = 'Nuestros Productos';
+    }
+
+    // Render with scale animation
+    const grid = document.getElementById('products-grid');
+    grid.style.opacity = '0';
+    grid.style.transform = 'translateY(10px)';
+    grid.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+
+    setTimeout(() => {
+      this.renderProducts(filteredProducts);
+      grid.style.opacity = '1';
+      grid.style.transform = 'translateY(0)';
+    }, 150);
+  }
+
   renderProducts(products) {
     const grid = document.getElementById('products-grid');
     grid.innerHTML = '';
@@ -291,16 +396,17 @@ class MarketplaceController {
       grid.innerHTML = `
         <div class="cart-empty-state" style="grid-column: 1 / -1;">
           <span>📦</span>
-          <p>Este establecimiento no tiene productos disponibles.</p>
+          <p>No hay productos disponibles en esta categoría.</p>
         </div>
       `;
       return;
     }
 
-    products.forEach(prod => {
+    products.forEach((prod, index) => {
       const card = document.createElement('div');
-      card.className = 'product-card';
+      card.className = 'product-card animate-fade-in-up';
       card.style.cursor = 'pointer';
+      card.style.animationDelay = `${index * 0.05}s`;
       card.onclick = () => MarketplaceApp.openCustomizerModalById(prod.id);
 
       // Check if image exists, otherwise use category fallback or emoji
