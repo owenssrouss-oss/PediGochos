@@ -346,12 +346,11 @@ class MarketplaceController {
     const product = this.selectedEstablishment.products.find(p => p.id === productId);
     if (!product) return;
 
-    // Check if food category and has modifiers or exclusions
-    const isFood = this.selectedEstablishment.category === 'comidas';
+    // Check if has modifiers or exclusions (force customizer if so, e.g. drink sizes or pizza options)
     const hasModifiers = product.modifiers && product.modifiers.length > 0;
     const hasExclusions = product.exclusions && product.exclusions.length > 0;
 
-    if (isFood && (hasModifiers || hasExclusions)) {
+    if (hasModifiers || hasExclusions) {
       this.openCustomizerModal(product);
     } else {
       this.addDirectToCart(product);

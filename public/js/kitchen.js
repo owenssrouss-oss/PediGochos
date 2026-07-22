@@ -1606,9 +1606,20 @@ class KitchenController {
     let catSelect = document.getElementById('form-category').value;
     const nameInput = document.getElementById('form-name').value;
     const descInput = document.getElementById('form-desc').value;
-    const pizzaSmall = document.getElementById('form-pizza-small')?.value;
     const isPizza = document.getElementById('pizza-sizes-container')?.style.display === 'block';
-    const priceInput = isPizza && pizzaSmall ? pizzaSmall : document.getElementById('form-price').value;
+    const isDrink = document.getElementById('drink-sizes-container')?.style.display === 'block';
+
+    const drinkPeq = document.getElementById('form-drink-peq')?.value;
+    const drinkMed = document.getElementById('form-drink-med')?.value;
+    const drinkGde = document.getElementById('form-drink-gde')?.value;
+
+    let priceInput = document.getElementById('form-price').value;
+    if (isPizza && pizzaSmall) {
+      priceInput = pizzaSmall;
+    } else if (isDrink && drinkPeq) {
+      priceInput = drinkPeq;
+    }
+
     const extrasInput = document.getElementById('form-adicionales') ? document.getElementById('form-adicionales').value : '';
     const fileInput = document.getElementById('form-image').files[0];
 
@@ -1669,6 +1680,31 @@ class KitchenController {
           if (options.length > 0) {
               modifiers.push({
                   group_id: 'g-tamanos-' + Date.now(),
+                  group_name: 'Tamaño',
+                  selection_type: 'single',
+                  required: true,
+                  options: options
+              });
+          }
+      }
+
+      // Drink explicit sizes
+      if (isDrink && (drinkPeq || drinkMed || drinkGde)) {
+          const peqPriceNum = parseFloat(drinkPeq) || 0;
+          const options = [];
+          if (drinkPeq) options.push({ id: 'opt-drk-' + Date.now() + 1, name: 'Pequeño / 10oz', extra_price: 0, option_id: 'opt-drk-' + Date.now() + 1 });
+          if (drinkMed) {
+             const mPrice = parseFloat(drinkMed);
+             options.push({ id: 'opt-drk-' + Date.now() + 2, name: 'Mediano / 16oz', extra_price: mPrice - peqPriceNum, option_id: 'opt-drk-' + Date.now() + 2 });
+          }
+          if (drinkGde) {
+             const gPrice = parseFloat(drinkGde);
+             options.push({ id: 'opt-drk-' + Date.now() + 3, name: 'Grande / 32oz', extra_price: gPrice - peqPriceNum, option_id: 'opt-drk-' + Date.now() + 3 });
+          }
+          
+          if (options.length > 0) {
+              modifiers.push({
+                  group_id: 'g-tamanos-drk-' + Date.now(),
                   group_name: 'Tamaño',
                   selection_type: 'single',
                   required: true,
@@ -1974,16 +2010,29 @@ window.handleCategoryChange = function(selectElem) {
 window.togglePizzaSizes = function(selectElem) {
   const selectedText = selectElem.options[selectElem.selectedIndex].text.toLowerCase();
   const pizzaContainer = document.getElementById('pizza-sizes-container');
+  const drinkContainer = document.getElementById('drink-sizes-container');
   const basePriceInput = document.getElementById('form-price');
   
-  if (selectedText.includes('pizza') || (selectElem.value === 'new' && document.getElementById('form-new-category-name').value.toLowerCase().includes('pizza'))) {
-    pizzaContainer.style.display = 'block';
-    if(basePriceInput) {
+  const isPizza = selectedText.includes('pizza') || (selectElem.value === 'new' && document.getElementById('form-new-category-name').value.toLowerCase().includes('pizza'));
+  const isDrink = selectedText.includes('bebida') || selectedText.includes('batido') || selectedText.includes('café') || selectedText.includes('cafe') || selectedText.includes('jugo') || selectedText.includes('líquido') || selectedText.includes('sopas') || selectedText.includes('caldo') || (selectElem.value === 'new' && (document.getElementById('form-new-category-name').value.toLowerCase().includes('bebida') || document.getElementById('form-new-category-name').value.toLowerCase().includes('batido') || document.getElementById('form-new-category-name').value.toLowerCase().includes('cafe') || document.getElementById('form-new-category-name').value.toLowerCase().includes('jugo')));
+
+  if (isPizza) {
+    if (pizzaContainer) pizzaContainer.style.display = 'block';
+    if (drinkContainer) drinkContainer.style.display = 'none';
+    if (basePriceInput) {
+      basePriceInput.required = false;
+      basePriceInput.value = '0';
+    }
+  } else if (isDrink) {
+    if (pizzaContainer) pizzaContainer.style.display = 'none';
+    if (drinkContainer) drinkContainer.style.display = 'block';
+    if (basePriceInput) {
       basePriceInput.required = false;
       basePriceInput.value = '0';
     }
   } else {
-    pizzaContainer.style.display = 'none';
-    if(basePriceInput) basePriceInput.required = true;
+    if (pizzaContainer) pizzaContainer.style.display = 'none';
+    if (drinkContainer) drinkContainer.style.display = 'none';
+    if (basePriceInput) basePriceInput.required = true;
   }
 };

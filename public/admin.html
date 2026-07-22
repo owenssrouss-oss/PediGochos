@@ -425,6 +425,26 @@
           <p style="font-size: 10px; color: var(--text-muted); margin-top: 6px;">Nota: El Precio Base se ajustará automáticamente si llenas estos tamaños.</p>
         </div>
 
+        <!-- Drink/Liquid Sizes -->
+        <div id="drink-sizes-container" style="display: none; background: rgba(0, 184, 148, 0.05); padding: 12px; border-radius: 12px; border: 1px dashed rgba(0, 184, 148, 0.3); margin-bottom: 16px;">
+          <label style="color: #00b894; margin-bottom: 8px; display: block;">🥤 Precios de Bebidas / Líquidos por Tamaño</label>
+          <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+              <label for="form-drink-peq" style="font-size: 11px;">Pequeño / 10oz ($)</label>
+              <input type="number" id="form-drink-peq" step="0.01" min="0" placeholder="Ej. 2.50" style="width: 100%;">
+            </div>
+            <div style="flex: 1;">
+              <label for="form-drink-med" style="font-size: 11px;">Mediano / 16oz ($)</label>
+              <input type="number" id="form-drink-med" step="0.01" min="0" placeholder="Ej. 3.50" style="width: 100%;">
+            </div>
+            <div style="flex: 1;">
+              <label for="form-drink-gde" style="font-size: 11px;">Grande / 32oz ($)</label>
+              <input type="number" id="form-drink-gde" step="0.01" min="0" placeholder="Ej. 5.00" style="width: 100%;">
+            </div>
+          </div>
+          <p style="font-size: 10px; color: var(--text-muted); margin-top: 6px;">Nota: El Precio Base se ajustará automáticamente si llenas estos tamaños.</p>
+        </div>
+
         <!-- Image Upload -->
         <div class="form-group">
           <label for="form-image">Imagen del Producto (Opcional)</label>
@@ -860,18 +880,29 @@
       togglePizzaSizes(selectElem);
     }
 
-    // Add specific pizza sizes UI toggler
+    // Add specific pizza or drink sizes UI toggler
     function togglePizzaSizes(selectElem) {
       const selectedText = selectElem.options[selectElem.selectedIndex].text.toLowerCase();
       const pizzaContainer = document.getElementById('pizza-sizes-container');
+      const drinkContainer = document.getElementById('drink-sizes-container');
       const basePriceInput = document.getElementById('form-price');
       
-      if (selectedText.includes('pizza') || (selectElem.value === 'new' && document.getElementById('form-new-category-name').value.toLowerCase().includes('pizza'))) {
+      const isPizza = selectedText.includes('pizza') || (selectElem.value === 'new' && document.getElementById('form-new-category-name').value.toLowerCase().includes('pizza'));
+      const isDrink = selectedText.includes('bebida') || selectedText.includes('batido') || selectedText.includes('café') || selectedText.includes('cafe') || selectedText.includes('jugo') || selectedText.includes('líquido') || selectedText.includes('sopas') || selectedText.includes('caldo') || (selectElem.value === 'new' && (document.getElementById('form-new-category-name').value.toLowerCase().includes('bebida') || document.getElementById('form-new-category-name').value.toLowerCase().includes('batido') || document.getElementById('form-new-category-name').value.toLowerCase().includes('cafe') || document.getElementById('form-new-category-name').value.toLowerCase().includes('jugo')));
+
+      if (isPizza) {
         pizzaContainer.style.display = 'block';
+        drinkContainer.style.display = 'none';
+        basePriceInput.required = false;
+        basePriceInput.value = '0';
+      } else if (isDrink) {
+        pizzaContainer.style.display = 'none';
+        drinkContainer.style.display = 'block';
         basePriceInput.required = false;
         basePriceInput.value = '0';
       } else {
         pizzaContainer.style.display = 'none';
+        drinkContainer.style.display = 'none';
         basePriceInput.required = true;
       }
     }
@@ -1038,7 +1069,6 @@
           });
         }
       }
-      
       AdminApp.showToast('✨ Formulario autocompletado');
     }
 
@@ -1049,9 +1079,22 @@
       let catSelect = document.getElementById('form-category').value;
       const nameInput = document.getElementById('form-name').value;
       const descInput = document.getElementById('form-desc').value;
+      
       const isPizza = document.getElementById('pizza-sizes-container')?.style.display === 'block';
+      const isDrink = document.getElementById('drink-sizes-container')?.style.display === 'block';
+
       const pizzaSmall = document.getElementById('form-pizza-small')?.value;
-      const priceInput = isPizza && pizzaSmall ? pizzaSmall : document.getElementById('form-price').value;
+      const drinkPeq = document.getElementById('form-drink-peq')?.value;
+      const drinkMed = document.getElementById('form-drink-med')?.value;
+      const drinkGde = document.getElementById('form-drink-gde')?.value;
+
+      let priceInput = document.getElementById('form-price').value;
+      if (isPizza && pizzaSmall) {
+        priceInput = pizzaSmall;
+      } else if (isDrink && drinkPeq) {
+        priceInput = drinkPeq;
+      }
+
       const extrasInput = document.getElementById('form-adicionales') ? document.getElementById('form-adicionales').value : '';
       const fileInput = document.getElementById('form-image').files[0];
       
@@ -1099,10 +1142,8 @@
         let modifiers = [];
         
         // Pizza explicit sizes override
-        const pizzaSmall = document.getElementById('form-pizza-small')?.value;
         const pizzaMedium = document.getElementById('form-pizza-medium')?.value;
         const pizzaLarge = document.getElementById('form-pizza-large')?.value;
-        const isPizza = document.getElementById('pizza-sizes-container')?.style.display === 'block';
 
         if (isPizza && (pizzaSmall || pizzaMedium || pizzaLarge)) {
             const smallPriceNum = parseFloat(pizzaSmall) || 0;
@@ -1120,6 +1161,31 @@
             if (options.length > 0) {
                 modifiers.push({
                     group_id: 'g-tamanos-' + Date.now(),
+                    group_name: 'Tamaño',
+                    selection_type: 'single',
+                    required: true,
+                    options: options
+                });
+            }
+        }
+
+        // Drink explicit sizes
+        if (isDrink && (drinkPeq || drinkMed || drinkGde)) {
+            const peqPriceNum = parseFloat(drinkPeq) || 0;
+            const options = [];
+            if (drinkPeq) options.push({ id: 'opt-drk-' + Date.now() + 1, name: 'Pequeño / 10oz', extra_price: 0, option_id: 'opt-drk-' + Date.now() + 1 });
+            if (drinkMed) {
+               const mPrice = parseFloat(drinkMed);
+               options.push({ id: 'opt-drk-' + Date.now() + 2, name: 'Mediano / 16oz', extra_price: mPrice - peqPriceNum, option_id: 'opt-drk-' + Date.now() + 2 });
+            }
+            if (drinkGde) {
+               const gPrice = parseFloat(drinkGde);
+               options.push({ id: 'opt-drk-' + Date.now() + 3, name: 'Grande / 32oz', extra_price: gPrice - peqPriceNum, option_id: 'opt-drk-' + Date.now() + 3 });
+            }
+
+            if (options.length > 0) {
+                modifiers.push({
+                    group_id: 'g-tamanos-drk-' + Date.now(),
                     group_name: 'Tamaño',
                     selection_type: 'single',
                     required: true,
