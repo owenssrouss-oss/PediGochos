@@ -993,6 +993,14 @@
               foundCategory = true;
               break;
             }
+            // fallback: check if name contains any part of the category name
+            const cleanOptText = optText.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim();
+            if (cleanOptText.length > 2 && nameLower.includes(cleanOptText.split('/')[0].trim().split(' ')[0].toLowerCase())) {
+              catSelect.selectedIndex = i;
+              foundCategory = true;
+              break;
+            }
+            
             // fallback: first word
             const firstWord = name.split(' ')[0].toLowerCase();
             if (optText.includes(firstWord)) {
