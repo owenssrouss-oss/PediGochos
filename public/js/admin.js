@@ -971,6 +971,39 @@ class AdminController {
     }
   }
 
+  async resetBillingHistory() {
+    if (!this.activeShopId) return;
+    const est = this.establishments.find(e => e.id === this.activeShopId);
+    if (!est) return;
+
+    const code = prompt(`⚠️ ATENCIÓN: Estás a punto de resetear e iniciar desde $0 toda la facturación e historial de pedidos del establecimiento "${est.name}".\n\nPor favor, ingresa el código de confirmación 0424 para proceder:`);
+    if (code === null) return;
+
+    if (code !== '0424') {
+      alert('❌ Código maestro incorrecto. Operación cancelada.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/establishments/${this.activeShopId}/orders/reset?code=0424`, {
+        method: 'POST'
+      });
+
+      if (response.ok) {
+        alert(`🔄 ¡Historial de facturación de "${est.name}" reseteado a $0 con éxito!`);
+        this.closeEstActionModal();
+        await this.reloadData();
+        await this.triggerCloudBackup();
+      } else {
+        const data = await response.json();
+        alert('Error al resetear la facturación: ' + (data.error || 'Problema de red.'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de red al intentar resetear la facturación.');
+    }
+  }
+
   async reloadData() {
     try {
       const res = await fetch('/api/owner/establishments');

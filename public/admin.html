@@ -253,6 +253,9 @@
         <button class="btn-neumorphic" onclick="modifyMenuAndTables()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; background-color: var(--accent); color: #121216; border-color: var(--accent);">
           🍔 Modificar Menú y Mesas
         </button>
+        <button class="btn-neumorphic" onclick="resetBillingHistory()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; background-color: #FEF3C7; color: #92400E; border-color: #FCD34D;">
+          🔄 Resetear Historial / Facturación (0424)
+        </button>
       </div>
     </div>
   </div>
@@ -811,6 +814,12 @@
         return;
       }
       document.getElementById('product-modal').classList.add('active');
+    }
+
+    async function resetBillingHistory() {
+      if (typeof AdminApp !== 'undefined') {
+        await AdminApp.resetBillingHistory();
+      }
     }
 
     function closeMenuModal() {

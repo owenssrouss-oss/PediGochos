@@ -621,6 +621,27 @@ app.delete('/api/establishments/:id', (req, res) => {
   res.json({ success: true });
 });
 
+// POST to reset orders/billing history for an establishment (authorized by code 0424)
+app.post('/api/establishments/:id/orders/reset', (req, res) => {
+  const { id } = req.params;
+  const { code } = req.query;
+
+  if (code !== '0424') {
+    return res.status(403).json({ error: 'Código maestro incorrecto' });
+  }
+
+  const db = readDB();
+  const estExists = db.establishments.some(e => e.id === id);
+  if (!estExists) {
+    return res.status(404).json({ error: 'Establecimiento no encontrado' });
+  }
+
+  // Filter out any orders belonging to this establishment
+  db.orders = db.orders.filter(o => o.establishmentId !== id);
+  writeDB(db);
+  res.json({ success: true });
+});
+
 // Fallback for SPA routing (if any) or simple index.html
 app.get('*', (req, res, next) => {
   // If request is for api, skip to next route handler (standard Express)
