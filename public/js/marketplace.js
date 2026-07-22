@@ -175,12 +175,14 @@ class MarketplaceController {
 
     // Set header details
     const bannerDiv = document.getElementById('est-banner');
-    if (est.bannerType === 'gradient' || !est.banner) {
-      bannerDiv.style.background = est.banner || 'linear-gradient(135deg, #1F2937, #111827)';
-    } else {
+    const isImageBanner = est.banner && (est.banner.startsWith('http') || est.banner.startsWith('/') || est.bannerType === 'image');
+    
+    if (isImageBanner) {
       bannerDiv.style.background = `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url('${est.banner}')`;
       bannerDiv.style.backgroundSize = 'cover';
       bannerDiv.style.backgroundPosition = 'center';
+    } else {
+      bannerDiv.style.background = est.banner || 'linear-gradient(135deg, #1F2937, #111827)';
     }
 
     const logoDiv = document.getElementById('est-logo');

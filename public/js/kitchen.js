@@ -1932,10 +1932,15 @@ class KitchenController {
         logoImage = await MenuBuilder.uploadProductImage(logoFile);
       }
 
+      let bannerType = est.bannerType || 'gradient';
+      
       // 2. Upload cover banner file if selected
       if (bannerFile) {
         submitBtn.innerHTML = `<span>Subiendo Portada...</span>`;
         banner = await MenuBuilder.uploadProductImage(bannerFile);
+        bannerType = 'image';
+      } else if (banner && (banner.startsWith('http') || banner.startsWith('/'))) {
+        bannerType = 'image';
       }
 
       // Read linked code/key from storage
@@ -1950,6 +1955,7 @@ class KitchenController {
         logo,
         delivery_fee: delivery_fee ? parseFloat(delivery_fee) : 0,
         banner,
+        bannerType,
         themeColor,
         logoImage,
         prep_time: prep_time ? parseInt(prep_time) : null,

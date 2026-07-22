@@ -1,5 +1,5 @@
 // Service worker to make Cocina DeliverCity KDS PWA Installable
-const CACHE_NAME = 'pedigochos-v14';
+const CACHE_NAME = 'pedigochos-v15';
 const ASSETS = [
   '/kitchen.html',
   '/css/common.css',
