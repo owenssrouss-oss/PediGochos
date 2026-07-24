@@ -676,12 +676,19 @@ class MarketplaceController {
         if (group.selection_type === 'single') {
           const groupDiv = document.createElement('div');
           groupDiv.className = 'modifier-group';
+          
+          // Generate unique ID for target toggle
+          const colId = `collapsible-${group.group_id}-${sideKey}`;
+          
           groupDiv.innerHTML = `
-            <div class="modifier-group-title">
-              <span>${group.group_name}${sideLabel}</span>
-              <span class="required-badge">Requerido</span>
+            <div class="modifier-group-title" onclick="MarketplaceApp.toggleGroupCollapse('${colId}', this)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 700;">${group.group_name}${sideLabel}</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="required-badge">Requerido</span>
+                <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px;">▼</span>
+              </div>
             </div>
-            <div class="modifier-options-list"></div>
+            <div class="modifier-options-list" id="${colId}"></div>
           `;
           const list = groupDiv.querySelector('.modifier-options-list');
           
@@ -712,11 +719,15 @@ class MarketplaceController {
     if (product.exclusions && product.exclusions.length > 0) {
       const groupDiv = document.createElement('div');
       groupDiv.className = 'modifier-group';
+      
+      const colId = `collapsible-base-exclusions-${sideKey}`;
+      
       groupDiv.innerHTML = `
-        <div class="modifier-group-title">
-          <span>Ingredientes Base (Quitar / Añadir Extra)${sideLabel}</span>
+        <div class="modifier-group-title" onclick="MarketplaceApp.toggleGroupCollapse('${colId}', this)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-weight: 700;">Ingredientes Base (Quitar / Añadir)${sideLabel}</span>
+          <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px;">▼</span>
         </div>
-        <div class="modifier-options-list"></div>
+        <div class="modifier-options-list" id="${colId}"></div>
       `;
       const list = groupDiv.querySelector('.modifier-options-list');
 
@@ -760,11 +771,15 @@ class MarketplaceController {
         if (group.selection_type === 'multiple') {
           const groupDiv = document.createElement('div');
           groupDiv.className = 'modifier-group';
+          
+          const colId = `collapsible-${group.group_id}-${sideKey}`;
+          
           groupDiv.innerHTML = `
-            <div class="modifier-group-title">
-              <span>${group.group_name}${sideLabel}</span>
+            <div class="modifier-group-title" onclick="MarketplaceApp.toggleGroupCollapse('${colId}', this)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 700;">${group.group_name}${sideLabel}</span>
+              <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px;">▼</span>
             </div>
-            <div class="modifier-options-list"></div>
+            <div class="modifier-options-list" id="${colId}"></div>
           `;
           const list = groupDiv.querySelector('.modifier-options-list');
 
@@ -1812,6 +1827,21 @@ class MarketplaceController {
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
+  }
+
+  toggleGroupCollapse(targetId, titleElement) {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    const chevron = titleElement.querySelector('.collapse-chevron');
+    
+    if (target.classList.contains('collapsed')) {
+      target.classList.remove('collapsed');
+      if (chevron) chevron.style.transform = 'rotate(0deg)';
+    } else {
+      target.classList.add('collapsed');
+      if (chevron) chevron.style.transform = 'rotate(-90deg)';
+    }
   }
 }
 
