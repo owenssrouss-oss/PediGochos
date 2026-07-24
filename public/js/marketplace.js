@@ -341,12 +341,30 @@ class MarketplaceController {
       catBtn.className = 'internal-category-card';
       catBtn.onclick = () => this.filterInternalCategory(cat, catBtn);
 
-      const catImg = rawCategories[cat] || DEFAULT_IMAGES[est.category];
+      const catImg = rawCategories[cat];
+      
+      // Extract emoji prefix if present in the category name (e.g. "🥤 Batidos" -> emoji = "🥤", name = "Batidos")
+      const emojiMatch = cat.match(/^([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF])\s*(.*)$/);
+      let displayEmoji = '';
+      let displayLabel = cat;
+      
+      if (emojiMatch) {
+        displayEmoji = emojiMatch[1];
+        displayLabel = emojiMatch[2];
+      }
+
+      let imgHTML = '';
+      if (catImg) {
+        imgHTML = `<img src="${catImg}" alt="${cat}">`;
+      } else {
+        imgHTML = `<div style="font-size: 26px; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05);">${displayEmoji || '🍽️'}</div>`;
+      }
+
       catBtn.innerHTML = `
         <div class="internal-category-img">
-          <img src="${catImg}" alt="${cat}">
+          ${imgHTML}
         </div>
-        <span>${cat}</span>
+        <span>${displayLabel}</span>
       `;
       listContainer.appendChild(catBtn);
     });
