@@ -7,6 +7,7 @@
   <meta name="description" content="El mejor marketplace de delivery. Comidas, farmacias, mercados y ferreterías, con entregas en minutos o pedidos directamente a tu mesa.">
   <link rel="stylesheet" href="/css/common.css">
   <link rel="stylesheet" href="/css/marketplace.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 </head>
 <body>
 
@@ -195,6 +196,24 @@
             <label for="order-address">Dirección de Entrega <span class="required">*</span></label>
             <textarea id="order-address" placeholder="Ej. Av. Principal, Edf. Coral, Apto 4B"></textarea>
           </div>
+          <div class="form-group">
+            <label style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <span>📍 Ubicación en el Mapa <span class="required">*</span></span>
+              <button type="button" class="btn-secondary" onclick="MarketplaceApp.toggleDeliveryMap()" style="padding: 4px 10px; font-size: 11px; font-weight: 700; width: auto; margin: 0; background: var(--primary); color: #fff;">
+                🗺️ Seleccionar en Mapa
+              </button>
+            </label>
+            <div id="checkout-map-container" class="hidden" style="margin-top: 10px; border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden;">
+              <div id="checkout-leaflet-map" style="width: 100%; height: 220px; background: #0f172a;"></div>
+              <div style="background: rgba(255,255,255,0.02); padding: 8px 12px; font-size: 11px; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border);">
+                <span>Desliza el mapa para marcar tu casa</span>
+                <span id="map-calc-distance" style="font-weight: 700; color: var(--accent);">Esperando marcador...</span>
+              </div>
+            </div>
+            <input type="hidden" id="order-lat">
+            <input type="hidden" id="order-lng">
+            <input type="hidden" id="order-distance">
+          </div>
         </div>
 
         <!-- Warning for Multi-Establishment delivery fees -->
@@ -370,6 +389,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/supabase-helper.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="/js/sound.js"></script>
   <script src="/js/marketplace.js"></script>
 </body>

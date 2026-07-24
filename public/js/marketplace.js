@@ -25,6 +25,20 @@ class MarketplaceController {
     };
     this.orderType = 'delivery'; // 'delivery' or 'mesa'
     this.currentLocation = localStorage.getItem('selected_location') || 'San Antonio';
+    
+    // Leaflet map instance variables
+    this.leafMap = null;
+    this.leafMarker = null;
+    this.selectedLatitude = null;
+    this.selectedLongitude = null;
+    this.calculatedDistanceKm = null;
+    
+    // Default location coordinates (fallback center coordinate zones)
+    this.locationCenters = {
+      'San Antonio': [7.8131, -72.4439],
+      'Ureña': [7.9221, -72.4419],
+      'San Cristóbal': [7.7667, -72.2292]
+    };
   }
 
   async init() {
@@ -1252,7 +1266,18 @@ class MarketplaceController {
     let totalDeliveryFee = 0;
     if (this.orderType === 'delivery') {
       shopIds.forEach(id => {
-        totalDeliveryFee += uniqueShops[id].delivery_fee;
+        // If a distance was calculated on the map, use the custom formula per shop, otherwise default to establishment base fee
+        if (this.calculatedDistanceKm !== null && this.calculatedDistanceKm !== undefined) {
+          const calculatedFee = this.calculatedDistanceKm * 3750;
+          // Apply $4.000 minimum COP rule
+          const finalFee = Math.max(4000, Math.round(calculatedFee));
+          
+          // Sync fee to the uniqueShops details
+          uniqueShops[id].delivery_fee = finalFee;
+          totalDeliveryFee += finalFee;
+        } else {
+          totalDeliveryFee += uniqueShops[id].delivery_fee;
+        }
       });
     }
 
@@ -1306,6 +1331,8 @@ class MarketplaceController {
       if (numShops === 1) {
         const singleShopId = shopIds[0];
         deliveryCostSpan.innerText = this.formatPesos(uniqueShops[singleShopId].delivery_fee);
+      } else {
+        deliveryCostSpan.innerText = this.formatPesos(totalDeliveryFee);
       }
     } else {
       deliveryRow.classList.add('hidden');
@@ -1360,6 +1387,10 @@ class MarketplaceController {
         alert('Por favor, completa todos los campos de entrega.');
         return;
       }
+      if (this.selectedLatitude === null || this.selectedLongitude === null) {
+        alert('Por favor, selecciona tu ubicación en el mapa haciendo clic en "🗺️ Seleccionar en Mapa" para calcular tu domicilio.');
+        return;
+      }
     }
 
     // Group items by restaurant_id
@@ -1405,7 +1436,14 @@ class MarketplaceController {
           orderType: this.orderType,
           customerName,
           tableNumber: tableNumber ? parseInt(tableNumber, 10) : null,
-          deliveryDetails: this.orderType === 'delivery' ? { phone, address, code: randomCode } : null
+          deliveryDetails: this.orderType === 'delivery' ? { 
+            phone, 
+            address, 
+            code: randomCode,
+            latitude: this.selectedLatitude,
+            longitude: this.selectedLongitude,
+            distanceKm: this.calculatedDistanceKm
+          } : null
         };
 
         const response = await fetch('/api/orders', {
@@ -1432,6 +1470,17 @@ class MarketplaceController {
       if (document.getElementById('order-phone')) document.getElementById('order-phone').value = '';
       if (document.getElementById('order-address')) document.getElementById('order-address').value = '';
       document.getElementById('checkout-accept-terms').checked = false;
+      
+      // Reset map fields
+      this.selectedLatitude = null;
+      this.selectedLongitude = null;
+      this.calculatedDistanceKm = null;
+      document.getElementById('order-lat').value = '';
+      document.getElementById('order-lng').value = '';
+      document.getElementById('order-distance').value = '';
+      document.getElementById('checkout-map-container').classList.add('hidden');
+      const distSpan = document.getElementById('map-calc-distance');
+      if (distSpan) distSpan.innerText = 'Esperando marcador...';
     } catch (e) {
       console.error(e);
       alert('Error de conexión o problema al enviar el pedido: ' + e.message);
@@ -1621,6 +1670,100 @@ class MarketplaceController {
       target.classList.remove('pulse-effect');
     }
     localStorage.setItem('location_tutorial_seen', 'true');
+  }
+
+  toggleDeliveryMap() {
+    const container = document.getElementById('checkout-map-container');
+    if (!container) return;
+
+    if (container.classList.contains('hidden')) {
+      container.classList.remove('hidden');
+      setTimeout(() => {
+        this.initLeafletMap();
+      }, 200);
+    } else {
+      container.classList.add('hidden');
+    }
+  }
+
+  initLeafletMap() {
+    if (typeof L === 'undefined') {
+      console.error('Leaflet is not loaded yet');
+      return;
+    }
+
+    // Default center depending on the user's selected location town
+    const center = this.locationCenters[this.currentLocation] || [7.8131, -72.4439];
+
+    if (this.leafMap) {
+      this.leafMap.setView(center, 14);
+      this.leafMap.invalidateSize();
+      return;
+    }
+
+    // Initialize Leaflet map
+    this.leafMap = L.map('checkout-leaflet-map').setView(center, 14);
+
+    // OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(this.leafMap);
+
+    // Create marker centered
+    this.leafMarker = L.marker(center, { draggable: true }).addTo(this.leafMap);
+
+    // Initial positioning triggers fee calculate
+    this.updateDeliveryCoordinates(center[0], center[1]);
+
+    // Handle marker dragging updates
+    this.leafMarker.on('dragend', () => {
+      const pos = this.leafMarker.getLatLng();
+      this.updateDeliveryCoordinates(pos.lat, pos.lng);
+    });
+
+    // Handle clicks on map directly
+    this.leafMap.on('click', (e) => {
+      this.leafMarker.setLatLng(e.latlng);
+      this.updateDeliveryCoordinates(e.latlng.lat, e.latlng.lng);
+    });
+  }
+
+  updateDeliveryCoordinates(lat, lng) {
+    this.selectedLatitude = lat;
+    this.selectedLongitude = lng;
+
+    document.getElementById('order-lat').value = lat;
+    document.getElementById('order-lng').value = lng;
+
+    // Calculate distance to active shop coordinates. If shop coordinates don't exist, we fall back to town center coordinates.
+    const shopCenter = this.locationCenters[this.currentLocation] || [7.8131, -72.4439];
+    
+    // Check if the current single restaurant or multi restaurants have coordinates.
+    // If not, we calculate geodesic distance relative to the default town center fallback.
+    const distance = this.calculateGeodesicDistance(lat, lng, shopCenter[0], shopCenter[1]);
+    this.calculatedDistanceKm = parseFloat(distance.toFixed(2));
+    
+    document.getElementById('order-distance').value = this.calculatedDistanceKm;
+
+    const distSpan = document.getElementById('map-calc-distance');
+    if (distSpan) {
+      distSpan.innerText = `Distancia: ${this.calculatedDistanceKm} km`;
+    }
+
+    // Recalculate and re-render cart totals with the dynamic fees
+    this.renderCartItems();
+  }
+
+  calculateGeodesicDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
   }
 }
 
