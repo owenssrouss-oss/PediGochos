@@ -1271,7 +1271,10 @@ class KitchenController {
     document.getElementById('specs-modal-title').innerText = `⚙️ Especificaciones: ${prod.name}`;
     document.getElementById('specs-product-id').value = productId;
 
-    this.specsIngredients = prod.exclusions ? prod.exclusions.map(e => e.name) : [];
+    this.specsIngredients = prod.exclusions ? prod.exclusions.map(e => ({
+      name: e.name,
+      price: e.price !== undefined ? e.price : 500
+    })) : [];
     this.renderSpecsIngredients();
 
     this.specsGroups = prod.modifiers ? JSON.parse(JSON.stringify(prod.modifiers)) : [];
@@ -1297,22 +1300,27 @@ class KitchenController {
       return;
     }
 
-    this.specsIngredients.forEach((ing, idx) => {
+    this.specsIngredients.forEach((ingObj, idx) => {
+      // support both string legacy format or object {name, price} format
+      const ingName = typeof ingObj === 'string' ? ingObj : (ingObj.name || '');
+      const ingPrice = typeof ingObj === 'string' ? 500 : (ingObj.price !== undefined ? ingObj.price : 500);
+
       const tag = document.createElement('div');
       tag.style.display = 'flex';
       tag.style.alignItems = 'center';
-      tag.style.gap = '6px';
+      tag.style.gap = '8px';
       tag.style.background = 'rgba(255, 94, 58, 0.1)';
       tag.style.border = '1px solid rgba(255, 94, 58, 0.25)';
       tag.style.color = 'var(--accent)';
-      tag.style.padding = '4px 10px';
+      tag.style.padding = '6px 12px';
       tag.style.borderRadius = '8px';
       tag.style.fontSize = '12px';
       tag.style.fontWeight = '700';
 
       tag.innerHTML = `
-        <span>${ing}</span>
-        <span onclick="KitchenApp.removeIngredientOption(${idx})" style="cursor: pointer; color: #ef4444; font-weight: 900;">✕</span>
+        <span>${ingName}</span>
+        <input type="number" value="${ingPrice}" onchange="KitchenApp.updateIngredientPrice(${idx}, this.value)" style="width: 70px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 4px; padding: 2px 4px; font-size: 11px; font-weight: bold; text-align: center;" placeholder="Precio">
+        <span onclick="KitchenApp.removeIngredientOption(${idx})" style="cursor: pointer; color: #ef4444; font-weight: 900; margin-left: 4px;">✕</span>
       `;
       container.appendChild(tag);
     });
@@ -1323,14 +1331,35 @@ class KitchenController {
     const val = input.value.trim();
     if (!val) return;
 
-    if (this.specsIngredients.includes(val)) {
+    const duplicate = this.specsIngredients.some(i => {
+      const name = typeof i === 'string' ? i : i.name;
+      return name.toLowerCase() === val.toLowerCase();
+    });
+
+    if (duplicate) {
       alert('Ingrediente duplicado.');
       return;
     }
 
-    this.specsIngredients.push(val);
+    this.specsIngredients.push({
+      name: val,
+      price: 500 // default price
+    });
     input.value = '';
     this.renderSpecsIngredients();
+  }
+
+  updateIngredientPrice(idx, val) {
+    const num = parseFloat(val);
+    if (isNaN(num)) return;
+    if (typeof this.specsIngredients[idx] === 'string') {
+      this.specsIngredients[idx] = {
+        name: this.specsIngredients[idx],
+        price: num
+      };
+    } else {
+      this.specsIngredients[idx].price = num;
+    }
   }
 
   removeIngredientOption(idx) {
@@ -1480,10 +1509,15 @@ class KitchenController {
     const prod = est.products.find(p => p.id === this.activeSpecsProductId);
     if (!prod) return;
 
-    prod.exclusions = this.specsIngredients.map((name, i) => ({
-      id: `ex-${i}`,
-      name: name
-    }));
+    prod.exclusions = this.specsIngredients.map((item, i) => {
+      const ingName = typeof item === 'string' ? item : item.name;
+      const ingPrice = typeof item === 'string' ? 500 : (item.price !== undefined ? item.price : 500);
+      return {
+        id: `ex-${i}`,
+        name: ingName,
+        price: ingPrice
+      };
+    });
 
     prod.modifiers = this.specsGroups;
 

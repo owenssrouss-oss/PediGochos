@@ -491,9 +491,8 @@ class MarketplaceController {
     // Check if has modifiers or exclusions (force customizer if so, e.g. drink sizes or pizza options)
     const hasModifiers = product.modifiers && product.modifiers.length > 0;
     const hasExclusions = product.exclusions && product.exclusions.length > 0;
-    const isArepa = product.name.toLowerCase().includes('arepa');
 
-    if (hasModifiers || hasExclusions || isArepa) {
+    if (hasModifiers || hasExclusions) {
       this.openCustomizerModal(product);
     } else {
       this.addDirectToCart(product);
@@ -553,28 +552,10 @@ class MarketplaceController {
       }
     };
 
-    // If this is an Arepa, make sure it has a rich set of base ingredients (contornos) to choose from in the exclusions list if empty/missing
-    const isArepa = product.name.toLowerCase().includes('arepa');
-    if (isArepa) {
-      if (!product.exclusions || product.exclusions.length === 0) {
-        product.exclusions = [
-          { name: "Carne Mechada" },
-          { name: "Pollo Mechado" },
-          { name: "Jamón" },
-          { name: "Queso Amarillo" },
-          { name: "Queso Blanco" },
-          { name: "Pernil de Cochino" },
-          { name: "Chorizo ahumado" },
-          { name: "Mollejas" },
-          { name: "Ensalada" },
-          { name: "Huevos de Codorniz" }
-        ];
-      }
-    }
-
     // Helper to initialize side quantities
     const initSide = (sideKey) => {
       // 1. Initialize base ingredients to 1 (or 0 if it's an Arepa, forcing selection and price increase)
+      const isArepa = product.name.toLowerCase().includes('arepa');
       if (product.exclusions) {
         product.exclusions.forEach(item => {
           const itemName = item.name || item;
@@ -755,6 +736,7 @@ class MarketplaceController {
 
       product.exclusions.forEach(item => {
         const itemName = item.name || item;
+        const basePrice = item.price !== undefined ? item.price : 500;
         const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
         
         const optionDiv = document.createElement('div');
@@ -764,8 +746,8 @@ class MarketplaceController {
         if (isArepa) {
           if (qty > 0) {
             stateClass = 'ingredient-extra';
-            // We increase price by $500 COP per portion added
-            extraText = `<span style="font-size: 11px; font-weight: 700; color: var(--primary); margin-right: 8px;">+ ${this.formatPesos(500 * qty)}</span>`;
+            // Use dynamic establishment base price configured by shop owner
+            extraText = `<span style="font-size: 11px; font-weight: 700; color: var(--primary); margin-right: 8px;">+ ${this.formatPesos(basePrice * qty)}</span>`;
           }
         } else {
           if (qty === 0) {
@@ -773,7 +755,7 @@ class MarketplaceController {
             extraText = '<span style="font-size: 11px; font-weight: 700; color: #EF4444; margin-right: 8px;">Removido</span>';
           } else if (qty > 1) {
             stateClass = 'ingredient-extra';
-            extraText = `<span style="font-size: 11px; font-weight: 700; color: var(--primary); margin-right: 8px;">+ ${this.formatPesos(500 * (qty - 1))} (Extra)</span>`;
+            extraText = `<span style="font-size: 11px; font-weight: 700; color: var(--primary); margin-right: 8px;">+ ${this.formatPesos(basePrice * (qty - 1))} (Extra)</span>`;
           }
         }
 
@@ -978,17 +960,18 @@ class MarketplaceController {
     const sumForSide = (sideKey) => {
       let sideSum = 0;
       
-      // 1. Base Ingredients: if quantity > 1, charge $500 per extra portion (or charge $500 for all portions if it is an Arepa)
+      // 1. Base Ingredients: if quantity > 1, charge custom price per extra portion (or charge custom price for all portions if it is an Arepa)
       const isArepa = product.name.toLowerCase().includes('arepa');
       if (product.exclusions) {
         product.exclusions.forEach(item => {
           const itemName = item.name || item;
+          const basePrice = item.price !== undefined ? item.price : 500;
           const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
           if (isArepa) {
-            sideSum += qty * 500;
+            sideSum += qty * basePrice;
           } else {
             if (qty > 1) {
-              sideSum += (qty - 1) * 500;
+              sideSum += (qty - 1) * basePrice;
             }
           }
         });
@@ -1098,18 +1081,30 @@ class MarketplaceController {
       const prefix = formatSidePrefix(sideKey);
       
       // 1. Base ingredients (exclusions and extras)
+      const isArepa = product.name.toLowerCase().includes('arepa');
       if (product.exclusions) {
         product.exclusions.forEach(item => {
           const itemName = item.name || item;
+          const basePrice = item.price !== undefined ? item.price : 500;
           const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
-          if (qty === 0) {
-            exclusions.push({ name: prefix + `Sin ${itemName}` });
-          } else if (qty > 1) {
-            addOns.push({
-              name: prefix + `${itemName} Extra`,
-              price_per_unit: 500,
-              quantity: qty - 1
-            });
+          if (isArepa) {
+            if (qty > 0) {
+              addOns.push({
+                name: prefix + `${itemName}`,
+                price_per_unit: basePrice,
+                quantity: qty
+              });
+            }
+          } else {
+            if (qty === 0) {
+              exclusions.push({ name: prefix + `Sin ${itemName}` });
+            } else if (qty > 1) {
+              addOns.push({
+                name: prefix + `${itemName} Extra`,
+                price_per_unit: basePrice,
+                quantity: qty - 1
+              });
+            }
           }
         });
       }
