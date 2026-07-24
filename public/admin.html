@@ -632,9 +632,9 @@
   <script src="/js/menu-builder.js"></script>
 
   <script>
-    let activeCategoryId = 'all';
-    let categoriesList = [];
-    let productsList = [];
+    window.activeCategoryId = 'all';
+    window.categoriesList = [];
+    window.productsList = [];
     window.activeShopIdForMenu = '';
 
     // Trigger Supabase MenuBuilder once Admin app determines authentication
@@ -670,7 +670,7 @@
 
     async function loadCategories() {
       try {
-        categoriesList = await MenuBuilder.getCategories();
+        window.categoriesList = await MenuBuilder.getCategories();
         renderCategories();
       } catch (err) {
         console.error(err);
@@ -683,7 +683,7 @@
       if (window.activeShopIdForMenu) {
         const est = AdminApp.establishments.find(e => e.id === window.activeShopIdForMenu);
         if (est) {
-          productsList = est.products || [];
+          window.productsList = est.products || [];
           renderProducts();
           return;
         }
@@ -697,7 +697,7 @@
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        productsList = data || [];
+        window.productsList = data || [];
         renderProducts();
       } catch (err) {
         console.error(err);
@@ -710,12 +710,12 @@
       const select = document.getElementById('form-category');
       if (!sidebar) return;
       
-      sidebar.innerHTML = `<li class="category-item ${activeCategoryId === 'all' ? 'active' : ''}" onclick="filterCategory('all')" style="font-size: 11.5px; padding: 8px 10px; cursor: pointer; border-radius: 8px;">Todos</li>`;
+      sidebar.innerHTML = `<li class="category-item ${window.activeCategoryId === 'all' ? 'active' : ''}" onclick="filterCategory('all')" style="font-size: 11.5px; padding: 8px 10px; cursor: pointer; border-radius: 8px;">Todos</li>`;
       select.innerHTML = `<option value="">-- Selecciona una categoría --</option>`;
 
-      categoriesList.forEach(cat => {
+      window.categoriesList.forEach(cat => {
         const li = document.createElement('li');
-        li.className = `category-item ${activeCategoryId === cat.id ? 'active' : ''}`;
+        li.className = `category-item ${window.activeCategoryId === cat.id ? 'active' : ''}`;
         li.innerText = cat.name;
         li.style.fontSize = '11.5px';
         li.style.padding = '8px 10px';
@@ -743,11 +743,11 @@
       if (!grid) return;
       grid.innerHTML = '';
 
-      let filtered = productsList;
-      if (activeCategoryId !== 'all') {
-        filtered = productsList.filter(p => {
-          if (p.category_id) return p.category_id === activeCategoryId;
-          const cat = categoriesList.find(c => c.id === activeCategoryId);
+      let filtered = window.productsList;
+      if (window.activeCategoryId !== 'all') {
+        filtered = window.productsList.filter(p => {
+          if (p.category_id) return p.category_id === window.activeCategoryId;
+          const cat = window.categoriesList.find(c => c.id === window.activeCategoryId);
           if (cat && p.category) return p.category.toLowerCase().includes(cat.slug);
           return false;
         });
@@ -796,17 +796,14 @@
     }
 
     function getCategoryName(catId) {
-      const cat = categoriesList.find(c => c.id === catId);
+      const cat = window.categoriesList.find(c => c.id === catId);
       return cat ? cat.name : 'Varios';
     }
 
     function filterCategory(catId) {
-      activeCategoryId = catId;
-      document.querySelectorAll('.category-item').forEach(item => {
-        item.classList.remove('active');
-      });
-      renderCategories();
-      renderProducts();
+      if (typeof AdminApp !== 'undefined') {
+        AdminApp.filterCategoryModal(catId);
+      }
     }
 
     async function createNewCategory() {
