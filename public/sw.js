@@ -1,5 +1,5 @@
-// Service worker to make Cocina DeliverCity KDS PWA Installable
-const CACHE_NAME = 'pedigochos-v16';
+// Service worker to make Cocina Rapi Gochos KDS PWA Installable
+const CACHE_NAME = 'pedigochos-v17';
 const ASSETS = [
   '/kitchen.html',
   '/css/common.css',

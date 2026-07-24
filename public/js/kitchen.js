@@ -787,7 +787,7 @@ class KitchenController {
     const securityCode = order.deliveryDetails.code || 'N/A';
     const totalAmount = Math.round(order.total).toLocaleString('de-DE');
 
-    const messageText = `🚴 *DeliverCity - Nuevo Servicio Solicitado*
+    const messageText = `🚴 *Rapi Gochos - Nuevo Servicio Solicitado*
 *Establecimiento:* ${storeName}
 *Cliente:* ${clientName}
 *Teléfono:* ${clientPhone}
@@ -1866,7 +1866,7 @@ class KitchenController {
   callDelivery(orderId) {
     Sound.playBell();
     const orderNum = orderId.split('-')[2] || 'ORD';
-    alert(`🚴 ¡Domicilio Solicitado!\nSe ha asignado un repartidor de DeliverCity para el pedido #${orderNum}. Está en camino al establecimiento.`);
+    alert(`🚴 ¡Domicilio Solicitado!\nSe ha asignado un repartidor de Rapi Gochos para el pedido #${orderNum}. Está en camino al establecimiento.`);
     this.updateOrderStatus(orderId, 'Entregado');
   }
 
