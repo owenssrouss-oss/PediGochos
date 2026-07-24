@@ -554,11 +554,12 @@ class MarketplaceController {
 
     // Helper to initialize side quantities
     const initSide = (sideKey) => {
-      // 1. Initialize base ingredients to 1
+      // 1. Initialize base ingredients to 1 (or 0 if it's an Arepa, forcing selection and price increase)
+      const isArepa = product.name.toLowerCase().includes('arepa');
       if (product.exclusions) {
         product.exclusions.forEach(item => {
           const itemName = item.name || item;
-          this.customizerState.quantities[sideKey]['base_' + itemName] = 1;
+          this.customizerState.quantities[sideKey]['base_' + itemName] = isArepa ? 0 : 1;
         });
       }
 
@@ -731,6 +732,8 @@ class MarketplaceController {
       `;
       const list = groupDiv.querySelector('.modifier-options-list');
 
+      const isArepa = product.name.toLowerCase().includes('arepa');
+
       product.exclusions.forEach(item => {
         const itemName = item.name || item;
         const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
@@ -738,28 +741,58 @@ class MarketplaceController {
         const optionDiv = document.createElement('div');
         let stateClass = '';
         let extraText = '';
-        if (qty === 0) {
-          stateClass = 'ingredient-excluded';
-          extraText = '<span style="font-size: 11px; font-weight: 700; color: #EF4444; margin-right: 8px;">Removido</span>';
-        } else if (qty > 1) {
-          stateClass = 'ingredient-extra';
-          extraText = `<span style="font-size: 11px; font-weight: 700; color: var(--primary); margin-right: 8px;">+ ${this.formatPesos(500 * (qty - 1))} (Extra)</span>`;
+        
+        if (isArepa) {
+          if (qty > 0) {
+            stateClass = 'ingredient-extra';
+            // We increase price by $500 COP per portion added
+            extraText = `<span style="font-size: 11px; font-weight: 700; color: var(--primary); margin-right: 8px;">+ ${this.formatPesos(500 * qty)}</span>`;
+          }
+        } else {
+          if (qty === 0) {
+            stateClass = 'ingredient-excluded';
+            extraText = '<span style="font-size: 11px; font-weight: 700; color: #EF4444; margin-right: 8px;">Removido</span>';
+          } else if (qty > 1) {
+            stateClass = 'ingredient-extra';
+            extraText = `<span style="font-size: 11px; font-weight: 700; color: var(--primary); margin-right: 8px;">+ ${this.formatPesos(500 * (qty - 1))} (Extra)</span>`;
+          }
         }
 
         optionDiv.className = `modifier-option ${stateClass}`;
-        optionDiv.innerHTML = `
-          <div class="option-label-container">
-            <span class="option-name">${itemName}</span>
-          </div>
-          <div style="display: flex; align-items: center;">
-            ${extraText}
-            <div class="option-qty-control">
-              <button class="btn-qty-mini" onclick="event.preventDefault(); MarketplaceApp.updateUnifiedQty('base_${itemName}', '${sideKey}', -1)">-</button>
-              <span class="option-qty-val">${qty}</span>
-              <button class="btn-qty-mini" onclick="event.preventDefault(); MarketplaceApp.updateUnifiedQty('base_${itemName}', '${sideKey}', 1)">+</button>
+        
+        let qtyControlsHTML = '';
+        if (isArepa) {
+          qtyControlsHTML = `
+            <div class="option-label-container" onclick="MarketplaceApp.toggleBaseIngredientSelection('${itemName}', '${sideKey}')">
+              <input type="checkbox" ${qty > 0 ? 'checked' : ''} style="margin: 0;">
+              <span class="option-name" style="margin-left: 8px;">${itemName}</span>
             </div>
-          </div>
-        `;
+            <div style="display: flex; align-items: center;">
+              ${extraText}
+              <div class="option-qty-control" style="display: ${qty > 0 ? 'flex' : 'none'}">
+                <button class="btn-qty-mini" onclick="event.preventDefault(); event.stopPropagation(); MarketplaceApp.updateUnifiedQty('base_${itemName}', '${sideKey}', -1)">-</button>
+                <span class="option-qty-val">${qty}</span>
+                <button class="btn-qty-mini" onclick="event.preventDefault(); event.stopPropagation(); MarketplaceApp.updateUnifiedQty('base_${itemName}', '${sideKey}', 1)">+</button>
+              </div>
+            </div>
+          `;
+        } else {
+          qtyControlsHTML = `
+            <div class="option-label-container">
+              <span class="option-name">${itemName}</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+              ${extraText}
+              <div class="option-qty-control">
+                <button class="btn-qty-mini" onclick="event.preventDefault(); MarketplaceApp.updateUnifiedQty('base_${itemName}', '${sideKey}', -1)">-</button>
+                <span class="option-qty-val">${qty}</span>
+                <button class="btn-qty-mini" onclick="event.preventDefault(); MarketplaceApp.updateUnifiedQty('base_${itemName}', '${sideKey}', 1)">+</button>
+              </div>
+            </div>
+          `;
+        }
+        
+        optionDiv.innerHTML = qtyControlsHTML;
         list.appendChild(optionDiv);
       });
       container.appendChild(groupDiv);
@@ -926,13 +959,18 @@ class MarketplaceController {
     const sumForSide = (sideKey) => {
       let sideSum = 0;
       
-      // 1. Base Ingredients: if quantity > 1, charge $500 per extra portion
+      // 1. Base Ingredients: if quantity > 1, charge $500 per extra portion (or charge $500 for all portions if it is an Arepa)
+      const isArepa = product.name.toLowerCase().includes('arepa');
       if (product.exclusions) {
         product.exclusions.forEach(item => {
           const itemName = item.name || item;
           const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
-          if (qty > 1) {
-            sideSum += (qty - 1) * 500;
+          if (isArepa) {
+            sideSum += qty * 500;
+          } else {
+            if (qty > 1) {
+              sideSum += (qty - 1) * 500;
+            }
           }
         });
       }
@@ -1842,6 +1880,13 @@ class MarketplaceController {
       target.classList.add('collapsed');
       if (chevron) chevron.style.transform = 'rotate(-90deg)';
     }
+  }
+
+  toggleBaseIngredientSelection(itemName, sideKey) {
+    const key = 'base_' + itemName;
+    const current = this.customizerState.quantities[sideKey][key] || 0;
+    this.customizerState.quantities[sideKey][key] = (current === 0) ? 1 : 0;
+    this.renderCustomizerModifiers();
   }
 }
 
