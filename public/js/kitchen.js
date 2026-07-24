@@ -472,7 +472,8 @@ class KitchenController {
         `;
       }
 
-      const elapsedMins = Math.floor((new Date() - new Date(order.createdAt)) / 60000);
+      const orderTimeRaw = order.createdAt || order.created_at;
+      const elapsedMins = orderTimeRaw ? Math.floor((new Date() - new Date(orderTimeRaw)) / 60000) : 0;
       const isLate = elapsedMins >= 15 ? 'late' : '';
 
       const paymentBadge = order.paymentStatus === 'Pagado' ? '<span class="payment-badge paid" style="background-color: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 6px;">💳 Pagado</span>' : '<span class="payment-badge pending" style="background-color: #f59e0b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 6px;">💳 Pendiente</span>';
@@ -501,7 +502,7 @@ class KitchenController {
           </div>
           <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
             ${typeBadge}
-            <span class="order-timer ${isLate}" data-created="${order.createdAt}">⏱️ hace ${elapsedMins} min</span>
+            <span class="order-timer ${isLate}" data-created="${order.createdAt || order.created_at || ''}">⏱️ hace ${elapsedMins} min</span>
           </div>
         </div>
         
