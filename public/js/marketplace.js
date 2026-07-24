@@ -270,14 +270,16 @@ class MarketplaceController {
       card.onclick = () => this.openEstablishment(est.id);
 
       // Determine representation photo
-      let imgUrl = DEFAULT_IMAGES[est.category] || '/images/burger_royale.jpg';
-      if (est.products && est.products.length > 0 && est.products[0].image) {
-        imgUrl = est.products[0].image;
+      let imgHTML = '';
+      if (est.logoImage) {
+        imgHTML = `<img src="${est.logoImage}" alt="${est.name}" style="object-fit: cover; width: 100%; height: 100%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">`;
+      } else {
+        imgHTML = `<div style="font-size: 32px; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05);">${est.logo || '🏪'}</div>`;
       }
 
       card.innerHTML = `
-        <div class="est-row-img-wrapper">
-          <img src="${imgUrl}" alt="${est.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+        <div class="est-row-img-wrapper" style="border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); border: 2px solid var(--border);">
+          ${imgHTML}
           <div class="est-row-img-placeholder hidden">${est.logo || '🏪'}</div>
         </div>
         <div class="est-row-info">
