@@ -162,11 +162,12 @@
         <button class="btn-close" onclick="MarketplaceApp.closeCartModal()">✕</button>
       </div>
       
-      <div class="modal-body premium-scroll" id="cart-items-container">
-        <!-- Dynamically filled -->
-      </div>
-      
-      <div class="cart-checkout-form" id="checkout-form">
+      <div class="modal-body premium-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;">
+        <div id="cart-items-container">
+          <!-- Dynamically filled -->
+        </div>
+        
+        <div class="cart-checkout-form" id="checkout-form">
         <h4>Detalles del Pedido</h4>
         
         <div class="order-type-toggle">
@@ -248,6 +249,7 @@
         <button class="btn-submit-order" onclick="MarketplaceApp.submitOrder()">
           🚀 Enviar Pedido en Tiempo Real
         </button>
+      </div>
       </div>
     </div>
   </div>
