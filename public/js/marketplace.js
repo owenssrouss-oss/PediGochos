@@ -491,8 +491,9 @@ class MarketplaceController {
     // Check if has modifiers or exclusions (force customizer if so, e.g. drink sizes or pizza options)
     const hasModifiers = product.modifiers && product.modifiers.length > 0;
     const hasExclusions = product.exclusions && product.exclusions.length > 0;
+    const isArepa = product.name.toLowerCase().includes('arepa');
 
-    if (hasModifiers || hasExclusions) {
+    if (hasModifiers || hasExclusions || isArepa) {
       this.openCustomizerModal(product);
     } else {
       this.addDirectToCart(product);
@@ -552,10 +553,28 @@ class MarketplaceController {
       }
     };
 
+    // If this is an Arepa, make sure it has a rich set of base ingredients (contornos) to choose from in the exclusions list if empty/missing
+    const isArepa = product.name.toLowerCase().includes('arepa');
+    if (isArepa) {
+      if (!product.exclusions || product.exclusions.length === 0) {
+        product.exclusions = [
+          { name: "Carne Mechada" },
+          { name: "Pollo Mechado" },
+          { name: "Jamón" },
+          { name: "Queso Amarillo" },
+          { name: "Queso Blanco" },
+          { name: "Pernil de Cochino" },
+          { name: "Chorizo ahumado" },
+          { name: "Mollejas" },
+          { name: "Ensalada" },
+          { name: "Huevos de Codorniz" }
+        ];
+      }
+    }
+
     // Helper to initialize side quantities
     const initSide = (sideKey) => {
       // 1. Initialize base ingredients to 1 (or 0 if it's an Arepa, forcing selection and price increase)
-      const isArepa = product.name.toLowerCase().includes('arepa');
       if (product.exclusions) {
         product.exclusions.forEach(item => {
           const itemName = item.name || item;
