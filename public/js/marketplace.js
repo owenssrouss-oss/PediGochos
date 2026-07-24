@@ -864,13 +864,34 @@ class MarketplaceController {
     const isHalves = this.customizerState.pizzaMode === 'halves';
     let allValid = true;
     
+    // Check if name is like "Arepas Rellenas X Contornos"
+    const contornosMatch = product.name.match(/(\d+)\s+Contornos/i);
+    const maxContornosAllowed = contornosMatch ? parseInt(contornosMatch[1], 10) : null;
+    
     const checkSide = (sideKey) => {
+      let selectedContornosCount = 0;
       product.modifiers.forEach(group => {
+        // Count total selected options in multiple modifier groups (adicionales/contornos)
+        if (group.selection_type === 'multiple') {
+          group.options.forEach(opt => {
+            const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
+            if (qty > 0) {
+              selectedContornosCount += qty;
+            }
+          });
+        }
+        
         if (group.is_required && group.selection_type === 'single') {
           const active = group.options.some(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
           if (!active) allValid = false;
         }
       });
+      
+      // If product name specifies exactly X Contornos (e.g. 'Arepas Rellenas 2 Contornos')
+      // then the customer MUST select exactly that amount of contornos/adicionales.
+      if (maxContornosAllowed !== null && selectedContornosCount !== maxContornosAllowed) {
+        allValid = false;
+      }
     };
     
     if (isHalves) {
@@ -938,10 +959,35 @@ class MarketplaceController {
     
     const allValid = this.validateRequiredModifiers();
     
+    // Check if name is like "Arepas Rellenas X Contornos" to show feedback
+    const contornosMatch = this.customizerState.product.name.match(/(\d+)\s+Contornos/i);
+    const maxContornosAllowed = contornosMatch ? parseInt(contornosMatch[1], 10) : null;
+    
+    // Count selected contornos on current side
+    const sideKey = this.customizerState.pizzaMode === 'halves' ? 'halfA' : 'whole';
+    let selectedContornosCount = 0;
+    if (this.customizerState.product.modifiers) {
+      this.customizerState.product.modifiers.forEach(group => {
+        if (group.selection_type === 'multiple') {
+          group.options.forEach(opt => {
+            const selectedQty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
+            if (selectedQty > 0) {
+              selectedContornosCount += selectedQty;
+            }
+          });
+        }
+      });
+    }
+
     const btn = document.getElementById('btn-confirm-add');
     if (btn) {
-      btn.innerText = `Agregar al Carrito • ${this.formatPesos(combinedTotal)}`;
-      btn.disabled = !allValid;
+      if (maxContornosAllowed !== null && selectedContornosCount !== maxContornosAllowed) {
+        btn.innerText = `Elige exactamente ${maxContornosAllowed} Contorno(s) (${selectedContornosCount}/${maxContornosAllowed})`;
+        btn.disabled = true;
+      } else {
+        btn.innerText = `Agregar al Carrito • ${this.formatPesos(combinedTotal)}`;
+        btn.disabled = !allValid;
+      }
     }
   }
 
