@@ -1222,12 +1222,21 @@ class AdminController {
     document.getElementById('specs-product-id').value = productId;
 
     // Load exclusions / ingredients
-    this.specsIngredients = prod.exclusions ? prod.exclusions.map(e => e.name) : [];
+    this.specsIngredients = prod.exclusions ? prod.exclusions.map(e => ({
+      name: e.name,
+      price: e.price !== undefined ? e.price : 500
+    })) : [];
     this.renderSpecsIngredients();
 
     // Load modifier groups
     this.specsGroups = prod.modifiers ? JSON.parse(JSON.stringify(prod.modifiers)) : [];
     this.renderSpecsGroups();
+
+    // Set product image preview & reset file upload input
+    const previewImg = document.getElementById('specs-product-image-preview');
+    if (previewImg) previewImg.src = prod.image || '/images/burger_royale.jpg';
+    const fileInput = document.getElementById('specs-product-image-file');
+    if (fileInput) fileInput.value = '';
 
     // Switch container view (embed specs inside floor plan grid slot)
     document.getElementById('floor-plan-grid-container').style.display = 'none';
@@ -1245,26 +1254,30 @@ class AdminController {
     container.innerHTML = '';
 
     if (this.specsIngredients.length === 0) {
-      container.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted);">Sin ingredientes listados (se permiten todas las opciones por defecto)</span>`;
+      container.innerHTML = `<span style="font-size: 11.5px; color: var(--text-muted);">Sin ingredientes listados</span>`;
       return;
     }
 
-    this.specsIngredients.forEach((ing, idx) => {
+    this.specsIngredients.forEach((ingObj, idx) => {
+      const ingName = typeof ingObj === 'string' ? ingObj : (ingObj.name || '');
+      const ingPrice = typeof ingObj === 'string' ? 500 : (ingObj.price !== undefined ? ingObj.price : 500);
+
       const tag = document.createElement('div');
       tag.style.display = 'flex';
       tag.style.alignItems = 'center';
-      tag.style.gap = '6px';
+      tag.style.gap = '8px';
       tag.style.background = 'rgba(255, 94, 58, 0.1)';
       tag.style.border = '1px solid rgba(255, 94, 58, 0.25)';
       tag.style.color = 'var(--accent)';
-      tag.style.padding = '4px 10px';
+      tag.style.padding = '6px 12px';
       tag.style.borderRadius = '8px';
       tag.style.fontSize = '12px';
       tag.style.fontWeight = '700';
 
       tag.innerHTML = `
-        <span>${ing}</span>
-        <span onclick="AdminApp.removeIngredientOption(${idx})" style="cursor: pointer; color: #ef4444; font-weight: 900;">✕</span>
+        <span>${ingName}</span>
+        <input type="number" value="${ingPrice}" onchange="AdminApp.updateIngredientPrice(${idx}, this.value)" style="width: 70px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 4px; padding: 2px 4px; font-size: 11px; font-weight: bold; text-align: center;" placeholder="Precio">
+        <span onclick="AdminApp.removeIngredientOption(${idx})" style="cursor: pointer; color: #ef4444; font-weight: 900; margin-left: 4px;">✕</span>
       `;
       container.appendChild(tag);
     });
@@ -1275,14 +1288,35 @@ class AdminController {
     const val = input.value.trim();
     if (!val) return;
 
-    if (this.specsIngredients.includes(val)) {
+    const duplicate = this.specsIngredients.some(i => {
+      const name = typeof i === 'string' ? i : i.name;
+      return name.toLowerCase() === val.toLowerCase();
+    });
+
+    if (duplicate) {
       alert('Este ingrediente ya está listado.');
       return;
     }
 
-    this.specsIngredients.push(val);
+    this.specsIngredients.push({
+      name: val,
+      price: 500
+    });
     input.value = '';
     this.renderSpecsIngredients();
+  }
+
+  updateIngredientPrice(idx, val) {
+    const num = parseFloat(val);
+    if (isNaN(num)) return;
+    if (typeof this.specsIngredients[idx] === 'string') {
+      this.specsIngredients[idx] = {
+        name: this.specsIngredients[idx],
+        price: num
+      };
+    } else {
+      this.specsIngredients[idx].price = num;
+    }
   }
 
   removeIngredientOption(idx) {
@@ -1435,15 +1469,29 @@ class AdminController {
     if (!prod) return;
 
     // Filter exclusions
-    prod.exclusions = this.specsIngredients.map((name, i) => ({
-      id: `ex-${i}`,
-      name: name
-    }));
+    prod.exclusions = this.specsIngredients.map((item, i) => {
+      const ingName = typeof item === 'string' ? item : item.name;
+      const ingPrice = typeof item === 'string' ? 500 : (item.price !== undefined ? item.price : 500);
+      return {
+        id: `ex-${i}`,
+        name: ingName,
+        price: ingPrice
+      };
+    });
 
     // Save modifiers groups
     prod.modifiers = this.specsGroups;
 
+    const fileInput = document.getElementById('specs-product-image-file');
+    const imageFile = fileInput ? fileInput.files[0] : null;
+
     try {
+      if (imageFile && typeof MenuBuilder !== 'undefined') {
+        this.showToast('Uploading image...');
+        const newImgUrl = await MenuBuilder.uploadProductImage(imageFile);
+        prod.image = newImgUrl;
+      }
+
       const res = await fetch(`/api/establishments/${est.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

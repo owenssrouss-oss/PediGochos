@@ -1280,6 +1280,12 @@ class KitchenController {
     this.specsGroups = prod.modifiers ? JSON.parse(JSON.stringify(prod.modifiers)) : [];
     this.renderSpecsGroups();
 
+    // Set product image preview & reset file upload input
+    const previewImg = document.getElementById('specs-product-image-preview');
+    if (previewImg) previewImg.src = prod.image || '/images/burger_royale.jpg';
+    const fileInput = document.getElementById('specs-product-image-file');
+    if (fileInput) fileInput.value = '';
+
     // Switch container view (embed specs inside floor plan grid slot)
     document.getElementById('floor-plan-grid-container').style.display = 'none';
     document.getElementById('floor-specs-editor-container').style.display = 'block';
@@ -1521,7 +1527,16 @@ class KitchenController {
 
     prod.modifiers = this.specsGroups;
 
+    const fileInput = document.getElementById('specs-product-image-file');
+    const imageFile = fileInput ? fileInput.files[0] : null;
+
     try {
+      if (imageFile && typeof MenuBuilder !== 'undefined') {
+        this.showLocalToast('Uploading image...');
+        const newImgUrl = await MenuBuilder.uploadProductImage(imageFile);
+        prod.image = newImgUrl;
+      }
+
       const res = await fetch(`/api/establishments/${est.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
