@@ -11,7 +11,7 @@ const DEFAULT_IMAGES = {
   comidas: '/images/burger_royale.jpg',
   farmacias: '/images/vitamina_c.jpg',
   mercados: '/images/pack_frutas.jpg',
-  ferreterias: '/images/destornilladores.jpg' // Falls back gracefully
+  ferreterias: '/images/pack_frutas.jpg' // Falls back gracefully
 };
 
 class MarketplaceController {
