@@ -212,7 +212,8 @@ async function saveToPostgres() {
       const deletedIds = cloudEsts.map(e => e.id).filter(id => !localIds.has(id));
       if (deletedIds.length > 0) {
         console.log('Deleting removed establishments from Postgres:', deletedIds);
-        const delUrl = `${process.env.SUPABASE_URL}/rest/v1/establishments?id=in.(${deletedIds.map(id => encodeURIComponent(id)).join(',')})`;
+        // Supabase PostgREST IN query format requires parameters to be formatted as in.("id1","id2") or in.(id1,id2) without single quotes, but strings with special characters or dashes should be wrapped in double quotes or formatted correctly
+        const delUrl = `${process.env.SUPABASE_URL}/rest/v1/establishments?id=in.(${deletedIds.map(id => `"${id}"`).join(',')})`;
         await fetch(delUrl, {
           method: 'DELETE',
           headers: {
@@ -267,7 +268,7 @@ async function saveToPostgres() {
       const deletedOrderIds = cloudOrds.map(o => o.id).filter(id => !localOrderIds.has(id));
       if (deletedOrderIds.length > 0) {
         console.log('Deleting removed orders from Postgres:', deletedOrderIds);
-        const delUrl = `${process.env.SUPABASE_URL}/rest/v1/orders?id=in.(${deletedOrderIds.map(id => encodeURIComponent(id)).join(',')})`;
+        const delUrl = `${process.env.SUPABASE_URL}/rest/v1/orders?id=in.(${deletedOrderIds.map(id => `"${id}"`).join(',')})`;
         await fetch(delUrl, {
           method: 'DELETE',
           headers: {
