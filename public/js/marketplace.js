@@ -554,12 +554,12 @@ class MarketplaceController {
 
     // Helper to initialize side quantities
     const initSide = (sideKey) => {
-      // 1. Initialize base ingredients to 1 (or 0 if it's an Arepa, forcing selection and price increase)
-      const isArepa = product.name.toLowerCase().includes('arepa');
+      // 1. Initialize base ingredients to 1 (or 0 if it's an Arepa or Helado, forcing selection and price increase)
+      const isSpecialZeroInit = product.name.toLowerCase().includes('arepa') || product.name.toLowerCase().includes('helado');
       if (product.exclusions) {
         product.exclusions.forEach(item => {
           const itemName = item.name || item;
-          this.customizerState.quantities[sideKey]['base_' + itemName] = isArepa ? 0 : 1;
+          this.customizerState.quantities[sideKey]['base_' + itemName] = isSpecialZeroInit ? 0 : 1;
         });
       }
 
@@ -732,7 +732,7 @@ class MarketplaceController {
       `;
       const list = groupDiv.querySelector('.modifier-options-list');
 
-      const isArepa = product.name.toLowerCase().includes('arepa');
+      const isSpecialZeroInit = product.name.toLowerCase().includes('arepa') || product.name.toLowerCase().includes('helado');
 
       product.exclusions.forEach(item => {
         const itemName = item.name || item;
@@ -743,7 +743,7 @@ class MarketplaceController {
         let stateClass = '';
         let extraText = '';
         
-        if (isArepa) {
+        if (isSpecialZeroInit) {
           if (qty > 0) {
             stateClass = 'ingredient-extra';
             // Use dynamic establishment base price configured by shop owner
@@ -762,7 +762,7 @@ class MarketplaceController {
         optionDiv.className = `modifier-option ${stateClass}`;
         
         let qtyControlsHTML = '';
-        if (isArepa) {
+        if (isSpecialZeroInit) {
           qtyControlsHTML = `
             <div class="option-label-container" onclick="MarketplaceApp.toggleBaseIngredientSelection('${itemName}', '${sideKey}')">
               <input type="checkbox" ${qty > 0 ? 'checked' : ''} style="margin: 0;">
@@ -960,14 +960,14 @@ class MarketplaceController {
     const sumForSide = (sideKey) => {
       let sideSum = 0;
       
-      // 1. Base Ingredients: if quantity > 1, charge custom price per extra portion (or charge custom price for all portions if it is an Arepa)
-      const isArepa = product.name.toLowerCase().includes('arepa');
+      // 1. Base Ingredients: if quantity > 1, charge custom price per extra portion (or charge custom price for all portions if it is an Arepa or Helado)
+      const isSpecialZeroInit = product.name.toLowerCase().includes('arepa') || product.name.toLowerCase().includes('helado');
       if (product.exclusions) {
         product.exclusions.forEach(item => {
           const itemName = item.name || item;
           const basePrice = item.price !== undefined ? item.price : 500;
           const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
-          if (isArepa) {
+          if (isSpecialZeroInit) {
             sideSum += qty * basePrice;
           } else {
             if (qty > 1) {
@@ -1081,13 +1081,13 @@ class MarketplaceController {
       const prefix = formatSidePrefix(sideKey);
       
       // 1. Base ingredients (exclusions and extras)
-      const isArepa = product.name.toLowerCase().includes('arepa');
+      const isSpecialZeroInit = product.name.toLowerCase().includes('arepa') || product.name.toLowerCase().includes('helado');
       if (product.exclusions) {
         product.exclusions.forEach(item => {
           const itemName = item.name || item;
           const basePrice = item.price !== undefined ? item.price : 500;
           const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
-          if (isArepa) {
+          if (isSpecialZeroInit) {
             if (qty > 0) {
               addOns.push({
                 name: prefix + `${itemName}`,
