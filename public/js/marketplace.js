@@ -661,7 +661,7 @@ class MarketplaceController {
       document.getElementById('col-a-header').classList.remove('hidden');
       document.getElementById('col-a-header').innerText = 'Mitad A';
       
-      this.renderUnifiedList(containerB, 'halfB', 'B');
+      this.renderUnifiedList(containerB, 'halfB', 'B', true);
     } else {
       document.getElementById('customizer-col-b').classList.add('hidden');
       document.getElementById('col-a-header').classList.add('hidden');
@@ -670,7 +670,7 @@ class MarketplaceController {
     this.updateCustomizerPrice();
   }
 
-  renderUnifiedList(container, sideKey, labelSuffix) {
+  renderUnifiedList(container, sideKey, labelSuffix, ignoreSize = false) {
     const product = this.customizerState.product;
     const sideLabel = labelSuffix ? ` (Mitad ${labelSuffix})` : '';
 
@@ -678,6 +678,10 @@ class MarketplaceController {
     if (product.modifiers) {
       product.modifiers.forEach(group => {
         if (group.selection_type === 'single') {
+          // If ignoreSize is true and this is a size group, skip rendering in Column B
+          if (ignoreSize && group.group_name.toLowerCase() === 'tamaño') {
+            return;
+          }
           const groupDiv = document.createElement('div');
           groupDiv.className = 'modifier-group';
           
@@ -878,9 +882,21 @@ class MarketplaceController {
     const product = this.customizerState.product;
     const group = product.modifiers.find(g => g.group_id === groupId);
     if (group) {
-      group.options.forEach(opt => {
-        this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (opt.option_id === optionId) ? 1 : 0;
-      });
+      const isPizza = product.category === 'Pizzas' || product.name.toLowerCase().includes('pizza');
+      const isSizeGroup = group.group_name.toLowerCase() === 'tamaño';
+
+      // If it is a pizza and we are modifying the size, sync it across all possible keys
+      if (isPizza && isSizeGroup) {
+        ['whole', 'halfA', 'halfB'].forEach(key => {
+          group.options.forEach(opt => {
+            this.customizerState.quantities[key]['opt_' + opt.option_id] = (opt.option_id === optionId) ? 1 : 0;
+          });
+        });
+      } else {
+        group.options.forEach(opt => {
+          this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (opt.option_id === optionId) ? 1 : 0;
+        });
+      }
     }
     this.renderCustomizerModifiers();
   }
