@@ -623,8 +623,11 @@ class MarketplaceController {
     const pizzaSection = document.getElementById('pizza-halves-section');
     if (isPizza) {
       pizzaSection.classList.remove('hidden');
-      document.getElementById('pizza-whole-btn').classList.add('active');
-      document.getElementById('pizza-halves-btn').classList.remove('active');
+      this.customizerState.pizzaMode = 'whole';
+      const wholeBtn = document.getElementById('pizza-whole-btn');
+      const halvesBtn = document.getElementById('pizza-halves-btn');
+      if (wholeBtn) wholeBtn.classList.add('active');
+      if (halvesBtn) halvesBtn.classList.remove('active');
     } else {
       pizzaSection.classList.add('hidden');
     }
@@ -686,10 +689,10 @@ class MarketplaceController {
               <span style="font-weight: 700;">${group.group_name}${sideLabel}</span>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span class="required-badge">Requerido</span>
-                <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px;">▼</span>
+                <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px; transform: rotate(-90deg);">▼</span>
               </div>
             </div>
-            <div class="modifier-options-list" id="${colId}"></div>
+            <div class="modifier-options-list collapsed" id="${colId}"></div>
           `;
           const list = groupDiv.querySelector('.modifier-options-list');
           
@@ -726,9 +729,9 @@ class MarketplaceController {
       groupDiv.innerHTML = `
         <div class="modifier-group-title" onclick="MarketplaceApp.toggleGroupCollapse('${colId}', this)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
           <span style="font-weight: 700;">Ingredientes Base (Quitar / Añadir)${sideLabel}</span>
-          <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px;">▼</span>
+          <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px; transform: rotate(-90deg);">▼</span>
         </div>
-        <div class="modifier-options-list" id="${colId}"></div>
+        <div class="modifier-options-list collapsed" id="${colId}"></div>
       `;
       const list = groupDiv.querySelector('.modifier-options-list');
 
@@ -811,9 +814,9 @@ class MarketplaceController {
           groupDiv.innerHTML = `
             <div class="modifier-group-title" onclick="MarketplaceApp.toggleGroupCollapse('${colId}', this)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
               <span style="font-weight: 700;">${group.group_name}${sideLabel}</span>
-              <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px;">▼</span>
+              <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px; transform: rotate(-90deg);">▼</span>
             </div>
-            <div class="modifier-options-list" id="${colId}"></div>
+            <div class="modifier-options-list collapsed" id="${colId}"></div>
           `;
           const list = groupDiv.querySelector('.modifier-options-list');
 
