@@ -804,6 +804,16 @@ class MarketplaceController {
 
     // Group 3: Optional Additional Ingredients
     if (product.modifiers) {
+      // Find selected size option id in Group 1 to determine if size is Small
+      let isSmallSizeSelected = false;
+      const sizeGroup = product.modifiers.find(g => g.group_name.toLowerCase() === 'tamaño');
+      if (sizeGroup) {
+        const selectedSizeOpt = sizeGroup.options.find(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
+        if (selectedSizeOpt && (selectedSizeOpt.name.toLowerCase().includes('pequeña') || selectedSizeOpt.name.toLowerCase().includes('personal') || selectedSizeOpt.name.toLowerCase().includes('pequeño'))) {
+          isSmallSizeSelected = true;
+        }
+      }
+
       product.modifiers.forEach(group => {
         if (group.selection_type === 'multiple') {
           const groupDiv = document.createElement('div');
@@ -821,6 +831,13 @@ class MarketplaceController {
           const list = groupDiv.querySelector('.modifier-options-list');
 
           group.options.forEach(opt => {
+            // Hide borders option if the size is Small
+            if (isSmallSizeSelected && opt.name.toLowerCase().includes('borde')) {
+              // Ensure if it was checked, it gets unchecked
+              this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = 0;
+              return;
+            }
+
             const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
             const extraPriceText = opt.extra_price > 0 ? `+ ${this.formatPesos(opt.extra_price)}` : '';
             
@@ -847,7 +864,11 @@ class MarketplaceController {
             `;
             list.appendChild(optionDiv);
           });
-          container.appendChild(groupDiv);
+          
+          // Only append the group if it has visible options left
+          if (list.children.length > 0) {
+            container.appendChild(groupDiv);
+          }
         }
       });
     }
