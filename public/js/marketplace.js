@@ -525,26 +525,13 @@ class MarketplaceController {
       item.product_id === product.id && 
       item.selected_specifications.single_selections.length === 0 &&
       item.selected_specifications.add_ons.length === 0 &&
-      item.selected_specifications.exclusions.length === 0
-    );
-
-    if (existing) {
-      existing.quantity += 1;
-      existing.subtotal_combined = existing.quantity * existing.unit_total_calculated;
-    } else {
-      this.cart.items.push(cartItem);
-    }
-
-    this.updateCartBadge();
-    this.showToast(`Agregado: ${product.name}`);
-    this.animateFlyToCart(window.event);
-  }
-
-  openCustomizerModal(product) {
+openCustomizerModal(product) {
     this.customizerState = {
       product: product,
       quantity: 1,
       pizzaMode: 'whole', // 'whole' or 'halves'
+      specialtyA: null, // Pizza product object selected for Mitad A
+      specialtyB: null, // Pizza product object selected for Mitad B
       quantities: {
         whole: {}, // { 'base_Cebolla': 1, 'opt_opt-id': 0 }
         halfA: {},
@@ -553,26 +540,26 @@ class MarketplaceController {
     };
 
     // Helper to initialize side quantities
-    const initSide = (sideKey) => {
-      // 1. Initialize base ingredients to 1 (or 0 if it's an Arepa or Helado, forcing selection and price increase)
-      const isSpecialZeroInit = product.name.toLowerCase().includes('arepa') || product.name.toLowerCase().includes('helado');
-      if (product.exclusions) {
-        product.exclusions.forEach(item => {
+    const initSide = (sideKey, targetProduct = product) => {
+      this.customizerState.quantities[sideKey] = {};
+      
+      // 1. Base ingredients to 1 (or 0 if it's an Arepa or Helado)
+      const isSpecialZeroInit = targetProduct.name.toLowerCase().includes('arepa') || targetProduct.name.toLowerCase().includes('helado');
+      if (targetProduct.exclusions) {
+        targetProduct.exclusions.forEach(item => {
           const itemName = item.name || item;
           this.customizerState.quantities[sideKey]['base_' + itemName] = isSpecialZeroInit ? 0 : 1;
         });
       }
 
       // 2. Initialize modifier options
-      if (product.modifiers) {
-        product.modifiers.forEach(group => {
+      if (targetProduct.modifiers) {
+        targetProduct.modifiers.forEach(group => {
           if (group.selection_type === 'single') {
-            // Find first option, set to 1, others to 0
             group.options.forEach((opt, idx) => {
               this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (idx === 0) ? 1 : 0;
             });
           } else {
-            // Multiple selections start at 0
             group.options.forEach(opt => {
               this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = 0;
             });
@@ -582,8 +569,6 @@ class MarketplaceController {
     };
 
     initSide('whole');
-    initSide('halfA');
-    initSide('halfB');
 
     // UI setup
     document.getElementById('customizer-product-name').innerText = product.name;
@@ -672,11 +657,61 @@ class MarketplaceController {
 
   renderUnifiedList(container, sideKey, labelSuffix, ignoreSize = false) {
     const product = this.customizerState.product;
+    const isHalves = this.customizerState.pizzaMode === 'halves';
     const sideLabel = labelSuffix ? ` (Mitad ${labelSuffix})` : '';
 
+     // If halves mode, check selected specialty for this side
+    let activeProduct = product;
+    if (isHalves) {
+      const isPizzaEst = this.selectedEstablishment && this.selectedEstablishment.description && this.selectedEstablishment.description.toLowerCase().includes('pizza');
+      const isPizzaCat = isPizzaEst || product.category === 'Pizzas' || (product.name && product.name.toLowerCase().includes('pizza'));
+      if (isPizzaCat) {
+        // Render specialty selector dropdown at the top
+        const specDiv = document.createElement('div');
+        specDiv.className = 'modifier-group';
+        
+        const pizzaProducts = this.selectedEstablishment.products.filter(p => 
+          p.category === 'Pizzas' || 
+          (p.name && p.name.toLowerCase().includes('pizza')) ||
+          isPizzaEst
+        );
+        const currentSpec = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
+        
+        let optionsHTML = '<option value="">-- Elige un sabor --</option>';
+        pizzaProducts.forEach(p => {
+          optionsHTML += `<option value="${p.id}" ${currentSpec && currentSpec.id === p.id ? 'selected' : ''}>${p.name} (${this.formatPesos(p.price)})</option>`;
+        });
+
+        specDiv.innerHTML = `
+          <label style="font-weight: 700; display: block; margin-bottom: 8px;">Especialidad / Sabor${sideLabel}</label>
+          <select class="customizer-specialty-select" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc; background: var(--surface); color: var(--text);" onchange="MarketplaceApp.selectHalvesSpecialty('${sideKey}', this.value)">
+            ${optionsHTML}
+          </select>
+        `;
+        container.appendChild(specDiv);
+
+        if (sideKey === 'halfA') {
+          activeProduct = this.customizerState.specialtyA;
+        } else {
+          activeProduct = this.customizerState.specialtyB;
+        }
+      }
+    }
+
+    // If no active product chosen for this half side, do not render exclusions and modifiers
+    if (!activeProduct) {
+      const msgDiv = document.createElement('div');
+      msgDiv.style.padding = '12px';
+      msgDiv.style.textAlign = 'center';
+      msgDiv.style.color = '#777';
+      msgDiv.innerText = 'Selecciona una especialidad para ver los ingredientes.';
+      container.appendChild(msgDiv);
+      return;
+    }
+
     // Group 1: Required / Single Selections (like bread type)
-    if (product.modifiers) {
-      product.modifiers.forEach(group => {
+    if (activeProduct.modifiers) {
+      activeProduct.modifiers.forEach(group => {
         if (group.selection_type === 'single') {
           // If ignoreSize is true and this is a size group, skip rendering in Column B
           if (ignoreSize && group.group_name.toLowerCase() === 'tamaño') {
@@ -724,7 +759,7 @@ class MarketplaceController {
     }
 
     // Group 2: Base Ingredients (excluyibles/additions to customizer)
-    if (product.exclusions && product.exclusions.length > 0) {
+    if (activeProduct.exclusions && activeProduct.exclusions.length > 0) {
       const groupDiv = document.createElement('div');
       groupDiv.className = 'modifier-group';
       
@@ -739,9 +774,9 @@ class MarketplaceController {
       `;
       const list = groupDiv.querySelector('.modifier-options-list');
 
-      const isSpecialZeroInit = product.name.toLowerCase().includes('arepa') || product.name.toLowerCase().includes('helado');
+      const isSpecialZeroInit = activeProduct.name.toLowerCase().includes('arepa') || activeProduct.name.toLowerCase().includes('helado');
 
-      product.exclusions.forEach(item => {
+      activeProduct.exclusions.forEach(item => {
         const itemName = item.name || item;
         const basePrice = item.price !== undefined ? item.price : 500;
         const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
@@ -807,10 +842,10 @@ class MarketplaceController {
     }
 
     // Group 3: Optional Additional Ingredients
-    if (product.modifiers) {
+    if (activeProduct.modifiers) {
       // Find selected size option id in Group 1 to determine if size is Small
       let isSmallSizeSelected = false;
-      const sizeGroup = product.modifiers.find(g => g.group_name.toLowerCase() === 'tamaño');
+      const sizeGroup = activeProduct.modifiers.find(g => g.group_name.toLowerCase() === 'tamaño');
       if (sizeGroup) {
         const selectedSizeOpt = sizeGroup.options.find(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
         if (selectedSizeOpt && (selectedSizeOpt.name.toLowerCase().includes('pequeña') || selectedSizeOpt.name.toLowerCase().includes('personal') || selectedSizeOpt.name.toLowerCase().includes('pequeño'))) {
@@ -818,7 +853,7 @@ class MarketplaceController {
         }
       }
 
-      product.modifiers.forEach(group => {
+      activeProduct.modifiers.forEach(group => {
         if (group.selection_type === 'multiple') {
           const groupDiv = document.createElement('div');
           groupDiv.className = 'modifier-group';
@@ -878,19 +913,107 @@ class MarketplaceController {
     }
   }
 
+  selectHalvesSpecialty(sideKey, productId) {
+    const selectedProduct = this.selectedEstablishment.products.find(p => p.id === productId);
+    
+    let previousSizeOptId = null;
+    const currentSpecialty = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
+    if (currentSpecialty && currentSpecialty.modifiers) {
+      const sizeGroup = currentSpecialty.modifiers.find(g => g.group_name.toLowerCase() === 'tamaño');
+      if (sizeGroup) {
+        const found = sizeGroup.options.find(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
+        if (found) previousSizeOptId = found.option_id;
+      }
+    }
+
+    if (sideKey === 'halfA') {
+      this.customizerState.specialtyA = selectedProduct || null;
+    } else {
+      this.customizerState.specialtyB = selectedProduct || null;
+    }
+
+    if (selectedProduct) {
+      if (selectedProduct.exclusions) {
+        selectedProduct.exclusions.forEach(item => {
+          const itemName = item.name || item;
+          this.customizerState.quantities[sideKey]['base_' + itemName] = 1;
+        });
+      }
+
+      if (selectedProduct.modifiers) {
+        selectedProduct.modifiers.forEach(group => {
+          if (group.selection_type === 'single') {
+            const isSizeGroup = group.group_name.toLowerCase() === 'tamaño';
+            group.options.forEach((opt, idx) => {
+              if (isSizeGroup && previousSizeOptId) {
+                this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (opt.option_id === previousSizeOptId) ? 1 : 0;
+              } else {
+                this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (idx === 0) ? 1 : 0;
+              }
+            });
+          } else {
+            group.options.forEach(opt => {
+              this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = 0;
+            });
+          }
+        });
+      }
+
+      const sizeGroup = selectedProduct.modifiers ? selectedProduct.modifiers.find(g => g.group_name.toLowerCase() === 'tamaño') : null;
+      if (sizeGroup) {
+        const selectedSizeOpt = sizeGroup.options.find(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
+        if (selectedSizeOpt) {
+          const otherSideKey = sideKey === 'halfA' ? 'halfB' : 'halfA';
+          const otherSpecialty = otherSideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
+          if (otherSpecialty && otherSpecialty.modifiers) {
+            const otherSizeGroup = otherSpecialty.modifiers.find(g => g.group_name.toLowerCase() === 'tamaño');
+            if (otherSizeGroup) {
+              const sameNameOpt = otherSizeGroup.options.find(opt => opt.name.toLowerCase() === selectedSizeOpt.name.toLowerCase());
+              const targetOptId = sameNameOpt ? sameNameOpt.option_id : otherSizeGroup.options[0].option_id;
+              otherSizeGroup.options.forEach(opt => {
+                this.customizerState.quantities[otherSideKey]['opt_' + opt.option_id] = (opt.option_id === targetOptId) ? 1 : 0;
+              });
+            }
+          }
+        }
+      }
+    } else {
+      this.customizerState.quantities[sideKey] = {};
+    }
+
+    this.renderCustomizerModifiers();
+  }
+
   setSingleSelection(groupId, optionId, sideKey) {
-    const product = this.customizerState.product;
+    const isHalves = this.customizerState.pizzaMode === 'halves';
+    let product = this.customizerState.product;
+    if (isHalves) {
+      product = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
+    }
+    if (!product) return;
+
     const group = product.modifiers.find(g => g.group_id === groupId);
     if (group) {
       const isPizza = product.category === 'Pizzas' || product.name.toLowerCase().includes('pizza');
       const isSizeGroup = group.group_name.toLowerCase() === 'tamaño';
 
-      // If it is a pizza and we are modifying the size, sync it across all possible keys
       if (isPizza && isSizeGroup) {
         ['whole', 'halfA', 'halfB'].forEach(key => {
-          group.options.forEach(opt => {
-            this.customizerState.quantities[key]['opt_' + opt.option_id] = (opt.option_id === optionId) ? 1 : 0;
-          });
+          let currentProduct = this.customizerState.product;
+          if (isHalves) {
+            currentProduct = key === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
+          }
+          if (!currentProduct || !currentProduct.modifiers) return;
+          const targetGroup = currentProduct.modifiers.find(g => g.group_name.toLowerCase() === 'tamaño');
+          if (targetGroup) {
+            const origOpt = group.options.find(o => o.option_id === optionId);
+            if (origOpt) {
+              const matchedOpt = targetGroup.options.find(o => o.name.toLowerCase() === origOpt.name.toLowerCase());
+              targetGroup.options.forEach(opt => {
+                this.customizerState.quantities[key]['opt_' + opt.option_id] = (matchedOpt && opt.option_id === matchedOpt.option_id) ? 1 : 0;
+              });
+            }
+          }
         });
       } else {
         group.options.forEach(opt => {
@@ -933,14 +1056,18 @@ class MarketplaceController {
       wholeBtn.classList.add('active');
       halvesBtn.classList.remove('active');
       
+      this.customizerState.specialtyA = null;
+      this.customizerState.specialtyB = null;
       this.customizerState.quantities.halfA = {};
       this.customizerState.quantities.halfB = {};
     } else {
       wholeBtn.classList.remove('active');
       halvesBtn.classList.add('active');
       
-      this.customizerState.quantities.halfA = JSON.parse(JSON.stringify(this.customizerState.quantities.whole));
-      this.customizerState.quantities.halfB = JSON.parse(JSON.stringify(this.customizerState.quantities.whole));
+      this.customizerState.specialtyA = null;
+      this.customizerState.specialtyB = null;
+      this.customizerState.quantities.halfA = {};
+      this.customizerState.quantities.halfB = {};
     }
     
     this.renderCustomizerModifiers();
@@ -948,19 +1075,28 @@ class MarketplaceController {
 
   validateRequiredModifiers() {
     const product = this.customizerState.product;
-    if (!product.modifiers) return true;
-    
     const isHalves = this.customizerState.pizzaMode === 'halves';
+    
+    if (isHalves) {
+      if (!this.customizerState.specialtyA || !this.customizerState.specialtyB) {
+        return false;
+      }
+    }
+
     let allValid = true;
     
-    // Check if name is like "Arepas Rellenas X Contornos"
     const contornosMatch = product.name.match(/(\d+)\s+Contornos/i);
     const maxContornosAllowed = contornosMatch ? parseInt(contornosMatch[1], 10) : null;
     
     const checkSide = (sideKey) => {
+      let currentProduct = product;
+      if (isHalves) {
+        currentProduct = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
+      }
+      if (!currentProduct || !currentProduct.modifiers) return;
+
       let selectedContornosCount = 0;
-      product.modifiers.forEach(group => {
-        // Count total selected options in multiple modifier groups (adicionales/contornos)
+      currentProduct.modifiers.forEach(group => {
         if (group.selection_type === 'multiple') {
           group.options.forEach(opt => {
             const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
@@ -976,8 +1112,6 @@ class MarketplaceController {
         }
       });
       
-      // If product name specifies exactly X Contornos (e.g. 'Arepas Rellenas 2 Contornos')
-      // then the customer MUST select exactly that amount of contornos/adicionales.
       if (maxContornosAllowed !== null && selectedContornosCount !== maxContornosAllowed) {
         allValid = false;
       }
@@ -999,11 +1133,15 @@ class MarketplaceController {
     
     const sumForSide = (sideKey) => {
       let sideSum = 0;
+      let activeProduct = product;
+      if (isHalves) {
+        activeProduct = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
+      }
+      if (!activeProduct) return 0;
       
-      // 1. Base Ingredients: if quantity > 1, charge custom price per extra portion (or charge custom price for all portions if it is an Arepa or Helado)
-      const isSpecialZeroInit = product.name.toLowerCase().includes('arepa') || product.name.toLowerCase().includes('helado');
-      if (product.exclusions) {
-        product.exclusions.forEach(item => {
+      const isSpecialZeroInit = activeProduct.name.toLowerCase().includes('arepa') || activeProduct.name.toLowerCase().includes('helado');
+      if (activeProduct.exclusions) {
+        activeProduct.exclusions.forEach(item => {
           const itemName = item.name || item;
           const basePrice = item.price !== undefined ? item.price : 500;
           const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
@@ -1017,9 +1155,8 @@ class MarketplaceController {
         });
       }
       
-      // 2. Modifiers
-      if (product.modifiers) {
-        product.modifiers.forEach(group => {
+      if (activeProduct.modifiers) {
+        activeProduct.modifiers.forEach(group => {
           group.options.forEach(opt => {
             const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
             if (qty > 0) {
@@ -1040,7 +1177,13 @@ class MarketplaceController {
   }
 
   updateCustomizerPrice() {
-    const basePrice = this.customizerState.product.price;
+    const isHalves = this.customizerState.pizzaMode === 'halves';
+    let basePrice = this.customizerState.product.price;
+    if (isHalves) {
+      const priceA = this.customizerState.specialtyA ? this.customizerState.specialtyA.price : 0;
+      const priceB = this.customizerState.specialtyB ? this.customizerState.specialtyB.price : 0;
+      basePrice = (priceA + priceB) / 2;
+    }
     const extrasTotal = this.calculateExtrasTotal();
     const qty = this.customizerState.quantity;
     
@@ -1054,15 +1197,14 @@ class MarketplaceController {
     
     const allValid = this.validateRequiredModifiers();
     
-    // Check if name is like "Arepas Rellenas X Contornos" to show feedback
     const contornosMatch = this.customizerState.product.name.match(/(\d+)\s+Contornos/i);
     const maxContornosAllowed = contornosMatch ? parseInt(contornosMatch[1], 10) : null;
     
-    // Count selected contornos on current side
-    const sideKey = this.customizerState.pizzaMode === 'halves' ? 'halfA' : 'whole';
+    const sideKey = isHalves ? 'halfA' : 'whole';
     let selectedContornosCount = 0;
-    if (this.customizerState.product.modifiers) {
-      this.customizerState.product.modifiers.forEach(group => {
+    const activeProduct = isHalves ? this.customizerState.specialtyA : this.customizerState.product;
+    if (activeProduct && activeProduct.modifiers) {
+      activeProduct.modifiers.forEach(group => {
         if (group.selection_type === 'multiple') {
           group.options.forEach(opt => {
             const selectedQty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
@@ -1119,11 +1261,23 @@ class MarketplaceController {
 
     const processSide = (sideKey) => {
       const prefix = formatSidePrefix(sideKey);
+      let activeProduct = product;
+      if (isHalves) {
+        activeProduct = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
+      }
+      if (!activeProduct) return;
+
+      if (isHalves) {
+        singleSelections.push({
+          group_name: prefix + 'Sabor',
+          chosen_option: activeProduct.name
+        });
+      }
       
       // 1. Base ingredients (exclusions and extras)
-      const isSpecialZeroInit = product.name.toLowerCase().includes('arepa') || product.name.toLowerCase().includes('helado');
-      if (product.exclusions) {
-        product.exclusions.forEach(item => {
+      const isSpecialZeroInit = activeProduct.name.toLowerCase().includes('arepa') || activeProduct.name.toLowerCase().includes('helado');
+      if (activeProduct.exclusions) {
+        activeProduct.exclusions.forEach(item => {
           const itemName = item.name || item;
           const basePrice = item.price !== undefined ? item.price : 500;
           const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
@@ -1150,8 +1304,8 @@ class MarketplaceController {
       }
 
       // 2. Modifiers
-      if (product.modifiers) {
-        product.modifiers.forEach(group => {
+      if (activeProduct.modifiers) {
+        activeProduct.modifiers.forEach(group => {
           group.options.forEach(opt => {
             const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
             if (qty > 0) {
@@ -1181,7 +1335,12 @@ class MarketplaceController {
     }
     
     const specialNotes = document.getElementById('customizer-special-notes').value.trim();
-    const basePrice = product.price;
+    let basePrice = product.price;
+    if (isHalves) {
+      const priceA = this.customizerState.specialtyA ? this.customizerState.specialtyA.price : 0;
+      const priceB = this.customizerState.specialtyB ? this.customizerState.specialtyB.price : 0;
+      basePrice = (priceA + priceB) / 2;
+    }
     const extrasTotal = this.calculateExtrasTotal();
     const unitTotalCalculated = basePrice + extrasTotal;
     const qty = this.customizerState.quantity;
@@ -1189,10 +1348,15 @@ class MarketplaceController {
     
     const cartItemId = 'item-' + Date.now() + '-' + Math.floor(Math.random() * 100000);
     
+    let itemName = product.name;
+    if (isHalves) {
+      itemName = `${product.name} (Mitades: ${this.customizerState.specialtyA ? this.customizerState.specialtyA.name : 'N/A'} / ${this.customizerState.specialtyB ? this.customizerState.specialtyB.name : 'N/A'})`;
+    }
+
     const cartItem = {
       cart_item_id: cartItemId,
       product_id: product.id,
-      product_name: product.name,
+      product_name: itemName,
       restaurant_id: this.selectedEstablishment.id,
       restaurant_name: this.selectedEstablishment.name,
       delivery_fee: this.selectedEstablishment.delivery_fee || 0,
@@ -1417,21 +1581,33 @@ class MarketplaceController {
       `;
       container.appendChild(row);
     });
-
     let totalDeliveryFee = 0;
     if (this.orderType === 'delivery') {
       shopIds.forEach(id => {
+        const shopItems = this.cart.items.filter(item => item.restaurant_id === id);
+        const shopSubtotal = shopItems.reduce((sum, item) => sum + item.subtotal_combined, 0);
+
         // If a distance was calculated on the map, use the custom formula per shop, otherwise default to establishment base fee
         if (this.calculatedDistanceKm !== null && this.calculatedDistanceKm !== undefined) {
           const calculatedFee = this.calculatedDistanceKm * 3750;
           // Apply $4.000 minimum COP rule
-          const finalFee = Math.max(4000, Math.round(calculatedFee));
+          let finalFee = Math.max(4000, Math.round(calculatedFee));
           
+          // Currency scale adjustment: if subtotal is in USD/small units (< 1000) and calculated fee is in COP (>= 1000)
+          if (shopSubtotal < 1000) {
+            finalFee = finalFee / 4000;
+          }
+
           // Sync fee to the uniqueShops details
           uniqueShops[id].delivery_fee = finalFee;
           totalDeliveryFee += finalFee;
         } else {
-          totalDeliveryFee += uniqueShops[id].delivery_fee;
+          let baseFee = uniqueShops[id].delivery_fee;
+          if (shopSubtotal < 1000 && baseFee >= 1000) {
+            baseFee = baseFee / 4000;
+          }
+          uniqueShops[id].delivery_fee = baseFee;
+          totalDeliveryFee += baseFee;
         }
       });
     }
@@ -1565,12 +1741,26 @@ class MarketplaceController {
     const shopIds = Object.keys(groupedItems);
     
     try {
-      // Send a separate request for each merchant
       const promises = shopIds.map(async (shopId) => {
         const shop = groupedItems[shopId];
         const shopSubtotal = shop.items.reduce((sum, item) => sum + item.subtotal_combined, 0);
-        const shopDeliveryCost = this.orderType === 'delivery' ? shop.delivery_fee : 0;
-        
+        let shopDeliveryCost = 0;
+        if (this.orderType === 'delivery') {
+          if (this.calculatedDistanceKm !== null && this.calculatedDistanceKm !== undefined) {
+            const calculatedFee = this.calculatedDistanceKm * 3750;
+            let finalFee = Math.max(4000, Math.round(calculatedFee));
+            if (shopSubtotal < 1000) {
+              finalFee = finalFee / 4000;
+            }
+            shopDeliveryCost = finalFee;
+          } else {
+            let baseFee = shop.delivery_fee;
+            if (shopSubtotal < 1000 && baseFee >= 1000) {
+              baseFee = baseFee / 4000;
+            }
+            shopDeliveryCost = baseFee;
+          }
+        }
         // Generate random 4-digit security code for delivery
         const randomCode = this.orderType === 'delivery' ? Math.floor(1000 + Math.random() * 9000).toString() : null;
         

@@ -1221,6 +1221,12 @@ class AdminController {
     document.getElementById('specs-modal-title').innerText = `⚙️ Especificaciones: ${prod.name}`;
     document.getElementById('specs-product-id').value = productId;
 
+    // Load general product details
+    document.getElementById('specs-product-name').value = prod.name || '';
+    document.getElementById('specs-product-category').value = prod.category || '';
+    document.getElementById('specs-product-price').value = prod.price !== undefined ? prod.price : '';
+    document.getElementById('specs-product-description').value = prod.description || '';
+
     // Load exclusions / ingredients
     this.specsIngredients = prod.exclusions ? prod.exclusions.map(e => ({
       name: e.name,
@@ -1468,7 +1474,13 @@ class AdminController {
     const prod = est.products.find(p => p.id === this.activeSpecsProductId);
     if (!prod) return;
 
-    // Filter exclusions
+    // 1. Update general details
+    prod.name = document.getElementById('specs-product-name').value.trim();
+    prod.category = document.getElementById('specs-product-category').value.trim();
+    prod.price = parseFloat(document.getElementById('specs-product-price').value) || 0;
+    prod.description = document.getElementById('specs-product-description').value.trim();
+
+    // 2. Prepare exclusions
     prod.exclusions = this.specsIngredients.map((item, i) => {
       const ingName = typeof item === 'string' ? item : item.name;
       const ingPrice = typeof item === 'string' ? 500 : (item.price !== undefined ? item.price : 500);
@@ -1479,8 +1491,53 @@ class AdminController {
       };
     });
 
-    // Save modifiers groups
+    // 3. Save modifiers groups
     prod.modifiers = this.specsGroups;
+
+    // 4. Create pricing map for exclusions and modifiers
+    const priceMap = {};
+    prod.exclusions.forEach(item => {
+      const key = item.name.trim().toLowerCase();
+      if (key) priceMap[key] = item.price;
+    });
+    prod.modifiers.forEach(group => {
+      if (group.options) {
+        group.options.forEach(opt => {
+          const key = opt.name.trim().toLowerCase();
+          if (key) priceMap[key] = opt.price;
+        });
+      }
+    });
+
+    // 5. Propagate pricing changes to all other products in the establishment
+    est.products.forEach(p => {
+      // Exclusions
+      if (p.exclusions) {
+        p.exclusions = p.exclusions.map(ex => {
+          let exName = typeof ex === 'string' ? ex : (ex.name || '');
+          let exPrice = typeof ex === 'string' ? 500 : (ex.price !== undefined ? ex.price : 500);
+          const key = exName.trim().toLowerCase();
+          if (priceMap[key] !== undefined) {
+            exPrice = priceMap[key];
+          }
+          return { id: ex.id || `ex-${Math.random()}`, name: exName, price: exPrice };
+        });
+      }
+      // Modifiers
+      if (p.modifiers) {
+        p.modifiers.forEach(group => {
+          if (group.options) {
+            group.options.forEach(opt => {
+              const key = opt.name.trim().toLowerCase();
+              if (priceMap[key] !== undefined) {
+                opt.price = priceMap[key];
+                opt.extra_price = priceMap[key];
+              }
+            });
+          }
+        });
+      }
+    });
 
     const fileInput = document.getElementById('specs-product-image-file');
     const imageFile = fileInput ? fileInput.files[0] : null;

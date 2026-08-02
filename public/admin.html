@@ -552,6 +552,31 @@
             <form id="product-specs-form" onsubmit="handleSpecsSubmit(event)">
               <input type="hidden" id="specs-product-id">
 
+              <!-- Edit Name, Category, Price & Description Section -->
+              <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px; display: flex; flex-direction: column; gap: 12px;">
+                <h4 style="color: var(--accent); margin: 0 0 4px 0; font-size: 13px; font-weight: 700;">✏️ Información General del Plato</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <div>
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Nombre del Plato *</label>
+                    <input type="text" id="specs-product-name" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
+                  </div>
+                  <div>
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Categoría *</label>
+                    <input type="text" id="specs-product-category" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;" placeholder="Ej. Pizzas, Arepas, Bebidas">
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <div>
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Precio Base *</label>
+                    <input type="number" step="any" id="specs-product-price" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
+                  </div>
+                  <div>
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Descripción</label>
+                    <input type="text" id="specs-product-description" style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
+                  </div>
+                </div>
+              </div>
+
               <!-- Edit Product Image Section -->
               <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px; display: flex; align-items: center; gap: 16px;">
                 <div style="width: 70px; height: 70px; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
