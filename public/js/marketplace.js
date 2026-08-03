@@ -520,12 +520,25 @@ class MarketplaceController {
       product: product
     };
 
-    // Check if an identical item (no modifiers) is already in the cart
     const existing = this.cart.items.find(item => 
       item.product_id === product.id && 
       item.selected_specifications.single_selections.length === 0 &&
       item.selected_specifications.add_ons.length === 0 &&
-openCustomizerModal(product) {
+      item.selected_specifications.exclusions.length === 0
+    );
+
+    if (existing) {
+      existing.quantity += 1;
+      existing.subtotal_combined = existing.quantity * existing.unit_total_calculated;
+    } else {
+      this.cart.items.push(cartItem);
+    }
+
+    this.updateCartBadge();
+    this.showToast(`Agregado: ${product.name}`);
+  }
+
+  openCustomizerModal(product) {
     this.customizerState = {
       product: product,
       quantity: 1,
