@@ -1,5 +1,5 @@
 // Service worker to make Cocina Rapi Gochos KDS PWA Installable
-const CACHE_NAME = 'pedigochos-v40';
+const CACHE_NAME = 'pedigochos-v41';
 const ASSETS = [
   '/kitchen.html',
   '/css/common.css',

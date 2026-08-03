@@ -1717,6 +1717,7 @@ class MarketplaceController {
     let tableNumber = null;
     let phone = null;
     let address = null;
+    let housePhotoUrl = '';
 
     if (this.orderType === 'mesa') {
       tableNumber = document.getElementById('order-table-number').value.trim();
@@ -1733,6 +1734,22 @@ class MarketplaceController {
       }
       if (this.selectedLatitude === null || this.selectedLongitude === null) {
         alert('Por favor, selecciona tu ubicación en el mapa haciendo clic en "🗺️ Seleccionar en Mapa" para calcular tu domicilio.');
+        return;
+      }
+      
+      const photoInput = document.getElementById('order-house-photo');
+      const photoFile = photoInput ? photoInput.files[0] : null;
+      if (!photoFile) {
+        alert('Por favor, sube una foto de la fachada de tu casa para completar el pedido.');
+        return;
+      }
+      
+      this.showToast('Subiendo foto de la fachada...');
+      try {
+        housePhotoUrl = await MenuBuilder.uploadProductImage(photoFile);
+      } catch (err) {
+        console.error(err);
+        alert('Error al subir la foto de tu casa. Por favor intenta de nuevo.');
         return;
       }
     }
@@ -1800,7 +1817,8 @@ class MarketplaceController {
             code: randomCode,
             latitude: this.selectedLatitude,
             longitude: this.selectedLongitude,
-            distanceKm: this.calculatedDistanceKm
+            distanceKm: this.calculatedDistanceKm,
+            housePhoto: housePhotoUrl
           } : null
         };
 

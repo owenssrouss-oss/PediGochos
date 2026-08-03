@@ -787,12 +787,25 @@ class KitchenController {
     const clientAddress = order.deliveryDetails.address || 'N/A';
     const securityCode = order.deliveryDetails.code || 'N/A';
     const totalAmount = Math.round(order.total).toLocaleString('de-DE');
+    const housePhotoUrl = order.deliveryDetails.housePhoto || 'No provista';
+
+    // Format products list
+    let itemsText = '';
+    if (order.items && order.items.length > 0) {
+      order.items.forEach(it => {
+        itemsText += `\n- ${it.quantity}x ${it.name} ${it.specifications ? `(${it.specifications})` : ''}`;
+      });
+    } else {
+      itemsText = '\n- (Sin detalles de platos)';
+    }
 
     const messageText = `🚴 *Rapi Gochos - Nuevo Servicio Solicitado*
 *Establecimiento:* ${storeName}
 *Cliente:* ${clientName}
 *Teléfono:* ${clientPhone}
 *Dirección:* ${clientAddress}
+*Pedido:* ${itemsText}
+*Foto de Fachada:* ${housePhotoUrl}
 *Código de Entrega:* ${securityCode}
 *Total a Cobrar:* $${totalAmount}`;
 
