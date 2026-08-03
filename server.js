@@ -561,6 +561,9 @@ app.put('/api/establishments/:id', (req, res) => {
   if (products) {
     est.products = products;
   }
+  if (isOwner && linkKey) {
+    est.linkKey = linkKey;
+  }
   if (name) {
     est.name = name;
   }

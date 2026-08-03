@@ -229,7 +229,9 @@ class AdminController {
         <td><span class="shop-category-cell">${est.category}</span></td>
         <td style="font-weight: 600;">${ordersCount}</td>
         <td style="font-weight: 700; color: var(--primary);">${this.formatPesos(totalRevenue)}</td>
-        <td class="shop-key-cell" style="font-family: monospace; font-size: 13px; font-weight: 700;">${est.linkKey}</td>
+        <td class="shop-key-cell" style="font-family: monospace; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--primary);" onclick="event.stopPropagation(); AdminApp.changeLinkKey('${est.id}', '${est.linkKey}')">
+          🔑 ${est.linkKey}
+        </td>
         <td style="text-align: center;">
           <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.deleteEstablishment('${est.id}', '${est.name}')" style="background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; font-size: 12px; padding: 6px 12px; border-radius: var(--radius-sm); font-weight: 700; margin: 0; width: auto; display: inline-block; cursor: pointer;">
             🗑️ Eliminar
@@ -968,6 +970,45 @@ class AdminController {
     } catch (err) {
       console.error(err);
       alert('Error de red al eliminar el establecimiento.');
+    }
+  }
+
+  async changeLinkKey(estId, currentKey) {
+    const code = prompt('Para cambiar la clave de vinculación, ingresa el código de confirmación de 4 dígitos (0424):');
+    if (code === null) return;
+    if (code !== '0424') {
+      alert('❌ Código de confirmación incorrecto. Operación denegada.');
+      return;
+    }
+
+    const newKey = prompt('Ingresa la nueva clave de vinculación (debe tener entre 4 y 10 caracteres):', currentKey);
+    if (!newKey) return;
+    const cleanKey = newKey.trim().toUpperCase();
+    if (cleanKey.length < 4) {
+      alert('❌ La clave debe tener al menos 4 caracteres.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/establishments/${estId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          linkKey: cleanKey
+        })
+      });
+
+      if (res.ok) {
+        alert('🔑 Clave de vinculación actualizada con éxito.');
+        await this.reloadData();
+        await this.triggerCloudBackup();
+      } else {
+        alert('Error al actualizar la clave de vinculación.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de red al actualizar la clave.');
     }
   }
 

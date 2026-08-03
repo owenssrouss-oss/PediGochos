@@ -1,39 +1,6 @@
 {
   "establishments": [
     {
-      "id": "llano-jjorge-burguer-1783668347206",
-      "name": "Jorge's Hawaian Burguer",
-      "category": "comidas",
-      "description": "Especialistas en hamburguesas hawaianas y sabores tropicales únicos.",
-      "logo": "🍕",
-      "bannerType": "gradient",
-      "banner": "linear-gradient(135deg, #FF8C00, #FF4500)",
-      "linkKey": "X92K51",
-      "delivery_fee": 0,
-      "themeColor": null,
-      "logoImage": null,
-      "tables": [],
-      "layout": [],
-      "products": [
-        {
-          "id": "p-1783668347203-0",
-          "name": "Hamburguesa Hawaiana Especial",
-          "image": "/images/burger_royale.jpg",
-          "price": 10500,
-          "exclusions": [
-            "Jamón",
-            "Piña",
-            "Lechuga"
-          ],
-          "description": "Carne de res seleccionada (150g), queso mozzarella fundido, jamón ahumado, rodaja de piña caramelizada, lechuga fresca y salsa de piña en pan de ajonjolí."
-        }
-      ],
-      "prep_time": null,
-      "delivery_time": null,
-      "created_at": "2026-07-17T05:41:11.979533+00:00",
-      "location": "San Antonio"
-    },
-    {
       "id": "sabor-venezolano-arepas-1784413922154",
       "name": "Sabor Venezolano arepas",
       "category": "comidas",
