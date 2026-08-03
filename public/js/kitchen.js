@@ -47,6 +47,7 @@ class KitchenController {
           if (activeName) activeName.innerText = est.name || '';
           
           this.connectWS(est.linkKey || localStorage.getItem('admin_key_' + estId));
+          this.checkTermsRequirements();
         } else {
           console.warn('Asociado a comercio inexistente:', estId);
         }
@@ -84,6 +85,7 @@ class KitchenController {
         
         document.getElementById('no-shop-overlay').classList.add('hidden');
         this.connectWS(savedKey);
+        this.checkTermsRequirements();
       }
     }
   }
@@ -161,6 +163,7 @@ class KitchenController {
         await this.loadEstablishments();
         
         this.connectWS(keyInput);
+        this.checkTermsRequirements();
       } else {
         errorMsg.innerText = data.error || 'Clave incorrecta. Inténtalo de nuevo.';
         errorMsg.classList.remove('hidden');
@@ -2108,6 +2111,20 @@ class KitchenController {
       submitBtn.disabled = false;
       submitBtn.innerHTML = `<span>Guardar Cambios</span>`;
     }
+  }
+
+  checkTermsRequirements() {
+    if (!this.selectedId) return;
+    const accepted = localStorage.getItem('kds_accepted_terms_' + this.selectedId);
+    if (!accepted) {
+      document.getElementById('terms-requirements-modal').style.display = 'flex';
+    }
+  }
+
+  acceptTermsAndRequirements() {
+    if (!this.selectedId) return;
+    localStorage.setItem('kds_accepted_terms_' + this.selectedId, 'true');
+    document.getElementById('terms-requirements-modal').style.display = 'none';
   }
 }
 
