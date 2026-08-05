@@ -525,7 +525,22 @@ class MarketplaceController {
       item.product_id === product.id && 
       item.selected_specifications.single_selections.length === 0 &&
       item.selected_specifications.add_ons.length === 0 &&
-openCustomizerModal(product) {
+      item.selected_specifications.exclusions.length === 0
+    );
+
+    if (existing) {
+      existing.quantity += 1;
+      existing.subtotal_combined = existing.unit_total_calculated * existing.quantity;
+    } else {
+      this.cart.items.push(cartItem);
+    }
+
+    this.updateCartBadge();
+    this.showToast(`Agregado: ${product.name}`);
+    this.animateFlyToCart(window.event);
+  }
+
+  openCustomizerModal(product) {
     this.customizerState = {
       product: product,
       quantity: 1,
