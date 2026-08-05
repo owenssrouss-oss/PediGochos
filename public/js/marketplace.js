@@ -442,18 +442,16 @@ class MarketplaceController {
       card.className = 'product-card animate-fade-in-up';
       card.style.cursor = 'pointer';
       card.style.animationDelay = `${index * 0.05}s`;
-      card.onclick = () => {
-        console.log('Clicked product card:', prod.name);
-        MarketplaceApp.openCustomizerModal(prod);
-      };
+      card.setAttribute('onclick', `MarketplaceApp.openCustomizerModalById('${prod.id}')`);
 
       // Check if image exists, otherwise use category fallback or emoji
       let imgHTML = '';
+      const estLogo = (this.selectedEstablishment && this.selectedEstablishment.logo) ? this.selectedEstablishment.logo : '🏪';
       if (prod.image) {
         imgHTML = `<img src="${prod.image}" alt="${prod.name}" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                   <div class="product-image-placeholder hidden">${this.selectedEstablishment.logo || '🏪'}</div>`;
+                   <div class="product-image-placeholder hidden">${estLogo}</div>`;
       } else {
-        imgHTML = `<div class="product-image-placeholder">${this.selectedEstablishment.logo || '🏪'}</div>`;
+        imgHTML = `<div class="product-image-placeholder">${estLogo}</div>`;
       }
 
       card.innerHTML = `
@@ -464,7 +462,7 @@ class MarketplaceController {
           </div>
           <div class="product-price-row">
             <span class="product-price">${this.formatPesos(prod.price)}</span>
-            <button class="btn-add-product">+</button>
+            <button class="btn-add-product" onclick="event.stopPropagation(); MarketplaceApp.openCustomizerModalById('${prod.id}')">+</button>
           </div>
         </div>
         <div class="product-image-container">
@@ -472,36 +470,39 @@ class MarketplaceController {
         </div>
       `;
 
-      const addBtn = card.querySelector('.btn-add-product');
-      if (addBtn) {
-        addBtn.onclick = (e) => {
-          e.stopPropagation();
-          console.log('Clicked add button for:', prod.name);
-          MarketplaceApp.openCustomizerModal(prod);
-        };
-      }
-
       grid.appendChild(card);
     });
   }
 
   openCustomizerModalById(productId) {
-    if (!this.selectedEstablishment || !this.selectedEstablishment.products) return;
-    const product = this.selectedEstablishment.products.find(p => String(p.id) === String(productId));
+    let product = null;
+    if (this.selectedEstablishment && Array.isArray(this.selectedEstablishment.products)) {
+      product = this.selectedEstablishment.products.find(p => String(p.id) === String(productId));
+    }
+    
+    if (!product && Array.isArray(this.establishments)) {
+      for (const est of this.establishments) {
+        if (Array.isArray(est.products)) {
+          const found = est.products.find(p => String(p.id) === String(productId));
+          if (found) {
+            this.selectedEstablishment = est;
+            product = found;
+            break;
+          }
+        }
+      }
+    }
+
     if (product) {
       this.openCustomizerModal(product);
+    } else {
+      console.error('Product not found for ID:', productId);
     }
   }
 
   // Cart Management
   addToCart(productId) {
-    if (!this.selectedEstablishment || !this.selectedEstablishment.products) return;
-
-    const product = this.selectedEstablishment.products.find(p => String(p.id) === String(productId));
-    if (!product) return;
-
-    // Always open customizer modal for product customization & ingredient selection
-    this.openCustomizerModal(product);
+    this.openCustomizerModalById(productId);
   }
 
   addDirectToCart(product) {
@@ -554,6 +555,10 @@ class MarketplaceController {
 
   openCustomizerModal(product) {
     if (!product) return;
+    if (typeof product === 'string' || typeof product === 'number') {
+      this.openCustomizerModalById(product);
+      return;
+    }
     console.log('openCustomizerModal called for:', product.name);
     try {
       this.closeAllModals();
