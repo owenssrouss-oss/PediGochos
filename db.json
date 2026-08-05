@@ -3582,7 +3582,7 @@
       "linkKey": "HP5JBC",
       "delivery_fee": 0,
       "themeColor": null,
-      "logoImage": null,
+      "logoImage": "/images/burger_royale.jpg",
       "tables": [
         {
           "id": "t-1",
@@ -7384,7 +7384,7 @@
       "linkKey": "GEMAPOP",
       "delivery_fee": 0,
       "themeColor": "#FF1493",
-      "logoImage": null,
+      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785013539413_118.png",
       "tables": [],
       "layout": [],
       "products": [
@@ -7413,7 +7413,7 @@
       "linkKey": "BOKIAREPAS",
       "delivery_fee": 0,
       "themeColor": "#FF8C00",
-      "logoImage": null,
+      "logoImage": "https://images.unsplash.com/photo-1582234372722-50d7ccc30e5b?w=500",
       "tables": [],
       "layout": [],
       "products": [
@@ -7446,7 +7446,7 @@
       "linkKey": "BURGERGRILL",
       "delivery_fee": 0,
       "themeColor": "#E53935",
-      "logoImage": null,
+      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1784935633209_470.png",
       "tables": [],
       "layout": [],
       "products": [
@@ -7479,7 +7479,7 @@
       "linkKey": "FRUTYHELADOS",
       "delivery_fee": 0,
       "themeColor": "#00BCD4",
-      "logoImage": null,
+      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785013539413_118.png",
       "tables": [],
       "layout": [],
       "products": [
@@ -7508,7 +7508,7 @@
       "linkKey": "BATIDOS",
       "delivery_fee": 0,
       "themeColor": "#FF9800",
-      "logoImage": null,
+      "logoImage": "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=500",
       "tables": [],
       "layout": [],
       "products": [
@@ -7537,7 +7537,7 @@
       "linkKey": "LATINOS",
       "delivery_fee": 0,
       "themeColor": "#F44336",
-      "logoImage": null,
+      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785038293883_150.png",
       "tables": [],
       "layout": [],
       "products": [
@@ -7570,7 +7570,7 @@
       "linkKey": "MUCHOS",
       "delivery_fee": 0,
       "themeColor": "#D32F2F",
-      "logoImage": null,
+      "logoImage": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
       "tables": [],
       "layout": [],
       "products": [
@@ -7602,7 +7602,7 @@
       "linkKey": "PATACONFIRE",
       "delivery_fee": 0,
       "themeColor": "#FF5722",
-      "logoImage": null,
+      "logoImage": "https://images.unsplash.com/photo-1628173142788-6678ab5a23cf?w=500",
       "tables": [],
       "layout": [],
       "products": [
@@ -7634,7 +7634,7 @@
       "linkKey": "THANOS",
       "delivery_fee": 0,
       "themeColor": "#673AB7",
-      "logoImage": null,
+      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1784933678778_0.png",
       "tables": [],
       "layout": [],
       "products": [
@@ -8035,5 +8035,5 @@
       "updatedAt": "2026-07-19T22:20:13.19+00:00"
     }
   ],
-  "lastUpdated": "2026-08-05T03:57:18.990Z"
+  "lastUpdated": "2026-08-05T04:12:15.711Z"
 }

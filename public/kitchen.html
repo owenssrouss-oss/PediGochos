@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Cocina Rapi Gochos - KDS Panel</title>
   <link rel="stylesheet" href="/css/common.css">
   <link rel="stylesheet" href="/css/kitchen.css">
@@ -59,6 +59,40 @@
           <button type="submit" class="btn-card-action ready" style="width: 100%; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer;">🔑 Ingresar a Cocina</button>
         </form>
         <p id="auth-error-msg" style="color: #EF4444; font-size: 13px; margin-top: 12px; font-weight: bold;" class="hidden">Clave incorrecta. Inténtalo de nuevo.</p>
+      </div>
+    </div>
+
+    <!-- Kitchen Terms and Requirements Modal Dialog -->
+    <div id="kitchen-terms-modal" class="auth-overlay hidden" style="z-index: 10000; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);">
+      <div class="overlay-card" style="max-width: 520px; width: 92%; padding: 24px; border-radius: 16px; border: 1px solid rgba(255, 94, 58, 0.3); background: #0f172a; text-align: left;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+          <span style="font-size: 28px;">📋</span>
+          <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #fff;">Requisitos del Servicio y Términos de Protección</h3>
+        </div>
+        
+        <div style="max-height: 280px; overflow-y: auto; padding-right: 6px; font-size: 12.5px; color: #cbd5e1; line-height: 1.5; margin-bottom: 16px; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); padding-top: 12px; padding-bottom: 12px;" class="premium-scroll">
+          <p style="margin-top: 0; font-weight: 700; color: var(--accent);">⚠️ 1. Requisitos para Servicio de Mesas en la App:</p>
+          <ul style="padding-left: 18px; margin-bottom: 12px;">
+            <li>El establecimiento debe contar con instalaciones físicas aptas y presentables para atención al cliente.</li>
+            <li>Sillas y mesas en buen estado, limpias y numeradas acordes al mapa del local.</li>
+            <li>Disponer de todos los servicios básicos para comodidad de los clientes en mesa.</li>
+          </ul>
+
+          <p style="margin-top: 0; font-weight: 700; color: var(--accent);">🛡️ 2. Protección de la Tienda y Verificación de Pedidos:</p>
+          <ul style="padding-left: 18px; margin-bottom: 0;">
+            <li><strong>Verificación Obligatoria:</strong> La plataforma no se hace responsable de pedidos falsos o bromas por falta de verificación del establecimiento. La tienda debe verificar telefónicamente el pedido o corroborar el código de seguridad de 4 dígitos.</li>
+            <li><strong>Uso Responsable:</strong> El establecimiento es responsable de la exactitud de los precios y productos ofrecidos.</li>
+          </ul>
+        </div>
+
+        <label style="display: flex; align-items: center; gap: 10px; font-size: 12px; color: #f8fafc; font-weight: 600; margin-bottom: 16px; cursor: pointer;">
+          <input type="checkbox" id="chk-accept-kitchen-terms" onchange="KitchenApp.toggleTermsButton(this.checked)" style="width: 18px; height: 18px; accent-color: var(--primary);">
+          <span>Acepto y confirmo cumplir los requisitos y términos de servicio.</span>
+        </label>
+
+        <button type="button" id="btn-confirm-kitchen-terms" onclick="KitchenApp.acceptTermsAndProceed()" disabled class="btn-card-action ready" style="width: 100%; padding: 12px; font-size: 14px; font-weight: 700; opacity: 0.5;">
+          🚀 Continuar a Cocina
+        </button>
       </div>
     </div>
 

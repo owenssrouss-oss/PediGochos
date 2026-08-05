@@ -270,11 +270,10 @@ class MarketplaceController {
       card.onclick = () => this.openEstablishment(est.id);
 
       // Determine representation photo
+      const photoUrl = est.logoImage || (est.products && est.products[0] ? est.products[0].image : null);
       let imgHTML = '';
-      if (est.logoImage) {
-        imgHTML = `<img src="${est.logoImage}" alt="${est.name}" style="object-fit: cover; width: 100%; height: 100%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">`;
-      } else {
-        imgHTML = `<div style="font-size: 32px; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05);">${est.logo || '🏪'}</div>`;
+      if (photoUrl) {
+        imgHTML = `<img src="${photoUrl}" alt="${est.name}" style="object-fit: cover; width: 100%; height: 100%;" onerror="this.style.display='none'; if (this.nextElementSibling) this.nextElementSibling.style.display='flex'">`;
       }
 
       card.innerHTML = `

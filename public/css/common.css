@@ -38,6 +38,14 @@
   --radius-lg: 24px;
   --radius-full: 9999px;
 
+  /* Touch action & zoom prevention on mobile */
+  input, select, textarea, button {
+    touch-action: manipulation;
+  }
+  input[type="text"], input[type="number"], input[type="password"], input[type="tel"], select, textarea {
+    font-size: 16px !important;
+  }
+
   /* Safe Transitions */
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);

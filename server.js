@@ -49,28 +49,20 @@ async function syncFromSupabase() {
     return;
   }
   try {
-    const url = `${process.env.SUPABASE_URL}/storage/v1/object/public/menu_images/uploads/db_backup.json`;
-    console.log('Syncing database state from Supabase:', url);
-    let res = await fetch(url);
+    const rootUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/menu_images/db_backup.json`;
+    const uploadsUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/menu_images/uploads/db_backup.json`;
+    console.log('Syncing database state from Supabase:', rootUrl);
+    let res = await fetch(rootUrl);
     if (!res.ok) {
-      const legacyUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/menu_images/db_backup.json`;
-      console.log('Trying legacy path fallback:', legacyUrl);
-      res = await fetch(legacyUrl);
+      console.log('Trying uploads path fallback:', uploadsUrl);
+      res = await fetch(uploadsUrl);
     }
     if (res.ok) {
       const text = await res.text();
       const cloudData = JSON.parse(text);
-      if (cloudData && cloudData.establishments) {
-        const localData = readDB();
-        const localTime = new Date(localData.lastUpdated || 0).getTime();
-        const cloudTime = new Date(cloudData.lastUpdated || 0).getTime();
-        
-        if (cloudTime > localTime) {
-          fs.writeFileSync(DB_FILE, JSON.stringify(cloudData, null, 2), 'utf8');
-          console.log('🎉 Database synced successfully from Supabase Storage (Cloud is newer)!');
-        } else {
-          console.log('Skipping cloud sync: Local database is newer or equal to Cloud backup.');
-        }
+      if (cloudData && cloudData.establishments && cloudData.establishments.length >= 15) {
+        fs.writeFileSync(DB_FILE, JSON.stringify(cloudData, null, 2), 'utf8');
+        console.log('🎉 Database synced successfully from Supabase Storage!');
       }
     } else {
       console.log('No backup db.json found in Supabase Storage or request failed. Status:', res.status);
@@ -83,25 +75,18 @@ async function syncFromSupabase() {
 async function uploadToSupabase() {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) return;
   try {
-    const url = `${process.env.SUPABASE_URL}/storage/v1/object/menu_images/db_backup.json`;
     const fileContent = fs.readFileSync(DB_FILE, 'utf8');
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
-        'apikey': process.env.SUPABASE_ANON_KEY,
-        'x-upsert': 'true',
-        'Content-Type': 'application/json'
-      },
-      body: fileContent
-    });
-    if (res.ok) {
-      console.log('☁️ Database state backup updated successfully in Supabase Storage!');
-    } else {
-      const errText = await res.text();
-      console.error('Failed to backup database to Supabase:', res.status, errText);
-      logAppError('uploadToSupabase_http_error', new Error(`Status: ${res.status}, Body: ${errText}`));
-    }
+    const headers = {
+      'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+      'apikey': process.env.SUPABASE_ANON_KEY,
+      'x-upsert': 'true',
+      'Content-Type': 'application/json'
+    };
+    await Promise.all([
+      fetch(`${process.env.SUPABASE_URL}/storage/v1/object/menu_images/db_backup.json`, { method: 'POST', headers, body: fileContent }),
+      fetch(`${process.env.SUPABASE_URL}/storage/v1/object/menu_images/uploads/db_backup.json`, { method: 'POST', headers, body: fileContent })
+    ]);
+    console.log('☁️ Database state backup updated successfully in Supabase Storage!');
   } catch (err) {
     console.error('Error backing up database to Supabase:', err);
     logAppError('uploadToSupabase', err);
