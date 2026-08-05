@@ -442,7 +442,10 @@ class MarketplaceController {
       card.className = 'product-card animate-fade-in-up';
       card.style.cursor = 'pointer';
       card.style.animationDelay = `${index * 0.05}s`;
-      card.onclick = () => this.openCustomizerModal(prod);
+      card.onclick = () => {
+        console.log('Clicked product card:', prod.name);
+        MarketplaceApp.openCustomizerModal(prod);
+      };
 
       // Check if image exists, otherwise use category fallback or emoji
       let imgHTML = '';
@@ -473,7 +476,8 @@ class MarketplaceController {
       if (addBtn) {
         addBtn.onclick = (e) => {
           e.stopPropagation();
-          this.openCustomizerModal(prod);
+          console.log('Clicked add button for:', prod.name);
+          MarketplaceApp.openCustomizerModal(prod);
         };
       }
 
@@ -550,6 +554,7 @@ class MarketplaceController {
 
   openCustomizerModal(product) {
     if (!product) return;
+    console.log('openCustomizerModal called for:', product.name);
     try {
       this.closeAllModals();
       this.customizerState = {
@@ -657,7 +662,7 @@ class MarketplaceController {
       const modal = document.getElementById('customizer-modal');
       if (modal) {
         modal.classList.add('open');
-        modal.style.display = 'flex';
+        // Let CSS handle display via .open class
       }
       window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
     }
@@ -1444,7 +1449,7 @@ class MarketplaceController {
     const modal = document.getElementById('cart-modal');
     if (modal) {
       modal.classList.add('open');
-      modal.style.display = 'flex';
+      // Let CSS handle display via .open class
     }
     this.renderCartItems();
     this.setActiveMobileTab('cart');
@@ -1456,7 +1461,7 @@ class MarketplaceController {
     if (modal) {
       modal.classList.remove('open');
       modal.classList.remove('active');
-      modal.style.display = 'none';
+      // Let CSS handle display via .open class
     }
     this.setActiveMobileTab('home');
   }
@@ -1967,7 +1972,7 @@ class MarketplaceController {
       if (el) {
         el.classList.remove('open');
         el.classList.remove('active');
-        el.style.display = 'none';
+        // el.style.display = 'none'; // Let CSS handle display via .open class
       }
     });
   }

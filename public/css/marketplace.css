@@ -985,27 +985,28 @@
 
 /* Modal Styling */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: 100000 !important;
-  display: none;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  z-index: 999999 !important;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  transition: opacity var(--transition-normal);
+  transition: opacity var(--transition-normal), visibility var(--transition-normal);
 }
 
 .modal-overlay.open {
   opacity: 1 !important;
+  visibility: visible !important;
   pointer-events: auto !important;
-  display: flex !important;
 }
 
 .modal-content {
@@ -2281,34 +2282,38 @@ body {
 /* Floating Quick Access Action Bar */
 .quick-access-bar {
   position: fixed;
-  bottom: 80px;
-  right: 16px;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
+  justify-content: space-around;
   align-items: center;
-  gap: 10px;
   z-index: 99990 !important;
-  background: rgba(26, 31, 46, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  padding: 6px 12px;
-  border-radius: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  background: rgba(26, 31, 46, 0.98);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 12px 16px;
+  border-radius: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.6);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .quick-btn {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
   border: none;
   border-radius: 30px;
-  padding: 8px 14px;
-  font-size: 13px;
+  padding: 12px 14px;
+  font-size: 15px;
   font-weight: 800;
   cursor: pointer;
   transition: all 0.2s ease;
   touch-action: manipulation;
+  margin: 0 6px;
 }
 
 .btn-quick-back {
