@@ -550,106 +550,116 @@ class MarketplaceController {
 
   openCustomizerModal(product) {
     if (!product) return;
-    this.closeAllModals();
-    this.customizerState = {
-      product: product,
-      quantity: 1,
-      pizzaMode: 'whole', // 'whole' or 'halves'
-      specialtyA: null, // Pizza product object selected for Mitad A
-      specialtyB: null, // Pizza product object selected for Mitad B
-      quantities: {
-        whole: {}, // { 'base_Cebolla': 1, 'opt_opt-id': 0 }
-        halfA: {},
-        halfB: {}
-      }
-    };
+    try {
+      this.closeAllModals();
+      this.customizerState = {
+        product: product,
+        quantity: 1,
+        pizzaMode: 'whole', // 'whole' or 'halves'
+        specialtyA: null, // Pizza product object selected for Mitad A
+        specialtyB: null, // Pizza product object selected for Mitad B
+        quantities: {
+          whole: {}, // { 'base_Cebolla': 1, 'opt_opt-id': 0 }
+          halfA: {},
+          halfB: {}
+        }
+      };
 
-    // Helper to initialize side quantities
-    const initSide = (sideKey, targetProduct = product) => {
-      this.customizerState.quantities[sideKey] = {};
+      // Helper to initialize side quantities
+      const initSide = (sideKey, targetProduct = product) => {
+        this.customizerState.quantities[sideKey] = {};
+        
+        // 1. Base ingredients: initialize to 0 for Arepas & Helados (unchecked by default), 1 for others (included by default)
+        const isSpecialZeroInit = this.isArepaOrHeladoProduct(targetProduct);
+        if (targetProduct.exclusions && Array.isArray(targetProduct.exclusions)) {
+          targetProduct.exclusions.forEach(item => {
+            const itemName = typeof item === 'object' && item.name ? item.name : String(item);
+            this.customizerState.quantities[sideKey]['base_' + itemName] = isSpecialZeroInit ? 0 : 1;
+          });
+        }
+
+        // 2. Initialize modifier options
+        if (targetProduct.modifiers && Array.isArray(targetProduct.modifiers)) {
+          targetProduct.modifiers.forEach(group => {
+            if (group.selection_type === 'single' && Array.isArray(group.options)) {
+              group.options.forEach((opt, idx) => {
+                this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (idx === 0) ? 1 : 0;
+              });
+            } else if (Array.isArray(group.options)) {
+              group.options.forEach(opt => {
+                this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = 0;
+              });
+            }
+          });
+        }
+      };
+
+      initSide('whole');
+
+      // UI setup
+      document.getElementById('customizer-product-name').innerText = product.name || 'Producto';
+      document.getElementById('customizer-product-desc').innerText = product.description || '';
       
-      // 1. Base ingredients: initialize to 0 for Arepas & Helados (unchecked by default), 1 for others (included by default)
-      const isSpecialZeroInit = this.isArepaOrHeladoProduct(targetProduct);
-      if (targetProduct.exclusions) {
-        targetProduct.exclusions.forEach(item => {
-          const itemName = item.name || item;
-          this.customizerState.quantities[sideKey]['base_' + itemName] = isSpecialZeroInit ? 0 : 1;
-        });
+      const ingredientsEl = document.getElementById('customizer-product-ingredients');
+      if (ingredientsEl) {
+        if (product.ingredients && Array.isArray(product.ingredients) && product.ingredients.length > 0) {
+          ingredientsEl.innerText = `📝 Ingredientes: ${product.ingredients.join(', ')}`;
+          ingredientsEl.style.display = 'block';
+        } else if (product.exclusions && Array.isArray(product.exclusions) && product.exclusions.length > 0) {
+          ingredientsEl.innerText = `📝 Ingredientes: ${product.exclusions.map(e => typeof e === 'object' && e.name ? e.name : String(e)).join(', ')}`;
+          ingredientsEl.style.display = 'block';
+        } else {
+          ingredientsEl.style.display = 'none';
+        }
+      }
+      
+      document.getElementById('customizer-base-price').innerText = this.formatPesos(product.price);
+      document.getElementById('customizer-quantity-display').innerText = '1';
+      document.getElementById('customizer-special-notes').value = '';
+
+      // Handle image
+      const imgWrapper = document.getElementById('customizer-product-img-wrapper');
+      if (imgWrapper) {
+        if (product.image) {
+          imgWrapper.innerHTML = `<img src="${product.image}" alt="${product.name}">`;
+        } else {
+          imgWrapper.innerHTML = (this.selectedEstablishment && this.selectedEstablishment.logo) ? this.selectedEstablishment.logo : '🍔';
+        }
       }
 
-      // 2. Initialize modifier options
-      if (targetProduct.modifiers) {
-        targetProduct.modifiers.forEach(group => {
-          if (group.selection_type === 'single') {
-            group.options.forEach((opt, idx) => {
-              this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (idx === 0) ? 1 : 0;
-            });
-          } else {
-            group.options.forEach(opt => {
-              this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = 0;
-            });
-          }
-        });
+      // Reset columns view
+      const colB = document.getElementById('customizer-col-b');
+      const colAHeader = document.getElementById('col-a-header');
+      if (colB) colB.classList.add('hidden');
+      if (colAHeader) colAHeader.classList.add('hidden');
+      
+      // Pizza check
+      const isPizza = product.category === 'Pizzas' || (product.name && product.name.toLowerCase().includes('pizza'));
+      const pizzaSection = document.getElementById('pizza-halves-section');
+      if (pizzaSection) {
+        if (isPizza) {
+          pizzaSection.classList.remove('hidden');
+          this.customizerState.pizzaMode = 'whole';
+          const wholeBtn = document.getElementById('pizza-whole-btn');
+          const halvesBtn = document.getElementById('pizza-halves-btn');
+          if (wholeBtn) wholeBtn.classList.add('active');
+          if (halvesBtn) halvesBtn.classList.remove('active');
+        } else {
+          pizzaSection.classList.add('hidden');
+        }
       }
-    };
 
-    initSide('whole');
-
-    // UI setup
-    document.getElementById('customizer-product-name').innerText = product.name;
-    document.getElementById('customizer-product-desc').innerText = product.description || '';
-    
-    const ingredientsEl = document.getElementById('customizer-product-ingredients');
-    if (ingredientsEl) {
-      if (product.ingredients && product.ingredients.length > 0) {
-        ingredientsEl.innerText = `📝 Ingredientes: ${product.ingredients.join(', ')}`;
-        ingredientsEl.style.display = 'block';
-      } else if (product.exclusions && product.exclusions.length > 0) {
-        ingredientsEl.innerText = `📝 Ingredientes: ${product.exclusions.map(e => e.name).join(', ')}`;
-        ingredientsEl.style.display = 'block';
-      } else {
-        ingredientsEl.style.display = 'none';
+      this.renderCustomizerModifiers();
+    } catch (err) {
+      console.error('Error setting up customizer modal:', err);
+    } finally {
+      // Show modal guaranteed
+      const modal = document.getElementById('customizer-modal');
+      if (modal) {
+        modal.classList.add('open');
       }
+      window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
     }
-    
-    document.getElementById('customizer-base-price').innerText = this.formatPesos(product.price);
-    document.getElementById('customizer-quantity-display').innerText = '1';
-    document.getElementById('customizer-special-notes').value = '';
-
-    // Handle image
-    const imgWrapper = document.getElementById('customizer-product-img-wrapper');
-    if (product.image) {
-      imgWrapper.innerHTML = `<img src="${product.image}" alt="${product.name}">`;
-    } else {
-      imgWrapper.innerHTML = this.selectedEstablishment.logo || '🍔';
-    }
-
-    // Reset columns view
-    document.getElementById('customizer-col-b').classList.add('hidden');
-    document.getElementById('col-a-header').classList.add('hidden');
-    
-    // Pizza check
-    const isPizza = product.category === 'Pizzas' || product.name.toLowerCase().includes('pizza');
-    const pizzaSection = document.getElementById('pizza-halves-section');
-    if (isPizza) {
-      pizzaSection.classList.remove('hidden');
-      this.customizerState.pizzaMode = 'whole';
-      const wholeBtn = document.getElementById('pizza-whole-btn');
-      const halvesBtn = document.getElementById('pizza-halves-btn');
-      if (wholeBtn) wholeBtn.classList.add('active');
-      if (halvesBtn) halvesBtn.classList.remove('active');
-    } else {
-      pizzaSection.classList.add('hidden');
-    }
-
-    this.renderCustomizerModifiers();
-
-    // Show modal
-    const modal = document.getElementById('customizer-modal');
-    if (modal) {
-      modal.classList.add('open');
-    }
-    window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
   }
 
   renderCustomizerModifiers() {
