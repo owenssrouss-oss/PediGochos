@@ -353,13 +353,19 @@
   </div>
 
   <!-- Mobile Bottom Navigation Bar -->
-  <nav class="mobile-nav-bar">
+  <nav class="mobile-nav-bar" id="mobile-nav-bar">
     <!-- Home Tab -->
     <button class="mobile-nav-item active" id="m-nav-home" onclick="MarketplaceApp.goHome()">
       <span class="mobile-nav-icon">🏠</span>
       <span class="mobile-nav-label">Inicio</span>
     </button>
     
+    <!-- Volver / Atrás Tab -->
+    <button class="mobile-nav-item" id="m-nav-back" onclick="MarketplaceApp.handleNavBack()">
+      <span class="mobile-nav-icon">⬅️</span>
+      <span class="mobile-nav-label">Atrás</span>
+    </button>
+
     <!-- Cart Tab -->
     <button class="mobile-nav-item" id="m-nav-cart" onclick="MarketplaceApp.openCartModal()">
       <span class="mobile-nav-icon">🛒</span>

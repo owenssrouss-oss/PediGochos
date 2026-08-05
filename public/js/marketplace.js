@@ -1832,6 +1832,26 @@ class MarketplaceController {
     return '$' + Math.round(val).toLocaleString('de-DE');
   }
 
+  handleNavBack() {
+    // 1. If any modal is open, close all modals
+    const openModal = document.querySelector('.modal-overlay.open');
+    if (openModal) {
+      this.closeAllModals();
+      return;
+    }
+    // 2. If viewing an establishment, go home to categories list
+    if (this.selectedEstablishment) {
+      this.goHome();
+      return;
+    }
+    // 3. Fallback history back
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      this.goHome();
+    }
+  }
+
   setActiveMobileTab(tabName) {
     document.querySelectorAll('.mobile-nav-item').forEach(item => {
       item.classList.remove('active');
