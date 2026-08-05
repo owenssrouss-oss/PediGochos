@@ -1195,10 +1195,6 @@ class MarketplaceController {
     if (modal) {
       modal.classList.remove('open');
       modal.classList.remove('active');
-      modal.style.display = '';
-    }
-    if (window.history.state && window.history.state.view === 'modal' && window.history.state.modalId === 'customizer-modal') {
-      window.history.back();
     }
   }
 
@@ -1417,17 +1413,18 @@ class MarketplaceController {
     const totalCount = this.cart.items.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = this.cart.items.reduce((sum, item) => sum + item.subtotal_combined, 0);
 
-    if (totalCount > 0) {
-      badgeCount.innerText = totalCount;
-      badgeTotal.innerText = this.formatPesos(subtotal);
-      
+    if (badgeCount) badgeCount.innerText = totalCount;
+    if (badgeTotal) badgeTotal.innerText = this.formatPesos(subtotal);
+
+    if (totalCount > 0 && badgeCount) {
       badgeCount.classList.remove('badge-pop');
       void badgeCount.offsetWidth;
       badgeCount.classList.add('badge-pop');
-      
+    }
+
+    if (badge) {
+      badge.style.display = 'flex';
       badge.classList.add('visible');
-    } else {
-      badge.classList.remove('visible');
     }
   }
 
@@ -1448,12 +1445,8 @@ class MarketplaceController {
     if (modal) {
       modal.classList.remove('open');
       modal.classList.remove('active');
-      modal.style.display = '';
     }
     this.setActiveMobileTab('home');
-    if (window.history.state && window.history.state.view === 'modal' && window.history.state.modalId === 'cart-modal') {
-      window.history.back();
-    }
   }
 
   renderCartItems() {
