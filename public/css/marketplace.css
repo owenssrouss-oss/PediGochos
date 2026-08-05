@@ -1679,40 +1679,43 @@ body {
 
 .customizer-product-header {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background-color: #F9FAFB;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  background-color: var(--card-bg, #1A1F2E);
   border-bottom: 1px solid var(--border);
 }
 
 .customizer-product-img-wrapper {
-  width: 80px;
-  height: 80px;
-  border-radius: var(--radius-sm);
+  width: 100%;
+  max-height: 220px;
+  min-height: 140px;
+  border-radius: 14px;
   overflow: hidden;
-  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #E5E7EB;
-  font-size: 32px;
+  background: var(--input-bg, #272C3D);
+  font-size: 64px;
+  border: 1px solid var(--border);
 }
 
 .customizer-product-img-wrapper img {
   width: 100%;
-  height: 100%;
+  height: 200px;
   object-fit: cover;
+  border-radius: 14px;
 }
 
 .customizer-product-info {
-  flex-grow: 1;
+  width: 100%;
 }
 
 .customizer-product-info h4 {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--secondary);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-main, #FFFFFF);
+  margin-bottom: 4px;
 }
 
 .customizer-base-price-tag {

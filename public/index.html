@@ -6,8 +6,8 @@
   <title>Rapi Gochos - Tu Delivery y Pedidos al Instante</title>
   <meta name="description" content="El mejor marketplace de delivery. Comidas, farmacias, mercados y ferreterías, con entregas en minutos o pedidos directamente a tu mesa.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍔</text></svg>">
-  <link rel="stylesheet" href="/css/common.css?v=53">
-  <link rel="stylesheet" href="/css/marketplace.css?v=53">
+  <link rel="stylesheet" href="/css/common.css?v=54">
+  <link rel="stylesheet" href="/css/marketplace.css?v=54">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 </head>
 <body>
@@ -340,15 +340,21 @@
       </div>
 
       <!-- Action Footer -->
-      <div class="customizer-footer">
+      <div class="customizer-footer" style="display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
         <div class="quantity-selector-container">
           <button class="btn-qty-large" onclick="MarketplaceApp.updateCustomizerQty(-1)">-</button>
           <span id="customizer-quantity-display">1</span>
           <button class="btn-qty-large" onclick="MarketplaceApp.updateCustomizerQty(1)">+</button>
         </div>
-        <button class="btn-add-to-cart-large" id="btn-confirm-add" onclick="MarketplaceApp.confirmCustomizerAdd()">
-          Agregar al Carrito • $0
-        </button>
+        
+        <div style="display: flex; gap: 10px; flex: 1; min-width: 220px;">
+          <button class="btn-cancel-modal" onclick="MarketplaceApp.closeCustomizerModal()" style="padding: 12px 18px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); color: var(--text-main); font-weight: 700; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;">
+            Cancelar
+          </button>
+          <button class="btn-add-to-cart-large" id="btn-confirm-add" onclick="MarketplaceApp.confirmCustomizerAdd()" style="flex: 1;">
+            🛒 Agregar al Carrito • $0
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -399,9 +405,9 @@
   <div id="toast" class="toast hidden">Mensaje de notificación</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/supabase-helper.js?v=53"></script>
+  <script src="/js/supabase-helper.js?v=54"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="/js/sound.js?v=53"></script>
-  <script src="/js/marketplace.js?v=53"></script>
+  <script src="/js/sound.js?v=54"></script>
+  <script src="/js/marketplace.js?v=54"></script>
 </body>
 </html>
