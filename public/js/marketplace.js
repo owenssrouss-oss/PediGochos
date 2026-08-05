@@ -532,6 +532,13 @@ class MarketplaceController {
     this.animateFlyToCart(window.event);
   }
 
+  isArepaOrHeladoProduct(prod) {
+    if (!prod) return false;
+    const name = (prod.name || '').toLowerCase();
+    const cat = (prod.category || '').toLowerCase();
+    return name.includes('arepa') || name.includes('helado') || name.includes('frappé') || name.includes('paleta') || name.includes('sundae') || name.includes('merengada') || name.includes('batido') || cat.includes('arepa') || cat.includes('helado');
+  }
+
   openCustomizerModal(product) {
     this.customizerState = {
       product: product,
@@ -550,11 +557,12 @@ class MarketplaceController {
     const initSide = (sideKey, targetProduct = product) => {
       this.customizerState.quantities[sideKey] = {};
       
-      // 1. Base ingredients default to 1 (included by default for all offer types: Arepas, Helados, Hamburguesas, Pizzas, etc.)
+      // 1. Base ingredients: initialize to 0 for Arepas & Helados (unchecked by default), 1 for others (included by default)
+      const isSpecialZeroInit = this.isArepaOrHeladoProduct(targetProduct);
       if (targetProduct.exclusions) {
         targetProduct.exclusions.forEach(item => {
           const itemName = item.name || item;
-          this.customizerState.quantities[sideKey]['base_' + itemName] = 1;
+          this.customizerState.quantities[sideKey]['base_' + itemName] = isSpecialZeroInit ? 0 : 1;
         });
       }
 
@@ -780,7 +788,7 @@ class MarketplaceController {
       `;
       const list = groupDiv.querySelector('.modifier-options-list');
 
-      const isSpecialZeroInit = activeProduct.name.toLowerCase().includes('arepa') || activeProduct.name.toLowerCase().includes('helado');
+      const isSpecialZeroInit = this.isArepaOrHeladoProduct(activeProduct);
 
       activeProduct.exclusions.forEach(item => {
         const itemName = item.name || item;
@@ -1145,7 +1153,7 @@ class MarketplaceController {
       }
       if (!activeProduct) return 0;
       
-      const isSpecialZeroInit = activeProduct.name.toLowerCase().includes('arepa') || activeProduct.name.toLowerCase().includes('helado');
+      const isSpecialZeroInit = this.isArepaOrHeladoProduct(activeProduct);
       if (activeProduct.exclusions) {
         activeProduct.exclusions.forEach(item => {
           const itemName = item.name || item;
@@ -1286,7 +1294,7 @@ class MarketplaceController {
       }
       
       // 1. Base ingredients (exclusions and extras)
-      const isSpecialZeroInit = activeProduct.name.toLowerCase().includes('arepa') || activeProduct.name.toLowerCase().includes('helado');
+      const isSpecialZeroInit = this.isArepaOrHeladoProduct(activeProduct);
       if (activeProduct.exclusions) {
         activeProduct.exclusions.forEach(item => {
           const itemName = item.name || item;
