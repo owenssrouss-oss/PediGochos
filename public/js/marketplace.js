@@ -657,6 +657,7 @@ class MarketplaceController {
       const modal = document.getElementById('customizer-modal');
       if (modal) {
         modal.classList.add('open');
+        modal.style.display = 'flex';
       }
       window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
     }
@@ -1195,6 +1196,7 @@ class MarketplaceController {
     if (modal) {
       modal.classList.remove('open');
       modal.classList.remove('active');
+      modal.style.display = 'none';
     }
   }
 
@@ -1434,6 +1436,7 @@ class MarketplaceController {
     const modal = document.getElementById('cart-modal');
     if (modal) {
       modal.classList.add('open');
+      modal.style.display = 'flex';
     }
     this.renderCartItems();
     this.setActiveMobileTab('cart');
@@ -1445,6 +1448,7 @@ class MarketplaceController {
     if (modal) {
       modal.classList.remove('open');
       modal.classList.remove('active');
+      modal.style.display = 'none';
     }
     this.setActiveMobileTab('home');
   }
@@ -1955,7 +1959,7 @@ class MarketplaceController {
       if (el) {
         el.classList.remove('open');
         el.classList.remove('active');
-        el.style.display = '';
+        el.style.display = 'none';
       }
     });
   }
