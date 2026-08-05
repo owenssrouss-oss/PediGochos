@@ -117,14 +117,21 @@ async function syncFromPostgres() {
       const establishments = await estRes.json();
       const orders = await ordRes.json();
       
-      const dbState = {
-        establishments: establishments || [],
-        orders: orders || [],
-        lastUpdated: new Date().toISOString()
-      };
-      
-      fs.writeFileSync(DB_FILE, JSON.stringify(dbState, null, 2), 'utf8');
-      console.log('🎉 Database synced successfully from Supabase PostgreSQL tables!');
+      const localData = readDB();
+      const localProductCount = (localData.establishments || []).reduce((sum, e) => sum + (e.products ? e.products.length : 0), 0);
+      const cloudProductCount = (establishments || []).reduce((sum, e) => sum + (e.products ? e.products.length : 0), 0);
+
+      if (cloudProductCount >= localProductCount) {
+        const dbState = {
+          establishments: establishments || [],
+          orders: orders || [],
+          lastUpdated: new Date().toISOString()
+        };
+        fs.writeFileSync(DB_FILE, JSON.stringify(dbState, null, 2), 'utf8');
+        console.log('🎉 Database synced successfully from Supabase PostgreSQL tables!');
+      } else {
+        console.log('Skipping Postgres sync: Local database has more or equal products than Cloud Postgres.');
+      }
       return true;
     } else {
       console.log(`Supabase PostgreSQL tables might not be created yet. Status: ${estRes.status} / ${ordRes.status}`);
