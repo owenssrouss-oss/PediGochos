@@ -658,19 +658,26 @@ class MarketplaceController {
     } catch (err) {
       console.error('Error setting up customizer modal:', err);
     } finally {
-      // Show modal guaranteed
-      const modal = document.getElementById('customizer-modal');
-      if (modal) {
-        modal.classList.add('open');
-        modal.style.setProperty('display', 'flex', 'important');
-        
-        // Ensure inner content is also visible
-        const content = modal.querySelector('.modal-content');
-        if (content) {
-          content.style.setProperty('display', 'flex', 'important');
+      try {
+        const modal = document.getElementById('customizer-modal');
+        if (modal) {
+          modal.classList.add('open');
+          modal.style.setProperty('display', 'flex', 'important');
+          
+          const content = modal.querySelector('.modal-content');
+          if (content) {
+            content.style.setProperty('display', 'flex', 'important');
+          }
+          console.log('Modal bounds:', modal.getBoundingClientRect());
+        } else {
+          console.error('Modal customizer-modal not found in DOM!');
+          alert('Error crítico: No se encontró el modal en la página.');
         }
+        window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
+      } catch (finalErr) {
+        console.error('Error in finally block:', finalErr);
+        alert('Error mostrando menú: ' + finalErr.message);
       }
-      window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
     }
   }
 
