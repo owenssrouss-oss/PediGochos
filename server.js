@@ -67,7 +67,7 @@ async function syncFromSupabase() {
     if (res.ok) {
       const text = await res.text();
       const cloudData = JSON.parse(text);
-      if (cloudData && cloudData.establishments && cloudData.establishments.length >= 15) {
+      if (cloudData && Array.isArray(cloudData.establishments) && cloudData.establishments.length > 0) {
         fs.writeFileSync(DB_FILE, JSON.stringify(cloudData, null, 2), 'utf8');
         console.log('🎉 Database synced successfully from Supabase Storage!');
       }
@@ -123,21 +123,15 @@ async function syncFromPostgres() {
     if (estRes.ok && ordRes.ok) {
       const establishments = await estRes.json();
       const orders = await ordRes.json();
-      
-      const localData = readDB();
-      const localProductCount = (localData.establishments || []).reduce((sum, e) => sum + (e.products ? e.products.length : 0), 0);
-      const cloudProductCount = (establishments || []).reduce((sum, e) => sum + (e.products ? e.products.length : 0), 0);
 
-      if (cloudProductCount >= localProductCount) {
+      if (establishments && Array.isArray(establishments) && establishments.length > 0) {
         const dbState = {
-          establishments: establishments || [],
+          establishments: establishments,
           orders: orders || [],
           lastUpdated: new Date().toISOString()
         };
         fs.writeFileSync(DB_FILE, JSON.stringify(dbState, null, 2), 'utf8');
         console.log('🎉 Database synced successfully from Supabase PostgreSQL tables!');
-      } else {
-        console.log('Skipping Postgres sync: Local database has more or equal products than Cloud Postgres.');
       }
       return true;
     } else {
