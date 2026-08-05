@@ -231,7 +231,7 @@ async function saveToPostgres() {
       }
     }
 
-    // Delete removed orders from PostgreSQL
+    // 3. Delete removed orders from PostgreSQL
     const cloudOrdRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/orders?select=id`, {
       headers: {
         'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
@@ -259,6 +259,27 @@ async function saveToPostgres() {
   } catch (err) {
     console.error('Error backing up database to Supabase PostgreSQL:', err);
     logAppError('saveToPostgres', err);
+  }
+}
+
+// Permanently delete an establishment from Supabase PostgreSQL tables
+async function deleteEstablishmentFromPostgres(id) {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY || !id) return;
+  try {
+    const url = `${process.env.SUPABASE_URL}/rest/v1/establishments?id=eq.${encodeURIComponent(id)}`;
+    const headers = {
+      'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+      'apikey': process.env.SUPABASE_ANON_KEY
+    };
+    const res = await fetch(url, { method: 'DELETE', headers });
+    if (res.ok) {
+      console.log(`🗑️ Successfully deleted establishment [${id}] from Supabase PostgreSQL!`);
+    } else {
+      console.error(`Failed to delete establishment [${id}] from Postgres:`, res.status, await res.text());
+    }
+  } catch (err) {
+    console.error('Error in deleteEstablishmentFromPostgres:', err);
+    logAppError('deleteEstablishmentFromPostgres', err);
   }
 }
 
@@ -582,7 +603,7 @@ app.put('/api/establishments/:id', (req, res) => {
 });
 
 // DELETE to remove an establishment (authorized by code 0424)
-app.delete('/api/establishments/:id', (req, res) => {
+app.delete('/api/establishments/:id', async (req, res) => {
   const { id } = req.params;
   const { code } = req.query;
   
@@ -598,6 +619,10 @@ app.delete('/api/establishments/:id', (req, res) => {
   
   db.establishments.splice(estIndex, 1);
   writeDB(db);
+
+  // Permanently delete from Supabase PostgreSQL cloud table
+  await deleteEstablishmentFromPostgres(id);
+
   res.json({ success: true });
 });
 
