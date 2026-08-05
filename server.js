@@ -199,30 +199,7 @@ async function saveToPostgres() {
       }
     }
 
-    // Delete removed establishments from PostgreSQL
-    const cloudEstRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/establishments?select=id`, {
-      headers: {
-        'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
-        'apikey': process.env.SUPABASE_ANON_KEY
-      }
-    });
-    if (cloudEstRes.ok) {
-      const cloudEsts = await cloudEstRes.json();
-      const localIds = new Set((localData.establishments || []).map(e => e.id));
-      const deletedIds = cloudEsts.map(e => e.id).filter(id => !localIds.has(id));
-      if (deletedIds.length > 0) {
-        console.log('Deleting removed establishments from Postgres:', deletedIds);
-        // Supabase PostgREST IN query format requires parameters to be formatted as in.("id1","id2") or in.(id1,id2) without single quotes, but strings with special characters or dashes should be wrapped in double quotes or formatted correctly
-        const delUrl = `${process.env.SUPABASE_URL}/rest/v1/establishments?id=in.(${deletedIds.map(id => `"${id}"`).join(',')})`;
-        await fetch(delUrl, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
-            'apikey': process.env.SUPABASE_ANON_KEY
-          }
-        });
-      }
-    }
+
 
     // 2. Bulk Upsert Orders
     if (localData.orders && localData.orders.length > 0) {
@@ -560,9 +537,6 @@ app.put('/api/establishments/:id', (req, res) => {
   
   if (products) {
     est.products = products;
-  }
-  if (isOwner && linkKey) {
-    est.linkKey = linkKey;
   }
   if (name) {
     est.name = name;

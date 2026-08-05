@@ -47,7 +47,6 @@ class KitchenController {
           if (activeName) activeName.innerText = est.name || '';
           
           this.connectWS(est.linkKey || localStorage.getItem('admin_key_' + estId));
-          this.checkTermsRequirements();
         } else {
           console.warn('Asociado a comercio inexistente:', estId);
         }
@@ -85,7 +84,6 @@ class KitchenController {
         
         document.getElementById('no-shop-overlay').classList.add('hidden');
         this.connectWS(savedKey);
-        this.checkTermsRequirements();
       }
     }
   }
@@ -163,7 +161,6 @@ class KitchenController {
         await this.loadEstablishments();
         
         this.connectWS(keyInput);
-        this.checkTermsRequirements();
       } else {
         errorMsg.innerText = data.error || 'Clave incorrecta. Inténtalo de nuevo.';
         errorMsg.classList.remove('hidden');
@@ -790,25 +787,12 @@ class KitchenController {
     const clientAddress = order.deliveryDetails.address || 'N/A';
     const securityCode = order.deliveryDetails.code || 'N/A';
     const totalAmount = Math.round(order.total).toLocaleString('de-DE');
-    const housePhotoUrl = order.deliveryDetails.housePhoto || 'No provista';
-
-    // Format products list
-    let itemsText = '';
-    if (order.items && order.items.length > 0) {
-      order.items.forEach(it => {
-        itemsText += `\n- ${it.quantity}x ${it.name} ${it.specifications ? `(${it.specifications})` : ''}`;
-      });
-    } else {
-      itemsText = '\n- (Sin detalles de platos)';
-    }
 
     const messageText = `🚴 *Rapi Gochos - Nuevo Servicio Solicitado*
 *Establecimiento:* ${storeName}
 *Cliente:* ${clientName}
 *Teléfono:* ${clientPhone}
 *Dirección:* ${clientAddress}
-*Pedido:* ${itemsText}
-*Foto de Fachada:* ${housePhotoUrl}
 *Código de Entrega:* ${securityCode}
 *Total a Cobrar:* $${totalAmount}`;
 
@@ -2111,20 +2095,6 @@ class KitchenController {
       submitBtn.disabled = false;
       submitBtn.innerHTML = `<span>Guardar Cambios</span>`;
     }
-  }
-
-  checkTermsRequirements() {
-    if (!this.selectedId) return;
-    const accepted = localStorage.getItem('kds_accepted_terms_' + this.selectedId);
-    if (!accepted) {
-      document.getElementById('terms-requirements-modal').style.display = 'flex';
-    }
-  }
-
-  acceptTermsAndRequirements() {
-    if (!this.selectedId) return;
-    localStorage.setItem('kds_accepted_terms_' + this.selectedId, 'true');
-    document.getElementById('terms-requirements-modal').style.display = 'none';
   }
 }
 

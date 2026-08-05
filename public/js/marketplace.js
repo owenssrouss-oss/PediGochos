@@ -520,25 +520,12 @@ class MarketplaceController {
       product: product
     };
 
+    // Check if an identical item (no modifiers) is already in the cart
     const existing = this.cart.items.find(item => 
       item.product_id === product.id && 
       item.selected_specifications.single_selections.length === 0 &&
       item.selected_specifications.add_ons.length === 0 &&
-      item.selected_specifications.exclusions.length === 0
-    );
-
-    if (existing) {
-      existing.quantity += 1;
-      existing.subtotal_combined = existing.quantity * existing.unit_total_calculated;
-    } else {
-      this.cart.items.push(cartItem);
-    }
-
-    this.updateCartBadge();
-    this.showToast(`Agregado: ${product.name}`);
-  }
-
-  openCustomizerModal(product) {
+openCustomizerModal(product) {
     this.customizerState = {
       product: product,
       quantity: 1,
@@ -673,21 +660,16 @@ class MarketplaceController {
     const isHalves = this.customizerState.pizzaMode === 'halves';
     const sideLabel = labelSuffix ? ` (Mitad ${labelSuffix})` : '';
 
-     // If halves mode, check selected specialty for this side
+    // If halves mode, check selected specialty for this side
     let activeProduct = product;
     if (isHalves) {
-      const isPizzaEst = this.selectedEstablishment && this.selectedEstablishment.description && this.selectedEstablishment.description.toLowerCase().includes('pizza');
-      const isPizzaCat = isPizzaEst || product.category === 'Pizzas' || (product.name && product.name.toLowerCase().includes('pizza'));
+      const isPizzaCat = product.category === 'Pizzas' || product.name.toLowerCase().includes('pizza');
       if (isPizzaCat) {
         // Render specialty selector dropdown at the top
         const specDiv = document.createElement('div');
         specDiv.className = 'modifier-group';
         
-        const pizzaProducts = this.selectedEstablishment.products.filter(p => 
-          p.category === 'Pizzas' || 
-          (p.name && p.name.toLowerCase().includes('pizza')) ||
-          isPizzaEst
-        );
+        const pizzaProducts = this.selectedEstablishment.products.filter(p => p.category === 'Pizzas' || p.name.toLowerCase().includes('pizza'));
         const currentSpec = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
         
         let optionsHTML = '<option value="">-- Elige un sabor --</option>';
@@ -1717,7 +1699,6 @@ class MarketplaceController {
     let tableNumber = null;
     let phone = null;
     let address = null;
-    let housePhotoUrl = '';
 
     if (this.orderType === 'mesa') {
       tableNumber = document.getElementById('order-table-number').value.trim();
@@ -1734,22 +1715,6 @@ class MarketplaceController {
       }
       if (this.selectedLatitude === null || this.selectedLongitude === null) {
         alert('Por favor, selecciona tu ubicación en el mapa haciendo clic en "🗺️ Seleccionar en Mapa" para calcular tu domicilio.');
-        return;
-      }
-      
-      const photoInput = document.getElementById('order-house-photo');
-      const photoFile = photoInput ? photoInput.files[0] : null;
-      if (!photoFile) {
-        alert('Por favor, sube una foto de la fachada de tu casa para completar el pedido.');
-        return;
-      }
-      
-      this.showToast('Subiendo foto de la fachada...');
-      try {
-        housePhotoUrl = await MenuBuilder.uploadProductImage(photoFile);
-      } catch (err) {
-        console.error(err);
-        alert('Error al subir la foto de tu casa. Por favor intenta de nuevo.');
         return;
       }
     }
@@ -1817,8 +1782,7 @@ class MarketplaceController {
             code: randomCode,
             latitude: this.selectedLatitude,
             longitude: this.selectedLongitude,
-            distanceKm: this.calculatedDistanceKm,
-            housePhoto: housePhotoUrl
+            distanceKm: this.calculatedDistanceKm
           } : null
         };
 
