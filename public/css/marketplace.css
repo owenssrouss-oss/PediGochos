@@ -994,19 +994,13 @@
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
   z-index: 999999 !important;
-  display: flex !important;
+  display: none; /* Default hidden */
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity var(--transition-normal), visibility var(--transition-normal);
 }
 
 .modal-overlay.open {
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
+  display: flex !important;
 }
 
 .modal-content {
@@ -1018,12 +1012,10 @@
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-lg);
-  transform: scale(0.9);
-  transition: transform var(--transition-normal);
 }
 
 .modal-overlay.open .modal-content {
-  transform: scale(1);
+  /* No transform to avoid issues */
 }
 
 .modal-header {

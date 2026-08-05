@@ -662,15 +662,13 @@ class MarketplaceController {
       const modal = document.getElementById('customizer-modal');
       if (modal) {
         modal.classList.add('open');
-        // Force inline styles to bypass any CSS caching issues
         modal.style.setProperty('display', 'flex', 'important');
-        modal.style.setProperty('opacity', '1', 'important');
-        modal.style.setProperty('visibility', 'visible', 'important');
-        modal.style.setProperty('pointer-events', 'auto', 'important');
-        modal.style.setProperty('z-index', '9999999', 'important');
         
-        console.log('Modal bounds after opening:', modal.getBoundingClientRect());
-        console.log('Modal content bounds:', modal.querySelector('.modal-content').getBoundingClientRect());
+        // Ensure inner content is also visible
+        const content = modal.querySelector('.modal-content');
+        if (content) {
+          content.style.setProperty('display', 'flex', 'important');
+        }
       }
       window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
     }
@@ -1455,16 +1453,21 @@ class MarketplaceController {
   }
 
   // Modals
+  openTermsModal() {
+    this.closeAllModals();
+    const modal = document.getElementById('terms-modal');
+    if (modal) {
+      modal.classList.add('open');
+      modal.style.setProperty('display', 'flex', 'important');
+    }
+  }
+
   openCartModal() {
     this.closeAllModals();
     const modal = document.getElementById('cart-modal');
     if (modal) {
       modal.classList.add('open');
-      modal.style.display = 'flex';
-      modal.style.opacity = '1';
-      modal.style.visibility = 'visible';
-      modal.style.pointerEvents = 'auto';
-      modal.style.zIndex = '9999999';
+      modal.style.setProperty('display', 'flex', 'important');
     }
     this.renderCartItems();
     this.setActiveMobileTab('cart');
@@ -1945,10 +1948,11 @@ class MarketplaceController {
   }
 
   openLocationModal() {
-    this.dismissLocationTutorial();
+    this.closeAllModals();
     const modal = document.getElementById('location-modal');
     if (modal) {
       modal.classList.add('open');
+      modal.style.setProperty('display', 'flex', 'important');
       // Highlight selected button
       document.querySelectorAll('.btn-location-option').forEach(btn => btn.style.borderColor = 'var(--border)');
       let activeBtnId = 'btn-loc-san-antonio';
@@ -1988,9 +1992,10 @@ class MarketplaceController {
         el.classList.remove('open');
         el.classList.remove('active');
         el.style.display = 'none';
-        el.style.opacity = '0';
-        el.style.visibility = 'hidden';
-        el.style.pointerEvents = 'none';
+        // Reset properties in case they were set inline
+        el.style.opacity = '';
+        el.style.visibility = '';
+        el.style.pointerEvents = '';
       }
     });
   }
