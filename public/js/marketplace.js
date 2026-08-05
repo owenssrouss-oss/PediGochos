@@ -442,7 +442,7 @@ class MarketplaceController {
       card.className = 'product-card animate-fade-in-up';
       card.style.cursor = 'pointer';
       card.style.animationDelay = `${index * 0.05}s`;
-      card.onclick = () => this.openCustomizerModalById(prod.id);
+      card.onclick = () => this.openCustomizerModal(prod);
 
       // Check if image exists, otherwise use category fallback or emoji
       let imgHTML = '';
@@ -473,7 +473,7 @@ class MarketplaceController {
       if (addBtn) {
         addBtn.onclick = (e) => {
           e.stopPropagation();
-          this.openCustomizerModalById(prod.id);
+          this.openCustomizerModal(prod);
         };
       }
 
@@ -1412,11 +1412,19 @@ class MarketplaceController {
     const badgeCount = document.getElementById('cart-badge-count');
     const badgeTotal = document.getElementById('cart-badge-total');
 
+    const headerCount = document.getElementById('header-cart-badge-count');
+    const headerTotal = document.getElementById('header-cart-badge-total');
+
     const totalCount = this.cart.items.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = this.cart.items.reduce((sum, item) => sum + item.subtotal_combined, 0);
 
+    const formattedTotal = this.formatPesos(subtotal);
+
     if (badgeCount) badgeCount.innerText = totalCount;
-    if (badgeTotal) badgeTotal.innerText = this.formatPesos(subtotal);
+    if (badgeTotal) badgeTotal.innerText = formattedTotal;
+
+    if (headerCount) headerCount.innerText = totalCount;
+    if (headerTotal) headerTotal.innerText = formattedTotal;
 
     if (totalCount > 0 && badgeCount) {
       badgeCount.classList.remove('badge-pop');
