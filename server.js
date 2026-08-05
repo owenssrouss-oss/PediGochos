@@ -559,6 +559,9 @@ app.put('/api/establishments/:id', (req, res) => {
   if (req.body.location) {
     est.location = req.body.location;
   }
+  if (req.body.newLinkKey) {
+    est.linkKey = req.body.newLinkKey;
+  }
   
   writeDB(db);
   res.json({ success: true, establishment: est });

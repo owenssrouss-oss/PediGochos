@@ -781,22 +781,38 @@ class KitchenController {
     }
 
     // Build driver notification message
-    const storeName = this.establishments.find(e => e.id === this.selectedId)?.name || 'El Local';
+    const storeName = this.establishments.find(e => e.id === this.selectedId)?.name || order.establishmentName || 'El Local';
     const clientName = order.customerName || 'Cliente';
-    const clientPhone = order.deliveryDetails.phone || 'N/A';
-    const clientAddress = order.deliveryDetails.address || 'N/A';
-    const securityCode = order.deliveryDetails.code || 'N/A';
-    const totalAmount = Math.round(order.total).toLocaleString('de-DE');
+    const clientPhone = order.deliveryDetails?.phone || 'N/A';
+    const clientAddress = order.deliveryDetails?.address || 'N/A';
+    const securityCode = order.deliveryDetails?.code || 'N/A';
+    const housePhotoUrl = order.deliveryDetails?.housePhotoUrl || null;
 
-    const messageText = `🚴 *Rapi Gochos - Nuevo Servicio Solicitado*
-*Establecimiento:* ${storeName}
-*Cliente:* ${clientName}
-*Teléfono:* ${clientPhone}
-*Dirección:* ${clientAddress}
-*Código de Entrega:* ${securityCode}
-*Total a Cobrar:* $${totalAmount}`;
+    // Itemized order text
+    const itemsSummary = (order.items || []).map(item => {
+      let line = `• ${item.quantity}x ${item.name}`;
+      if (item.specifications) line += ` (${item.specifications})`;
+      line += ` - $${item.subtotal_combined || (item.price * item.quantity)}`;
+      return line;
+    }).join('\n');
 
-    const whatsappUrl = `https://wa.me/573227949751?text=${encodeURIComponent(messageText)}`;
+    const isSmallCurrency = (order.total || 0) < 1000;
+    const formattedTotal = isSmallCurrency ? `$${order.total.toFixed(2)} USD` : `$${Math.round(order.total).toLocaleString('de-DE')} COP`;
+
+    let messageText = `🚴 *Rapi Gochos - NUEVO SERVICIO DE DOMICILIO*\n\n` +
+      `🏬 *Establecimiento:* ${storeName}\n` +
+      `👤 *Cliente:* ${clientName}\n` +
+      `📞 *Teléfono:* ${clientPhone}\n` +
+      `📍 *Dirección:* ${clientAddress}\n` +
+      `🔑 *Código de Entrega:* ${securityCode}\n\n` +
+      `📝 *DETALLE DEL PEDIDO:*\n${itemsSummary}\n\n` +
+      `💰 *TOTAL A COBRAR AL ENTREGAR:* ${formattedTotal}`;
+
+    if (housePhotoUrl) {
+      messageText += `\n\n🏡 *FOTO DE FACHADA/CASA:* ${housePhotoUrl}`;
+    }
+
+    const whatsappUrl = `https://wa.me/573227949451?text=${encodeURIComponent(messageText)}`;
     
     // Open whatsapp link
     window.open(whatsappUrl, '_blank');
@@ -1988,6 +2004,10 @@ class KitchenController {
     if (!est) return;
 
     // Populate inputs
+    const currentKey = localStorage.getItem('admin_key_' + this.selectedId) || est.linkKey || '';
+    if (document.getElementById('custom-shop-link-key')) {
+      document.getElementById('custom-shop-link-key').value = currentKey;
+    }
     document.getElementById('custom-shop-name').value = est.name || '';
     document.getElementById('custom-shop-desc').value = est.description || '';
     document.getElementById('custom-shop-location').value = est.location || 'San Antonio';
@@ -2006,6 +2026,32 @@ class KitchenController {
 
   closeCustomizeShopModal() {
     document.getElementById('customize-shop-modal').classList.remove('active');
+  }
+
+  checkKitchenTermsModal() {
+    const accepted = localStorage.getItem('kitchen_terms_accepted');
+    const modal = document.getElementById('kitchen-terms-modal');
+    if (!accepted && modal) {
+      modal.classList.remove('hidden');
+    }
+  }
+
+  toggleTermsButton(checked) {
+    const btn = document.getElementById('btn-confirm-kitchen-terms');
+    if (btn) {
+      btn.disabled = !checked;
+      btn.style.opacity = checked ? '1' : '0.5';
+    }
+  }
+
+  acceptTermsAndProceed() {
+    const chk = document.getElementById('chk-accept-kitchen-terms');
+    if (chk && chk.checked) {
+      localStorage.setItem('kitchen_terms_accepted', 'true');
+      const modal = document.getElementById('kitchen-terms-modal');
+      if (modal) modal.classList.add('hidden');
+      this.showToast('✅ Términos y requisitos aceptados');
+    }
   }
 
   async handleCustomizeShopSubmit(e) {
@@ -2052,12 +2098,29 @@ class KitchenController {
         bannerType = 'image';
       }
 
-      // Read linked code/key from storage
-      const linkKey = localStorage.getItem(`admin_key_${this.selectedId}`);
+      // Read linked code/key from storage & check master code 0424 for changes
+      const currentLinkKey = localStorage.getItem(`admin_key_${this.selectedId}`) || est.linkKey || '';
+      const newKeyInput = document.getElementById('custom-shop-link-key') ? document.getElementById('custom-shop-link-key').value.trim().toUpperCase() : currentLinkKey;
+      
+      let finalLinkKey = currentLinkKey;
+      let newLinkKeyToSend = null;
+
+      if (newKeyInput && newKeyInput !== currentLinkKey.toUpperCase()) {
+        const masterCode = prompt('⚠️ Para modificar la Clave de Vinculación debes ingresar el Código de Confirmación Maestro:');
+        if (masterCode === '0424') {
+          finalLinkKey = newKeyInput;
+          newLinkKeyToSend = newKeyInput;
+          localStorage.setItem(`admin_key_${this.selectedId}`, newKeyInput);
+          alert('🔑 Clave de vinculación autorizada y actualizada con éxito a: ' + newKeyInput);
+        } else {
+          alert('❌ Código de confirmación maestro incorrecto. Se mantendrá la clave previa.');
+        }
+      }
 
       const payload = {
         isOwner: false,
-        linkKey,
+        linkKey: currentLinkKey,
+        newLinkKey: newLinkKeyToSend,
         name,
         description,
         location,

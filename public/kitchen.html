@@ -276,7 +276,12 @@
         <button class="modal-close" onclick="KitchenApp.closeCustomizeShopModal()">✕</button>
       </div>
       
-      <form id="customize-shop-form" onsubmit="KitchenApp.handleCustomizeShopSubmit(event)">
+        <div class="form-group" style="background: rgba(255, 94, 58, 0.08); padding: 12px; border-radius: 8px; border: 1px dashed rgba(255, 94, 58, 0.3); margin-bottom: 12px;">
+          <label for="custom-shop-link-key" style="color: #FF5E3A; font-weight: 700;">🔑 Clave de Vinculación (Acceso al Negocio)</label>
+          <input type="text" id="custom-shop-link-key" placeholder="CLAVE ACTUAL" style="width: 100%; text-transform: uppercase; font-weight: bold; font-size: 14px; background: #0F172A; color: #FFF; border: 1px solid #475569; padding: 10px; border-radius: 6px;">
+          <small style="color: #cbd5e1; font-size: 11px; display: block; margin-top: 4px;">* Requiere ingresar el Código Maestro 0424 para modificarla.</small>
+        </div>
+
         <div class="form-group">
           <label for="custom-shop-name">Nombre del Comercio *</label>
           <input type="text" id="custom-shop-name" required placeholder="Ej. Mack Pizza" style="width: 100%;">

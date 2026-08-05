@@ -1747,6 +1747,21 @@ class MarketplaceController {
       groupedItems[item.restaurant_id].items.push(item);
     });
 
+    // Upload house facade photo if attached
+    let housePhotoUrl = null;
+    const housePhotoInput = document.getElementById('order-house-photo');
+    if (this.orderType === 'delivery' && housePhotoInput && housePhotoInput.files && housePhotoInput.files[0]) {
+      try {
+        const photoFile = housePhotoInput.files[0];
+        const fileName = `uploads/house_${Date.now()}_${Math.floor(Math.random() * 1000)}.${photoFile.name.split('.').pop()}`;
+        if (window.SupabaseHelper && window.SupabaseHelper.uploadImage) {
+          housePhotoUrl = await window.SupabaseHelper.uploadImage(photoFile, fileName);
+        }
+      } catch (err) {
+        console.error('Error uploading house photo:', err);
+      }
+    }
+
     const shopIds = Object.keys(groupedItems);
     
     try {
@@ -1796,7 +1811,8 @@ class MarketplaceController {
             code: randomCode,
             latitude: this.selectedLatitude,
             longitude: this.selectedLongitude,
-            distanceKm: this.calculatedDistanceKm
+            distanceKm: this.calculatedDistanceKm,
+            housePhotoUrl: housePhotoUrl || null
           } : null
         };
 
