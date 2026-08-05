@@ -662,7 +662,12 @@ class MarketplaceController {
       const modal = document.getElementById('customizer-modal');
       if (modal) {
         modal.classList.add('open');
-        // Let CSS handle display via .open class
+        // Force inline styles to bypass any CSS caching issues
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+        modal.style.pointerEvents = 'auto';
+        modal.style.zIndex = '9999999';
       }
       window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
     }
@@ -1202,6 +1207,9 @@ class MarketplaceController {
       modal.classList.remove('open');
       modal.classList.remove('active');
       modal.style.display = 'none';
+      modal.style.opacity = '0';
+      modal.style.visibility = 'hidden';
+      modal.style.pointerEvents = 'none';
     }
   }
 
@@ -1449,7 +1457,11 @@ class MarketplaceController {
     const modal = document.getElementById('cart-modal');
     if (modal) {
       modal.classList.add('open');
-      // Let CSS handle display via .open class
+      modal.style.display = 'flex';
+      modal.style.opacity = '1';
+      modal.style.visibility = 'visible';
+      modal.style.pointerEvents = 'auto';
+      modal.style.zIndex = '9999999';
     }
     this.renderCartItems();
     this.setActiveMobileTab('cart');
@@ -1972,7 +1984,10 @@ class MarketplaceController {
       if (el) {
         el.classList.remove('open');
         el.classList.remove('active');
-        // el.style.display = 'none'; // Let CSS handle display via .open class
+        el.style.display = 'none';
+        el.style.opacity = '0';
+        el.style.visibility = 'hidden';
+        el.style.pointerEvents = 'none';
       }
     });
   }
