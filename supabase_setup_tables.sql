@@ -1,9 +1,9 @@
 -- =======================================================
--- SCRIPT DE BASE DE DATOS: TABLAS DE PERSISTENCIA COMPLETAS
--- Ejecuta este script en el editor SQL de Supabase (SQL Editor)
+-- SCRIPT COMPLETO DE CONFIGURACIÓN DE BASE DE DATOS Y PERMISOS
+-- Ejecuta todo este script en el SQL Editor de tu panel de Supabase
 -- =======================================================
 
--- 1. Crear tabla de Establecimientos
+-- 1. CREACIÓN DE TABLAS PRINCIPALES
 create table if not exists establishments (
   id text primary key,
   name text not null,
@@ -25,7 +25,6 @@ create table if not exists establishments (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- 2. Crear tabla de Pedidos
 create table if not exists orders (
   id text primary key,
   "establishmentId" text,
@@ -43,69 +42,79 @@ create table if not exists orders (
   "updatedAt" timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- 3. Habilitar RLS (Row Level Security) en ambas tablas
+create table if not exists user_roles (
+  id uuid default gen_random_uuid() primary key,
+  email text not null unique,
+  role text not null default 'merchant',
+  establishment_id text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- 2. HABILITAR RLS (ROW LEVEL SECURITY)
 alter table establishments enable row level security;
 alter table orders enable row level security;
+alter table user_roles enable row level security;
 
--- 4. Crear Políticas de acceso público (Lectura y Escritura ilimitadas con la Anon Key)
--- Esto permite que tu servidor Node.js guarde los datos sin dar error de credenciales.
+-- 3. POLÍTICAS DE ACCESO PÚBLICO (ESTABLECIMIENTOS)
+drop policy if exists "Public select establishments" on establishments;
+create policy "Public select establishments" on establishments for select using (true);
 
--- Políticas para Establecimientos
-drop policy if exists "Lectura pública de establecimientos" on establishments;
-create policy "Lectura pública de establecimientos" on establishments for select using (true);
+drop policy if exists "Public insert establishments" on establishments;
+create policy "Public insert establishments" on establishments for insert with check (true);
 
-drop policy if exists "Inserción pública de establecimientos" on establishments;
-create policy "Inserción pública de establecimientos" on establishments for insert with check (true);
+drop policy if exists "Public update establishments" on establishments;
+create policy "Public update establishments" on establishments for update using (true) with check (true);
 
-drop policy if exists "Actualización pública de establecimientos" on establishments;
-create policy "Actualización pública de establecimientos" on establishments for update using (true) with check (true);
+drop policy if exists "Public delete establishments" on establishments;
+create policy "Public delete establishments" on establishments for delete using (true);
 
-drop policy if exists "Eliminación pública de establecimientos" on establishments;
-create policy "Eliminación pública de establecimientos" on establishments for delete using (true);
+-- 4. POLÍTICAS DE ACCESO PÚBLICO (PEDIDOS)
+drop policy if exists "Public select orders" on orders;
+create policy "Public select orders" on orders for select using (true);
 
--- Políticas para Pedidos
-drop policy if exists "Lectura pública de pedidos" on orders;
-create policy "Lectura pública de pedidos" on orders for select using (true);
+drop policy if exists "Public insert orders" on orders;
+create policy "Public insert orders" on orders for insert with check (true);
 
-drop policy if exists "Inserción pública de pedidos" on orders;
-create policy "Inserción pública de pedidos" on orders for insert with check (true);
+drop policy if exists "Public update orders" on orders;
+create policy "Public update orders" on orders for update using (true) with check (true);
 
-drop policy if exists "Actualización pública de pedidos" on orders;
-create policy "Actualización pública de pedidos" on orders for update using (true) with check (true);
+drop policy if exists "Public delete orders" on orders;
+create policy "Public delete orders" on orders for delete using (true);
 
-drop policy if exists "Eliminación pública de pedidos" on orders;
-create policy "Eliminación pública de pedidos" on orders for delete using (true);
+-- 5. POLÍTICAS DE ACCESO PÚBLICO (ROLES DE USUARIOS)
+drop policy if exists "Public select user_roles" on user_roles;
+create policy "Public select user_roles" on user_roles for select using (true);
 
--- =======================================================
--- 5. CONFIGURACIÓN DEL BUCKET DE ALMACENAMIENTO (STORAGE)
--- =======================================================
+drop policy if exists "Public insert user_roles" on user_roles;
+create policy "Public insert user_roles" on user_roles for insert with check (true);
 
--- Asegurar que el bucket "menu_images" existe y es público
+drop policy if exists "Public update user_roles" on user_roles;
+create policy "Public update user_roles" on user_roles for update using (true) with check (true);
+
+drop policy if exists "Public delete user_roles" on user_roles;
+create policy "Public delete user_roles" on user_roles for delete using (true);
+
+-- 6. ASIGNACIÓN DE ROLES DE ADMINISTRADOR (DUEÑOS)
+insert into user_roles (email, role, establishment_id)
+values 
+  ('sergioantia@gmail.com', 'owner', null),
+  ('owenssrouss@gmail.com', 'owner', null)
+on conflict (email) 
+do update set role = 'owner';
+
+-- 7. CONFIGURACIÓN DEL BUCKET DE FOTOS Y ARCHIVOS (STORAGE)
 insert into storage.buckets (id, name, public)
 values ('menu_images', 'menu_images', true)
 on conflict (id) do update set public = true;
 
--- Habilitar políticas de lectura pública para las imágenes del menú
-drop policy if exists "Lectura pública de imágenes" on storage.objects;
-create policy "Lectura pública de imágenes" on storage.objects for select using ( bucket_id = 'menu_images' );
+drop policy if exists "Public select storage menu_images" on storage.objects;
+create policy "Public select storage menu_images" on storage.objects for select using ( bucket_id = 'menu_images' );
 
--- Habilitar políticas de subida (inserción) pública y anónima
-drop policy if exists "Inserción pública de imágenes" on storage.objects;
-create policy "Inserción pública de imágenes" on storage.objects for insert with check ( bucket_id = 'menu_images' );
+drop policy if exists "Public insert storage menu_images" on storage.objects;
+create policy "Public insert storage menu_images" on storage.objects for insert with check ( bucket_id = 'menu_images' );
 
--- Habilitar políticas de actualización pública (para sobrescribir db_backup.json)
-drop policy if exists "Actualización pública de imágenes" on storage.objects;
-create policy "Actualización pública de imágenes" on storage.objects for update using ( bucket_id = 'menu_images' );
+drop policy if exists "Public update storage menu_images" on storage.objects;
+create policy "Public update storage menu_images" on storage.objects for update using ( bucket_id = 'menu_images' );
 
--- Habilitar políticas de eliminación de imágenes
-drop policy if exists "Eliminación pública de imágenes" on storage.objects;
-create policy "Eliminación pública de imágenes" on storage.objects for delete using ( bucket_id = 'menu_images' );
-
--- =======================================================
--- NOTA DE MIGRACIÓN PARA BASES DE DATOS EXISTENTES
--- Si tu base de datos ya tiene las tablas "establishments" y "orders", ejecuta esto en Supabase SQL Editor:
--- ALTER TABLE establishments ADD COLUMN IF NOT EXISTS location TEXT DEFAULT 'San Antonio';
--- ALTER TABLE orders ADD COLUMN IF NOT EXISTS "cancelReason" TEXT;
--- ALTER TABLE orders ADD COLUMN IF NOT EXISTS "paymentStatus" TEXT DEFAULT 'Pendiente';
--- =======================================================
-
+drop policy if exists "Public delete storage menu_images" on storage.objects;
+create policy "Public delete storage menu_images" on storage.objects for delete using ( bucket_id = 'menu_images' );
