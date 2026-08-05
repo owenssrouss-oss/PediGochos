@@ -487,15 +487,8 @@ class MarketplaceController {
     const product = this.selectedEstablishment.products.find(p => p.id === productId);
     if (!product) return;
 
-    // Check if has modifiers or exclusions (force customizer if so, e.g. drink sizes or pizza options)
-    const hasModifiers = product.modifiers && product.modifiers.length > 0;
-    const hasExclusions = product.exclusions && product.exclusions.length > 0;
-
-    if (hasModifiers || hasExclusions) {
-      this.openCustomizerModal(product);
-    } else {
-      this.addDirectToCart(product);
-    }
+    // Always open customizer modal for product customization & ingredient selection
+    this.openCustomizerModal(product);
   }
 
   addDirectToCart(product) {
@@ -557,12 +550,11 @@ class MarketplaceController {
     const initSide = (sideKey, targetProduct = product) => {
       this.customizerState.quantities[sideKey] = {};
       
-      // 1. Base ingredients to 1 (or 0 if it's an Arepa or Helado)
-      const isSpecialZeroInit = targetProduct.name.toLowerCase().includes('arepa') || targetProduct.name.toLowerCase().includes('helado');
+      // 1. Base ingredients default to 1 (included by default for all offer types: Arepas, Helados, Hamburguesas, Pizzas, etc.)
       if (targetProduct.exclusions) {
         targetProduct.exclusions.forEach(item => {
           const itemName = item.name || item;
-          this.customizerState.quantities[sideKey]['base_' + itemName] = isSpecialZeroInit ? 0 : 1;
+          this.customizerState.quantities[sideKey]['base_' + itemName] = 1;
         });
       }
 
@@ -634,7 +626,12 @@ class MarketplaceController {
     this.renderCustomizerModifiers();
 
     // Show modal
-    document.getElementById('customizer-modal').classList.add('open');
+    const modal = document.getElementById('customizer-modal');
+    if (modal) {
+      modal.classList.add('open');
+      modal.classList.add('active');
+      modal.style.display = 'flex';
+    }
     window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
   }
 
@@ -1248,7 +1245,12 @@ class MarketplaceController {
   }
 
   closeCustomizerModal() {
-    document.getElementById('customizer-modal').classList.remove('open');
+    const modal = document.getElementById('customizer-modal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.classList.remove('active');
+      modal.style.display = 'none';
+    }
     if (window.history.state && window.history.state.view === 'modal' && window.history.state.modalId === 'customizer-modal') {
       window.history.back();
     }
