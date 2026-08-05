@@ -655,29 +655,25 @@ class MarketplaceController {
       }
 
       this.renderCustomizerModifiers();
+
+      // Show Modal guaranteed
+      const modal = document.getElementById('customizer-modal');
+      if (modal) {
+        modal.classList.add('open');
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+        modal.style.pointerEvents = 'auto';
+        modal.style.zIndex = '9999999';
+        
+        const content = modal.querySelector('.modal-content');
+        if (content) {
+          content.style.display = 'flex';
+        }
+      }
+      window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
     } catch (err) {
       console.error('Error setting up customizer modal:', err);
-    } finally {
-      try {
-        const modal = document.getElementById('customizer-modal');
-        if (modal) {
-          modal.classList.add('open');
-          modal.style.setProperty('display', 'flex', 'important');
-          
-          const content = modal.querySelector('.modal-content');
-          if (content) {
-            content.style.setProperty('display', 'flex', 'important');
-          }
-          console.log('Modal bounds:', modal.getBoundingClientRect());
-        } else {
-          console.error('Modal customizer-modal not found in DOM!');
-          alert('Error crítico: No se encontró el modal en la página.');
-        }
-        window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
-      } catch (finalErr) {
-        console.error('Error in finally block:', finalErr);
-        alert('Error mostrando menú: ' + finalErr.message);
-      }
     }
   }
 
@@ -2022,7 +2018,13 @@ class MarketplaceController {
       }
     } else if (state.view === 'modal') {
       const modal = document.getElementById(state.modalId);
-      if (modal) modal.classList.add('open');
+      if (modal) {
+        modal.classList.add('open');
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+        modal.style.pointerEvents = 'auto';
+      }
     }
   }
 

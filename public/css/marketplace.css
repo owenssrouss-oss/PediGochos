@@ -994,13 +994,16 @@
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
   z-index: 999999 !important;
-  display: none; /* Default hidden */
+  display: none;
   align-items: center;
   justify-content: center;
 }
 
 .modal-overlay.open {
   display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
 }
 
 .modal-content {
@@ -1677,7 +1680,7 @@ body {
   flex-direction: column;
   gap: 14px;
   padding: 18px;
-  background-color: var(--card-bg, #1A1F2E);
+  background-color: var(--bg-card, #FFFFFF);
   border-bottom: 1px solid var(--border);
 }
 
@@ -1690,7 +1693,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--input-bg, #272C3D);
+  background: var(--bg-app, #F8F9FA);
   font-size: 64px;
   border: 1px solid var(--border);
 }
@@ -1709,7 +1712,7 @@ body {
 .customizer-product-info h4 {
   font-size: 20px;
   font-weight: 800;
-  color: var(--text-main, #FFFFFF);
+  color: var(--text-main, #111827);
   margin-bottom: 4px;
 }
 
