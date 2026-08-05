@@ -7376,62 +7376,113 @@
     {
       "id": "gema-1784920874883",
       "name": "Gema Pop",
-      "category": "helados",
-      "description": "Helados gourmets, frappés, paletas y postres fríos especiales.",
+      "category": "comidas",
+      "description": "Helados gourmets, frappés, paletas artesanales y postres fríos especiales.",
       "logo": "🍦",
-      "bannerType": "gradient",
-      "banner": "linear-gradient(135deg, #FF69B4, #FF1493)",
+      "bannerType": "image",
+      "banner": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785010619330_499.jpg",
       "linkKey": "GEMAPOP",
       "delivery_fee": 0,
       "themeColor": "#FF1493",
-      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785013539413_118.png",
+      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785010562481_522.jpg",
       "tables": [],
       "layout": [],
       "products": [
         {
-          "id": "p-gema-1",
-          "name": "Helado Pop Gourmet",
+          "id": "p-gema-101",
+          "name": "Helado Pop Gourmet Especial",
           "price": 3.5,
           "category": "🍦 Helados",
-          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785013539413_118.png",
-          "description": "Delicioso helado artesanal con toppings de galleta y sirope de chocolate.",
+          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785010562481_522.jpg",
+          "description": "Delicioso helado artesanal gourmet con sirope de chocolate y trozos crujientes.",
           "exclusions": [
             "Sirope",
-            "Galleta"
+            "Topping Crujiente"
           ]
         },
         {
-          "id": "p-gema-2",
-          "name": "Copas Malteada Pop",
+          "id": "p-gema-102",
+          "name": "Copa Helado Suprema Pop",
           "price": 4.5,
-          "category": "🥤 Malteadas",
-          "image": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500",
-          "description": "Cremosa malteada con sirope, crema chantilly y chispas de colores.",
+          "category": "🍧 Copas",
+          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785010619330_499.jpg",
+          "description": "Copa especial de varias bolas de helado con topping crujiente y sirope dulce.",
           "exclusions": [
-            "Chantilly",
-            "Chispas"
+            "Sirope",
+            "Chantilly"
           ]
         },
         {
-          "id": "p-gema-3",
-          "name": "Sundae Choco-Oreo",
-          "price": 3,
+          "id": "p-gema-103",
+          "name": "Sundae Especial de Chocolate",
+          "price": 4,
           "category": "🍦 Helados",
-          "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=500",
-          "description": "Helado de vainilla con capas de galleta Oreo troceada y fudge caliente.",
+          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785010635972_866.jpg",
+          "description": "Sundae artesanal de mantecado bañado en fudge espeso de chocolate.",
           "exclusions": [
             "Fudge de Chocolate"
           ]
         },
         {
-          "id": "p-gema-4",
-          "name": "Wafles con Helado & Nutella",
+          "id": "p-gema-104",
+          "name": "Copa Fresa & Chantilly",
+          "price": 4.2,
+          "category": "🍧 Copas",
+          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785010755202_783.jpg",
+          "description": "Helado cremoso de fresa con trozos de fruta natural y crema chantilly.",
+          "exclusions": [
+            "Crema Chantilly"
+          ]
+        },
+        {
+          "id": "p-gema-105",
+          "name": "Malteada Pop de Oreo",
+          "price": 4.5,
+          "category": "🥤 Malteadas",
+          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785013539413_118.png",
+          "description": "Malteada helada batida con galletas Oreo reales y crema.",
+          "exclusions": [
+            "Oreo Troceada"
+          ]
+        },
+        {
+          "id": "p-gema-106",
+          "name": "Barquillo Doble Bola Gourmet",
+          "price": 3,
+          "category": "🍦 Helados",
+          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785014182570_215.png",
+          "description": "Barquillo crocante recién elaborado con dos bolas de helado a tu elección.",
+          "exclusions": []
+        },
+        {
+          "id": "p-gema-107",
+          "name": "Paleta Artesanal Rellena",
+          "price": 2.5,
+          "category": "🍭 Paletas",
+          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785014224889_357.png",
+          "description": "Paleta helada artesanal con suculento relleno cremoso.",
+          "exclusions": []
+        },
+        {
+          "id": "p-gema-108",
+          "name": "Wafle Tostado con Helado",
           "price": 5,
           "category": "🍰 Postres",
-          "image": "https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=500",
-          "description": "Wafle recién horneado servido con una bola de helado y lluvia de Nutella.",
+          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785014259751_835.png",
+          "description": "Wafle crujiente servido con bola de helado y lluvia de chocolate.",
           "exclusions": [
-            "Nutella"
+            "Lluvia de Chocolate"
+          ]
+        },
+        {
+          "id": "p-gema-109",
+          "name": "Copa FrutyPop Dulce de Leche",
+          "price": 4.8,
+          "category": "🍧 Copas",
+          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1785014347573_729.png",
+          "description": "Copa de helado con dulce de leche cremoso y pirulín crujiente.",
+          "exclusions": [
+            "Pirulín"
           ]
         }
       ],
@@ -7581,7 +7632,7 @@
     {
       "id": "frutyheladosgourmet-1785013456147",
       "name": "Frutyhelados Gourmet",
-      "category": "helados",
+      "category": "comidas",
       "description": "Copas de helado, merengadas de frutas, ensaladas de fruta y toppings variados.",
       "logo": "🍧",
       "bannerType": "gradient",
@@ -8292,5 +8343,5 @@
       "updatedAt": "2026-07-19T22:20:13.19+00:00"
     }
   ],
-  "lastUpdated": "2026-08-05T04:19:05.589Z"
+  "lastUpdated": "2026-08-05T04:36:48.081Z"
 }
