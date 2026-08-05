@@ -2285,7 +2285,7 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  display: flex;
+  display: none; /* Hidden by default on Home */
   justify-content: space-around;
   align-items: center;
   z-index: 99990 !important;

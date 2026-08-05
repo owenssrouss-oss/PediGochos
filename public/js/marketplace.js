@@ -663,11 +663,14 @@ class MarketplaceController {
       if (modal) {
         modal.classList.add('open');
         // Force inline styles to bypass any CSS caching issues
-        modal.style.display = 'flex';
-        modal.style.opacity = '1';
-        modal.style.visibility = 'visible';
-        modal.style.pointerEvents = 'auto';
-        modal.style.zIndex = '9999999';
+        modal.style.setProperty('display', 'flex', 'important');
+        modal.style.setProperty('opacity', '1', 'important');
+        modal.style.setProperty('visibility', 'visible', 'important');
+        modal.style.setProperty('pointer-events', 'auto', 'important');
+        modal.style.setProperty('z-index', '9999999', 'important');
+        
+        console.log('Modal bounds after opening:', modal.getBoundingClientRect());
+        console.log('Modal content bounds:', modal.querySelector('.modal-content').getBoundingClientRect());
       }
       window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
     }

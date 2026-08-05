@@ -1195,7 +1195,8 @@ class AdminController {
         await this.reloadData();
         await this.triggerCloudBackup();
       } else {
-        alert('Error al registrar establecimiento.');
+        const errorText = await response.text();
+        alert('Error al registrar establecimiento: ' + errorText);
       }
     } catch (err) {
       console.error(err);
