@@ -557,42 +557,60 @@ class MarketplaceController {
     console.log('openCustomizerModal called for:', product.name);
     try {
       this.closeAllModals();
+
+      // Show Modal FIRST guaranteed before any content calculation
+      const modal = document.getElementById('customizer-modal');
+      if (modal) {
+        modal.classList.add('open');
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+        modal.style.pointerEvents = 'auto';
+        modal.style.zIndex = '9999999';
+        
+        const content = modal.querySelector('.modal-content');
+        if (content) {
+          content.style.display = 'flex';
+        }
+      }
+      window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
+
       this.customizerState = {
         product: product,
         quantity: 1,
-        pizzaMode: 'whole', // 'whole' or 'halves'
-        specialtyA: null, // Pizza product object selected for Mitad A
-        specialtyB: null, // Pizza product object selected for Mitad B
+        pizzaMode: 'whole',
+        specialtyA: null,
+        specialtyB: null,
         quantities: {
-          whole: {}, // { 'base_Cebolla': 1, 'opt_opt-id': 0 }
+          whole: {},
           halfA: {},
           halfB: {}
         }
       };
 
-      // Helper to initialize side quantities
       const initSide = (sideKey, targetProduct = product) => {
         this.customizerState.quantities[sideKey] = {};
-        
-        // 1. Base ingredients: initialize to 0 for Arepas & Helados (unchecked by default), 1 for others (included by default)
         const isSpecialZeroInit = this.isArepaOrHeladoProduct(targetProduct);
-        if (targetProduct.exclusions && Array.isArray(targetProduct.exclusions)) {
+        if (targetProduct && targetProduct.exclusions && Array.isArray(targetProduct.exclusions)) {
           targetProduct.exclusions.forEach(item => {
             const itemName = typeof item === 'object' && item.name ? item.name : String(item);
             this.customizerState.quantities[sideKey]['base_' + itemName] = isSpecialZeroInit ? 0 : 1;
           });
         }
 
-        // 2. Initialize modifier options
-        if (targetProduct.modifiers && Array.isArray(targetProduct.modifiers)) {
+        if (targetProduct && targetProduct.modifiers && Array.isArray(targetProduct.modifiers)) {
           targetProduct.modifiers.forEach(group => {
-            if (group.selection_type === 'single' && Array.isArray(group.options)) {
+            if (group && group.selection_type === 'single' && Array.isArray(group.options)) {
               group.options.forEach((opt, idx) => {
-                this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (idx === 0) ? 1 : 0;
+                if (opt && opt.option_id) {
+                  this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (idx === 0) ? 1 : 0;
+                }
               });
-            } else if (Array.isArray(group.options)) {
+            } else if (group && Array.isArray(group.options)) {
               group.options.forEach(opt => {
-                this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = 0;
+                if (opt && opt.option_id) {
+                  this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = 0;
+                }
               });
             }
           });
@@ -601,9 +619,12 @@ class MarketplaceController {
 
       initSide('whole');
 
-      // UI setup
-      document.getElementById('customizer-product-name').innerText = product.name || 'Producto';
-      document.getElementById('customizer-product-desc').innerText = product.description || '';
+      // Populate UI text safely
+      const nameEl = document.getElementById('customizer-product-name');
+      if (nameEl) nameEl.innerText = product.name || 'Producto';
+
+      const descEl = document.getElementById('customizer-product-desc');
+      if (descEl) descEl.innerText = product.description || '';
       
       const ingredientsEl = document.getElementById('customizer-product-ingredients');
       if (ingredientsEl) {
@@ -618,11 +639,16 @@ class MarketplaceController {
         }
       }
       
-      document.getElementById('customizer-base-price').innerText = this.formatPesos(product.price);
-      document.getElementById('customizer-quantity-display').innerText = '1';
-      document.getElementById('customizer-special-notes').value = '';
+      const basePriceEl = document.getElementById('customizer-base-price');
+      if (basePriceEl) basePriceEl.innerText = this.formatPesos(product.price || 0);
 
-      // Handle image
+      const qtyDisp = document.getElementById('customizer-quantity-display');
+      if (qtyDisp) qtyDisp.innerText = '1';
+
+      const notesInput = document.getElementById('customizer-special-notes');
+      if (notesInput) notesInput.value = '';
+
+      // Image
       const imgWrapper = document.getElementById('customizer-product-img-wrapper');
       if (imgWrapper) {
         if (product.image) {
@@ -639,7 +665,9 @@ class MarketplaceController {
       if (colAHeader) colAHeader.classList.add('hidden');
       
       // Pizza check
-      const isPizza = product.category === 'Pizzas' || (product.name && product.name.toLowerCase().includes('pizza'));
+      const pName = (product.name || '').toLowerCase();
+      const pCat = (product.category || '').toLowerCase();
+      const isPizza = pCat === 'pizzas' || pName.includes('pizza');
       const pizzaSection = document.getElementById('pizza-halves-section');
       if (pizzaSection) {
         if (isPizza) {
@@ -655,23 +683,6 @@ class MarketplaceController {
       }
 
       this.renderCustomizerModifiers();
-
-      // Show Modal guaranteed
-      const modal = document.getElementById('customizer-modal');
-      if (modal) {
-        modal.classList.add('open');
-        modal.style.display = 'flex';
-        modal.style.opacity = '1';
-        modal.style.visibility = 'visible';
-        modal.style.pointerEvents = 'auto';
-        modal.style.zIndex = '9999999';
-        
-        const content = modal.querySelector('.modal-content');
-        if (content) {
-          content.style.display = 'flex';
-        }
-      }
-      window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
     } catch (err) {
       console.error('Error setting up customizer modal:', err);
     }
@@ -679,55 +690,65 @@ class MarketplaceController {
 
   renderCustomizerModifiers() {
     const product = this.customizerState.product;
+    if (!product) return;
     const isHalves = this.customizerState.pizzaMode === 'halves';
     
     // Col A (Whole / Mitad A)
     const containerA = document.getElementById('modifiers-groups-a');
-    containerA.innerHTML = '';
-    
-    const sideKeyA = isHalves ? 'halfA' : 'whole';
-    const labelSuffixA = isHalves ? 'A' : '';
-    
-    this.renderUnifiedList(containerA, sideKeyA, labelSuffixA);
+    if (containerA) {
+      containerA.innerHTML = '';
+      const sideKeyA = isHalves ? 'halfA' : 'whole';
+      const labelSuffixA = isHalves ? 'A' : '';
+      this.renderUnifiedList(containerA, sideKeyA, labelSuffixA);
+    }
 
     // Col B (Mitad B) if halves
     const containerB = document.getElementById('modifiers-groups-b');
-    containerB.innerHTML = '';
-
-    if (isHalves) {
-      document.getElementById('customizer-col-b').classList.remove('hidden');
-      document.getElementById('col-a-header').classList.remove('hidden');
-      document.getElementById('col-a-header').innerText = 'Mitad A';
-      
-      this.renderUnifiedList(containerB, 'halfB', 'B', true);
-    } else {
-      document.getElementById('customizer-col-b').classList.add('hidden');
-      document.getElementById('col-a-header').classList.add('hidden');
+    if (containerB) {
+      containerB.innerHTML = '';
+      if (isHalves) {
+        const colB = document.getElementById('customizer-col-b');
+        const colAHead = document.getElementById('col-a-header');
+        if (colB) colB.classList.remove('hidden');
+        if (colAHead) {
+          colAHead.classList.remove('hidden');
+          colAHead.innerText = 'Mitad A';
+        }
+        this.renderUnifiedList(containerB, 'halfB', 'B', true);
+      } else {
+        const colB = document.getElementById('customizer-col-b');
+        const colAHead = document.getElementById('col-a-header');
+        if (colB) colB.classList.add('hidden');
+        if (colAHead) colAHead.classList.add('hidden');
+      }
     }
 
     this.updateCustomizerPrice();
   }
 
   renderUnifiedList(container, sideKey, labelSuffix, ignoreSize = false) {
+    if (!container) return;
     const product = this.customizerState.product;
+    if (!product) return;
     const isHalves = this.customizerState.pizzaMode === 'halves';
     const sideLabel = labelSuffix ? ` (Mitad ${labelSuffix})` : '';
 
-    // If halves mode, check selected specialty for this side
     let activeProduct = product;
     if (isHalves) {
-      const isPizzaCat = product.category === 'Pizzas' || product.name.toLowerCase().includes('pizza');
+      const pName = (product.name || '').toLowerCase();
+      const pCat = (product.category || '').toLowerCase();
+      const isPizzaCat = pCat === 'pizzas' || pName.includes('pizza');
       if (isPizzaCat) {
-        // Render specialty selector dropdown at the top
         const specDiv = document.createElement('div');
         specDiv.className = 'modifier-group';
         
-        const pizzaProducts = this.selectedEstablishment.products.filter(p => p.category === 'Pizzas' || p.name.toLowerCase().includes('pizza'));
+        const estProducts = (this.selectedEstablishment && Array.isArray(this.selectedEstablishment.products)) ? this.selectedEstablishment.products : [];
+        const pizzaProducts = estProducts.filter(p => (p.category || '').toLowerCase() === 'pizzas' || (p.name || '').toLowerCase().includes('pizza'));
         const currentSpec = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
         
         let optionsHTML = '<option value="">-- Elige un sabor --</option>';
         pizzaProducts.forEach(p => {
-          optionsHTML += `<option value="${p.id}" ${currentSpec && currentSpec.id === p.id ? 'selected' : ''}>${p.name} (${this.formatPesos(p.price)})</option>`;
+          optionsHTML += `<option value="${p.id}" ${currentSpec && currentSpec.id === p.id ? 'selected' : ''}>${p.name} (${this.formatPesos(p.price || 0)})</option>`;
         });
 
         specDiv.innerHTML = `
@@ -746,7 +767,6 @@ class MarketplaceController {
       }
     }
 
-    // If no active product chosen for this half side, do not render exclusions and modifiers
     if (!activeProduct) {
       const msgDiv = document.createElement('div');
       msgDiv.style.padding = '12px';
@@ -758,22 +778,20 @@ class MarketplaceController {
     }
 
     // Group 1: Required / Single Selections (like bread type)
-    if (activeProduct.modifiers) {
+    if (activeProduct.modifiers && Array.isArray(activeProduct.modifiers)) {
       activeProduct.modifiers.forEach(group => {
-        if (group.selection_type === 'single') {
-          // If ignoreSize is true and this is a size group, skip rendering in Column B
-          if (ignoreSize && group.group_name.toLowerCase() === 'tamaño') {
+        if (group && group.selection_type === 'single') {
+          const groupNameLower = (group.group_name || '').toLowerCase();
+          if (ignoreSize && groupNameLower === 'tamaño') {
             return;
           }
           const groupDiv = document.createElement('div');
           groupDiv.className = 'modifier-group';
-          
-          // Generate unique ID for target toggle
           const colId = `collapsible-${group.group_id}-${sideKey}`;
           
           groupDiv.innerHTML = `
             <div class="modifier-group-title" onclick="MarketplaceApp.toggleGroupCollapse('${colId}', this)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-weight: 700;">${group.group_name}${sideLabel}</span>
+              <span style="font-weight: 700;">${group.group_name || ''}${sideLabel}</span>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span class="required-badge">Requerido</span>
                 <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px; transform: rotate(-90deg);">▼</span>
@@ -783,96 +801,97 @@ class MarketplaceController {
           `;
           const list = groupDiv.querySelector('.modifier-options-list');
           
-          group.options.forEach(opt => {
-            const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
-            const extraPriceText = opt.extra_price > 0 ? `+ ${this.formatPesos(opt.extra_price)}` : '';
-            
-            const optionDiv = document.createElement('div');
-            optionDiv.className = `modifier-option ${qty === 1 ? 'option-single-active' : ''}`;
-            
-            optionDiv.innerHTML = `
-              <div class="option-label-container" onclick="MarketplaceApp.setSingleSelection('${group.group_id}', '${opt.option_id}', '${sideKey}')">
-                <input type="radio" name="radio_${group.group_id}_${sideKey}" ${qty === 1 ? 'checked' : ''} style="margin: 0;">
-                <span class="option-name" style="margin-left: 8px;">${opt.name}</span>
-              </div>
-              <div style="display: flex; align-items: center;">
-                <span class="option-extra-price">${extraPriceText}</span>
-              </div>
-            `;
-            list.appendChild(optionDiv);
-          });
+          if (group.options && Array.isArray(group.options)) {
+            group.options.forEach(opt => {
+              if (!opt) return;
+              const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
+              const extraPriceText = (opt.extra_price || 0) > 0 ? `+ ${this.formatPesos(opt.extra_price)}` : '';
+              
+              const optionDiv = document.createElement('div');
+              optionDiv.className = `modifier-option ${qty === 1 ? 'option-single-active' : ''}`;
+              
+              optionDiv.innerHTML = `
+                <div class="option-label-container" onclick="MarketplaceApp.setSingleSelection('${group.group_id}', '${opt.option_id}', '${sideKey}')">
+                  <input type="radio" name="radio_${group.group_id}_${sideKey}" ${qty === 1 ? 'checked' : ''} style="margin: 0;">
+                  <span class="option-name" style="margin-left: 8px;">${opt.name || ''}</span>
+                </div>
+                <div style="display: flex; align-items: center;">
+                  <span class="option-extra-price">${extraPriceText}</span>
+                </div>
+              `;
+              if (list) list.appendChild(optionDiv);
+            });
+          }
           container.appendChild(groupDiv);
         }
       });
     }
 
-    // Group 2: Base Ingredients removal disabled (users write exclusions in Observaciones)
-
     // Group 3: Optional Additional Ingredients
-    if (activeProduct.modifiers) {
-      // Find selected size option id in Group 1 to determine if size is Small
+    if (activeProduct.modifiers && Array.isArray(activeProduct.modifiers)) {
       let isSmallSizeSelected = false;
-      const sizeGroup = activeProduct.modifiers.find(g => g.group_name.toLowerCase() === 'tamaño');
-      if (sizeGroup) {
+      const sizeGroup = activeProduct.modifiers.find(g => (g.group_name || '').toLowerCase() === 'tamaño');
+      if (sizeGroup && Array.isArray(sizeGroup.options)) {
         const selectedSizeOpt = sizeGroup.options.find(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
-        if (selectedSizeOpt && (selectedSizeOpt.name.toLowerCase().includes('pequeña') || selectedSizeOpt.name.toLowerCase().includes('personal') || selectedSizeOpt.name.toLowerCase().includes('pequeño'))) {
-          isSmallSizeSelected = true;
+        if (selectedSizeOpt) {
+          const sName = (selectedSizeOpt.name || '').toLowerCase();
+          if (sName.includes('pequeña') || sName.includes('personal') || sName.includes('pequeño')) {
+            isSmallSizeSelected = true;
+          }
         }
       }
 
       activeProduct.modifiers.forEach(group => {
-        if (group.selection_type === 'multiple') {
+        if (group && group.selection_type === 'multiple') {
           const groupDiv = document.createElement('div');
           groupDiv.className = 'modifier-group';
-          
           const colId = `collapsible-${group.group_id}-${sideKey}`;
           
           groupDiv.innerHTML = `
             <div class="modifier-group-title" onclick="MarketplaceApp.toggleGroupCollapse('${colId}', this)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-weight: 700;">${group.group_name}${sideLabel}</span>
+              <span style="font-weight: 700;">${group.group_name || ''}${sideLabel}</span>
               <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px; transform: rotate(-90deg);">▼</span>
             </div>
             <div class="modifier-options-list collapsed" id="${colId}"></div>
           `;
           const list = groupDiv.querySelector('.modifier-options-list');
 
-          group.options.forEach(opt => {
-            // Hide borders option if the size is Small
-            if (isSmallSizeSelected && opt.name.toLowerCase().includes('borde')) {
-              // Ensure if it was checked, it gets unchecked
-              this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = 0;
-              return;
-            }
+          if (group.options && Array.isArray(group.options)) {
+            group.options.forEach(opt => {
+              if (!opt) return;
+              const optNameLower = (opt.name || '').toLowerCase();
+              if (isSmallSizeSelected && optNameLower.includes('borde')) {
+                this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = 0;
+                return;
+              }
 
-            const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
-            const extraPriceText = opt.extra_price > 0 ? `+ ${this.formatPesos(opt.extra_price)}` : '';
-            
-            const optionDiv = document.createElement('div');
-            let stateClass = '';
-            if (qty > 0) {
-              stateClass = 'ingredient-extra';
-            }
+              const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
+              const extraPriceText = (opt.extra_price || 0) > 0 ? `+ ${this.formatPesos(opt.extra_price)}` : '';
+              
+              const optionDiv = document.createElement('div');
+              let stateClass = qty > 0 ? 'ingredient-extra' : '';
 
-            optionDiv.className = `modifier-option ${stateClass}`;
-            optionDiv.innerHTML = `
-              <div class="option-label-container" onclick="MarketplaceApp.toggleMultipleSelection('${opt.option_id}', '${sideKey}')">
-                <input type="checkbox" ${qty > 0 ? 'checked' : ''} style="margin: 0;">
-                <span class="option-name" style="margin-left: 8px;">${opt.name}</span>
-              </div>
-              <div style="display: flex; align-items: center;">
-                <span class="option-extra-price" style="margin-right: 8px;">${extraPriceText}</span>
-                <div class="option-qty-control" style="display: ${qty > 0 ? 'flex' : 'none'}">
-                  <button class="btn-qty-mini" onclick="event.preventDefault(); event.stopPropagation(); MarketplaceApp.updateUnifiedQty('opt_${opt.option_id}', '${sideKey}', -1)">-</button>
-                  <span class="option-qty-val">${qty}</span>
-                  <button class="btn-qty-mini" onclick="event.preventDefault(); event.stopPropagation(); MarketplaceApp.updateUnifiedQty('opt_${opt.option_id}', '${sideKey}', 1)">+</button>
+              optionDiv.className = `modifier-option ${stateClass}`;
+              optionDiv.innerHTML = `
+                <div class="option-label-container" onclick="MarketplaceApp.toggleMultipleSelection('${opt.option_id}', '${sideKey}')">
+                  <input type="checkbox" ${qty > 0 ? 'checked' : ''} style="margin: 0;">
+                  <span class="option-name" style="margin-left: 8px;">${opt.name || ''}</span>
                 </div>
-              </div>
-            `;
-            list.appendChild(optionDiv);
-          });
-          
+                <div style="display: flex; align-items: center;">
+                  <span class="option-extra-price" style="margin-right: 8px;">${extraPriceText}</span>
+                  <div class="option-qty-control" style="display: ${qty > 0 ? 'flex' : 'none'}">
+                    <button class="btn-qty-mini" onclick="event.preventDefault(); event.stopPropagation(); MarketplaceApp.updateUnifiedQty('opt_${opt.option_id}', '${sideKey}', -1)">-</button>
+                    <span class="option-qty-val">${qty}</span>
+                    <button class="btn-qty-mini" onclick="event.preventDefault(); event.stopPropagation(); MarketplaceApp.updateUnifiedQty('opt_${opt.option_id}', '${sideKey}', 1)">+</button>
+                  </div>
+                </div>
+              `;
+              if (list) list.appendChild(optionDiv);
+            });
+          }
+
           // Only append the group if it has visible options left
-          if (list.children.length > 0) {
+          if (list && list.children.length > 0) {
             container.appendChild(groupDiv);
           }
         }
@@ -881,13 +900,14 @@ class MarketplaceController {
   }
 
   selectHalvesSpecialty(sideKey, productId) {
-    const selectedProduct = this.selectedEstablishment.products.find(p => p.id === productId);
+    const estProducts = (this.selectedEstablishment && Array.isArray(this.selectedEstablishment.products)) ? this.selectedEstablishment.products : [];
+    const selectedProduct = estProducts.find(p => p.id === productId);
     
     let previousSizeOptId = null;
     const currentSpecialty = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
-    if (currentSpecialty && currentSpecialty.modifiers) {
-      const sizeGroup = currentSpecialty.modifiers.find(g => g.group_name.toLowerCase() === 'tamaño');
-      if (sizeGroup) {
+    if (currentSpecialty && currentSpecialty.modifiers && Array.isArray(currentSpecialty.modifiers)) {
+      const sizeGroup = currentSpecialty.modifiers.find(g => (g.group_name || '').toLowerCase() === 'tamaño');
+      if (sizeGroup && Array.isArray(sizeGroup.options)) {
         const found = sizeGroup.options.find(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
         if (found) previousSizeOptId = found.option_id;
       }
@@ -900,22 +920,24 @@ class MarketplaceController {
     }
 
     if (selectedProduct) {
-      if (selectedProduct.exclusions) {
+      if (selectedProduct.exclusions && Array.isArray(selectedProduct.exclusions)) {
         selectedProduct.exclusions.forEach(item => {
-          const itemName = item.name || item;
+          const itemName = typeof item === 'object' && item.name ? item.name : String(item);
           this.customizerState.quantities[sideKey]['base_' + itemName] = 1;
         });
       }
 
-      if (selectedProduct.modifiers) {
+      if (selectedProduct.modifiers && Array.isArray(selectedProduct.modifiers)) {
         selectedProduct.modifiers.forEach(group => {
-          if (group.selection_type === 'single') {
-            const isSizeGroup = group.group_name.toLowerCase() === 'tamaño';
+          if (group && group.selection_type === 'single' && Array.isArray(group.options)) {
+            const isSizeGroup = (group.group_name || '').toLowerCase() === 'tamaño';
             group.options.forEach((opt, idx) => {
-              if (isSizeGroup && previousSizeOptId) {
-                this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (opt.option_id === previousSizeOptId) ? 1 : 0;
-              } else {
-                this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (idx === 0) ? 1 : 0;
+              if (opt && opt.option_id) {
+                if (isSizeGroup && previousSizeOptId) {
+                  this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (opt.option_id === previousSizeOptId) ? 1 : 0;
+                } else {
+                  this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (idx === 0) ? 1 : 0;
+                }
               }
             });
           } else {
@@ -1095,6 +1117,7 @@ class MarketplaceController {
   }
 
   calculateExtrasTotal() {
+    if (!this.customizerState || !this.customizerState.product) return 0;
     const product = this.customizerState.product;
     const isHalves = this.customizerState.pizzaMode === 'halves';
     
@@ -1107,10 +1130,10 @@ class MarketplaceController {
       if (!activeProduct) return 0;
       
       const isSpecialZeroInit = this.isArepaOrHeladoProduct(activeProduct);
-      if (activeProduct.exclusions) {
+      if (activeProduct.exclusions && Array.isArray(activeProduct.exclusions)) {
         activeProduct.exclusions.forEach(item => {
-          const itemName = item.name || item;
-          const basePrice = item.price !== undefined ? item.price : 500;
+          const itemName = typeof item === 'object' && item.name ? item.name : String(item);
+          const basePrice = (typeof item === 'object' && item.price !== undefined) ? item.price : 500;
           const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
           if (isSpecialZeroInit) {
             sideSum += qty * basePrice;
@@ -1122,14 +1145,18 @@ class MarketplaceController {
         });
       }
       
-      if (activeProduct.modifiers) {
+      if (activeProduct.modifiers && Array.isArray(activeProduct.modifiers)) {
         activeProduct.modifiers.forEach(group => {
-          group.options.forEach(opt => {
-            const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
-            if (qty > 0) {
-              sideSum += (opt.extra_price || 0) * qty;
-            }
-          });
+          if (group && group.options && Array.isArray(group.options)) {
+            group.options.forEach(opt => {
+              if (opt && opt.option_id) {
+                const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
+                if (qty > 0) {
+                  sideSum += (opt.extra_price || 0) * qty;
+                }
+              }
+            });
+          }
         });
       }
       
@@ -1144,15 +1171,16 @@ class MarketplaceController {
   }
 
   updateCustomizerPrice() {
+    if (!this.customizerState || !this.customizerState.product) return;
     const isHalves = this.customizerState.pizzaMode === 'halves';
-    let basePrice = this.customizerState.product.price;
+    let basePrice = this.customizerState.product.price || 0;
     if (isHalves) {
-      const priceA = this.customizerState.specialtyA ? this.customizerState.specialtyA.price : 0;
-      const priceB = this.customizerState.specialtyB ? this.customizerState.specialtyB.price : 0;
+      const priceA = this.customizerState.specialtyA ? (this.customizerState.specialtyA.price || 0) : 0;
+      const priceB = this.customizerState.specialtyB ? (this.customizerState.specialtyB.price || 0) : 0;
       basePrice = (priceA + priceB) / 2;
     }
     const extrasTotal = this.calculateExtrasTotal();
-    const qty = this.customizerState.quantity;
+    const qty = this.customizerState.quantity || 1;
     
     const unitPrice = basePrice + extrasTotal;
     const combinedTotal = unitPrice * qty;
@@ -1164,19 +1192,22 @@ class MarketplaceController {
     
     const allValid = this.validateRequiredModifiers();
     
-    const contornosMatch = this.customizerState.product.name.match(/(\d+)\s+Contornos/i);
+    const pName = this.customizerState.product.name || '';
+    const contornosMatch = pName.match(/(\d+)\s+Contornos/i);
     const maxContornosAllowed = contornosMatch ? parseInt(contornosMatch[1], 10) : null;
     
     const sideKey = isHalves ? 'halfA' : 'whole';
     let selectedContornosCount = 0;
     const activeProduct = isHalves ? this.customizerState.specialtyA : this.customizerState.product;
-    if (activeProduct && activeProduct.modifiers) {
+    if (activeProduct && activeProduct.modifiers && Array.isArray(activeProduct.modifiers)) {
       activeProduct.modifiers.forEach(group => {
-        if (group.selection_type === 'multiple') {
+        if (group && group.selection_type === 'multiple' && Array.isArray(group.options)) {
           group.options.forEach(opt => {
-            const selectedQty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
-            if (selectedQty > 0) {
-              selectedContornosCount += selectedQty;
+            if (opt && opt.option_id) {
+              const selectedQty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
+              if (selectedQty > 0) {
+                selectedContornosCount += selectedQty;
+              }
             }
           });
         }
