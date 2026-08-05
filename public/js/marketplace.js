@@ -442,15 +442,15 @@ class MarketplaceController {
       card.className = 'product-card animate-fade-in-up';
       card.style.cursor = 'pointer';
       card.style.animationDelay = `${index * 0.05}s`;
-      card.onclick = () => MarketplaceApp.openCustomizerModalById(prod.id);
+      card.onclick = () => this.openCustomizerModalById(prod.id);
 
       // Check if image exists, otherwise use category fallback or emoji
       let imgHTML = '';
       if (prod.image) {
         imgHTML = `<img src="${prod.image}" alt="${prod.name}" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                   <div class="product-image-placeholder hidden">${this.selectedEstablishment.logo}</div>`;
+                   <div class="product-image-placeholder hidden">${this.selectedEstablishment.logo || '🏪'}</div>`;
       } else {
-        imgHTML = `<div class="product-image-placeholder">${this.selectedEstablishment.logo}</div>`;
+        imgHTML = `<div class="product-image-placeholder">${this.selectedEstablishment.logo || '🏪'}</div>`;
       }
 
       card.innerHTML = `
@@ -461,20 +461,29 @@ class MarketplaceController {
           </div>
           <div class="product-price-row">
             <span class="product-price">${this.formatPesos(prod.price)}</span>
-            <button class="btn-add-product" onclick="event.stopPropagation(); MarketplaceApp.openCustomizerModalById('${prod.id}')">+</button>
+            <button class="btn-add-product">+</button>
           </div>
         </div>
         <div class="product-image-container">
           ${imgHTML}
         </div>
       `;
+
+      const addBtn = card.querySelector('.btn-add-product');
+      if (addBtn) {
+        addBtn.onclick = (e) => {
+          e.stopPropagation();
+          this.openCustomizerModalById(prod.id);
+        };
+      }
+
       grid.appendChild(card);
     });
   }
 
   openCustomizerModalById(productId) {
-    if (!this.selectedEstablishment) return;
-    const product = this.selectedEstablishment.products.find(p => p.id === productId);
+    if (!this.selectedEstablishment || !this.selectedEstablishment.products) return;
+    const product = this.selectedEstablishment.products.find(p => String(p.id) === String(productId));
     if (product) {
       this.openCustomizerModal(product);
     }
@@ -482,9 +491,9 @@ class MarketplaceController {
 
   // Cart Management
   addToCart(productId) {
-    if (!this.selectedEstablishment) return;
+    if (!this.selectedEstablishment || !this.selectedEstablishment.products) return;
 
-    const product = this.selectedEstablishment.products.find(p => p.id === productId);
+    const product = this.selectedEstablishment.products.find(p => String(p.id) === String(productId));
     if (!product) return;
 
     // Always open customizer modal for product customization & ingredient selection
@@ -540,6 +549,8 @@ class MarketplaceController {
   }
 
   openCustomizerModal(product) {
+    if (!product) return;
+    this.closeAllModals();
     this.customizerState = {
       product: product,
       quantity: 1,
@@ -637,8 +648,6 @@ class MarketplaceController {
     const modal = document.getElementById('customizer-modal');
     if (modal) {
       modal.classList.add('open');
-      modal.classList.add('active');
-      modal.style.display = 'flex';
     }
     window.history.pushState({ view: 'modal', modalId: 'customizer-modal' }, '');
   }
@@ -1176,7 +1185,7 @@ class MarketplaceController {
     if (modal) {
       modal.classList.remove('open');
       modal.classList.remove('active');
-      modal.style.display = 'none';
+      modal.style.display = '';
     }
     if (window.history.state && window.history.state.view === 'modal' && window.history.state.modalId === 'customizer-modal') {
       window.history.back();
@@ -1414,15 +1423,23 @@ class MarketplaceController {
 
   // Modals
   openCartModal() {
+    this.closeAllModals();
     const modal = document.getElementById('cart-modal');
-    modal.classList.add('open');
+    if (modal) {
+      modal.classList.add('open');
+    }
     this.renderCartItems();
     this.setActiveMobileTab('cart');
     window.history.pushState({ view: 'modal', modalId: 'cart-modal' }, '');
   }
 
   closeCartModal() {
-    document.getElementById('cart-modal').classList.remove('open');
+    const modal = document.getElementById('cart-modal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.classList.remove('active');
+      modal.style.display = '';
+    }
     this.setActiveMobileTab('home');
     if (window.history.state && window.history.state.view === 'modal' && window.history.state.modalId === 'cart-modal') {
       window.history.back();
@@ -1910,25 +1927,29 @@ class MarketplaceController {
   }
 
   closeAllModals() {
-    document.getElementById('cart-modal')?.classList.remove('open');
-    document.getElementById('location-modal')?.classList.remove('open');
-    document.getElementById('terms-modal')?.classList.remove('open');
-    document.getElementById('customizer-modal')?.classList.remove('open');
+    ['cart-modal', 'location-modal', 'terms-modal', 'customizer-modal'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove('open');
+        el.classList.remove('active');
+        el.style.display = '';
+      }
+    });
   }
 
   handlePopState(event) {
     const state = event.state;
     
-    // Deactivate open classes without modifying history again
-    document.getElementById('cart-modal')?.classList.remove('open');
-    document.getElementById('location-modal')?.classList.remove('open');
-    document.getElementById('terms-modal')?.classList.remove('open');
-    document.getElementById('customizer-modal')?.classList.remove('open');
+    this.closeAllModals();
 
     if (!state || state.view === 'home') {
       this.goHome(false);
     } else if (state.view === 'establishment') {
-      this.openEstablishment(state.estId, false);
+      if (state.estId) {
+        this.openEstablishment(state.estId, false);
+      } else {
+        this.goHome(false);
+      }
     } else if (state.view === 'modal') {
       const modal = document.getElementById(state.modalId);
       if (modal) modal.classList.add('open');
