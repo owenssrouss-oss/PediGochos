@@ -341,6 +341,31 @@ app.post('/api/merchant/login', (req, res) => {
   }
 });
 
+// Get system settings (including central delivery headquarters)
+app.get('/api/settings', (req, res) => {
+  const db = readDB();
+  db.settings = db.settings || {
+    central_delivery_lat: null,
+    central_delivery_lng: null,
+    central_delivery_name: 'Sede Central'
+  };
+  res.json(db.settings);
+});
+
+// Update system settings (App Owner / Admin)
+app.put('/api/settings', (req, res) => {
+  const { central_delivery_lat, central_delivery_lng, central_delivery_name } = req.body;
+  const db = readDB();
+  db.settings = db.settings || {};
+
+  if (central_delivery_lat !== undefined) db.settings.central_delivery_lat = (central_delivery_lat !== null && central_delivery_lat !== '') ? parseFloat(central_delivery_lat) : null;
+  if (central_delivery_lng !== undefined) db.settings.central_delivery_lng = (central_delivery_lng !== null && central_delivery_lng !== '') ? parseFloat(central_delivery_lng) : null;
+  if (central_delivery_name) db.settings.central_delivery_name = central_delivery_name;
+
+  writeDB(db);
+  res.json({ success: true, settings: db.settings });
+});
+
 // Get all establishments (Sanitized for habitual users)
 app.get('/api/establishments', (req, res) => {
   const db = readDB();

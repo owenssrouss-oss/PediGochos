@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Cocina Rapi Gochos - KDS Panel</title>
-  <link rel="stylesheet" href="/css/common.css?v=69">
-  <link rel="stylesheet" href="/css/kitchen.css?v=69">
-  <link rel="stylesheet" href="/css/menu-builder.css?v=69">
+  <link rel="stylesheet" href="/css/common.css?v=71">
+  <link rel="stylesheet" href="/css/kitchen.css?v=71">
+  <link rel="stylesheet" href="/css/menu-builder.css?v=71">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#FF5E3A">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/supabase-helper.js?v=69"></script>
+  <script src="/js/supabase-helper.js?v=71"></script>
 </head>
 <body>
 
@@ -35,6 +35,7 @@
         </select>
         <button id="btn-manage-prices" class="btn-manage-prices hidden" onclick="KitchenApp.openMenuTablesModal()" style="margin-left:12px; background-color:#10b981; border:1px solid #10b981; color:#121216; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🍔 Taller de Local</button>
         <button id="btn-customize-shop" class="btn-manage-prices hidden" onclick="KitchenApp.openCustomizeShopModal()" style="margin-left:8px; background-color:#3b82f6; border:1px solid #3b82f6; color:#ffffff; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">⚙️ Personalizar Local</button>
+        <button id="btn-central-sede" class="btn-manage-prices" onclick="KitchenApp.openCentralSedeModal()" style="margin-left:8px; background-color:#8b5cf6; border:1px solid #8b5cf6; color:#ffffff; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🏛️ Sede Central App</button>
       </div>
 
       <!-- Connection Status Badge -->
@@ -373,6 +374,47 @@
           <button type="submit" id="btn-submit-customize-shop" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0;">
             <span>Guardar Cambios</span>
           </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Sede Central de Domicilios (App Admin Setting) -->
+  <div class="modal-overlay" id="central-sede-modal" style="z-index: 1300; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+    <div class="modal-content" style="background: #16161c; border: 1px solid rgba(139, 92, 246, 0.3); box-shadow: 0 20px 50px rgba(0,0,0,0.6); margin: auto; max-width: 480px; width: 90%; border-radius: 16px; padding: 20px;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 16px;">
+        <h3 style="color: #ffffff; margin: 0; font-size: 16px; font-weight: 800;">🏛️ Sede Central de Domicilios (App Owner)</h3>
+        <button class="modal-close" onclick="KitchenApp.closeCentralSedeModal()">✕</button>
+      </div>
+      
+      <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 16px; line-height: 1.4;">
+        Como Administrador Principal de la App, puedes definir las coordenadas de la <strong>Sede Central</strong> desde la cual se calcularán las distancias y costos de envío para todos los pedidos del sistema.
+      </p>
+
+      <form onsubmit="KitchenApp.handleSaveCentralSede(event)">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label style="color: #a78bfa; font-weight: 700; font-size: 13px;">Nombre de la Sede Central</label>
+          <input type="text" id="central-sede-name" placeholder="Ej. Sede Principal San Antonio" style="width: 100%; padding: 10px; background: #0F172A; color: #FFF; border: 1px solid #475569; border-radius: 8px;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+          <div>
+            <label style="font-size: 11px; color: #cbd5e1;">Latitud Sede Central</label>
+            <input type="number" step="any" id="central-sede-lat" placeholder="Ej. 7.8131" style="width: 100%; font-size: 13px; padding: 10px; background: #0F172A; color: #FFF; border: 1px solid #475569; border-radius: 8px;">
+          </div>
+          <div>
+            <label style="font-size: 11px; color: #cbd5e1;">Longitud Sede Central</label>
+            <input type="number" step="any" id="central-sede-lng" placeholder="Ej. -72.4439" style="width: 100%; font-size: 13px; padding: 10px; background: #0F172A; color: #FFF; border: 1px solid #475569; border-radius: 8px;">
+          </div>
+        </div>
+
+        <button type="button" class="btn-neumorphic" onclick="KitchenApp.getCurrentGPSForCentralSede()" style="width: 100%; padding: 10px; margin-bottom: 16px; background: rgba(139, 92, 246, 0.2); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.4); border-radius: 8px; font-weight: 700;">
+          📡 Usar mi GPS Actual como Sede Central
+        </button>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" onclick="KitchenApp.closeCentralSedeModal()" class="btn-neumorphic" style="padding: 10px 16px;">Cancelar</button>
+          <button type="submit" class="btn-neumorphic" style="background: #8b5cf6; color: #fff; font-weight: 800; padding: 10px 18px;">💾 Guardar Sede Central</button>
         </div>
       </form>
     </div>

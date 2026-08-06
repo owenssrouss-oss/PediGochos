@@ -46,6 +46,7 @@ class MarketplaceController {
     window.history.replaceState({ view: 'home' }, '');
     window.addEventListener('popstate', (e) => this.handlePopState(e));
 
+    await this.loadSystemSettings();
     await this.loadEstablishments();
     
     // Update active location display in header on startup
@@ -55,6 +56,7 @@ class MarketplaceController {
     this.selectCategory('comidas');
     this.updateCartBadge();
     await this.checkSupabaseSession();
+    this.checkActiveOrderTracking();
 
     // Check if query parameter ?shop=... is provided and auto-open establishment
     const urlParams = new URLSearchParams(window.location.search);
@@ -1853,7 +1855,11 @@ class MarketplaceController {
         if (!response.ok) {
           throw new Error(`Error en el pedido para ${shop.name}`);
         }
-        return response;
+        const createdOrder = await response.json();
+        if (createdOrder && createdOrder.id) {
+          localStorage.setItem('active_order_id', createdOrder.id);
+        }
+        return createdOrder;
       });
 
       await Promise.all(promises);
@@ -2315,6 +2321,171 @@ class MarketplaceController {
     const current = this.customizerState.quantities[sideKey][key] || 0;
     this.customizerState.quantities[sideKey][key] = (current === 0) ? 1 : 0;
     this.renderCustomizerModifiers();
+  }
+
+  async loadSystemSettings() {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        this.systemSettings = await res.json();
+      }
+    } catch (e) {
+      console.warn('Could not load system settings:', e);
+    }
+  }
+
+  checkActiveOrderTracking() {
+    const activeOrderId = localStorage.getItem('active_order_id');
+    const card = document.getElementById('active-order-tracking-card');
+    if (!card) return;
+
+    if (!activeOrderId) {
+      card.classList.add('hidden');
+      return;
+    }
+
+    card.classList.remove('hidden');
+    this.pollActiveOrder(activeOrderId);
+  }
+
+  async pollActiveOrder(orderId) {
+    try {
+      const res = await fetch('/api/orders');
+      if (!res.ok) return;
+      const orders = await res.json();
+      const order = orders.find(o => String(o.id) === String(orderId));
+      
+      const badge = document.getElementById('active-order-status-badge');
+      const text = document.getElementById('active-order-info-text');
+      const card = document.getElementById('active-order-tracking-card');
+
+      if (!order) {
+        if (card) card.classList.add('hidden');
+        return;
+      }
+
+      const status = order.status || 'Pendiente';
+      
+      if (badge) {
+        if (status === 'Pendiente') {
+          badge.innerText = '⏳ Pendiente';
+          badge.style.background = 'rgba(234, 179, 8, 0.2)';
+          badge.style.color = '#eab308';
+          if (text) text.innerText = `👨‍🍳 El restaurante (${order.establishmentName}) está recibiendo tu pedido...`;
+        } else if (status === 'En Cocina' || status === 'En Preparacion' || status === 'En preparación' || status === 'Preparando') {
+          badge.innerText = '👨‍🍳 Cocinando en Tienda';
+          badge.style.background = 'rgba(59, 130, 246, 0.2)';
+          badge.style.color = '#3b82f6';
+          if (text) text.innerText = `🔥 ¡Tu pedido se está preparando en la cocina de ${order.establishmentName}!`;
+        } else if (status === 'En Camino' || status === 'En camino' || status === 'Listo') {
+          badge.innerText = '🚴 En Camino';
+          badge.style.background = 'rgba(16, 185, 129, 0.2)';
+          badge.style.color = '#10b981';
+          if (text) text.innerText = `🛵 ¡El repartidor lleva tu pedido de ${order.establishmentName} en camino hacia tu dirección!`;
+        } else if (status === 'Entregado') {
+          badge.innerText = '✅ Entregado';
+          badge.style.background = 'rgba(16, 185, 129, 0.3)';
+          badge.style.color = '#10b981';
+          if (text) text.innerText = `🎉 ¡Pedido entregado con éxito! Buen provecho.`;
+          setTimeout(() => {
+            localStorage.removeItem('active_order_id');
+            if (card) card.classList.add('hidden');
+          }, 15000);
+        }
+      }
+
+      // Render Tracking Map for Active Order
+      this.renderTrackingMap(order);
+
+      // Continue polling if not delivered yet
+      if (status !== 'Entregado') {
+        if (this.trackingTimer) clearTimeout(this.trackingTimer);
+        this.trackingTimer = setTimeout(() => this.pollActiveOrder(orderId), 5000);
+      }
+    } catch (e) {
+      console.warn('Error polling active order:', e);
+    }
+  }
+
+  renderTrackingMap(order) {
+    if (typeof L === 'undefined') return;
+    const mapElem = document.getElementById('active-order-tracking-map');
+    if (!mapElem) return;
+
+    // Find restaurant coordinates
+    let estCoords = [7.8131, -72.4439];
+    if (this.establishments) {
+      const est = this.establishments.find(e => e.id === order.establishmentId);
+      if (est) {
+        const lat = est.location_lat || est.latitude;
+        const lng = est.location_lng || est.longitude;
+        if (lat && lng) estCoords = [parseFloat(lat), parseFloat(lng)];
+      }
+    }
+
+    // Customer coordinates
+    let custCoords = [estCoords[0] + 0.005, estCoords[1] + 0.005];
+    if (order.deliveryDetails && order.deliveryDetails.latitude && order.deliveryDetails.longitude) {
+      custCoords = [parseFloat(order.deliveryDetails.latitude), parseFloat(order.deliveryDetails.longitude)];
+    }
+
+    if (!this.trackingMap) {
+      this.trackingMap = L.map('active-order-tracking-map').setView(estCoords, 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(this.trackingMap);
+    } else {
+      this.trackingMap.invalidateSize();
+    }
+
+    // Clear previous tracking layers
+    if (this.trackingLayers) {
+      this.trackingLayers.forEach(layer => this.trackingMap.removeLayer(layer));
+    }
+    this.trackingLayers = [];
+
+    // 1. Restaurant Marker (Tienda / Cocina)
+    const restIcon = L.divIcon({
+      className: 'custom-rest-marker',
+      html: `<div style="background-color: #3B82F6; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4); border: 2px solid white;">🏪</div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
+    });
+    const restMarker = L.marker(estCoords, { icon: restIcon }).addTo(this.trackingMap);
+    restMarker.bindPopup(`<b>Restaurante: ${order.establishmentName || 'Tienda'}</b>`);
+    this.trackingLayers.push(restMarker);
+
+    // 2. Customer Marker (Casa)
+    const custIcon = L.divIcon({
+      className: 'custom-cust-marker',
+      html: `<div style="background-color: #FF5E3A; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(255, 94, 58, 0.4); border: 2px solid white;">🏠</div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
+    });
+    const custMarker = L.marker(custCoords, { icon: custIcon }).addTo(this.trackingMap);
+    custMarker.bindPopup(`<b>Entrega: ${order.customerName || 'Cliente'}</b>`);
+    this.trackingLayers.push(custMarker);
+
+    // 3. Driver / Progress Position
+    const status = order.status || 'Pendiente';
+    if (status === 'En Camino' || status === 'En camino' || status === 'Listo') {
+      const driverCoords = [ (estCoords[0] + custCoords[0]) / 2, (estCoords[1] + custCoords[1]) / 2 ];
+      const driverIcon = L.divIcon({
+        className: 'custom-driver-marker',
+        html: `<div style="background-color: #10B981; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5); border: 2px solid white;">🚴</div>`,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
+      });
+      const driverMarker = L.marker(driverCoords, { icon: driverIcon }).addTo(this.trackingMap);
+      driverMarker.bindPopup(`<b>Repartidor en camino 🛵</b>`);
+      this.trackingLayers.push(driverMarker);
+    }
+
+    // Connecting Polyline
+    const line = L.polyline([estCoords, custCoords], { color: '#3B82F6', weight: 4, dashArray: '6, 8' }).addTo(this.trackingMap);
+    this.trackingLayers.push(line);
+
+    // Fit bounds
+    const bounds = L.latLngBounds([estCoords, custCoords]);
+    this.trackingMap.fitBounds(bounds, { padding: [30, 30] });
   }
 }
 
