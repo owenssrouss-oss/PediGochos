@@ -2224,8 +2224,34 @@ class MarketplaceController {
     }
   }
 
+  createStoreMarkerIcon(est) {
+    if (typeof L === 'undefined') return null;
+    const photoUrl = est ? (est.logoImage || est.map_pin_image || null) : null;
+    
+    if (photoUrl) {
+      return L.divIcon({
+        className: 'custom-store-photo-marker',
+        html: `<div style="background: #ffffff; width: 42px; height: 42px; border-radius: 50%; padding: 2px; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.6); border: 3px solid #3B82F6; display: flex; align-items: center; justify-content: center; overflow: hidden;"><img src="${photoUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;"></div>`,
+        iconSize: [42, 42],
+        iconAnchor: [21, 21]
+      });
+    }
+
+    const emoji = est ? (est.logo || '🏪') : '🏪';
+    return L.divIcon({
+      className: 'custom-rest-marker',
+      html: `<div style="background-color: #3B82F6; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4); border: 2px solid white;">${emoji}</div>`,
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
+    });
+  }
+
   getActiveShopCenter() {
-    let shopCenter = this.locationCenters[this.currentLocation] || [7.8131, -72.4439];
+    // 1. Check if Sede Principal de Domicilios coordinates are set globally by App Owner in admin.html
+    if (this.systemSettings && this.systemSettings.central_delivery_lat !== null && this.systemSettings.central_delivery_lng !== null && !isNaN(parseFloat(this.systemSettings.central_delivery_lat)) && !isNaN(parseFloat(this.systemSettings.central_delivery_lng))) {
+      return [parseFloat(this.systemSettings.central_delivery_lat), parseFloat(this.systemSettings.central_delivery_lng)];
+    }
+    // 2. Check selected establishment coordinates (Sede Comercial)
     if (this.selectedEstablishment) {
       const lat = (this.selectedEstablishment.location_lat !== undefined && this.selectedEstablishment.location_lat !== null) 
         ? this.selectedEstablishment.location_lat 
@@ -2234,10 +2260,11 @@ class MarketplaceController {
         ? this.selectedEstablishment.location_lng 
         : this.selectedEstablishment.longitude;
       if (lat !== undefined && lat !== null && lng !== undefined && lng !== null && !isNaN(parseFloat(lat)) && !isNaN(parseFloat(lng))) {
-        shopCenter = [parseFloat(lat), parseFloat(lng)];
+        return [parseFloat(lat), parseFloat(lng)];
       }
     }
-    return shopCenter;
+    // 3. Default fallback
+    return this.locationCenters[this.currentLocation] || [7.8131, -72.4439];
   }
 
   initLeafletMap() {
@@ -2246,7 +2273,7 @@ class MarketplaceController {
       return;
     }
 
-    // Determine Sede / Establishment Coordinates (Green Marker)
+    // Determine Sede Principal de Domicilios Coordinates (Green Marker)
     const shopCenter = this.getActiveShopCenter();
 
     if (this.leafMap) {
@@ -2255,7 +2282,7 @@ class MarketplaceController {
       return;
     }
 
-    // Initialize Leaflet map centered at Sede
+    // Initialize Leaflet map centered at Sede Principal
     this.leafMap = L.map('checkout-leaflet-map').setView(shopCenter, 14);
 
     // OpenStreetMap tiles
@@ -2263,24 +2290,35 @@ class MarketplaceController {
       attribution: '&copy; OpenStreetMap'
     }).addTo(this.leafMap);
 
-    // 1. Create GREEN Sede Marker (Restaurante / Sede de domicilios)
+    // 1. Create GREEN Sede Principal Marker (Base de Domiciliarios de la App)
     const greenSedeIcon = L.divIcon({
       className: 'custom-sede-marker',
-      html: `<div style="background-color: #10B981; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4); border: 2px solid white;">🏪</div>`,
-      iconSize: [34, 34],
-      iconAnchor: [17, 17]
+      html: `<div style="background-color: #10B981; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5); border: 2px solid white;">🏛️</div>`,
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
     });
-
-    const estName = this.selectedEstablishment ? this.selectedEstablishment.name : 'Sede Principal';
+    const centralName = (this.systemSettings && this.systemSettings.central_delivery_name) ? this.systemSettings.central_delivery_name : 'Sede Principal Domicilios';
     this.sedeMarker = L.marker(shopCenter, { icon: greenSedeIcon, draggable: false }).addTo(this.leafMap);
-    this.sedeMarker.bindPopup(`<b>Sede: ${estName}</b>`);
+    this.sedeMarker.bindPopup(`<b>🏛️ ${centralName}</b><br><small>Base de Domiciliarios</small>`);
 
-    // 2. Create User Location Marker (Non-draggable, fixed by GPS)
+    // 2. Create Store Marker (Sede Comercial del Establecimiento con Foto Personalizada)
+    if (this.selectedEstablishment) {
+      const storeLat = this.selectedEstablishment.location_lat || this.selectedEstablishment.latitude;
+      const storeLng = this.selectedEstablishment.location_lng || this.selectedEstablishment.longitude;
+      if (storeLat && storeLng && !isNaN(parseFloat(storeLat)) && !isNaN(parseFloat(storeLng))) {
+        const storeCenter = [parseFloat(storeLat), parseFloat(storeLng)];
+        const storeIcon = this.createStoreMarkerIcon(this.selectedEstablishment);
+        const storeMarker = L.marker(storeCenter, { icon: storeIcon, draggable: false }).addTo(this.leafMap);
+        storeMarker.bindPopup(`<b>🏪 Sede Comercial: ${this.selectedEstablishment.name}</b>`);
+      }
+    }
+
+    // 3. Create User Location Marker (Non-draggable, fixed by GPS)
     const userIcon = L.divIcon({
       className: 'custom-user-marker',
-      html: `<div style="background-color: #FF5E3A; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(255, 94, 58, 0.4); border: 2px solid white;">📍</div>`,
-      iconSize: [32, 32],
-      iconAnchor: [16, 16]
+      html: `<div style="background-color: #FF5E3A; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(255, 94, 58, 0.4); border: 2px solid white;">📍</div>`,
+      iconSize: [34, 34],
+      iconAnchor: [17, 17]
     });
 
     this.leafMarker = L.marker(shopCenter, { icon: userIcon, draggable: false }).addTo(this.leafMap);
@@ -2529,15 +2567,14 @@ class MarketplaceController {
     }
     this.trackingLayers = [];
 
-    // 1. Restaurant Marker (Tienda / Cocina)
-    const restIcon = L.divIcon({
-      className: 'custom-rest-marker',
-      html: `<div style="background-color: #3B82F6; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4); border: 2px solid white;">🏪</div>`,
-      iconSize: [32, 32],
-      iconAnchor: [16, 16]
-    });
+    // 1. Restaurant Marker (Sede Comercial con foto personalizada)
+    let targetEst = null;
+    if (this.establishments) {
+      targetEst = this.establishments.find(e => e.id === order.establishmentId);
+    }
+    const restIcon = this.createStoreMarkerIcon(targetEst || { name: order.establishmentName, logo: '🏪' });
     const restMarker = L.marker(estCoords, { icon: restIcon }).addTo(this.trackingMap);
-    restMarker.bindPopup(`<b>Restaurante: ${order.establishmentName || 'Tienda'}</b>`);
+    restMarker.bindPopup(`<b>🏪 Sede Comercial: ${order.establishmentName || 'Tienda'}</b>`);
     this.trackingLayers.push(restMarker);
 
     // 2. Customer Marker (Casa)
