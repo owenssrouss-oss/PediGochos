@@ -63,6 +63,7 @@ class AdminController {
           if (warningBanner) warningBanner.classList.add('hidden');
           
           this.renderTable();
+          await this.loadCentralSedeSettings();
           this.initPresence(user.email);
           this.showToast('👑 Acceso de Dueño verificado con Google');
         } catch (err) {
@@ -150,6 +151,7 @@ class AdminController {
 
         // Render data
         this.renderTable();
+        await this.loadCentralSedeSettings();
         this.showToast('👑 Acceso de Dueño verificado con éxito');
         
         const warningBanner = document.getElementById('backup-warning-banner');
@@ -1622,6 +1624,77 @@ class AdminController {
       }
     } catch (err) {
       console.error('Error during cloud backup:', err);
+    }
+  }
+
+  async loadCentralSedeSettings() {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const settings = await res.json();
+        const nameInp = document.getElementById('admin-central-sede-name');
+        const latInp = document.getElementById('admin-central-sede-lat');
+        const lngInp = document.getElementById('admin-central-sede-lng');
+        if (nameInp) nameInp.value = settings.central_delivery_name || '';
+        if (latInp) latInp.value = (settings.central_delivery_lat !== null && settings.central_delivery_lat !== undefined) ? settings.central_delivery_lat : '';
+        if (lngInp) lngInp.value = (settings.central_delivery_lng !== null && settings.central_delivery_lng !== undefined) ? settings.central_delivery_lng : '';
+      }
+    } catch (err) {
+      console.warn('Could not load central sede settings:', err);
+    }
+  }
+
+  getCurrentGPSForCentralSede() {
+    if (navigator.geolocation) {
+      this.showToast('📡 Obteniendo GPS para Sede Principal...');
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const latInp = document.getElementById('admin-central-sede-lat');
+          const lngInp = document.getElementById('admin-central-sede-lng');
+          if (latInp) latInp.value = pos.coords.latitude;
+          if (lngInp) lngInp.value = pos.coords.longitude;
+          this.showToast('✅ Coordenadas de Sede Principal capturadas');
+        },
+        (err) => {
+          alert('No se pudo obtener la ubicación GPS: ' + err.message);
+        },
+        { enableHighAccuracy: true }
+      );
+    } else {
+      alert('Tu navegador no soporta geolocalización.');
+    }
+  }
+
+  async handleSaveCentralSede(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-save-central-sede-admin');
+    if (btn) btn.disabled = true;
+
+    const name = document.getElementById('admin-central-sede-name').value.trim();
+    const lat = document.getElementById('admin-central-sede-lat').value;
+    const lng = document.getElementById('admin-central-sede-lng').value;
+
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          central_delivery_name: name,
+          central_delivery_lat: lat !== '' ? parseFloat(lat) : null,
+          central_delivery_lng: lng !== '' ? parseFloat(lng) : null
+        })
+      });
+
+      if (res.ok) {
+        this.showToast('🏛️ ¡Sede Principal de Domicilios guardada con éxito!');
+      } else {
+        alert('Error guardando la Sede Principal.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de conexión al guardar Sede Principal.');
+    } finally {
+      if (btn) btn.disabled = false;
     }
   }
 

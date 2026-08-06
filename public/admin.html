@@ -68,8 +68,45 @@
     <!-- Main Workspace -->
     <main class="admin-main-workspace">
       
-      <!-- Left Column: Registration Form -->
+      <!-- Left Column: Registration Form & System Settings -->
       <section class="admin-form-column">
+
+        <!-- Card: Configuración de la Sede Principal de Domicilios -->
+        <div class="admin-card" style="border: 1px solid rgba(139, 92, 246, 0.4); background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(15, 23, 42, 0.95)); margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h3 style="color: #a78bfa; margin: 0; font-size: 16px; font-weight: 800;">🏛️ Sede Principal de Domicilios</h3>
+            <button type="button" onclick="AdminApp.getCurrentGPSForCentralSede()" style="background: #8b5cf6; color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              📡 Capturar mi GPS Actual
+            </button>
+          </div>
+          <p class="card-subtitle" style="color: #cbd5e1; font-size: 12px; margin-bottom: 12px; line-height: 1.4;">
+            Establece las coordenadas de la <strong>Sede Principal</strong> desde donde se calcularán automáticamente las distancias y costos de domicilios para todos los comercios.
+          </p>
+          <hr class="card-divider" style="border-color: rgba(139, 92, 246, 0.2); margin-bottom: 14px;">
+
+          <form id="central-sede-admin-form" onsubmit="AdminApp.handleSaveCentralSede(event)">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="admin-central-sede-name" style="font-size: 12px; color: #a78bfa;">Nombre / Identificador de la Sede Principal</label>
+              <input type="text" id="admin-central-sede-name" placeholder="Ej. Sede Central Principal - San Antonio" style="width: 100%; font-size: 13px;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+              <div class="form-group" style="margin: 0;">
+                <label for="admin-central-sede-lat" style="font-size: 11px; color: #cbd5e1;">Latitud Sede Principal *</label>
+                <input type="number" step="any" id="admin-central-sede-lat" placeholder="Ej. 7.8131" required style="width: 100%; font-size: 13px;">
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label for="admin-central-sede-lng" style="font-size: 11px; color: #cbd5e1;">Longitud Sede Principal *</label>
+                <input type="number" step="any" id="admin-central-sede-lng" placeholder="Ej. -72.4439" required style="width: 100%; font-size: 13px;">
+              </div>
+            </div>
+
+            <button type="submit" id="btn-save-central-sede-admin" class="btn-submit-est" style="background: #8b5cf6; border-color: #8b5cf6; width: 100%; font-weight: 800; padding: 10px 14px; font-size: 13px; border-radius: 8px;">
+              💾 Guardar Sede Principal de Domicilios
+            </button>
+          </form>
+        </div>
+
         <div class="admin-card">
           <h3>📋 Registrar Nuevo Establecimiento</h3>
           <p class="card-subtitle">Rellena los datos para agregar un nuevo comercio al marketplace.</p>
@@ -665,7 +702,7 @@
     </div>
   </div>
 
-  <script src="/js/admin.js"></script>
+  <script src="/js/admin.js?v=72"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
