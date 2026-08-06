@@ -115,10 +115,12 @@ body {
 .admin-header-content {
   max-width: 1600px;
   margin: 0 auto;
-  padding: 16px 24px;
+  padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .admin-brand {
@@ -148,6 +150,8 @@ body {
   padding: 8px 16px;
   border-radius: var(--radius-full);
   font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .btn-logout:hover {
@@ -161,20 +165,22 @@ body {
   max-width: 1600px;
   margin: 0 auto;
   width: 100%;
-  padding: 24px;
+  padding: 16px 20px;
   display: grid;
-  grid-template-columns: 420px 1fr;
-  gap: 24px;
+  grid-template-columns: minmax(300px, 380px) 1fr;
+  gap: 20px;
   flex: 1;
+  box-sizing: border-box;
 }
 
 .admin-card {
   background-color: #FFFFFF;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 24px;
+  padding: 20px;
   box-shadow: var(--shadow-sm);
-  height: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
@@ -217,6 +223,7 @@ body {
 
 .input-with-button {
   display: flex;
+  gap: 8px;
   gap: 8px;
 }
 
@@ -272,8 +279,9 @@ body {
 /* Establishments Table on Right Panel */
 .table-container {
   overflow-x: auto;
+  max-width: 100%;
+  width: 100%;
   flex: 1;
-  max-height: calc(100vh - 200px);
 }
 
 .keys-table {
@@ -281,6 +289,7 @@ body {
   border-collapse: collapse;
   text-align: left;
   font-size: 13px;
+  min-width: 500px;
 }
 
 .keys-table th {
@@ -325,8 +334,10 @@ body {
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   .admin-main-workspace {
     grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 16px;
   }
 }

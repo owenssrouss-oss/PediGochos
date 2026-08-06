@@ -240,6 +240,8 @@ class AdminController {
       `;
       tbody.appendChild(row);
     });
+
+    this.loadAdminMasterCatalogTable();
   }
 
   showEstablishmentActions(id) {
@@ -1767,6 +1769,180 @@ class AdminController {
       alert('Error de conexión al guardar Sede Principal.');
     } finally {
       if (btn) btn.disabled = false;
+    }
+  }
+
+  async loadAdminMasterCatalogTable() {
+    const tbody = document.getElementById('admin-master-catalog-tbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted);">Cargando catálogo maestro...</td></tr>`;
+
+    try {
+      if (typeof MenuBuilder !== 'undefined' && MenuBuilder.supabase) {
+        const { data, error } = await MenuBuilder.supabase
+          .from('products')
+          .select('*')
+          .order('name', { ascending: true });
+
+        if (error) throw error;
+        this.masterProductsCache = data || [];
+        this.renderAdminMasterCatalogTable(this.masterProductsCache);
+      }
+    } catch (err) {
+      console.error(err);
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: #f87171;">Error al cargar el catálogo maestro: ${err.message}</td></tr>`;
+    }
+  }
+
+  renderAdminMasterCatalogTable(products) {
+    const tbody = document.getElementById('admin-master-catalog-tbody');
+    if (!tbody) return;
+
+    if (!products || products.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted);">No hay productos en el catálogo maestro.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = '';
+    products.forEach(prod => {
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid var(--border)';
+      
+      const imgUrl = prod.image_url || prod.image || '/images/burger_royale.jpg';
+      const rawPrice = parseFloat(prod.price) || 0;
+      const copPrice = rawPrice < 1000 ? rawPrice * 1000 : rawPrice;
+      const formattedPrice = `$${Math.round(copPrice).toLocaleString('de-DE')} COP`;
+
+      tr.innerHTML = `
+        <td style="padding: 10px 14px;">
+          <img src="${imgUrl}" alt="${prod.name}" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border);" onerror="this.src='/images/burger_royale.jpg'">
+        </td>
+        <td style="padding: 10px 14px; font-weight: 700; color: #0F172A;">
+          ${prod.name}
+        </td>
+        <td style="padding: 10px 14px;">
+          <span style="background: #F1F5F9; color: var(--primary); padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">${prod.category || 'General'}</span>
+        </td>
+        <td style="padding: 10px 14px; font-size: 12px; color: var(--text-muted); max-width: 250px;">
+          ${prod.description || 'Sin descripción especificada.'}
+        </td>
+        <td style="padding: 10px 14px; font-weight: 800; color: #10B981;">
+          ${formattedPrice}
+        </td>
+        <td style="padding: 10px 14px; text-align: center;">
+          <button onclick="AdminApp.deleteMasterProduct('${prod.id}')" style="background: #EF4444; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s;" title="Eliminar del catálogo maestro global">
+            🗑️ Eliminar
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  filterMasterCatalogTable() {
+    const input = document.getElementById('admin-master-catalog-search');
+    if (!input || !this.masterProductsCache) return;
+    const query = input.value.toLowerCase().trim();
+
+    const filtered = this.masterProductsCache.filter(p => 
+      p.name.toLowerCase().includes(query) || 
+      (p.category && p.category.toLowerCase().includes(query)) ||
+      (p.description && p.description.toLowerCase().includes(query))
+    );
+
+    this.renderAdminMasterCatalogTable(filtered);
+  }
+
+  openCreateMasterProductModal() {
+    const modal = document.getElementById('admin-create-master-product-modal');
+    if (modal) modal.classList.add('active');
+  }
+
+  closeCreateMasterProductModal() {
+    const modal = document.getElementById('admin-create-master-product-modal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  async handleCreateMasterProductSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('master-prod-name').value.trim();
+    const category = document.getElementById('master-prod-category').value.trim();
+    const rawPrice = parseFloat(document.getElementById('master-prod-price').value);
+    const description = document.getElementById('master-prod-desc').value.trim();
+    const fileInput = document.getElementById('master-prod-image-file');
+
+    if (!name || !category || isNaN(rawPrice)) {
+      alert('Completa los campos obligatorios (*)');
+      return;
+    }
+
+    const price = rawPrice < 1000 ? rawPrice * 1000 : rawPrice;
+    let imageUrl = '/images/burger_royale.jpg';
+
+    const submitBtn = document.getElementById('btn-submit-create-master-prod');
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'Guardando...';
+
+    try {
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        if (typeof MenuBuilder !== 'undefined' && MenuBuilder.uploadProductImage) {
+          imageUrl = await MenuBuilder.uploadProductImage(fileInput.files[0]);
+        }
+      }
+
+      if (typeof MenuBuilder !== 'undefined' && MenuBuilder.supabase) {
+        const newProduct = {
+          name,
+          category,
+          price,
+          description,
+          image_url: imageUrl
+        };
+
+        const { error } = await MenuBuilder.supabase
+          .from('products')
+          .insert([newProduct]);
+
+        if (error) throw error;
+
+        this.showToast(`✅ "${name}" creado con éxito en el catálogo maestro.`);
+        this.closeCreateMasterProductModal();
+        await this.loadAdminMasterCatalogTable();
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error al crear el producto maestro: ' + err.message);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerText = '💾 Guardar Producto Maestro';
+    }
+  }
+
+  async deleteMasterProduct(prodId) {
+    if (!prodId) return;
+    const item = (this.masterProductsCache || []).find(p => p.id === prodId);
+    const itemName = item ? item.name : 'este producto';
+
+    if (!confirm(`⚠️ ¿Estás seguro de eliminar permanentemente "${itemName}" del catálogo maestro global?\n\nEsta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    try {
+      if (typeof MenuBuilder !== 'undefined' && MenuBuilder.supabase) {
+        const { error } = await MenuBuilder.supabase
+          .from('products')
+          .delete()
+          .eq('id', prodId);
+
+        if (error) throw error;
+
+        this.showToast(`🗑️ "${itemName}" eliminado del catálogo maestro.`);
+        await this.loadAdminMasterCatalogTable();
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error al eliminar producto: ' + err.message);
     }
   }
 

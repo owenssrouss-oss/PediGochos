@@ -887,15 +887,38 @@ class KitchenController {
     }
 
     // 2. Open WhatsApp link to client
-    const rawPhone = order.deliveryDetails.phone || '';
+    const rawPhone = (order.deliveryDetails && order.deliveryDetails.phone) ? order.deliveryDetails.phone : '';
     const cleanPhone = rawPhone.replace(/\D/g, ''); // Keep only digits
     
-    const storeName = this.establishments.find(e => e.id === this.selectedId)?.name || 'El Local';
+    const storeName = this.establishments.find(e => e.id === this.selectedId)?.name || order.establishmentName || 'El Local';
     const clientName = order.customerName || 'Cliente';
-    const totalAmount = Math.round(order.total).toLocaleString('de-DE');
-    const securityCode = order.deliveryDetails.code || 'N/A';
+    const securityCode = (order.deliveryDetails && order.deliveryDetails.code) ? order.deliveryDetails.code : 'N/A';
 
-    const confirmationMessage = `Hola *${clientName}*, confirmamos tu pedido de *${storeName}* por un valor de *$${totalAmount}*. Tu código de entrega de seguridad es *${securityCode}*. Por favor, entrégalo al repartidor cuando recibas tu pedido. ¡Gracias por tu compra!`;
+    // Calculate total quantity of items & itemized summary with specs/observations
+    let totalItemsCount = 0;
+    const itemsSummary = (order.items || []).map(item => {
+      const qty = item.quantity || 1;
+      totalItemsCount += qty;
+      let line = `• *${qty}x* ${item.name}`;
+      if (item.specifications) line += `\n  ↳ _${item.specifications}_`;
+      const itemSub = item.subtotal_combined || (item.price * qty);
+      const itemSubCop = itemSub < 1000 ? itemSub * 1000 : itemSub;
+      line += ` - *$${Math.round(itemSubCop).toLocaleString('de-DE')} COP*`;
+      return line;
+    }).join('\n');
+
+    const rawTotal = order.total || 0;
+    const totalCop = Math.round(rawTotal < 1000 ? rawTotal * 1000 : rawTotal);
+
+    const confirmationMessage = `👋 ¡Hola *${clientName}*!\n\n` +
+      `🎉 *¡TU PEDIDO HA SIDO CONFIRMADO CON ÉXITO!* 🎉\n` +
+      `🏬 *Establecimiento:* ${storeName}\n\n` +
+      `📦 *CANTIDAD DE ARTÍCULOS:* ${totalItemsCount} producto(s)\n` +
+      `📝 *DETALLE Y OBSERVACIONES:*\n${itemsSummary}\n\n` +
+      `💰 *MONTO TOTAL A PAGAR:* *$${totalCop.toLocaleString('de-DE')} COP*\n` +
+      `🔑 *CÓDIGO DE SEGURIDAD:* *${securityCode}*\n\n` +
+      `🛵 *Indicaciones:* Por favor, ten listo tu código de entrega de 4 dígitos y entrégalo al repartidor al recibir tu pedido.\n\n` +
+      `¡Muchas gracias por tu compra y buen provecho! ✨`;
 
     const clientWhatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(confirmationMessage)}`;
     window.open(clientWhatsappUrl, '_blank');
@@ -1189,9 +1212,10 @@ class KitchenController {
   }
 
   async loadModalImportCatalog() {
-    const select = document.getElementById('modal-import-product-select');
-    if (!select) return;
-    select.innerHTML = `<option value="">Cargando...</option>`;
+    const tbody = document.getElementById('modal-import-catalog-tbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-muted);">Cargando catálogo maestro...</td></tr>`;
 
     try {
       if (typeof MenuBuilder !== 'undefined' && MenuBuilder.supabase) {
@@ -1203,27 +1227,82 @@ class KitchenController {
         if (error) throw error;
 
         this.globalProductsCache = data || [];
-        select.innerHTML = `<option value="">-- Selecciona --</option>`;
-        this.globalProductsCache.forEach(prod => {
-          const opt = document.createElement('option');
-          opt.value = prod.id;
-          opt.innerText = prod.name;
-          select.appendChild(opt);
-        });
+        this.renderImportCatalogTable(this.globalProductsCache);
       }
     } catch (err) {
       console.error(err);
-      select.innerHTML = `<option value="">Error de carga</option>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #f87171;">Error al cargar el catálogo maestro: ${err.message}</td></tr>`;
     }
   }
 
-  async importGlobalProductFromModal() {
-    const select = document.getElementById('modal-import-product-select');
-    const prodId = select.value;
-    if (!prodId) {
-      alert('Selecciona un producto del catálogo.');
+  renderImportCatalogTable(products) {
+    const tbody = document.getElementById('modal-import-catalog-tbody');
+    if (!tbody) return;
+
+    if (!products || products.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-muted);">No hay productos en el catálogo maestro.</td></tr>`;
       return;
     }
+
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    const existingProductNames = est && est.products ? est.products.map(p => p.name.toLowerCase()) : [];
+
+    tbody.innerHTML = '';
+    products.forEach(prod => {
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
+      tr.style.transition = 'background 0.2s';
+      tr.onmouseenter = () => tr.style.background = 'rgba(255,255,255,0.04)';
+      tr.onmouseleave = () => tr.style.background = 'transparent';
+
+      const imgUrl = prod.image_url || prod.image || '/images/burger_royale.jpg';
+      const isAlreadyAdded = existingProductNames.includes(prod.name.toLowerCase());
+      const rawPrice = parseFloat(prod.price) || 0;
+      const copPrice = rawPrice < 1000 ? rawPrice * 1000 : rawPrice;
+      const formattedPrice = `$${Math.round(copPrice).toLocaleString('de-DE')} COP`;
+
+      const actionBtn = isAlreadyAdded 
+        ? `<span style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block;">✓ En tu Menú</span>`
+        : `<button onclick="KitchenApp.importGlobalProductFromModal('${prod.id}')" style="background: var(--accent); color: #121216; font-weight: 800; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;">➕ Agregar a mi Menú</button>`;
+
+      tr.innerHTML = `
+        <td style="padding: 10px 14px;">
+          <img src="${imgUrl}" alt="${prod.name}" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1);" onerror="this.src='/images/burger_royale.jpg'">
+        </td>
+        <td style="padding: 10px 14px;">
+          <div style="font-weight: 700; color: #fff;">${prod.name}</div>
+          <span style="font-size: 10.5px; background: rgba(255,255,255,0.08); color: #a78bfa; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 2px;">${prod.category || 'General'}</span>
+        </td>
+        <td style="padding: 10px 14px; color: var(--text-muted); font-size: 12px; max-width: 250px;">
+          ${prod.description || 'Sin descripción especificada.'}
+        </td>
+        <td style="padding: 10px 14px; font-weight: 800; color: #10B981;">
+          ${formattedPrice}
+        </td>
+        <td style="padding: 10px 14px; text-align: center;">
+          ${actionBtn}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  filterImportCatalogTable() {
+    const searchInput = document.getElementById('modal-import-search');
+    if (!searchInput || !this.globalProductsCache) return;
+    const query = searchInput.value.toLowerCase().trim();
+
+    const filtered = this.globalProductsCache.filter(p => 
+      p.name.toLowerCase().includes(query) || 
+      (p.category && p.category.toLowerCase().includes(query)) ||
+      (p.description && p.description.toLowerCase().includes(query))
+    );
+
+    this.renderImportCatalogTable(filtered);
+  }
+
+  async importGlobalProductFromModal(prodId) {
+    if (!prodId) return;
 
     const selected = this.globalProductsCache.find(p => p.id === prodId);
     if (!selected) return;
@@ -1239,12 +1318,15 @@ class KitchenController {
       return;
     }
 
+    const rawPrice = parseFloat(selected.price) || 0;
+    const copPrice = rawPrice < 1000 ? rawPrice * 1000 : rawPrice;
+
     const newLocalProduct = {
       id: `p-${Date.now()}-${Math.floor(Math.random() * 100)}`,
       name: selected.name,
-      price: parseFloat(selected.price),
+      price: copPrice,
       description: selected.description || '',
-      image: selected.image_url
+      image: selected.image_url || selected.image || ''
     };
 
     est.products.push(newLocalProduct);
@@ -1259,8 +1341,9 @@ class KitchenController {
         })
       });
       if (res.ok) {
-        this.showLocalToast('📥 Producto importado con éxito.');
+        this.showLocalToast(`📥 "${selected.name}" agregado a tu carta.`);
         this.loadModalProducts();
+        this.renderImportCatalogTable(this.globalProductsCache);
         await this.triggerCloudBackup();
       }
     } catch (err) {

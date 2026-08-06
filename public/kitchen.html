@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Cocina Rapi Gochos - KDS Panel</title>
-  <link rel="stylesheet" href="/css/common.css?v=78">
-  <link rel="stylesheet" href="/css/kitchen.css?v=78">
-  <link rel="stylesheet" href="/css/menu-builder.css?v=78">
+  <link rel="stylesheet" href="/css/common.css?v=80">
+  <link rel="stylesheet" href="/css/kitchen.css?v=80">
+  <link rel="stylesheet" href="/css/menu-builder.css?v=80">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#FF5E3A">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/supabase-helper.js?v=78"></script>
+  <script src="/js/supabase-helper.js?v=80"></script>
 </head>
 <body>
 
@@ -395,22 +395,39 @@
       <!-- Vertical Layout Workspace -->
       <div class="designer-workspace" style="display: flex; flex-direction: column; gap: 24px; flex: 1;">
         
-        <!-- SECTION 1 (TOP): Importar del Catálogo (La Carta) -->
-        <div class="import-catalog-section" style="background: rgba(255, 94, 58, 0.05); border: 1px solid rgba(255, 94, 58, 0.15); border-radius: 16px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="font-size: 24px;">⚡</span>
-            <div>
-              <h3 style="color: #ffffff; font-size: 14px; margin: 0; font-weight: 800;">Importar del Catálogo del Dueño</h3>
-              <p style="font-size: 11.5px; color: var(--text-muted); margin: 2px 0 0 0;">Asocia platos globales directamente con su foto e ingrediente correspondiente a tu tienda.</p>
+        <!-- SECTION 1 (TOP): Tabla de Catálogo Maestro de Productos Disponibles para Importar -->
+        <div class="import-catalog-section" style="background: rgba(255, 94, 58, 0.04); border: 1px solid rgba(255, 94, 58, 0.2); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 24px;">⚡</span>
+              <div>
+                <h3 style="color: #ffffff; font-size: 16px; margin: 0; font-weight: 800;">Catálogo Maestro de Platos Disponibles (Taller de Menú)</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">Haz clic en "➕ Agregar a mi Menú" para asociar cualquier plato global con su foto e ingredientes a la carta de tu restaurante.</p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; width: 100%; max-width: 320px;">
+              <input type="text" id="modal-import-search" oninput="KitchenApp.filterImportCatalogTable()" placeholder="🔍 Buscar plato en catálogo..." style="width: 100%; background: rgba(18,18,22,0.9); border: 1px solid rgba(255,255,255,0.12); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 13px;">
             </div>
           </div>
-          <div style="display: flex; gap: 12px; align-items: center;">
-            <select id="modal-import-product-select" style="min-width: 200px; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 13px;">
-              <option value="">Cargando catálogo...</option>
-            </select>
-            <button onclick="importGlobalProductFromModal()" style="background: var(--accent); color: #121216; font-weight: 800; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; height: 36px; transition: all 0.2s;">
-              Importar Producto
-            </button>
+
+          <!-- Tabla de Productos Maestros Disponibles -->
+          <div style="overflow-x: auto; max-height: 280px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(15, 23, 42, 0.6);" class="premium-scroll">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; color: #fff;">
+              <thead>
+                <tr style="background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 11px; text-transform: uppercase;">
+                  <th style="padding: 10px 14px; width: 60px;">Foto</th>
+                  <th style="padding: 10px 14px;">Producto y Categoría</th>
+                  <th style="padding: 10px 14px;">Descripción / Ingredientes</th>
+                  <th style="padding: 10px 14px; width: 120px;">Precio Sugerido</th>
+                  <th style="padding: 10px 14px; text-align: center; width: 140px;">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="modal-import-catalog-tbody">
+                <tr>
+                  <td colspan="5" style="padding: 20px; text-align: center; color: var(--text-muted);">Cargando catálogo maestro...</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -570,9 +587,9 @@
     </div>
   </div>
 
-  <script src="/js/sound.js"></script>
-  <script src="/js/menu-builder.js"></script>
-  <script src="/js/kitchen.js"></script>
+  <script src="/js/sound.js?v=80"></script>
+  <script src="/js/menu-builder.js?v=80"></script>
+  <script src="/js/kitchen.js?v=80"></script>
   <script>
     let activeCategoryId = 'all';
     let categoriesList = [];
