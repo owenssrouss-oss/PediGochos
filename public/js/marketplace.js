@@ -1527,13 +1527,19 @@ class MarketplaceController {
     setTimeout(() => {
       dot.remove();
       
+      // Trigger Cart Bounce animation with glow
+      cartBtn.classList.remove('cart-bounce-effect');
+      void cartBtn.offsetWidth;
+      cartBtn.classList.add('cart-bounce-effect');
+      setTimeout(() => cartBtn.classList.remove('cart-bounce-effect'), 700);
+
       const badgeCount = document.getElementById('cart-badge-count');
       if (badgeCount) {
         badgeCount.classList.remove('badge-pop');
         void badgeCount.offsetWidth;
         badgeCount.classList.add('badge-pop');
       }
-    }, 800);
+    }, 600);
   }
 
   updateQty(cartItemId, delta) {
@@ -1871,6 +1877,15 @@ class MarketplaceController {
         if (window.SupabaseHelper && window.SupabaseHelper.uploadImage) {
           housePhotoUrl = await window.SupabaseHelper.uploadImage(photoFile, fileName);
         }
+        if (!housePhotoUrl) {
+          // Fallback to Base64 data URL to guarantee delivery to kitchen KDS
+          housePhotoUrl = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(photoFile);
+          });
+        }
       } catch (err) {
         console.error('Error uploading house photo:', err);
       }
@@ -2195,6 +2210,12 @@ class MarketplaceController {
     }
 
     target.appendChild(tooltip);
+
+    // Auto-dismiss after 3 seconds
+    if (this.tutorialTimer) clearTimeout(this.tutorialTimer);
+    this.tutorialTimer = setTimeout(() => {
+      this.dismissLocationTutorial();
+    }, 3000);
   }
 
   dismissLocationTutorial(event) {

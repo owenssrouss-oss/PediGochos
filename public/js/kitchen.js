@@ -460,14 +460,25 @@ class KitchenController {
         detailsHTML = `<div class="order-address-box"><strong>📍 Consumo Local</strong><p>Servir en Mesa #${order.tableNumber}</p></div>`;
       } else {
         typeBadge = `<span class="order-type-badge delivery">Delivery</span>`;
-        const phoneLink = `<a href="#" onclick="KitchenApp.handleCustomerWhatsAppClick(event, '${order.id}')" style="color: #10B981; text-decoration: underline; font-weight: 700;">${order.deliveryDetails.phone}</a>`;
+        const phoneLink = `<a href="#" onclick="KitchenApp.handleCustomerWhatsAppClick(event, '${order.id}')" style="color: #10B981; text-decoration: underline; font-weight: 700;">${order.deliveryDetails.phone || 'N/A'}</a>`;
         const codeHTML = order.deliveryDetails.code ? `<p><strong>Código de Seguridad:</strong> <span style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-weight: 700; color: var(--accent);">${order.deliveryDetails.code}</span></p>` : '';
+        const housePhotoUrl = order.deliveryDetails.housePhotoUrl || order.deliveryDetails.house_photo_url || null;
+        const photoHTML = housePhotoUrl 
+          ? `<div style="margin-top: 8px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);">
+               <strong style="color: #60A5FA; font-size: 11.5px; display: block; margin-bottom: 6px;">🏡 Foto de Fachada / Casa:</strong>
+               <a href="${housePhotoUrl}" target="_blank" style="display: block; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2);">
+                 <img src="${housePhotoUrl}" alt="Fachada Casa" style="width: 100%; max-height: 150px; object-fit: cover; border-radius: 6px; display: block;">
+               </a>
+             </div>` 
+          : '';
+
         detailsHTML = `
           <div class="order-address-box">
             <strong>🚴 Envío a Domicilio</strong>
             <p><strong>Tlf:</strong> ${phoneLink}</p>
-            <p><strong>Dir:</strong> ${order.deliveryDetails.address}</p>
+            <p><strong>Dir:</strong> ${order.deliveryDetails.address || 'N/A'}</p>
             ${codeHTML}
+            ${photoHTML}
           </div>
         `;
       }
