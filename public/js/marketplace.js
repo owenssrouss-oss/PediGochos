@@ -1631,20 +1631,13 @@ class MarketplaceController {
         if (this.calculatedDistanceKm !== null && this.calculatedDistanceKm !== undefined) {
           const calculatedFee = this.calculatedDistanceKm * 2200;
           let finalFee = Math.max(4500, Math.round(calculatedFee));
-          
-          // Currency scale adjustment for display
-          if (shopSubtotal < 1000) {
-            finalFee = finalFee / 4500;
-          }
 
           // Sync fee to the uniqueShops details
           uniqueShops[id].delivery_fee = finalFee;
           totalDeliveryFee += finalFee;
         } else {
           let baseFee = uniqueShops[id].delivery_fee || 4500;
-          if (shopSubtotal < 1000 && baseFee >= 1000) {
-            baseFee = baseFee / 4500;
-          }
+          if (baseFee < 4500) baseFee = 4500;
           uniqueShops[id].delivery_fee = baseFee;
           totalDeliveryFee += baseFee;
         }
@@ -1803,15 +1796,10 @@ class MarketplaceController {
           if (this.calculatedDistanceKm !== null && this.calculatedDistanceKm !== undefined) {
             const calculatedFee = this.calculatedDistanceKm * 2200;
             let finalFee = Math.max(4500, Math.round(calculatedFee));
-            if (shopSubtotal < 1000) {
-              finalFee = finalFee / 4500;
-            }
             shopDeliveryCost = finalFee;
           } else {
             let baseFee = shop.delivery_fee || 4500;
-            if (shopSubtotal < 1000 && baseFee >= 1000) {
-              baseFee = baseFee / 4500;
-            }
+            if (baseFee < 4500) baseFee = 4500;
             shopDeliveryCost = baseFee;
           }
         }
