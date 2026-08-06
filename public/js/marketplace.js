@@ -1546,7 +1546,8 @@ class MarketplaceController {
     if (item.quantity <= 0) {
       this.cart.items.splice(itemIndex, 1);
     } else {
-      item.subtotal_combined = item.unit_total_calculated * item.quantity;
+      item.unit_total_calculated = this.normalizeCopPrice(item.unit_total_calculated);
+      item.subtotal_combined = this.normalizeCopPrice(item.unit_total_calculated * item.quantity);
     }
 
     this.updateCartBadge();
@@ -1567,7 +1568,7 @@ class MarketplaceController {
     const headerTotal = document.getElementById('header-cart-badge-total');
 
     const totalCount = this.cart.items.reduce((sum, item) => sum + item.quantity, 0);
-    const subtotal = this.cart.items.reduce((sum, item) => sum + item.subtotal_combined, 0);
+    const subtotal = this.cart.items.reduce((sum, item) => sum + this.normalizeCopPrice(item.subtotal_combined), 0);
 
     const formattedTotal = this.formatPesos(subtotal);
 
@@ -1715,7 +1716,7 @@ class MarketplaceController {
     if (this.orderType === 'delivery') {
       shopIds.forEach(id => {
         const shopItems = this.cart.items.filter(item => item.restaurant_id === id);
-        const shopSubtotal = shopItems.reduce((sum, item) => sum + item.subtotal_combined, 0);
+        const shopSubtotal = shopItems.reduce((sum, item) => sum + this.normalizeCopPrice(item.subtotal_combined), 0);
 
         // Calculate delivery fee using $4.500 COP minimum per establishment + $2.200 COP per km rate
         if (this.calculatedDistanceKm !== null && this.calculatedDistanceKm !== undefined) {
@@ -1768,7 +1769,7 @@ class MarketplaceController {
       warningDiv.innerHTML = '';
     }
 
-    const subtotal = this.cart.items.reduce((sum, item) => sum + item.subtotal_combined, 0);
+    const subtotal = this.cart.items.reduce((sum, item) => sum + this.normalizeCopPrice(item.subtotal_combined), 0);
     const total = subtotal + totalDeliveryFee;
 
     document.getElementById('cart-subtotal').innerText = this.formatPesos(subtotal);
@@ -1880,7 +1881,7 @@ class MarketplaceController {
     try {
       const promises = shopIds.map(async (shopId) => {
         const shop = groupedItems[shopId];
-        const shopSubtotal = shop.items.reduce((sum, item) => sum + item.subtotal_combined, 0);
+        const shopSubtotal = shop.items.reduce((sum, item) => sum + this.normalizeCopPrice(item.subtotal_combined), 0);
         let shopDeliveryCost = 0;
         if (this.orderType === 'delivery') {
           if (this.calculatedDistanceKm !== null && this.calculatedDistanceKm !== undefined) {
@@ -1902,12 +1903,12 @@ class MarketplaceController {
           items: shop.items.map(item => ({
             id: item.product_id,
             name: item.product_name,
-            price: item.unit_total_calculated,
+            price: this.normalizeCopPrice(item.unit_total_calculated),
             quantity: item.quantity,
             specifications: this.getSpecsStringForKitchen(item.selected_specifications),
             selected_specifications: item.selected_specifications,
-            unit_total_calculated: item.unit_total_calculated,
-            subtotal_combined: item.subtotal_combined
+            unit_total_calculated: this.normalizeCopPrice(item.unit_total_calculated),
+            subtotal_combined: this.normalizeCopPrice(item.subtotal_combined)
           })),
           total: shopSubtotal + shopDeliveryCost,
           orderType: this.orderType,
