@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Cocina Rapi Gochos - KDS Panel</title>
-  <link rel="stylesheet" href="/css/common.css?v=67">
-  <link rel="stylesheet" href="/css/kitchen.css?v=67">
-  <link rel="stylesheet" href="/css/menu-builder.css?v=67">
+  <link rel="stylesheet" href="/css/common.css?v=69">
+  <link rel="stylesheet" href="/css/kitchen.css?v=69">
+  <link rel="stylesheet" href="/css/menu-builder.css?v=69">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#FF5E3A">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/supabase-helper.js?v=67"></script>
+  <script src="/js/supabase-helper.js?v=69"></script>
 </head>
 <body>
 
@@ -293,12 +293,30 @@
         </div>
 
         <div class="form-group">
-          <label for="custom-shop-location">Ubicación *</label>
+          <label for="custom-shop-location">Pueblo / Ciudad *</label>
           <select id="custom-shop-location" required style="width: 100%;">
             <option value="San Antonio">San Antonio</option>
             <option value="Ureña">Ureña</option>
             <option value="San Cristóbal">San Cristóbal</option>
           </select>
+        </div>
+
+        <div class="form-group" style="background: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 8px; border: 1px dashed rgba(16, 185, 129, 0.4); margin-bottom: 12px;">
+          <label style="color: #10B981; font-weight: 700; display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 4px;">
+            <span>📍 Coordenadas de Sede (Punto de Origen)</span>
+            <button type="button" class="btn-neumorphic" onclick="KitchenApp.getCurrentLocationForSede()" style="margin: 0; padding: 4px 8px; font-size: 11px; background: #10B981; color: #fff; border: none; height: auto;">📡 Usar mi GPS Actual</button>
+          </label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+            <div>
+              <label for="custom-shop-lat" style="font-size: 11px; color: #cbd5e1;">Latitud Sede</label>
+              <input type="number" step="any" id="custom-shop-lat" placeholder="Ej. 7.8131" style="width: 100%; font-size: 13px; padding: 8px; background: #0F172A; color: #FFF; border: 1px solid #475569; border-radius: 6px;">
+            </div>
+            <div>
+              <label for="custom-shop-lng" style="font-size: 11px; color: #cbd5e1;">Longitud Sede</label>
+              <input type="number" step="any" id="custom-shop-lng" placeholder="Ej. -72.4439" style="width: 100%; font-size: 13px; padding: 8px; background: #0F172A; color: #FFF; border: 1px solid #475569; border-radius: 6px;">
+            </div>
+          </div>
+          <small style="color: #cbd5e1; font-size: 11px; display: block; margin-top: 6px;">* Desde estas coordenadas exactas se calculará la distancia y costo del domicilio para todos los clientes.</small>
         </div>
 
         <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">

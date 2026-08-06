@@ -2011,6 +2011,13 @@ class KitchenController {
     document.getElementById('custom-shop-name').value = est.name || '';
     document.getElementById('custom-shop-desc').value = est.description || '';
     document.getElementById('custom-shop-location').value = est.location || 'San Antonio';
+    
+    // Set Sede GPS Coordinates
+    const latEl = document.getElementById('custom-shop-lat');
+    if (latEl) latEl.value = (est.location_lat !== undefined && est.location_lat !== null) ? est.location_lat : (est.latitude || '');
+    const lngEl = document.getElementById('custom-shop-lng');
+    if (lngEl) lngEl.value = (est.location_lng !== undefined && est.location_lng !== null) ? est.location_lng : (est.longitude || '');
+
     document.getElementById('custom-shop-logo').value = est.logo || '🍔';
     document.getElementById('custom-shop-delivery').value = est.delivery_fee !== undefined ? est.delivery_fee : 0;
     document.getElementById('custom-shop-prep-time').value = est.prep_time || '';
@@ -2022,6 +2029,27 @@ class KitchenController {
     document.getElementById('custom-shop-banner-file').value = '';
 
     document.getElementById('customize-shop-modal').classList.add('active');
+  }
+
+  getCurrentLocationForSede() {
+    if (navigator.geolocation) {
+      this.showLocalToast('📡 Obteniendo posición GPS de Sede...');
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const latEl = document.getElementById('custom-shop-lat');
+          const lngEl = document.getElementById('custom-shop-lng');
+          if (latEl) latEl.value = pos.coords.latitude;
+          if (lngEl) lngEl.value = pos.coords.longitude;
+          this.showLocalToast('✅ Coordenadas de Sede capturadas');
+        },
+        (err) => {
+          alert('No se pudo obtener la ubicación GPS: ' + err.message);
+        },
+        { enableHighAccuracy: true }
+      );
+    } else {
+      alert('Tu navegador no soporta geolocalización.');
+    }
   }
 
   closeCustomizeShopModal() {
@@ -2117,6 +2145,9 @@ class KitchenController {
         }
       }
 
+      const location_lat = document.getElementById('custom-shop-lat') ? document.getElementById('custom-shop-lat').value : '';
+      const location_lng = document.getElementById('custom-shop-lng') ? document.getElementById('custom-shop-lng').value : '';
+
       const payload = {
         isOwner: false,
         linkKey: currentLinkKey,
@@ -2124,6 +2155,8 @@ class KitchenController {
         name,
         description,
         location,
+        location_lat: location_lat !== '' ? parseFloat(location_lat) : null,
+        location_lng: location_lng !== '' ? parseFloat(location_lng) : null,
         logo,
         delivery_fee: delivery_fee ? parseFloat(delivery_fee) : 0,
         banner,

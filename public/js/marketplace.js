@@ -2129,6 +2129,22 @@ class MarketplaceController {
     }
   }
 
+  getActiveShopCenter() {
+    let shopCenter = this.locationCenters[this.currentLocation] || [7.8131, -72.4439];
+    if (this.selectedEstablishment) {
+      const lat = (this.selectedEstablishment.location_lat !== undefined && this.selectedEstablishment.location_lat !== null) 
+        ? this.selectedEstablishment.location_lat 
+        : this.selectedEstablishment.latitude;
+      const lng = (this.selectedEstablishment.location_lng !== undefined && this.selectedEstablishment.location_lng !== null) 
+        ? this.selectedEstablishment.location_lng 
+        : this.selectedEstablishment.longitude;
+      if (lat !== undefined && lat !== null && lng !== undefined && lng !== null && !isNaN(parseFloat(lat)) && !isNaN(parseFloat(lng))) {
+        shopCenter = [parseFloat(lat), parseFloat(lng)];
+      }
+    }
+    return shopCenter;
+  }
+
   initLeafletMap() {
     if (typeof L === 'undefined') {
       console.error('Leaflet is not loaded yet');
@@ -2136,14 +2152,7 @@ class MarketplaceController {
     }
 
     // Determine Sede / Establishment Coordinates (Green Marker)
-    let shopCenter = this.locationCenters[this.currentLocation] || [7.8131, -72.4439];
-    if (this.selectedEstablishment) {
-      if (this.selectedEstablishment.location_lat && this.selectedEstablishment.location_lng) {
-        shopCenter = [parseFloat(this.selectedEstablishment.location_lat), parseFloat(this.selectedEstablishment.location_lng)];
-      } else if (this.selectedEstablishment.latitude && this.selectedEstablishment.longitude) {
-        shopCenter = [parseFloat(this.selectedEstablishment.latitude), parseFloat(this.selectedEstablishment.longitude)];
-      }
-    }
+    const shopCenter = this.getActiveShopCenter();
 
     if (this.leafMap) {
       this.leafMap.invalidateSize();
@@ -2259,7 +2268,7 @@ class MarketplaceController {
   }
 
   updateDeliveryCoordinates(lat, lng) {
-    const shopCenter = this.locationCenters[this.currentLocation] || [7.8131, -72.4439];
+    const shopCenter = this.getActiveShopCenter();
     this.setUserLocationOnMap([lat, lng], shopCenter, true);
   }
 

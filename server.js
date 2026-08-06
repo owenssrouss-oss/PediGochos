@@ -590,6 +590,12 @@ app.put('/api/establishments/:id', (req, res) => {
   if (req.body.location) {
     est.location = req.body.location;
   }
+  if (req.body.location_lat !== undefined) {
+    est.location_lat = req.body.location_lat !== null && req.body.location_lat !== '' ? parseFloat(req.body.location_lat) : null;
+  }
+  if (req.body.location_lng !== undefined) {
+    est.location_lng = req.body.location_lng !== null && req.body.location_lng !== '' ? parseFloat(req.body.location_lng) : null;
+  }
   if (req.body.newLinkKey) {
     est.linkKey = req.body.newLinkKey;
   }
