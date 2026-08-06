@@ -1841,11 +1841,20 @@ class MarketplaceController {
         return;
       }
     } else {
-      phone = document.getElementById('order-phone').value.trim();
+      const countryCode = document.getElementById('order-phone-country') ? document.getElementById('order-phone-country').value : '+58';
+      let rawPhone = document.getElementById('order-phone').value.trim();
       address = document.getElementById('order-address').value.trim();
-      if (!customerName || !phone || !address) {
+
+      if (!customerName || !rawPhone || !address) {
         alert('Por favor, completa todos los campos de entrega.');
         return;
+      }
+
+      if (rawPhone.startsWith('+')) {
+        phone = rawPhone;
+      } else {
+        rawPhone = rawPhone.replace(/^0+/, '');
+        phone = `${countryCode} ${rawPhone}`;
       }
       if (this.selectedLatitude === null || this.selectedLongitude === null) {
         alert('Por favor, selecciona tu ubicación en el mapa haciendo clic en "🗺️ Seleccionar en Mapa" para calcular tu domicilio.');

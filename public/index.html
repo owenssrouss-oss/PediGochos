@@ -6,8 +6,8 @@
   <title>Rapi Gochos - Tu Delivery y Pedidos al Instante</title>
   <meta name="description" content="El mejor marketplace de delivery. Comidas, farmacias, mercados y ferreterías, con entregas en minutos o pedidos directamente a tu mesa.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍔</text></svg>">
-  <link rel="stylesheet" href="/css/common.css?v=78">
-  <link rel="stylesheet" href="/css/marketplace.css?v=78">
+  <link rel="stylesheet" href="/css/common.css?v=79">
+  <link rel="stylesheet" href="/css/marketplace.css?v=79">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 </head>
 <body>
@@ -233,8 +233,21 @@
         <!-- Delivery Form Fields -->
         <div class="form-group-dynamic" id="group-delivery">
           <div class="form-group">
-            <label for="order-phone">Teléfono de Contacto <span class="required">*</span></label>
-            <input type="tel" id="order-phone" placeholder="Ej. +58 412 1234567">
+            <label for="order-phone" style="font-weight: 700; font-size: 13px; color: var(--text-main); margin-bottom: 6px; display: block;">Número de WhatsApp <span class="required">*</span></label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <select id="order-phone-country" style="width: 115px; background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--border); border-radius: 12px; padding: 10px 6px; font-weight: 700; font-size: 13px; outline: none; cursor: pointer;">
+                <option value="+58" selected style="background: #1e293b; color: #fff;">🇻🇪 VE +58</option>
+                <option value="+57" style="background: #1e293b; color: #fff;">🇨🇴 CO +57</option>
+                <option value="+52" style="background: #1e293b; color: #fff;">🇲🇽 MX +52</option>
+                <option value="+1" style="background: #1e293b; color: #fff;">🇺🇸 US +1</option>
+                <option value="+34" style="background: #1e293b; color: #fff;">🇪🇸 ES +34</option>
+                <option value="+593" style="background: #1e293b; color: #fff;">🇪🇨 EC +593</option>
+                <option value="+51" style="background: #1e293b; color: #fff;">🇵🇪 PE +51</option>
+                <option value="+56" style="background: #1e293b; color: #fff;">🇨🇱 CL +56</option>
+                <option value="+54" style="background: #1e293b; color: #fff;">🇦🇷 AR +54</option>
+              </select>
+              <input type="tel" id="order-phone" placeholder="📞 Número de celular" style="flex: 1; border-radius: 12px; padding: 10px 12px; font-size: 14px;">
+            </div>
           </div>
           <div class="form-group">
             <label for="order-address">Dirección de Entrega <span class="required">*</span></label>
@@ -429,9 +442,9 @@
   <div id="toast" class="toast hidden">Mensaje de notificación</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/supabase-helper.js?v=78"></script>
+  <script src="/js/supabase-helper.js?v=79"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="/js/sound.js?v=78"></script>
-  <script src="/js/marketplace.js?v=78"></script>
+  <script src="/js/sound.js?v=79"></script>
+  <script src="/js/marketplace.js?v=79"></script>
 </body>
 </html>
