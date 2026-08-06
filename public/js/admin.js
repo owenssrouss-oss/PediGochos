@@ -1644,6 +1644,73 @@ class AdminController {
     }
   }
 
+  toggleSedeCardCollapse() {
+    const body = document.getElementById('admin-sede-card-body');
+    const chevron = document.getElementById('sede-card-chevron');
+    if (!body) return;
+
+    if (body.style.display === 'none') {
+      body.style.display = 'block';
+      if (chevron) chevron.style.transform = 'rotate(0deg)';
+    } else {
+      body.style.display = 'none';
+      if (chevron) chevron.style.transform = 'rotate(-90deg)';
+    }
+  }
+
+  toggleSedeMap() {
+    const container = document.getElementById('admin-sede-map-container');
+    if (!container) return;
+
+    if (container.classList.contains('hidden')) {
+      container.classList.remove('hidden');
+      setTimeout(() => {
+        this.initSedeMap();
+      }, 150);
+    } else {
+      container.classList.add('hidden');
+    }
+  }
+
+  initSedeMap() {
+    if (typeof L === 'undefined') return;
+
+    const latVal = parseFloat(document.getElementById('admin-central-sede-lat').value) || 7.8131;
+    const lngVal = parseFloat(document.getElementById('admin-central-sede-lng').value) || -72.4439;
+    const center = [latVal, lngVal];
+
+    if (this.sedeMap) {
+      this.sedeMap.setView(center, 15);
+      this.sedeMap.invalidateSize();
+      if (this.sedeMarker) this.sedeMarker.setLatLng(center);
+      return;
+    }
+
+    this.sedeMap = L.map('admin-sede-leaflet-map').setView(center, 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(this.sedeMap);
+
+    const greenSedeIcon = L.divIcon({
+      className: 'custom-sede-marker',
+      html: `<div style="background-color: #8B5CF6; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 10px rgba(139, 92, 246, 0.4); border: 2px solid white;">🏛️</div>`,
+      iconSize: [34, 34],
+      iconAnchor: [17, 17]
+    });
+
+    this.sedeMarker = L.marker(center, { icon: greenSedeIcon, draggable: true }).addTo(this.sedeMap);
+
+    this.sedeMarker.on('dragend', () => {
+      const pos = this.sedeMarker.getLatLng();
+      document.getElementById('admin-central-sede-lat').value = pos.lat.toFixed(6);
+      document.getElementById('admin-central-sede-lng').value = pos.lng.toFixed(6);
+    });
+
+    this.sedeMap.on('click', (e) => {
+      this.sedeMarker.setLatLng(e.latlng);
+      document.getElementById('admin-central-sede-lat').value = e.latlng.lat.toFixed(6);
+      document.getElementById('admin-central-sede-lng').value = e.latlng.lng.toFixed(6);
+    });
+  }
+
   getCurrentGPSForCentralSede() {
     if (navigator.geolocation) {
       this.showToast('📡 Obteniendo GPS para Sede Principal...');
@@ -1653,6 +1720,11 @@ class AdminController {
           const lngInp = document.getElementById('admin-central-sede-lng');
           if (latInp) latInp.value = pos.coords.latitude;
           if (lngInp) lngInp.value = pos.coords.longitude;
+          if (this.sedeMap && this.sedeMarker) {
+            const newCenter = [pos.coords.latitude, pos.coords.longitude];
+            this.sedeMarker.setLatLng(newCenter);
+            this.sedeMap.setView(newCenter, 15);
+          }
           this.showToast('✅ Coordenadas de Sede Principal capturadas');
         },
         (err) => {

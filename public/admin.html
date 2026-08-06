@@ -7,8 +7,10 @@
   <link rel="stylesheet" href="/css/common.css">
   <link rel="stylesheet" href="/css/admin.css">
   <link rel="stylesheet" href="/css/menu-builder.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/supabase-helper.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 <body>
 
@@ -71,40 +73,52 @@
       <!-- Left Column: Registration Form & System Settings -->
       <section class="admin-form-column">
 
-        <!-- Card: Configuración de la Sede Principal de Domicilios -->
-        <div class="admin-card" style="border: 1px solid rgba(139, 92, 246, 0.4); background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(15, 23, 42, 0.95)); margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <h3 style="color: #a78bfa; margin: 0; font-size: 16px; font-weight: 800;">🏛️ Sede Principal de Domicilios</h3>
-            <button type="button" onclick="AdminApp.getCurrentGPSForCentralSede()" style="background: #8b5cf6; color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-              📡 Capturar mi GPS Actual
-            </button>
+        <!-- Card: Configuración Compacta de la Sede Principal de Domicilios (Con Mapa desplegable) -->
+        <div class="admin-card" style="border: 1px solid rgba(139, 92, 246, 0.4); background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(15, 23, 42, 0.95)); margin-bottom: 20px; padding: 14px 16px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+          <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="AdminApp.toggleSedeCardCollapse()">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 18px;">🏛️</span>
+              <h3 style="color: #a78bfa; margin: 0; font-size: 14px; font-weight: 800;">Sede Principal de Domicilios</h3>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <button type="button" onclick="event.stopPropagation(); AdminApp.getCurrentGPSForCentralSede()" style="background: #8b5cf6; color: #fff; border: none; padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                📡 GPS
+              </button>
+              <button type="button" onclick="event.stopPropagation(); AdminApp.toggleSedeMap()" style="background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                🗺️ Mapa
+              </button>
+              <span id="sede-card-chevron" style="transition: transform 0.2s; color: #a78bfa; font-size: 11px;">▼</span>
+            </div>
           </div>
-          <p class="card-subtitle" style="color: #cbd5e1; font-size: 12px; margin-bottom: 12px; line-height: 1.4;">
-            Establece las coordenadas de la <strong>Sede Principal</strong> desde donde se calcularán automáticamente las distancias y costos de domicilios para todos los comercios.
-          </p>
-          <hr class="card-divider" style="border-color: rgba(139, 92, 246, 0.2); margin-bottom: 14px;">
 
-          <form id="central-sede-admin-form" onsubmit="AdminApp.handleSaveCentralSede(event)">
-            <div class="form-group" style="margin-bottom: 12px;">
-              <label for="admin-central-sede-name" style="font-size: 12px; color: #a78bfa;">Nombre / Identificador de la Sede Principal</label>
-              <input type="text" id="admin-central-sede-name" placeholder="Ej. Sede Central Principal - San Antonio" style="width: 100%; font-size: 13px;">
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
-              <div class="form-group" style="margin: 0;">
-                <label for="admin-central-sede-lat" style="font-size: 11px; color: #cbd5e1;">Latitud Sede Principal *</label>
-                <input type="number" step="any" id="admin-central-sede-lat" placeholder="Ej. 7.8131" required style="width: 100%; font-size: 13px;">
+          <!-- Collapsible Body Container -->
+          <div id="admin-sede-card-body" style="margin-top: 12px;">
+            <form id="central-sede-admin-form" onsubmit="AdminApp.handleSaveCentralSede(event)">
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                <div>
+                  <label for="admin-central-sede-name" style="font-size: 10.5px; color: #a78bfa; font-weight: 700;">Nombre Sede</label>
+                  <input type="text" id="admin-central-sede-name" placeholder="Ej. Sede Central" style="width: 100%; font-size: 12px; padding: 6px 8px; border-radius: 6px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff;">
+                </div>
+                <div>
+                  <label for="admin-central-sede-lat" style="font-size: 10.5px; color: #cbd5e1;">Latitud *</label>
+                  <input type="number" step="any" id="admin-central-sede-lat" placeholder="7.8131" required style="width: 100%; font-size: 12px; padding: 6px 8px; border-radius: 6px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff;">
+                </div>
+                <div>
+                  <label for="admin-central-sede-lng" style="font-size: 10.5px; color: #cbd5e1;">Longitud *</label>
+                  <input type="number" step="any" id="admin-central-sede-lng" placeholder="-72.4439" required style="width: 100%; font-size: 12px; padding: 6px 8px; border-radius: 6px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff;">
+                </div>
               </div>
-              <div class="form-group" style="margin: 0;">
-                <label for="admin-central-sede-lng" style="font-size: 11px; color: #cbd5e1;">Longitud Sede Principal *</label>
-                <input type="number" step="any" id="admin-central-sede-lng" placeholder="Ej. -72.4439" required style="width: 100%; font-size: 13px;">
-              </div>
-            </div>
 
-            <button type="submit" id="btn-save-central-sede-admin" class="btn-submit-est" style="background: #8b5cf6; border-color: #8b5cf6; width: 100%; font-weight: 800; padding: 10px 14px; font-size: 13px; border-radius: 8px;">
-              💾 Guardar Sede Principal de Domicilios
-            </button>
-          </form>
+              <!-- Collapsible Map Container (Desplegar y redesplegar) -->
+              <div id="admin-sede-map-container" class="hidden" style="margin-bottom: 10px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(139, 92, 246, 0.4); height: 200px; background: #0f172a;">
+                <div id="admin-sede-leaflet-map" style="width: 100%; height: 100%;"></div>
+              </div>
+
+              <button type="submit" id="btn-save-central-sede-admin" class="btn-submit-est" style="background: #8b5cf6; border-color: #8b5cf6; width: 100%; font-weight: 800; padding: 8px 12px; font-size: 12px; border-radius: 6px; margin: 0;">
+                💾 Guardar Sede Principal
+              </button>
+            </form>
+          </div>
         </div>
 
         <div class="admin-card">
@@ -702,7 +716,7 @@
     </div>
   </div>
 
-  <script src="/js/admin.js?v=72"></script>
+  <script src="/js/admin.js?v=73"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
