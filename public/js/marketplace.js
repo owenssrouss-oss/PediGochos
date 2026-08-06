@@ -2135,66 +2135,132 @@ class MarketplaceController {
       return;
     }
 
-    // Default center depending on the user's selected location town
-    const center = this.locationCenters[this.currentLocation] || [7.8131, -72.4439];
+    // Determine Sede / Establishment Coordinates (Green Marker)
+    let shopCenter = this.locationCenters[this.currentLocation] || [7.8131, -72.4439];
+    if (this.selectedEstablishment) {
+      if (this.selectedEstablishment.location_lat && this.selectedEstablishment.location_lng) {
+        shopCenter = [parseFloat(this.selectedEstablishment.location_lat), parseFloat(this.selectedEstablishment.location_lng)];
+      } else if (this.selectedEstablishment.latitude && this.selectedEstablishment.longitude) {
+        shopCenter = [parseFloat(this.selectedEstablishment.latitude), parseFloat(this.selectedEstablishment.longitude)];
+      }
+    }
 
     if (this.leafMap) {
-      this.leafMap.setView(center, 14);
       this.leafMap.invalidateSize();
+      this.fetchUserGPSLocation(shopCenter);
       return;
     }
 
-    // Initialize Leaflet map
-    this.leafMap = L.map('checkout-leaflet-map').setView(center, 14);
+    // Initialize Leaflet map centered at Sede
+    this.leafMap = L.map('checkout-leaflet-map').setView(shopCenter, 14);
 
     // OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      attribution: '&copy; OpenStreetMap'
     }).addTo(this.leafMap);
 
-    // Create marker centered
-    this.leafMarker = L.marker(center, { draggable: true }).addTo(this.leafMap);
-
-    // Initial positioning triggers fee calculate
-    this.updateDeliveryCoordinates(center[0], center[1]);
-
-    // Handle marker dragging updates
-    this.leafMarker.on('dragend', () => {
-      const pos = this.leafMarker.getLatLng();
-      this.updateDeliveryCoordinates(pos.lat, pos.lng);
+    // 1. Create GREEN Sede Marker (Restaurante / Sede de domicilios)
+    const greenSedeIcon = L.divIcon({
+      className: 'custom-sede-marker',
+      html: `<div style="background-color: #10B981; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4); border: 2px solid white;">🏪</div>`,
+      iconSize: [34, 34],
+      iconAnchor: [17, 17]
     });
 
-    // Handle clicks on map directly
-    this.leafMap.on('click', (e) => {
-      this.leafMarker.setLatLng(e.latlng);
-      this.updateDeliveryCoordinates(e.latlng.lat, e.latlng.lng);
+    const estName = this.selectedEstablishment ? this.selectedEstablishment.name : 'Sede Principal';
+    this.sedeMarker = L.marker(shopCenter, { icon: greenSedeIcon, draggable: false }).addTo(this.leafMap);
+    this.sedeMarker.bindPopup(`<b>Sede: ${estName}</b>`);
+
+    // 2. Create User Location Marker (Non-draggable, fixed by GPS)
+    const userIcon = L.divIcon({
+      className: 'custom-user-marker',
+      html: `<div style="background-color: #FF5E3A; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(255, 94, 58, 0.4); border: 2px solid white;">📍</div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
     });
+
+    this.leafMarker = L.marker(shopCenter, { icon: userIcon, draggable: false }).addTo(this.leafMap);
+
+    // Fetch real GPS position automatically
+    this.fetchUserGPSLocation(shopCenter);
   }
 
-  updateDeliveryCoordinates(lat, lng) {
+  fetchUserGPSLocation(shopCenter) {
+    const distSpan = document.getElementById('map-calc-distance');
+    if (distSpan) distSpan.innerText = 'Obteniendo GPS...';
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const userLat = pos.coords.latitude;
+          const userLng = pos.coords.longitude;
+          this.setUserLocationOnMap([userLat, userLng], shopCenter, true);
+        },
+        (err) => {
+          console.warn('Geolocation error or denied:', err);
+          const fallbackUserPos = [shopCenter[0] + 0.006, shopCenter[1] + 0.006];
+          this.setUserLocationOnMap(fallbackUserPos, shopCenter, false);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    } else {
+      const fallbackUserPos = [shopCenter[0] + 0.006, shopCenter[1] + 0.006];
+      this.setUserLocationOnMap(fallbackUserPos, shopCenter, false);
+    }
+  }
+
+  setUserLocationOnMap(userPos, shopCenter, isRealGps) {
+    const lat = userPos[0];
+    const lng = userPos[1];
+
     this.selectedLatitude = lat;
     this.selectedLongitude = lng;
 
-    document.getElementById('order-lat').value = lat;
-    document.getElementById('order-lng').value = lng;
+    const latInp = document.getElementById('order-lat');
+    if (latInp) latInp.value = lat;
+    const lngInp = document.getElementById('order-lng');
+    if (lngInp) lngInp.value = lng;
 
-    // Calculate distance to active shop coordinates. If shop coordinates don't exist, we fall back to town center coordinates.
-    const shopCenter = this.locationCenters[this.currentLocation] || [7.8131, -72.4439];
-    
-    // Check if the current single restaurant or multi restaurants have coordinates.
-    // If not, we calculate geodesic distance relative to the default town center fallback.
+    if (this.leafMarker) {
+      this.leafMarker.setLatLng(userPos);
+    }
+
+    // Draw GREEN line connecting Sede to User
+    if (this.connectionLine) {
+      this.leafMap.removeLayer(this.connectionLine);
+    }
+    this.connectionLine = L.polyline([shopCenter, userPos], {
+      color: '#10B981',
+      weight: 4,
+      dashArray: '6, 8'
+    }).addTo(this.leafMap);
+
+    // Fit map bounds so BOTH Sede (Green) and User (Pin) + Line are visible
+    if (this.leafMap) {
+      const bounds = L.latLngBounds([shopCenter, userPos]);
+      this.leafMap.fitBounds(bounds, { padding: [35, 35] });
+    }
+
+    // Calculate exact geodesic distance
     const distance = this.calculateGeodesicDistance(lat, lng, shopCenter[0], shopCenter[1]);
     this.calculatedDistanceKm = parseFloat(distance.toFixed(2));
-    
-    document.getElementById('order-distance').value = this.calculatedDistanceKm;
+
+    const distInp = document.getElementById('order-distance');
+    if (distInp) distInp.value = this.calculatedDistanceKm;
 
     const distSpan = document.getElementById('map-calc-distance');
     if (distSpan) {
-      distSpan.innerText = `Distancia: ${this.calculatedDistanceKm} km`;
+      distSpan.innerText = isRealGps 
+        ? `📍 ${this.calculatedDistanceKm} km (GPS Detectado)` 
+        : `📍 ${this.calculatedDistanceKm} km (Aproximado)`;
     }
 
-    // Recalculate and re-render cart totals with the dynamic fees
     this.renderCartItems();
+  }
+
+  updateDeliveryCoordinates(lat, lng) {
+    const shopCenter = this.locationCenters[this.currentLocation] || [7.8131, -72.4439];
+    this.setUserLocationOnMap([lat, lng], shopCenter, true);
   }
 
   calculateGeodesicDistance(lat1, lon1, lat2, lon2) {
