@@ -1625,24 +1625,23 @@ class MarketplaceController {
         const shopItems = this.cart.items.filter(item => item.restaurant_id === id);
         const shopSubtotal = shopItems.reduce((sum, item) => sum + item.subtotal_combined, 0);
 
-        // If a distance was calculated on the map, use the custom formula per shop, otherwise default to establishment base fee
+        // Calculate delivery fee using $4.500 COP minimum per establishment + $2.200 COP per km rate
         if (this.calculatedDistanceKm !== null && this.calculatedDistanceKm !== undefined) {
-          const calculatedFee = this.calculatedDistanceKm * 3750;
-          // Apply $4.000 minimum COP rule
-          let finalFee = Math.max(4000, Math.round(calculatedFee));
+          const calculatedFee = this.calculatedDistanceKm * 2200;
+          let finalFee = Math.max(4500, Math.round(calculatedFee));
           
-          // Currency scale adjustment: if subtotal is in USD/small units (< 1000) and calculated fee is in COP (>= 1000)
+          // Currency scale adjustment for display
           if (shopSubtotal < 1000) {
-            finalFee = finalFee / 4000;
+            finalFee = finalFee / 4500;
           }
 
           // Sync fee to the uniqueShops details
           uniqueShops[id].delivery_fee = finalFee;
           totalDeliveryFee += finalFee;
         } else {
-          let baseFee = uniqueShops[id].delivery_fee;
+          let baseFee = uniqueShops[id].delivery_fee || 4500;
           if (shopSubtotal < 1000 && baseFee >= 1000) {
-            baseFee = baseFee / 4000;
+            baseFee = baseFee / 4500;
           }
           uniqueShops[id].delivery_fee = baseFee;
           totalDeliveryFee += baseFee;
@@ -1800,16 +1799,16 @@ class MarketplaceController {
         let shopDeliveryCost = 0;
         if (this.orderType === 'delivery') {
           if (this.calculatedDistanceKm !== null && this.calculatedDistanceKm !== undefined) {
-            const calculatedFee = this.calculatedDistanceKm * 3750;
-            let finalFee = Math.max(4000, Math.round(calculatedFee));
+            const calculatedFee = this.calculatedDistanceKm * 2200;
+            let finalFee = Math.max(4500, Math.round(calculatedFee));
             if (shopSubtotal < 1000) {
-              finalFee = finalFee / 4000;
+              finalFee = finalFee / 4500;
             }
             shopDeliveryCost = finalFee;
           } else {
-            let baseFee = shop.delivery_fee;
+            let baseFee = shop.delivery_fee || 4500;
             if (shopSubtotal < 1000 && baseFee >= 1000) {
-              baseFee = baseFee / 4000;
+              baseFee = baseFee / 4500;
             }
             shopDeliveryCost = baseFee;
           }
@@ -1889,6 +1888,9 @@ class MarketplaceController {
       if (mapCont) mapCont.classList.add('hidden');
       const distSpan = document.getElementById('map-calc-distance');
       if (distSpan) distSpan.innerText = 'Esperando marcador...';
+
+      // Redirect cleanly to Home view
+      this.goHome();
     } catch (e) {
       console.error(e);
       alert('Error de conexión o problema al enviar el pedido: ' + e.message);
