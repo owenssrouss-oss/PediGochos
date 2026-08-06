@@ -1165,7 +1165,7 @@ class MarketplaceController {
               if (opt && opt.option_id) {
                 const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
                 if (qty > 0) {
-                  sideSum += (opt.extra_price || 0) * qty;
+                  sideSum += this.normalizeCopPrice(opt.extra_price) * qty;
                 }
               }
             });
@@ -1186,10 +1186,10 @@ class MarketplaceController {
   updateCustomizerPrice() {
     if (!this.customizerState || !this.customizerState.product) return;
     const isHalves = this.customizerState.pizzaMode === 'halves';
-    let basePrice = this.customizerState.product.price || 0;
+    let basePrice = this.normalizeCopPrice(this.customizerState.product.price);
     if (isHalves) {
-      const priceA = this.customizerState.specialtyA ? (this.customizerState.specialtyA.price || 0) : 0;
-      const priceB = this.customizerState.specialtyB ? (this.customizerState.specialtyB.price || 0) : 0;
+      const priceA = this.customizerState.specialtyA ? this.normalizeCopPrice(this.customizerState.specialtyA.price) : 0;
+      const priceB = this.customizerState.specialtyB ? this.normalizeCopPrice(this.customizerState.specialtyB.price) : 0;
       basePrice = (priceA + priceB) / 2;
     }
     const extrasTotal = this.calculateExtrasTotal();
@@ -1246,6 +1246,96 @@ class MarketplaceController {
     
     this.customizerState.quantity = currentQty;
     document.getElementById('customizer-quantity-display').innerText = currentQty;
+    this.updateCustomizerPrice();
+  }
+
+  addToCart() {
+    if (!this.customizerState || !this.customizerState.product) return;
+    
+    if (!this.validateRequiredModifiers()) {
+      alert('Por favor, selecciona las opciones obligatorias marcadas con *');
+      return;
+    }
+
+    const product = this.customizerState.product;
+    const isHalves = this.customizerState.pizzaMode === 'halves';
+    
+    const singleSelections = [];
+    const addOns = [];
+    const exclusions = [];
+    
+    const processSide = (sideKey) => {
+      const activeProduct = isHalves 
+        ? (sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB)
+        : product;
+        
+      if (!activeProduct || !activeProduct.modifiers) return;
+      
+      const prefix = isHalves ? (sideKey === 'halfA' ? '[Mitad 1] ' : '[Mitad 2] ') : '';
+
+      activeProduct.modifiers.forEach(group => {
+        if (!group || !group.options) return;
+
+        if (group.selection_type === 'single') {
+          const chosenOptId = this.customizerState.singleSelections[sideKey][group.group_id];
+          if (chosenOptId) {
+            const opt = group.options.find(o => o.option_id === chosenOptId);
+            if (opt) {
+              singleSelections.push({
+                group_id: group.group_id,
+                group_name: prefix + group.title,
+                chosen_option: opt.name,
+                extra_price: this.normalizeCopPrice(opt.extra_price)
+              });
+            }
+          }
+        } else if (group.selection_type === 'multiple') {
+          group.options.forEach(opt => {
+            const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
+            if (qty > 0) {
+              addOns.push({
+                option_id: opt.option_id,
+                name: prefix + opt.name,
+                quantity: qty,
+                price_per_unit: this.normalizeCopPrice(opt.extra_price)
+              });
+            }
+          });
+        }
+      });
+
+      if (this.customizerState.baseIngredients[sideKey]) {
+        Object.keys(this.customizerState.baseIngredients[sideKey]).forEach(ingName => {
+          if (this.customizerState.baseIngredients[sideKey][ingName] === false) {
+            exclusions.push({ name: prefix + ingName });
+          }
+        });
+      }
+    };
+
+    if (isHalves) {
+      processSide('halfA');
+      processSide('halfB');
+    } else {
+      processSide('whole');
+    }
+    
+    const specialNotes = document.getElementById('customizer-special-notes').value.trim();
+    let basePrice = this.normalizeCopPrice(product.price);
+    if (isHalves) {
+      const priceA = this.customizerState.specialtyA ? this.normalizeCopPrice(this.customizerState.specialtyA.price) : 0;
+      const priceB = this.customizerState.specialtyB ? this.normalizeCopPrice(this.customizerState.specialtyB.price) : 0;
+      basePrice = (priceA + priceB) / 2;
+    }
+    const extrasTotal = this.calculateExtrasTotal();
+    const unitTotalCalculated = basePrice + extrasTotal;
+    const qty = this.customizerState.quantity;
+    const subtotalCombined = unitTotalCalculated * qty;
+    
+    // Reset local state if needed
+    
+    this.customizerState.quantity = 1;
+    document.getElementById('customizer-quantity-display').innerText = 1;
     this.updateCustomizerPrice();
   }
 
@@ -1915,9 +2005,17 @@ class MarketplaceController {
     return parts.join(' | ');
   }
 
+  normalizeCopPrice(val) {
+    let num = parseFloat(val);
+    if (isNaN(num) || num <= 0) return 0;
+    if (num < 1000) return Math.round(num * 1000);
+    return Math.round(num);
+  }
+
   formatPesos(val) {
-    if (isNaN(val)) return '$0';
-    return '$' + Math.round(val).toLocaleString('de-DE');
+    if (isNaN(val) || val === null || val === undefined) return '$0';
+    let num = this.normalizeCopPrice(val);
+    return '$' + num.toLocaleString('de-DE');
   }
 
   handleNavBack() {

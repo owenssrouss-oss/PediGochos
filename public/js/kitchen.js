@@ -787,37 +787,47 @@ class KitchenController {
     const clientAddress = order.deliveryDetails?.address || 'N/A';
     const securityCode = order.deliveryDetails?.code || 'N/A';
     const housePhotoUrl = order.deliveryDetails?.housePhotoUrl || null;
+    const clientLat = order.deliveryDetails?.latitude;
+    const clientLng = order.deliveryDetails?.longitude;
 
-    // Itemized order text
+    // Itemized order text with full COP prices
     const itemsSummary = (order.items || []).map(item => {
       let line = `• ${item.quantity}x ${item.name}`;
       if (item.specifications) line += ` (${item.specifications})`;
-      line += ` - $${item.subtotal_combined || (item.price * item.quantity)}`;
+      const rawSub = item.subtotal_combined || (item.price * item.quantity);
+      const subCop = rawSub < 1000 ? rawSub * 1000 : rawSub;
+      line += ` - $${Math.round(subCop).toLocaleString('de-DE')} COP`;
       return line;
     }).join('\n');
 
-    const isSmallCurrency = (order.total || 0) < 1000;
-    const formattedTotal = isSmallCurrency ? `$${order.total.toFixed(2)} USD` : `$${Math.round(order.total).toLocaleString('de-DE')} COP`;
+    const rawTotal = order.total || 0;
+    const totalCop = Math.round(rawTotal < 1000 ? rawTotal * 1000 : rawTotal);
+    const formattedTotal = `$${totalCop.toLocaleString('de-DE')} COP`;
 
-    let messageText = `🚴 *Rapi Gochos - NUEVO SERVICIO DE DOMICILIO*\n\n` +
+    let messageText = `🚴 *Rapi Gochos - SOLICITUD DE DOMICILIO*\n\n` +
       `🏬 *Establecimiento:* ${storeName}\n` +
       `👤 *Cliente:* ${clientName}\n` +
       `📞 *Teléfono:* ${clientPhone}\n` +
-      `📍 *Dirección:* ${clientAddress}\n` +
-      `🔑 *Código de Entrega:* ${securityCode}\n\n` +
-      `📝 *DETALLE DEL PEDIDO:*\n${itemsSummary}\n\n` +
-      `💰 *TOTAL A COBRAR AL ENTREGAR:* ${formattedTotal}`;
+      `📍 *Dirección de Entrega:* ${clientAddress}\n`;
 
-    if (housePhotoUrl) {
-      messageText += `\n\n🏡 *FOTO DE FACHADA/CASA:* ${housePhotoUrl}`;
+    if (clientLat && clientLng) {
+      messageText += `🗺️ *Ubicación GPS:* https://maps.google.com/?q=${clientLat},${clientLng}\n`;
     }
 
-    const whatsappUrl = `https://wa.me/573227949451?text=${encodeURIComponent(messageText)}`;
+    messageText += `🔑 *Código de Seguridad:* ${securityCode}\n\n` +
+      `📝 *DETALLE DE LA ORDEN:*\n${itemsSummary}\n\n` +
+      `💰 *TOTAL A COBRAR EN DESTINO:* ${formattedTotal}`;
+
+    if (housePhotoUrl) {
+      messageText += `\n\n🏡 *FOTO FACHADA/CASA:* ${housePhotoUrl}`;
+    }
+
+    const whatsappUrl = `https://wa.me/573227949751?text=${encodeURIComponent(messageText)}`;
     
-    // Open whatsapp link
+    // Open WhatsApp directly
     window.open(whatsappUrl, '_blank');
 
-    this.updateOrderStatus(orderId, 'Entregado');
+    this.updateOrderStatus(orderId, 'En Camino');
   }
 
   cancelOrderPrompt(orderId) {
@@ -1986,13 +1996,6 @@ class KitchenController {
         toast.remove();
       }, 300);
     }, 4000);
-  }
-
-  callDelivery(orderId) {
-    Sound.playBell();
-    const orderNum = orderId.split('-')[2] || 'ORD';
-    alert(`🚴 ¡Domicilio Solicitado!\nSe ha asignado un repartidor de Rapi Gochos para el pedido #${orderNum}. Está en camino al establecimiento.`);
-    this.updateOrderStatus(orderId, 'Entregado');
   }
 
   openCustomizeShopModal() {
