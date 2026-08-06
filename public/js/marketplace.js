@@ -793,16 +793,19 @@ class MarketplaceController {
           const groupDiv = document.createElement('div');
           groupDiv.className = 'modifier-group';
           const colId = `collapsible-${group.group_id}-${sideKey}`;
+          const isExplicitlyCollapsed = this.customizerState.collapsedGroups && this.customizerState.collapsedGroups[colId] === true;
+          const listClass = isExplicitlyCollapsed ? 'modifier-options-list collapsed' : 'modifier-options-list';
+          const chevronTransform = isExplicitlyCollapsed ? 'transform: rotate(-90deg);' : 'transform: rotate(0deg);';
           
           groupDiv.innerHTML = `
             <div class="modifier-group-title" onclick="MarketplaceApp.toggleGroupCollapse('${colId}', this)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
               <span style="font-weight: 700;">${group.group_name || ''}${sideLabel}</span>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span class="required-badge">Requerido</span>
-                <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px; transform: rotate(-90deg);">▼</span>
+                <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px; ${chevronTransform}">▼</span>
               </div>
             </div>
-            <div class="modifier-options-list collapsed" id="${colId}"></div>
+            <div class="${listClass}" id="${colId}"></div>
           `;
           const list = groupDiv.querySelector('.modifier-options-list');
           
@@ -851,13 +854,16 @@ class MarketplaceController {
           const groupDiv = document.createElement('div');
           groupDiv.className = 'modifier-group';
           const colId = `collapsible-${group.group_id}-${sideKey}`;
+          const isExplicitlyCollapsed = this.customizerState.collapsedGroups && this.customizerState.collapsedGroups[colId] === true;
+          const listClass = isExplicitlyCollapsed ? 'modifier-options-list collapsed' : 'modifier-options-list';
+          const chevronTransform = isExplicitlyCollapsed ? 'transform: rotate(-90deg);' : 'transform: rotate(0deg);';
           
           groupDiv.innerHTML = `
             <div class="modifier-group-title" onclick="MarketplaceApp.toggleGroupCollapse('${colId}', this)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
               <span style="font-weight: 700;">${group.group_name || ''}${sideLabel}</span>
-              <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px; transform: rotate(-90deg);">▼</span>
+              <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px; ${chevronTransform}">▼</span>
             </div>
-            <div class="modifier-options-list collapsed" id="${colId}"></div>
+            <div class="${listClass}" id="${colId}"></div>
           `;
           const list = groupDiv.querySelector('.modifier-options-list');
 
@@ -1857,21 +1863,30 @@ class MarketplaceController {
       this.clearCart();
       this.closeCartModal();
       
-      // Reset form values
-      document.getElementById('order-customer-name').value = '';
-      if (document.getElementById('order-table-number')) document.getElementById('order-table-number').value = '';
-      if (document.getElementById('order-phone')) document.getElementById('order-phone').value = '';
-      if (document.getElementById('order-address')) document.getElementById('order-address').value = '';
-      document.getElementById('checkout-accept-terms').checked = false;
+      // Reset form values safely
+      const custNameInp = document.getElementById('order-customer-name');
+      if (custNameInp) custNameInp.value = '';
+      const tableInp = document.getElementById('order-table-number');
+      if (tableInp) tableInp.value = '';
+      const phoneInp = document.getElementById('order-phone');
+      if (phoneInp) phoneInp.value = '';
+      const addrInp = document.getElementById('order-address');
+      if (addrInp) addrInp.value = '';
+      const termsInp = document.getElementById('checkout-accept-terms');
+      if (termsInp) termsInp.checked = false;
       
-      // Reset map fields
+      // Reset map fields safely
       this.selectedLatitude = null;
       this.selectedLongitude = null;
       this.calculatedDistanceKm = null;
-      document.getElementById('order-lat').value = '';
-      document.getElementById('order-lng').value = '';
-      document.getElementById('order-distance').value = '';
-      document.getElementById('checkout-map-container').classList.add('hidden');
+      const latInp = document.getElementById('order-lat');
+      if (latInp) latInp.value = '';
+      const lngInp = document.getElementById('order-lng');
+      if (lngInp) lngInp.value = '';
+      const distInp = document.getElementById('order-distance');
+      if (distInp) distInp.value = '';
+      const mapCont = document.getElementById('checkout-map-container');
+      if (mapCont) mapCont.classList.add('hidden');
       const distSpan = document.getElementById('map-calc-distance');
       if (distSpan) distSpan.innerText = 'Esperando marcador...';
     } catch (e) {
@@ -2198,13 +2213,22 @@ class MarketplaceController {
     const target = document.getElementById(targetId);
     if (!target) return;
 
-    const chevron = titleElement.querySelector('.collapse-chevron');
+    if (!this.customizerState) {
+      this.customizerState = {};
+    }
+    if (!this.customizerState.collapsedGroups) {
+      this.customizerState.collapsedGroups = {};
+    }
+
+    const chevron = titleElement ? titleElement.querySelector('.collapse-chevron') : null;
     
     if (target.classList.contains('collapsed')) {
       target.classList.remove('collapsed');
+      this.customizerState.collapsedGroups[targetId] = false;
       if (chevron) chevron.style.transform = 'rotate(0deg)';
     } else {
       target.classList.add('collapsed');
+      this.customizerState.collapsedGroups[targetId] = true;
       if (chevron) chevron.style.transform = 'rotate(-90deg)';
     }
   }
