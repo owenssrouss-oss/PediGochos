@@ -248,15 +248,32 @@ class AdminController {
     const est = this.establishments.find(e => e.id === id);
     if (!est) return;
 
+  checkModalOpenState() {
+    const anyActive = document.querySelector('.modal-overlay.active');
+    if (anyActive) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+  }
+
+  openEstActionModal(id) {
+    const est = this.establishments.find(e => e.id === id);
+    if (!est) return;
+
     this.activeShopId = id;
     const nameEl = document.getElementById('action-modal-shop-name');
     if (nameEl) nameEl.innerText = `${est.logo || '🏪'} ${est.name}`;
 
-    document.getElementById('est-action-modal').classList.add('active');
+    const modal = document.getElementById('est-action-modal');
+    if (modal) modal.classList.add('active');
+    this.checkModalOpenState();
   }
 
   closeEstActionModal() {
-    document.getElementById('est-action-modal').classList.remove('active');
+    const modal = document.getElementById('est-action-modal');
+    if (modal) modal.classList.remove('active');
+    this.checkModalOpenState();
   }
 
   viewShopMenu() {
@@ -276,6 +293,7 @@ class AdminController {
     // Show modal immediately
     const modal = document.getElementById('edit-est-modal');
     if (modal) modal.classList.add('active');
+    this.checkModalOpenState();
 
     try {
       const idInp = document.getElementById('edit-shop-id');
@@ -364,7 +382,9 @@ class AdminController {
   }
 
   closeEditShopModal() {
-    document.getElementById('edit-est-modal').classList.remove('active');
+    const modal = document.getElementById('edit-est-modal');
+    if (modal) modal.classList.remove('active');
+    this.checkModalOpenState();
   }
 
   async handleEditShopSubmit(e) {
@@ -526,7 +546,9 @@ class AdminController {
     document.getElementById('designer-modal-shop-subtext').innerText = `Diseño de distribución de mesas y carta de comida para ${est.name}`;
 
     // Open Modal
-    document.getElementById('menu-tables-modal').classList.add('active');
+    const modal = document.getElementById('menu-tables-modal');
+    if (modal) modal.classList.add('active');
+    this.checkModalOpenState();
 
     // Initialize Layout Grid & Catalog
     this.renderFloorGrid();
@@ -539,6 +561,7 @@ class AdminController {
     if (modal) modal.classList.remove('active');
     try { this.closeProductSpecsModal(); } catch(e) { console.error(e); }
     try { this.reloadData(); } catch(e) { console.error(e); }
+    this.checkModalOpenState();
   }
 
   openMenuModal() {
@@ -577,6 +600,7 @@ class AdminController {
 
     const modal = document.getElementById('product-modal');
     if (modal) modal.classList.add('active');
+    this.checkModalOpenState();
   }
 
   closeMenuModal() {
@@ -584,6 +608,7 @@ class AdminController {
     if (modal) modal.classList.remove('active');
     const form = document.getElementById('product-form');
     if (form) form.reset();
+    this.checkModalOpenState();
   }
 
   setFloorTool(tool) {
@@ -2002,11 +2027,13 @@ class AdminController {
   openCreateMasterProductModal() {
     const modal = document.getElementById('admin-create-master-product-modal');
     if (modal) modal.classList.add('active');
+    this.checkModalOpenState();
   }
 
   closeCreateMasterProductModal() {
     const modal = document.getElementById('admin-create-master-product-modal');
     if (modal) modal.classList.remove('active');
+    this.checkModalOpenState();
   }
 
   async handleCreateMasterProductSubmit(e) {
