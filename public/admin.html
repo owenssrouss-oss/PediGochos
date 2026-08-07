@@ -552,7 +552,7 @@
         <!-- Submit Button -->
         <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
           <button type="button" class="btn-neumorphic" onclick="closeMenuModal()" style="box-shadow: none; margin: 0;">Cancelar</button>
-          <button type="submit" id="btn-submit-form" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0;">
+          <button type="submit" id="btn-submit-form" class="btn-neumorphic" onclick="handleProductSubmit(event)" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0; cursor: pointer;">
             <span>Guardar Producto</span>
           </button>
         </div>
@@ -771,7 +771,7 @@
     </div>
   </div>
 
-  <script src="/js/admin.js?v=89"></script>
+  <script src="/js/admin.js?v=90"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
@@ -1228,185 +1228,205 @@
     }
 
     async function handleProductSubmit(e) {
-      e.preventDefault();
+      if (e && e.preventDefault) e.preventDefault();
+
+      const submitBtn = document.getElementById('btn-submit-form') || 
+                        (e && e.target ? (e.target.tagName === 'BUTTON' ? e.target : e.target.querySelector('button[type="submit"]')) : null);
       
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-      let catSelect = document.getElementById('form-category').value;
-      if (!catSelect && window.activeCategoryId && window.activeCategoryId !== 'all') {
-        catSelect = window.activeCategoryId;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('heartbeat-pulse');
+        submitBtn.innerHTML = `<span class="spinner"></span> <span style="margin-left: 8px;">Procesando...</span>`;
       }
-      if (!catSelect) catSelect = 'General';
-      const nameInput = document.getElementById('form-name').value;
-      const descInput = document.getElementById('form-desc').value;
-      
-      const isPizza = document.getElementById('pizza-sizes-container')?.style.display === 'block';
-      const isDrink = document.getElementById('drink-sizes-container')?.style.display === 'block';
-
-      const pizzaSmall = document.getElementById('form-pizza-small')?.value;
-      const drinkPeq = document.getElementById('form-drink-peq')?.value;
-      const drinkMed = document.getElementById('form-drink-med')?.value;
-      const drinkGde = document.getElementById('form-drink-gde')?.value;
-
-      let priceInput = document.getElementById('form-price').value;
-      if (isPizza && pizzaSmall) {
-        priceInput = pizzaSmall;
-      } else if (isDrink && drinkPeq) {
-        priceInput = drinkPeq;
-      }
-
-      const extrasInput = document.getElementById('form-adicionales') ? document.getElementById('form-adicionales').value : '';
-      const fileInput = document.getElementById('form-image').files[0];
-      
-      submitBtn.disabled = true;
-      submitBtn.classList.add('heartbeat-pulse');
-      submitBtn.innerHTML = `<span class="spinner"></span> <span style="margin-left: 8px;">Procesando...</span>`;
 
       try {
-        if (catSelect === 'new') {
-            const newCatName = document.getElementById('form-new-category-name').value;
-            const newCatSlug = newCatName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-            const createdCat = await MenuBuilder.createCategory(newCatName, newCatSlug);
-            catSelect = createdCat.id;
-            
-            // Re-fetch categories silently so the select is updated for next time
-            MenuBuilder.getCategories().then(c => {
-               categoriesList = c;
-               renderCategories();
-            });
+        let catSelect = document.getElementById('form-category')?.value;
+        if (!catSelect && window.activeCategoryId && window.activeCategoryId !== 'all') {
+          catSelect = window.activeCategoryId;
         }
-        
+        if (!catSelect) catSelect = 'General';
+
+        const nameInput = document.getElementById('form-name')?.value?.trim();
+        const descInput = document.getElementById('form-desc')?.value?.trim();
+
+        if (!nameInput) {
+          alert('⚠️ Por favor ingresa el nombre del producto.');
+          return;
+        }
+
+        const isPizza = document.getElementById('pizza-sizes-container')?.style.display === 'block';
+        const isDrink = document.getElementById('drink-sizes-container')?.style.display === 'block';
+
+        const pizzaSmall = document.getElementById('form-pizza-small')?.value;
+        const drinkPeq = document.getElementById('form-drink-peq')?.value;
+        const drinkMed = document.getElementById('form-drink-med')?.value;
+        const drinkGde = document.getElementById('form-drink-gde')?.value;
+
+        let priceInput = document.getElementById('form-price')?.value;
+        if (isPizza && pizzaSmall) {
+          priceInput = pizzaSmall;
+        } else if (isDrink && drinkPeq) {
+          priceInput = drinkPeq;
+        }
+
+        const extrasInput = document.getElementById('form-adicionales') ? document.getElementById('form-adicionales').value : '';
+        const fileInput = document.getElementById('form-image')?.files?.[0];
+
+        if (catSelect === 'new') {
+          const newCatName = document.getElementById('form-new-category-name')?.value;
+          if (newCatName) {
+            const newCatSlug = newCatName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            try {
+              const createdCat = await MenuBuilder.createCategory(newCatName, newCatSlug);
+              catSelect = createdCat ? createdCat.id : newCatSlug;
+            } catch(err) {
+              catSelect = newCatSlug;
+            }
+          }
+        }
+
         let imageUrl = '';
         if (fileInput) {
-           imageUrl = await MenuBuilder.uploadProductImage(fileInput);
+          try {
+            imageUrl = await MenuBuilder.uploadProductImage(fileInput);
+          } catch(err) {
+            console.warn('Image upload fallback:', err);
+          }
         }
-        
-        submitBtn.innerHTML = `<span class="spinner"></span> <span style="margin-left: 8px;">Guardando Producto...</span>`;
-        
+
+        if (submitBtn) {
+          submitBtn.innerHTML = `<span class="spinner"></span> <span style="margin-left: 8px;">Guardando...</span>`;
+        }
+
         let newProduct;
         try {
-          newProduct = await MenuBuilder.createProduct(catSelect, nameInput, descInput, priceInput, imageUrl);
+          if (typeof MenuBuilder !== 'undefined' && MenuBuilder.supabase) {
+            newProduct = await MenuBuilder.createProduct(catSelect, nameInput, descInput, priceInput, imageUrl);
+          }
         } catch (err) {
-          console.warn('Supabase products table insert failed. Saving locally to active shop only. Reason:', err);
+          console.warn('Supabase product insert bypass:', err);
+        }
+
+        if (!newProduct) {
           newProduct = {
             id: 'p-local-' + Date.now() + Math.floor(Math.random() * 1000),
             category_id: catSelect,
+            category: catSelect,
             name: nameInput,
-            description: descInput,
+            description: descInput || '',
             price: parseFloat(priceInput) || 0,
             image_url: imageUrl || '',
             created_at: new Date().toISOString()
           };
         }
-        
+
         let modifiers = [];
-        
-        // Pizza explicit sizes override
         const pizzaMedium = document.getElementById('form-pizza-medium')?.value;
         const pizzaLarge = document.getElementById('form-pizza-large')?.value;
 
         if (isPizza && (pizzaSmall || pizzaMedium || pizzaLarge)) {
-            const smallPriceNum = parseFloat(pizzaSmall) || 0;
-            const options = [];
-            if (pizzaSmall) options.push({ id: 'opt-' + Date.now() + 1, name: 'Pequeña', extra_price: 0, option_id: 'opt-' + Date.now() + 1 });
-            if (pizzaMedium) {
-               const mPrice = parseFloat(pizzaMedium);
-               options.push({ id: 'opt-' + Date.now() + 2, name: 'Mediana', extra_price: mPrice - smallPriceNum, option_id: 'opt-' + Date.now() + 2 });
-            }
-            if (pizzaLarge) {
-               const lPrice = parseFloat(pizzaLarge);
-               options.push({ id: 'opt-' + Date.now() + 3, name: 'Grande', extra_price: lPrice - smallPriceNum, option_id: 'opt-' + Date.now() + 3 });
-            }
-            
-            if (options.length > 0) {
-                modifiers.push({
-                    group_id: 'g-tamanos-' + Date.now(),
-                    group_name: 'Tamaño',
-                    selection_type: 'single',
-                    required: true,
-                    options: options
-                });
-            }
+          const smallPriceNum = parseFloat(pizzaSmall) || 0;
+          const options = [];
+          if (pizzaSmall) options.push({ id: 'opt-' + Date.now() + 1, name: 'Pequeña', extra_price: 0, option_id: 'opt-' + Date.now() + 1 });
+          if (pizzaMedium) {
+            const mPrice = parseFloat(pizzaMedium);
+            options.push({ id: 'opt-' + Date.now() + 2, name: 'Mediana', extra_price: mPrice - smallPriceNum, option_id: 'opt-' + Date.now() + 2 });
+          }
+          if (pizzaLarge) {
+            const lPrice = parseFloat(pizzaLarge);
+            options.push({ id: 'opt-' + Date.now() + 3, name: 'Grande', extra_price: lPrice - smallPriceNum, option_id: 'opt-' + Date.now() + 3 });
+          }
+          if (options.length > 0) {
+            modifiers.push({
+              group_id: 'g-tamanos-' + Date.now(),
+              group_name: 'Tamaño',
+              selection_type: 'single',
+              required: true,
+              options: options
+            });
+          }
         }
 
-        // Drink explicit sizes
         if (isDrink && (drinkPeq || drinkMed || drinkGde)) {
-            const peqPriceNum = parseFloat(drinkPeq) || 0;
-            const options = [];
-            if (drinkPeq) options.push({ id: 'opt-drk-' + Date.now() + 1, name: 'Pequeño / 10oz', extra_price: 0, option_id: 'opt-drk-' + Date.now() + 1 });
-            if (drinkMed) {
-               const mPrice = parseFloat(drinkMed);
-               options.push({ id: 'opt-drk-' + Date.now() + 2, name: 'Mediano / 16oz', extra_price: mPrice - peqPriceNum, option_id: 'opt-drk-' + Date.now() + 2 });
-            }
-            if (drinkGde) {
-               const gPrice = parseFloat(drinkGde);
-               options.push({ id: 'opt-drk-' + Date.now() + 3, name: 'Grande / 32oz', extra_price: gPrice - peqPriceNum, option_id: 'opt-drk-' + Date.now() + 3 });
-            }
-
-            if (options.length > 0) {
-                modifiers.push({
-                    group_id: 'g-tamanos-drk-' + Date.now(),
-                    group_name: 'Tamaño',
-                    selection_type: 'single',
-                    required: true,
-                    options: options
-                });
-            }
+          const peqPriceNum = parseFloat(drinkPeq) || 0;
+          const options = [];
+          if (drinkPeq) options.push({ id: 'opt-drk-' + Date.now() + 1, name: 'Pequeño / 10oz', extra_price: 0, option_id: 'opt-drk-' + Date.now() + 1 });
+          if (drinkMed) {
+            const mPrice = parseFloat(drinkMed);
+            options.push({ id: 'opt-drk-' + Date.now() + 2, name: 'Mediano / 16oz', extra_price: mPrice - peqPriceNum, option_id: 'opt-drk-' + Date.now() + 2 });
+          }
+          if (drinkGde) {
+            const gPrice = parseFloat(drinkGde);
+            options.push({ id: 'opt-drk-' + Date.now() + 3, name: 'Grande / 32oz', extra_price: gPrice - peqPriceNum, option_id: 'opt-drk-' + Date.now() + 3 });
+          }
+          if (options.length > 0) {
+            modifiers.push({
+              group_id: 'g-tamanos-drk-' + Date.now(),
+              group_name: 'Tamaño',
+              selection_type: 'single',
+              required: true,
+              options: options
+            });
+          }
         }
 
-        // Extras parsing
         if (extrasInput && extrasInput.trim() !== '') {
-            const options = extrasInput.split(',').map(ext => {
-               const extParts = ext.trim().split(' ');
-               let price = parseFloat(extParts.pop());
-               if (isNaN(price)) {
-                  price = 0;
-                  extParts.push(String(price));
-               }
-               const priceMatch2 = ext.match(/\d+(?:\.\d+)?$/);
-               let val = 0;
-               let name = ext.trim();
-               if (priceMatch2) {
-                   val = parseFloat(priceMatch2[0]);
-                   name = ext.replace(/\d+(?:\.\d+)?$/, '').trim();
-               }
-               return { id: 'opt-' + Date.now() + Math.random(), name: name, extra_price: val, option_id: 'opt-' + Date.now() + Math.random() };
-            }).filter(opt => opt.name !== '');
-
-            if (options.length > 0) {
-                modifiers.push({
-                    group_id: 'g-extras-' + Date.now(),
-                    group_name: 'Adicionales',
-                    selection_type: 'multiple',
-                    required: false,
-                    options: options
-                });
+          const options = extrasInput.split(',').map(ext => {
+            const extParts = ext.trim().split(' ');
+            let price = parseFloat(extParts.pop());
+            if (isNaN(price)) price = 0;
+            const priceMatch2 = ext.match(/\d+(?:\.\d+)?$/);
+            let val = 0;
+            let name = ext.trim();
+            if (priceMatch2) {
+              val = parseFloat(priceMatch2[0]);
+              name = ext.replace(/\d+(?:\.\d+)?$/, '').trim();
             }
+            return { id: 'opt-' + Date.now() + Math.random(), name: name, extra_price: val, option_id: 'opt-' + Date.now() + Math.random() };
+          }).filter(opt => opt.name !== '');
+
+          if (options.length > 0) {
+            modifiers.push({
+              group_id: 'g-extras-' + Date.now(),
+              group_name: 'Adicionales',
+              selection_type: 'multiple',
+              required: false,
+              options: options
+            });
+          }
         }
         newProduct.modifiers = modifiers.length > 0 ? modifiers : undefined;
 
-        // Base ingredients from description
         if (descInput && descInput.trim() !== '') {
-            const excls = descInput.split(/,| y | e /i).map(i => i.trim().replace(/\.$/, '')).filter(i => i.length > 2);
-            if (excls.length > 0) {
-                newProduct.exclusions = excls;
-            }
+          const excls = descInput.split(/,| y | e /i).map(i => i.trim().replace(/\.$/, '')).filter(i => i.length > 2);
+          if (excls.length > 0) {
+            newProduct.exclusions = excls;
+          }
         }
 
-        if (window.activeShopIdForMenu || (typeof AdminApp !== 'undefined' && AdminApp.activeShopId)) {
+        if (typeof AdminApp !== 'undefined') {
           await AdminApp.importNewProductToActiveShop(newProduct);
         }
-        
+
         if (typeof closeMenuModal === 'function') closeMenuModal();
         if (typeof AdminApp !== 'undefined' && typeof AdminApp.closeMenuModal === 'function') AdminApp.closeMenuModal();
-        showToast(`🎉 ¡${newProduct.name} agregado al menú con éxito!`);
         
+        if (typeof showToast === 'function') {
+          showToast(`🎉 ¡${newProduct.name} agregado al menú con éxito!`);
+        } else if (typeof AdminApp !== 'undefined' && typeof AdminApp.showToast === 'function') {
+          AdminApp.showToast(`🎉 ¡${newProduct.name} agregado al menú con éxito!`);
+        } else {
+          alert(`🎉 ¡${newProduct.name} agregado al menú con éxito!`);
+        }
       } catch (err) {
         console.error(err);
-        showToast(`❌ Error: ${err.message || 'Problema de red. Intenta nuevamente.'}`, true);
+        alert(`❌ Error al guardar producto: ${err.message || err}`);
       } finally {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('heartbeat-pulse');
-        submitBtn.innerHTML = `<span>Guardar Producto</span>`;
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('heartbeat-pulse');
+          submitBtn.innerHTML = `<span>Guardar Producto</span>`;
+        }
       }
     }
 
