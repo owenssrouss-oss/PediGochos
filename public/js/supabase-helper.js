@@ -61,8 +61,17 @@ class SupabaseHelper {
   async getCurrentSession() {
     await this.init();
     if (!this.client) return null;
-    const { data: { session } } = await this.client.auth.getSession();
-    return session;
+    try {
+      const { data } = await this.client.auth.getSession();
+      if (data && data.session) return data.session;
+      const { data: userData } = await this.client.auth.getUser();
+      if (userData && userData.user) {
+        return { user: userData.user };
+      }
+    } catch (e) {
+      console.warn('Error fetching session:', e);
+    }
+    return null;
   }
 
   async getUserRole(email) {

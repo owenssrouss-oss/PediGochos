@@ -37,52 +37,62 @@ class AdminController {
     }
   }
 
+  async processOwnerSession(user) {
+    if (!user || this.isAuthenticated) return;
+    this.isAuthenticated = true;
+
+    try {
+      if (SupabaseApp.client) {
+        await SupabaseApp.client.from('user_roles').upsert({
+          email: user.email,
+          role: 'owner',
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'email' });
+      }
+    } catch (e) {
+      console.warn('Silent user role upsert:', e);
+    }
+
+    try {
+      const res = await fetch('/api/owner/establishments');
+      this.establishments = await res.json();
+      await this.loadOrders();
+      
+      // UI transitions
+      const gate = document.getElementById('login-gate');
+      if (gate) gate.classList.add('hidden');
+
+      const panel = document.getElementById('admin-panel');
+      if (panel) panel.classList.remove('hidden');
+      
+      const warningBanner = document.getElementById('backup-warning-banner');
+      if (warningBanner) warningBanner.classList.add('hidden');
+      
+      this.renderTable();
+      await this.loadCentralSedeSettings();
+      this.initPresence(user.email);
+      this.showToast('👑 Acceso de Dueño verificado con Google');
+    } catch (err) {
+      console.error(err);
+      alert('Error de conexión al cargar los datos.');
+    }
+  }
+
   async checkSupabaseSession() {
     if (typeof SupabaseApp === 'undefined') return;
     await SupabaseApp.init();
-    const session = await SupabaseApp.getCurrentSession();
-    
-    if (session && session.user) {
-      const user = session.user;
-      
-      try {
-        if (SupabaseApp.client) {
-          await SupabaseApp.client.from('user_roles').upsert({
-            email: user.email,
-            role: 'owner',
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'email' });
+
+    if (SupabaseApp.client) {
+      SupabaseApp.client.auth.onAuthStateChange(async (event, session) => {
+        if (session && session.user && !this.isAuthenticated) {
+          await this.processOwnerSession(session.user);
         }
-      } catch (e) {
-        console.warn('Silent user role upsert:', e);
-      }
+      });
+    }
 
-      this.isAuthenticated = true;
-      
-      // Load all establishments and orders
-      try {
-        const res = await fetch('/api/owner/establishments');
-        this.establishments = await res.json();
-        await this.loadOrders();
-        
-        // UI transitions
-        const gate = document.getElementById('login-gate');
-        if (gate) gate.classList.add('hidden');
-
-        const panel = document.getElementById('admin-panel');
-        if (panel) panel.classList.remove('hidden');
-        
-        const warningBanner = document.getElementById('backup-warning-banner');
-        if (warningBanner) warningBanner.classList.add('hidden');
-        
-        this.renderTable();
-        await this.loadCentralSedeSettings();
-        this.initPresence(user.email);
-        this.showToast('👑 Acceso de Dueño verificado con Google');
-      } catch (err) {
-        console.error(err);
-        alert('Error de conexión al cargar los datos.');
-      }
+    const session = await SupabaseApp.getCurrentSession();
+    if (session && session.user && !this.isAuthenticated) {
+      await this.processOwnerSession(session.user);
     }
   }
 
