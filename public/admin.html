@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Dueño Rapi Gochos - Panel de Administración Central</title>
   <link rel="stylesheet" href="/css/common.css?v=80">
-  <link rel="stylesheet" href="/css/admin.css?v=85">
+  <link rel="stylesheet" href="/css/admin.css?v=86">
   <link rel="stylesheet" href="/css/menu-builder.css?v=80">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -51,7 +51,7 @@
           <span class="admin-logo-icon">👑</span>
           <h2>Deliver<span>City</span> - Panel de Dueño</h2>
         </div>
-        <div style="display: flex; gap: 12px; align-items: center;">
+        <div class="admin-header-actions">
           <div id="online-owners-indicator" class="hidden" style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 20px; font-size: 12px; font-weight: 700; color: #10b981; cursor: help;" title="Dueños en línea">
             <span class="status-dot" style="width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; animation: pulse 2s infinite;"></span>
             <span id="online-owners-count">1 activo</span>
@@ -94,7 +94,7 @@
           <!-- Collapsible Body Container -->
           <div id="admin-sede-card-body" style="margin-top: 12px;">
             <form id="central-sede-admin-form" onsubmit="AdminApp.handleSaveCentralSede(event)">
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+              <div class="admin-sede-grid" style="margin-bottom: 10px;">
                 <div>
                   <label for="admin-central-sede-name" style="font-size: 10.5px; color: #a78bfa; font-weight: 700;">Nombre Sede</label>
                   <input type="text" id="admin-central-sede-name" placeholder="Ej. Sede Central" style="width: 100%; font-size: 12px; padding: 6px 8px; border-radius: 6px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff;">
@@ -771,7 +771,7 @@
     </div>
   </div>
 
-  <script src="/js/admin.js?v=85"></script>
+  <script src="/js/admin.js?v=86"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>

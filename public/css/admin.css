@@ -333,6 +333,18 @@ body {
   color: var(--primary);
 }
 
+.admin-sede-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.admin-header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
 /* Responsive & Phone Viewport Optimization */
 @media (max-width: 1100px) {
   .admin-main-workspace {
@@ -343,78 +355,145 @@ body {
 }
 
 @media (max-width: 768px) {
-  body {
-    overflow-x: hidden;
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+
+  .admin-dashboard-container {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  .admin-header {
+    padding: 0 !important;
   }
 
   .admin-header-content {
-    padding: 12px 14px !important;
+    padding: 10px 12px !important;
     flex-direction: column !important;
-    align-items: stretch !important;
+    align-items: flex-start !important;
     gap: 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .admin-brand {
+    width: 100% !important;
+  }
+
+  .admin-brand h2 {
+    font-size: 16px !important;
+  }
+
+  .admin-header-actions {
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .btn-logout {
+    padding: 6px 12px !important;
+    font-size: 11.5px !important;
   }
 
   .admin-main-workspace {
     grid-template-columns: 1fr !important;
     padding: 8px !important;
     gap: 14px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  .admin-form-column, .admin-display-column {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .admin-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 14px !important;
+  }
+
+  .admin-sede-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  input, select, textarea, button {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .modal-overlay {
-    padding: 10px !important;
+    padding: 8px !important;
     align-items: flex-start !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
   }
 
   .modal-content {
-    width: 96% !important;
+    width: 98% !important;
     max-width: 100% !important;
-    max-height: 85vh !important;
+    max-height: 88vh !important;
     overflow-y: auto !important;
-    padding: 16px !important;
-    border-radius: 18px !important;
-    margin: 10px auto !important;
+    padding: 14px !important;
+    border-radius: 16px !important;
+    margin: 8px auto !important;
     box-sizing: border-box !important;
     -webkit-overflow-scrolling: touch;
   }
 
   .modal-header h3, .modal-header h2 {
-    font-size: 16px !important;
+    font-size: 15px !important;
   }
 
   .modal-close {
-    min-width: 36px !important;
-    min-height: 36px !important;
-    font-size: 18px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    font-size: 16px !important;
   }
 
   .designer-workspace {
-    gap: 16px !important;
+    gap: 14px !important;
   }
 
   .import-catalog-section {
-    padding: 12px !important;
+    padding: 10px !important;
   }
 
   .catalog-grid {
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
   }
 
   .admin-kpi-card {
-    padding: 14px !important;
+    padding: 12px !important;
   }
 
   table {
-    font-size: 12px !important;
+    font-size: 11.5px !important;
   }
 
   th, td {
-    padding: 8px 10px !important;
+    padding: 6px 8px !important;
   }
 
-  /* Force horizontal scrolling on mobile tables so no columns are clipped */
-  .premium-scroll, div[style*="overflow-x: auto"] {
+  .table-container, .premium-scroll, div[style*="overflow-x: auto"] {
     -webkit-overflow-scrolling: touch;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }
