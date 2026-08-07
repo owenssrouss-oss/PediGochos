@@ -285,8 +285,8 @@ class AdminController {
   }
 
   showEstablishmentActions(id) {
-    const est = this.establishments.find(e => e.id === id);
-    if (!est) return;
+    this.openEstActionModal(id);
+  }
 
   checkModalOpenState() {
     const anyActive = document.querySelector('.modal-overlay.active');
