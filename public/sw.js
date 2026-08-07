@@ -1,5 +1,5 @@
 // Service worker to make Cocina Rapi Gochos KDS PWA Installable
-const CACHE_NAME = 'pedigochos-v99';
+const CACHE_NAME = 'pedigochos-v100';
 const ASSETS = [
   '/kitchen.html',
   '/css/common.css',
@@ -34,25 +34,25 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Strategy: Network First, falling back to cache
-  // This ensures the user always gets the latest version of files when online,
-  // but can still load offline.
   if (event.request.method !== 'GET') return;
+  if (!event.request.url.startsWith('http://') && !event.request.url.startsWith('https://')) return;
 
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Cache the updated assets if response is valid
         if (response && response.status === 200 && response.type === 'basic') {
           const responseToCache = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
+            try {
+              cache.put(event.request, responseToCache);
+            } catch(e) {
+              console.warn('Cache put skipped:', e);
+            }
           });
         }
         return response;
       })
       .catch(() => {
-        // Offline fallback
         return caches.match(event.request);
       })
   );
