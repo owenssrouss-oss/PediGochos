@@ -451,7 +451,7 @@
   </div>
 
   <!-- Glassmorphic Modal: Create Product -->
-  <div class="modal-overlay" id="product-modal" style="z-index: 1200; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 20px 10px;">
+  <div class="modal-overlay" id="product-modal" style="z-index: 4000; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 20px 10px;">
     <div class="modal-content" style="background: #16161c; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin: auto; max-width: 500px; width: 95%; max-height: 85vh; overflow-y: auto; border-radius: 20px; padding: 20px; -webkit-overflow-scrolling: touch;">
       <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
         <h3 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: 800;">🍔 Agregar Producto al Menú</h3>
@@ -564,7 +564,7 @@
   <div class="toast-container" id="toast-center"></div>
 
   <!-- Glassmorphic Modal: Immersive Menu and Floor Layout Designer -->
-  <div class="modal-overlay" id="menu-tables-modal" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 40px 0;">
+  <div class="modal-overlay" id="menu-tables-modal" style="z-index: 3000; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 40px 0;">
     <div class="modal-content" style="background: rgba(22, 22, 28, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); max-width: 1200px; width: 95%; height: auto; min-height: 90vh; display: flex; flex-direction: column; padding: 24px; border-radius: 24px; margin: auto;">
       
       <!-- Modal Header -->
@@ -771,7 +771,7 @@
     </div>
   </div>
 
-  <script src="/js/admin.js?v=96"></script>
+  <script src="/js/admin.js?v=97"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
@@ -984,13 +984,14 @@
     }
 
     function closeMenuModal() {
-      if (typeof AdminApp !== 'undefined' && typeof AdminApp.closeMenuModal === 'function') {
-        AdminApp.closeMenuModal();
-      } else {
-        const modal = document.getElementById('product-modal');
-        if (modal) modal.classList.remove('active');
+      const modal = document.getElementById('product-modal');
+      if (modal) modal.classList.remove('active');
+      try {
         const form = document.getElementById('product-form');
         if (form) form.reset();
+      } catch(e) {}
+      if (typeof AdminApp !== 'undefined' && typeof AdminApp.closeMenuModal === 'function') {
+        AdminApp.closeMenuModal();
       }
     }
 
@@ -1552,7 +1553,7 @@
       }, 4000);
     }
   <!-- Modal: Crear Nuevo Producto Maestro para Catálogo Global -->
-  <div class="modal-overlay" id="admin-create-master-product-modal" style="z-index: 1200; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+  <div class="modal-overlay" id="admin-create-master-product-modal" style="z-index: 4500; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
     <div class="modal-content" style="background: #1E293B; color: #fff; border: 1px solid #334155; border-radius: 16px; max-width: 500px; width: 90%; padding: 24px; margin: auto;">
       <div class="modal-header" style="border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
         <h3 style="color: #fff; margin: 0; font-size: 16px; font-weight: 800;">➕ Crear Producto Maestro para Catálogo Global</h3>
