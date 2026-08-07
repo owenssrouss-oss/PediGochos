@@ -768,13 +768,13 @@ class AdminController {
   }
 
   async loadModalImportCatalog() {
-    const importSelect = document.getElementById('modal-import-product-select');
-    if (!importSelect) return;
+    const tbody = document.getElementById('modal-import-catalog-tbody');
+    if (!tbody) return;
 
-    importSelect.innerHTML = `<option value="">Cargando...</option>`;
-    
-    if (typeof MenuBuilder !== 'undefined' && MenuBuilder.supabase) {
-      try {
+    tbody.innerHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-muted);">Cargando catálogo maestro...</td></tr>`;
+
+    try {
+      if (typeof MenuBuilder !== 'undefined' && MenuBuilder.supabase) {
         const { data, error } = await MenuBuilder.supabase
           .from('products')
           .select('*')
@@ -782,25 +782,81 @@ class AdminController {
         
         if (error) throw error;
         this.globalProductsCache = data || [];
-        importSelect.innerHTML = `<option value="">-- Selecciona --</option>`;
-        this.globalProductsCache.forEach(prod => {
-          const opt = document.createElement('option');
-          opt.value = prod.id;
-          opt.innerText = `${prod.name} ($${parseFloat(prod.price).toFixed(2)})`;
-          importSelect.appendChild(opt);
-        });
-      } catch (err) {
-        console.error(err);
-        importSelect.innerHTML = `<option value="">Error cargando</option>`;
+        this.renderImportCatalogTable(this.globalProductsCache);
       }
-    } else {
-      importSelect.innerHTML = `<option value="">No disponible</option>`;
+    } catch (err) {
+      console.error(err);
+      tbody.innerHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: #f87171;">Error al cargar el catálogo maestro: ${err.message}</td></tr>`;
     }
   }
 
-  async importGlobalProductFromModal() {
-    const select = document.getElementById('modal-import-product-select');
-    const prodId = select.value;
+  renderImportCatalogTable(products) {
+    const tbody = document.getElementById('modal-import-catalog-tbody');
+    if (!tbody) return;
+
+    if (!products || products.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-muted);">No hay productos en el catálogo maestro.</td></tr>`;
+      return;
+    }
+
+    const est = this.establishments.find(e => e.id === window.activeShopIdForMenu);
+    const existingProductNames = est && est.products ? est.products.map(p => p.name.toLowerCase()) : [];
+
+    tbody.innerHTML = '';
+    products.forEach(prod => {
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
+      tr.style.transition = 'background 0.2s';
+      tr.onmouseenter = () => tr.style.background = 'rgba(255,255,255,0.04)';
+      tr.onmouseleave = () => tr.style.background = 'transparent';
+
+      const imgUrl = prod.image_url || prod.image || '/images/burger_royale.jpg';
+      const isAlreadyAdded = existingProductNames.includes(prod.name.toLowerCase());
+      const rawPrice = parseFloat(prod.price) || 0;
+      const copPrice = rawPrice < 1000 ? rawPrice * 1000 : rawPrice;
+      const formattedPrice = `$${Math.round(copPrice).toLocaleString('de-DE')} COP`;
+
+      const actionBtn = isAlreadyAdded 
+        ? `<span style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block;">✓ En tu Menú</span>`
+        : `<button onclick="AdminApp.importGlobalProductFromModal('${prod.id}')" style="background: var(--accent); color: #121216; font-weight: 800; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all 0.2s;">➕ Agregar a mi Menú</button>`;
+
+      tr.innerHTML = `
+        <td style="padding: 10px 14px;">
+          <img src="${imgUrl}" alt="${prod.name}" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1);" onerror="this.src='/images/burger_royale.jpg'">
+        </td>
+        <td style="padding: 10px 14px;">
+          <div style="font-weight: 700; color: #fff;">${prod.name}</div>
+          <span style="font-size: 10.5px; background: rgba(255,255,255,0.08); color: #a78bfa; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 2px;">${prod.category || 'General'}</span>
+        </td>
+        <td style="padding: 10px 14px; color: var(--text-muted); font-size: 12px; max-width: 250px;">
+          ${prod.description || 'Sin descripción especificada.'}
+        </td>
+        <td style="padding: 10px 14px; font-weight: 800; color: #10B981;">
+          ${formattedPrice}
+        </td>
+        <td style="padding: 10px 14px; text-align: center;">
+          ${actionBtn}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  filterImportCatalogTable() {
+    const searchInput = document.getElementById('modal-import-search');
+    if (!searchInput || !this.globalProductsCache) return;
+    const query = searchInput.value.toLowerCase().trim();
+
+    const filtered = this.globalProductsCache.filter(p => 
+      p.name.toLowerCase().includes(query) || 
+      (p.category && p.category.toLowerCase().includes(query)) ||
+      (p.description && p.description.toLowerCase().includes(query))
+    );
+
+    this.renderImportCatalogTable(filtered);
+  }
+
+  async importGlobalProductFromModal(prodId) {
     if (!prodId) return;
 
     const selected = this.globalProductsCache.find(p => p.id === prodId);
@@ -817,12 +873,15 @@ class AdminController {
       return;
     }
 
+    const rawPrice = parseFloat(selected.price) || 0;
+    const copPrice = rawPrice < 1000 ? rawPrice * 1000 : rawPrice;
+
     const newLocalProduct = {
       id: `p-${Date.now()}-${Math.floor(Math.random() * 100)}`,
       name: selected.name,
-      price: parseFloat(selected.price),
+      price: copPrice,
       description: selected.description || '',
-      image: selected.image_url
+      image: selected.image_url || selected.image || ''
     };
 
     est.products.push(newLocalProduct);
@@ -839,8 +898,8 @@ class AdminController {
 
       if (res.ok) {
         this.showToast(`📥 ¡${selected.name} importado con éxito!`);
-        select.value = '';
         this.loadModalProducts();
+        this.renderImportCatalogTable(this.globalProductsCache);
         await this.triggerCloudBackup();
       }
     } catch (err) {
