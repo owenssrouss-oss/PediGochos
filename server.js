@@ -621,11 +621,29 @@ app.put('/api/establishments/:id', (req, res) => {
   if (req.body.location_lng !== undefined) {
     est.location_lng = req.body.location_lng !== null && req.body.location_lng !== '' ? parseFloat(req.body.location_lng) : null;
   }
+  if (req.body.isHighTraffic !== undefined) {
+    est.isHighTraffic = Boolean(req.body.isHighTraffic);
+  }
+  if (req.body.extraPrepTime !== undefined) {
+    est.extraPrepTime = req.body.extraPrepTime ? parseInt(req.body.extraPrepTime) : 20;
+  }
   if (req.body.newLinkKey) {
     est.linkKey = req.body.newLinkKey;
   }
   
   writeDB(db);
+
+  // Broadcast WebSocket update if connected clients exist
+  const updatePayload = JSON.stringify({
+    type: 'ESTABLISHMENT_UPDATED',
+    establishment: est
+  });
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(updatePayload);
+    }
+  });
+
   res.json({ success: true, establishment: est });
 });
 

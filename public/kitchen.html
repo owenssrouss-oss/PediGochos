@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Cocina Rapi Gochos - KDS Panel</title>
-  <link rel="stylesheet" href="/css/common.css?v=80">
-  <link rel="stylesheet" href="/css/kitchen.css?v=80">
-  <link rel="stylesheet" href="/css/menu-builder.css?v=80">
+  <link rel="stylesheet" href="/css/common.css?v=81">
+  <link rel="stylesheet" href="/css/kitchen.css?v=81">
+  <link rel="stylesheet" href="/css/menu-builder.css?v=81">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#FF5E3A">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/supabase-helper.js?v=80"></script>
+  <script src="/js/supabase-helper.js?v=81"></script>
 </head>
 <body>
 
@@ -35,6 +35,10 @@
         </select>
         <button id="btn-manage-prices" class="btn-manage-prices hidden" onclick="KitchenApp.openMenuTablesModal()" style="margin-left:12px; background-color:#10b981; border:1px solid #10b981; color:#121216; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🍔 Taller de Local</button>
         <button id="btn-customize-shop" class="btn-manage-prices hidden" onclick="KitchenApp.openCustomizeShopModal()" style="margin-left:8px; background-color:#3b82f6; border:1px solid #3b82f6; color:#ffffff; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🏪 Sede Comercial</button>
+        <button id="btn-panic-high-traffic" class="btn-panic-toggle hidden" onclick="KitchenApp.toggleHighTrafficPanicMode()" style="margin-left:8px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: var(--radius-sm); padding: 8px 12px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px;" title="Activar/Desactivar tiempo extra por alto tráfico de personas en cocina">
+          <span id="panic-icon">🚨</span>
+          <span id="panic-text">Modo Tráfico Alto (+20 min)</span>
+        </button>
       </div>
 
       <!-- Connection Status Badge -->
@@ -587,9 +591,9 @@
     </div>
   </div>
 
-  <script src="/js/sound.js?v=80"></script>
-  <script src="/js/menu-builder.js?v=80"></script>
-  <script src="/js/kitchen.js?v=80"></script>
+  <script src="/js/sound.js?v=81"></script>
+  <script src="/js/menu-builder.js?v=81"></script>
+  <script src="/js/kitchen.js?v=81"></script>
   <script>
     let activeCategoryId = 'all';
     let categoriesList = [];

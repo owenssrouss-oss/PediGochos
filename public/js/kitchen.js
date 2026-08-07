@@ -361,6 +361,7 @@ class KitchenController {
   updatePricesButtonVisibility(visible) {
     const btn = document.getElementById('btn-manage-prices');
     const btnCust = document.getElementById('btn-customize-shop');
+    const btnPanic = document.getElementById('btn-panic-high-traffic');
     if (btn) {
       if (visible) {
         btn.classList.remove('hidden');
@@ -374,6 +375,92 @@ class KitchenController {
       } else {
         btnCust.classList.add('hidden');
       }
+    }
+    if (btnPanic) {
+      if (visible) {
+        btnPanic.classList.remove('hidden');
+        const est = this.establishments.find(e => e.id === this.selectedId);
+        this.updatePanicButtonUI(est);
+      } else {
+        btnPanic.classList.add('hidden');
+      }
+    }
+  }
+
+  updatePanicButtonUI(est) {
+    const btn = document.getElementById('btn-panic-high-traffic');
+    const icon = document.getElementById('panic-icon');
+    const text = document.getElementById('panic-text');
+    if (!btn) return;
+
+    const isHigh = Boolean(est && est.isHighTraffic);
+    const extra = (est && est.extraPrepTime) || 20;
+
+    if (isHigh) {
+      btn.style.background = '#dc2626';
+      btn.style.color = '#ffffff';
+      btn.style.borderColor = '#ef4444';
+      btn.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.6)';
+      if (icon) icon.innerText = '🚨';
+      if (text) text.innerText = `TRÁFICO ALTO ACTIVO (+${extra} min)`;
+    } else {
+      btn.style.background = 'rgba(239, 68, 68, 0.15)';
+      btn.style.color = '#f87171';
+      btn.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+      btn.style.boxShadow = 'none';
+      if (icon) icon.innerText = '🚨';
+      if (text) text.innerText = `Modo Tráfico Alto (+${extra} min)`;
+    }
+  }
+
+  async toggleHighTrafficPanicMode() {
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+
+    const currentStatus = Boolean(est.isHighTraffic);
+    const nextStatus = !currentStatus;
+
+    let extraTime = est.extraPrepTime || 20;
+
+    if (nextStatus) {
+      const userInput = prompt('🚨 BOTÓN DE PÁNICO - TRÁFICO ALTO EN COCINA\n\n¿Cuántos minutos adicionales deseas sumar al tiempo de entrega de tus clientes?', extraTime.toString());
+      if (userInput === null) return; // User cancelled
+      const parsed = parseInt(userInput);
+      if (!isNaN(parsed) && parsed > 0) {
+        extraTime = parsed;
+      }
+    }
+
+    est.isHighTraffic = nextStatus;
+    est.extraPrepTime = extraTime;
+
+    this.updatePanicButtonUI(est);
+
+    const currentLinkKey = localStorage.getItem(`admin_key_${this.selectedId}`) || est.linkKey || '';
+
+    try {
+      const res = await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: false,
+          linkKey: currentLinkKey,
+          isHighTraffic: nextStatus,
+          extraPrepTime: extraTime
+        })
+      });
+
+      if (res.ok) {
+        if (nextStatus) {
+          this.showLocalToast(`🚨 ¡TRÁFICO ALTO ACTIVADO! Se han sumado +${extraTime} min al tiempo de entrega.`);
+        } else {
+          this.showLocalToast(`🟢 ¡Modo Tráfico Normal Restablecido!`);
+        }
+        await this.triggerCloudBackup();
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error al actualizar el modo de tráfico alto.');
     }
   }
 

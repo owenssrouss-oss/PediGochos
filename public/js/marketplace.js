@@ -48,6 +48,7 @@ class MarketplaceController {
 
     await this.loadSystemSettings();
     await this.loadEstablishments();
+    this.initWebSocket();
     
     // Update active location display in header on startup
     const display = document.getElementById('active-location-display');
@@ -72,6 +73,33 @@ class MarketplaceController {
       setTimeout(() => {
         this.showLocationTutorial();
       }, 1000);
+    }
+  }
+
+  initWebSocket() {
+    try {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      this.ws = new WebSocket(`${protocol}//${window.location.host}`);
+      this.ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'ESTABLISHMENT_UPDATED' && data.establishment) {
+            const updated = data.establishment;
+            const index = this.establishments.findIndex(e => e.id === updated.id);
+            if (index !== -1) {
+              this.establishments[index] = { ...this.establishments[index], ...updated };
+              this.renderEstablishments();
+              if (this.selectedEstablishment && this.selectedEstablishment.id === updated.id) {
+                this.openEstablishment(updated.id);
+              }
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      };
+    } catch (err) {
+      console.error(err);
     }
   }
 
@@ -224,7 +252,29 @@ class MarketplaceController {
     // Delivery time (minutes)
     const deliverySpan = document.querySelector('.est-delivery-time');
     if (deliverySpan) {
-      deliverySpan.innerText = est.delivery_time ? `⏱️ ${est.delivery_time} min` : '⏱️ 20-30 min';
+      deliverySpan.innerText = this.getFormattedDeliveryTime(est);
+    }
+
+    // High traffic banner in store header
+    let highTrafficBanner = document.getElementById('est-high-traffic-banner');
+    if (!highTrafficBanner) {
+      highTrafficBanner = document.createElement('div');
+      highTrafficBanner.id = 'est-high-traffic-banner';
+      const headerInfo = document.querySelector('.establishment-header .est-info') || document.querySelector('.establishment-header');
+      if (headerInfo) headerInfo.appendChild(highTrafficBanner);
+    }
+
+    if (est && est.isHighTraffic) {
+      const extra = est.extraPrepTime || 20;
+      highTrafficBanner.innerHTML = `
+        <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 8px 14px; border-radius: 10px; font-weight: 700; font-size: 12px; margin-top: 10px; display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 16px;">🚨</span>
+          <span><strong>Tráfico Alto en Cocina:</strong> El tiempo estimado de entrega aumenta en <strong>+${extra} min</strong> debido a la alta afluencia de personas en el local.</span>
+        </div>
+      `;
+      highTrafficBanner.style.display = 'block';
+    } else if (highTrafficBanner) {
+      highTrafficBanner.style.display = 'none';
     }
 
     // Render internal categories and products
@@ -235,6 +285,22 @@ class MarketplaceController {
     document.getElementById('home-view').classList.remove('active');
     document.getElementById('establishment-view').classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  getFormattedDeliveryTime(est) {
+    if (!est) return '⏱️ 20-30 min';
+    let minTime = est.prep_time || 15;
+    let maxTime = est.delivery_time || 25;
+    const isHigh = Boolean(est.isHighTraffic);
+    const extra = (est.extraPrepTime && parseInt(est.extraPrepTime)) || 20;
+
+    if (isHigh) {
+      minTime += extra;
+      maxTime += extra;
+      return `⏱️ ${minTime}-${maxTime} min (🚨 Tráfico Alto)`;
+    } else {
+      return `⏱️ ${minTime}-${maxTime} min`;
+    }
   }
 
   // Render lists
@@ -278,6 +344,11 @@ class MarketplaceController {
         imgHTML = `<img src="${photoUrl}" alt="${est.name}" style="object-fit: cover; width: 100%; height: 100%;" onerror="this.style.display='none'; if (this.nextElementSibling) this.nextElementSibling.style.display='flex'">`;
       }
 
+      const deliveryTimeStr = this.getFormattedDeliveryTime(est);
+      const highTrafficBadge = est.isHighTraffic 
+        ? `<span style="background: #dc2626; color: #ffffff; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; margin-left: 6px; display: inline-block;">🚨 Tráfico Alto (+${est.extraPrepTime || 20}m)</span>` 
+        : '';
+
       card.innerHTML = `
         <div class="est-row-img-wrapper" style="border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); border: 2px solid var(--border);">
           ${imgHTML}
@@ -285,7 +356,7 @@ class MarketplaceController {
         </div>
         <div class="est-row-info">
           <div class="est-row-header-flex">
-            <h4>${est.name}</h4>
+            <h4>${est.name} ${highTrafficBadge}</h4>
             <div class="est-row-rating">
               <span class="star">★</span> 4.8
             </div>
@@ -294,7 +365,7 @@ class MarketplaceController {
             ${this.capitalize(est.category)} • ${est.description.split('.')[0] || est.description} • $$
           </div>
           <div class="est-row-details-row">
-            <span>🕒 15-25 min</span>
+            <span>${deliveryTimeStr}</span>
             <span class="free-delivery">🚲 Envío Gratis</span>
           </div>
         </div>
