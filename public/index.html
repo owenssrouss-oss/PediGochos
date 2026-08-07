@@ -130,10 +130,15 @@
       <section class="establishments-section">
         <div class="section-header-flex">
           <div>
-            <h3 class="section-title" id="establishments-title">Restaurantes populares</h3>
+            <h3 class="section-title" id="establishments-title">Restaurantes</h3>
           </div>
-          <a href="#" class="btn-view-all" onclick="event.preventDefault()">Ver todos <span class="arrow-icon">›</span></a>
+          <a href="#" class="btn-view-all" onclick="event.preventDefault(); MarketplaceApp.filterRestaurantsByFoodType('all')">Ver todos <span class="arrow-icon">›</span></a>
         </div>
+
+        <!-- Dynamic Food Type Filter Chips (Hamburguesas, Pizzas, Arepas, Bebidas, etc.) -->
+        <div id="food-type-filters-container" style="display: flex; gap: 8px; overflow-x: auto; padding: 6px 0 14px 0; -webkit-overflow-scrolling: touch;" class="premium-scroll">
+        </div>
+
         <div class="establishments-list-delivercity" id="establishments-grid">
           <!-- Dynamically filled -->
         </div>
@@ -445,6 +450,6 @@
   <script src="/js/supabase-helper.js?v=81"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="/js/sound.js?v=81"></script>
-  <script src="/js/marketplace.js?v=81"></script>
+  <script src="/js/marketplace.js?v=93"></script>
 </body>
 </html>

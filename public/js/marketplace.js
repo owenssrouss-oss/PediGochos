@@ -154,6 +154,7 @@ class MarketplaceController {
   // Navigation
   selectCategory(category) {
     this.currentCategory = category;
+    window.activeFoodTypeFilter = 'all';
     
     // Update active class in categories tabs (DeliverCity style)
     document.querySelectorAll('.category-card-delivercity').forEach(card => {
@@ -305,13 +306,17 @@ class MarketplaceController {
 
   // Render lists
   renderEstablishments(filtered = null) {
+    this.renderFoodTypeFilterButtons();
+
     const list = filtered || this.establishments.filter(e => e.category === this.currentCategory && (e.location === this.currentLocation || !e.location));
     const grid = document.getElementById('establishments-grid');
     grid.innerHTML = '';
 
     let displayTitle = '';
     if (filtered) {
-      displayTitle = 'Resultados de la búsqueda';
+      displayTitle = window.activeFoodTypeFilter && window.activeFoodTypeFilter !== 'all'
+        ? `Restaurantes (${this.capitalize(window.activeFoodTypeFilter)})`
+        : 'Resultados de la búsqueda';
     } else {
       if (this.currentCategory === 'comidas') {
         displayTitle = 'Restaurantes';
@@ -319,7 +324,8 @@ class MarketplaceController {
         displayTitle = this.capitalize(this.currentCategory);
       }
     }
-    document.getElementById('establishments-title').innerText = displayTitle;
+    const titleEl = document.getElementById('establishments-title');
+    if (titleEl) titleEl.innerText = displayTitle;
 
     if (list.length === 0) {
       grid.innerHTML = `
@@ -372,6 +378,104 @@ class MarketplaceController {
       `;
       grid.appendChild(card);
     });
+  }
+
+  renderFoodTypeFilterButtons() {
+    const container = document.getElementById('food-type-filters-container');
+    if (!container) return;
+
+    if (this.currentCategory !== 'comidas') {
+      container.style.display = 'none';
+      return;
+    }
+
+    container.style.display = 'flex';
+    container.innerHTML = '';
+
+    const foodTypes = [
+      { id: 'all', name: '✨ Todos', icon: '🍽️' },
+      { id: 'hamburguesas', name: 'Hamburguesas', icon: '🍔' },
+      { id: 'pizzas', name: 'Pizzas', icon: '🍕' },
+      { id: 'arepas', name: 'Arepas / Cachapas', icon: '🫓' },
+      { id: 'perros', name: 'Perros Calientes', icon: '🌭' },
+      { id: 'pepitos', name: 'Pepitos / Baguettes', icon: '🥖' },
+      { id: 'bebidas', name: 'Bebidas / Merengadas', icon: '🥤' },
+      { id: 'postres', name: 'Postres / Dulces', icon: '🍰' }
+    ];
+
+    if (!window.activeFoodTypeFilter) {
+      window.activeFoodTypeFilter = 'all';
+    }
+
+    foodTypes.forEach(ft => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      const isActive = window.activeFoodTypeFilter === ft.id;
+      btn.className = `food-type-chip ${isActive ? 'active' : ''}`;
+      btn.style.cssText = `
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-size: 12.5px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        border: 1px solid ${isActive ? '#ff5e3a' : 'rgba(0,0,0,0.08)'};
+        background: ${isActive ? '#ff5e3a' : '#ffffff'};
+        color: ${isActive ? '#ffffff' : '#334155'};
+        box-shadow: ${isActive ? '0 4px 12px rgba(255, 94, 58, 0.3)' : '0 2px 4px rgba(0,0,0,0.04)'};
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+      `;
+      btn.innerHTML = `<span>${ft.icon}</span> <span>${ft.name}</span>`;
+      btn.onclick = (e) => {
+        e.preventDefault();
+        window.activeFoodTypeFilter = ft.id;
+        this.filterRestaurantsByFoodType(ft.id);
+      };
+      container.appendChild(btn);
+    });
+  }
+
+  filterRestaurantsByFoodType(foodTypeId) {
+    window.activeFoodTypeFilter = foodTypeId;
+    const allEsts = this.establishments.filter(e => e.category === 'comidas' && (e.location === this.currentLocation || !e.location));
+
+    if (!foodTypeId || foodTypeId === 'all') {
+      this.renderEstablishments(null);
+      return;
+    }
+
+    const term = foodTypeId.toLowerCase();
+    const filtered = allEsts.filter(est => {
+      const nameMatch = (est.name || '').toLowerCase().includes(term);
+      const descMatch = (est.description || '').toLowerCase().includes(term);
+      const productMatch = est.products && est.products.some(p => {
+        const pName = (p.name || '').toLowerCase();
+        const pCat = (p.category || p.category_id || '').toLowerCase();
+        const pDesc = (p.description || '').toLowerCase();
+        return pName.includes(term) || pCat.includes(term) || pDesc.includes(term);
+      });
+
+      let aliasMatch = false;
+      if (term === 'arepas' || term === 'cachapas') {
+        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/arepa|cachapa|queso|choclo/i) !== null;
+      } else if (term === 'perros') {
+        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/perro|hotdog|salchicha/i) !== null;
+      } else if (term === 'bebidas') {
+        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/bebida|jugo|batido|frappe|soda|malta|refresco/i) !== null;
+      } else if (term === 'postres') {
+        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/postre|dulce|torta|helado|marquesa/i) !== null;
+      } else if (term === 'pepitos') {
+        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/pepito|baguette|pan/i) !== null;
+      }
+
+      return nameMatch || descMatch || productMatch || aliasMatch;
+    });
+
+    this.renderEstablishments(filtered.length > 0 ? filtered : allEsts);
   }
 
   renderInternalCategories(est) {
