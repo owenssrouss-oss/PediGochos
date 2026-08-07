@@ -819,9 +819,9 @@ class AdminController {
           <h4 style="color: #ffffff; font-size: 11px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${prod.name}</h4>
           <p style="font-size: 10px; color: var(--text-muted); line-height: 1.2; margin: 4px 0 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${prod.description || 'Sin descripción.'}</p>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
-          <span style="color: var(--accent); font-weight: 700; font-size: 11px;">$${parseFloat(prod.price).toFixed(2)}</span>
-          <button onclick="event.stopPropagation(); deleteProductFromModal('${prod.id}')" style="background: rgba(239, 68, 68, 0.9); border: none; border-radius: 50%; color: #fff; width: 20px; height: 20px; font-size: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700;">✕</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 4px;">
+          <span style="color: var(--accent); font-weight: 700; font-size: 12px;">$${parseFloat(prod.price).toFixed(2)}</span>
+          <button type="button" onclick="event.stopPropagation(); event.preventDefault(); AdminApp.deleteProductFromModal('${prod.id}')" style="background: #EF4444; border: none; border-radius: 50%; color: #fff; width: 32px; height: 32px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 800; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4); transition: transform 0.1s; -webkit-tap-highlight-color: transparent;" title="Eliminar producto">✕</button>
         </div>
       `;
       grid.appendChild(card);
@@ -1002,12 +1002,23 @@ class AdminController {
   }
 
   async deleteProductFromModal(prodId) {
-    if (!confirm('¿Seguro que deseas eliminar este producto de la carta del local?')) return;
+    if (!prodId) return;
 
-    const est = this.establishments.find(e => e.id === window.activeShopIdForMenu);
+    const shopId = window.activeShopIdForMenu || this.activeShopId;
+    if (!shopId) {
+      alert('⚠️ No se ha seleccionado un establecimiento activo.');
+      return;
+    }
+
+    const est = this.establishments.find(e => String(e.id) === String(shopId));
     if (!est) return;
 
-    est.products = est.products.filter(p => p.id !== prodId);
+    const prod = (est.products || []).find(p => String(p.id) === String(prodId));
+    const prodName = prod ? prod.name : 'este producto';
+
+    if (!confirm(`¿Seguro que deseas eliminar "${prodName}" del menú de ${est.name}?`)) return;
+
+    est.products = (est.products || []).filter(p => String(p.id) !== String(prodId));
 
     try {
       const res = await fetch(`/api/establishments/${est.id}`, {
@@ -1020,12 +1031,18 @@ class AdminController {
       });
 
       if (res.ok) {
-        this.showToast('Producto eliminado del local.');
+        this.showToast(`🗑️ "${prodName}" eliminado del menú.`);
         this.loadModalProducts();
+        if (typeof this.renderImportCatalogTable === 'function') {
+          this.renderImportCatalogTable(this.globalProductsCache || []);
+        }
         await this.triggerCloudBackup();
+      } else {
+        alert('Error al guardar la eliminación del producto.');
       }
     } catch (err) {
       console.error(err);
+      alert('Error de conexión al eliminar el producto.');
     }
   }
 
