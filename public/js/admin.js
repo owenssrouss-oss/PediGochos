@@ -118,14 +118,17 @@ class AdminController {
   }
 
   async login(customPassword = null) {
-    const password = customPassword || document.getElementById('admin-pass').value.trim();
+    const password = (typeof customPassword === 'string' && customPassword)
+      ? customPassword
+      : (document.getElementById('admin-pass')?.value || '').trim();
+
     if (!password) {
-      alert('Introduce la contraseña.');
+      alert('⚠️ Por favor ingresa la clave de dueño.');
       return;
     }
 
     const errorMsg = document.getElementById('login-error');
-    errorMsg.classList.add('hidden');
+    if (errorMsg) errorMsg.classList.add('hidden');
 
     try {
       const response = await fetch('/api/owner/login', {
@@ -137,7 +140,7 @@ class AdminController {
       if (response.ok) {
         const data = await response.json();
         this.isAuthenticated = true;
-        this.establishments = data.establishments;
+        this.establishments = data.establishments || [];
 
         localStorage.setItem('is_platform_owner', 'true');
         localStorage.setItem('owner_password', password);
@@ -146,8 +149,11 @@ class AdminController {
         await this.loadOrders();
 
         // UI transitions
-        document.getElementById('login-gate').classList.add('hidden');
-        document.getElementById('admin-panel').classList.remove('hidden');
+        const gate = document.getElementById('login-gate');
+        if (gate) gate.classList.add('hidden');
+
+        const panel = document.getElementById('admin-panel');
+        if (panel) panel.classList.remove('hidden');
 
         // Render data
         this.renderTable();
@@ -157,14 +163,11 @@ class AdminController {
         const warningBanner = document.getElementById('backup-warning-banner');
         if (warningBanner) warningBanner.classList.remove('hidden');
       } else {
-        if (!customPassword) {
-          errorMsg.classList.remove('hidden');
-        } else {
-          this.logout();
-        }
+        if (errorMsg) errorMsg.classList.remove('hidden');
+        localStorage.removeItem('owner_password');
       }
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
       alert('Error de conexión al servidor.');
     }
   }

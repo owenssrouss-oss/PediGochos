@@ -37,7 +37,7 @@
           <input type="password" id="admin-pass" placeholder="Ingresa la clave de dueño" style="text-align: center; letter-spacing: 2px;">
         </div>
         
-        <button type="submit" class="btn-login" style="background-color: #334155;">Verificar e Ingresar</button>
+        <button type="submit" class="btn-login" onclick="event.preventDefault(); AdminApp.login()" style="background-color: #334155; cursor: pointer;">Verificar e Ingresar</button>
       </form>
       <p id="login-error" class="login-error-msg hidden">Contraseña incorrecta. Inténtalo de nuevo.</p>
     </div>
@@ -771,7 +771,7 @@
     </div>
   </div>
 
-  <script src="/js/admin.js?v=91"></script>
+  <script src="/js/admin.js?v=92"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
