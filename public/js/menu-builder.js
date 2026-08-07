@@ -63,39 +63,49 @@ class MenuBuilderService {
     });
   }
 
-  // Upload image to Supabase Storage bucket 'menu_images'
+  // Upload image to Supabase Storage bucket 'menu_images' (with Base64 fallback)
   async uploadProductImage(file) {
-    const hasClient = await this.init();
-    if (!hasClient) throw new Error('Supabase Client not ready');
+    if (!file) return '';
+    try {
+      const hasClient = await this.init();
+      if (hasClient && this.supabase && this.supabase.storage) {
+        // 1. Compress the file client-side
+        const compressedBlob = await this.compressImage(file);
 
-    // 1. Compress the file client-side
-    const compressedBlob = await this.compressImage(file);
+        // 2. Generate unique filename
+        const fileExt = (file.name || 'image.jpg').split('.').pop() || 'jpg';
+        const fileName = `prod_${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
+        const filePath = `uploads/${fileName}`;
 
-    // 2. Generate unique filename
-    const fileExt = file.name.split('.').pop() || 'jpg';
-    const fileName = `prod_${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
-    const filePath = `uploads/${fileName}`;
+        // 3. Upload to Supabase Storage Bucket
+        const { data, error } = await this.supabase.storage
+          .from('menu_images')
+          .upload(filePath, compressedBlob, {
+            contentType: 'image/jpeg',
+            cacheControl: '3600',
+            upsert: false
+          });
 
-    // 3. Upload to Supabase Storage Bucket
-    const { data, error } = await this.supabase.storage
-      .from('menu_images')
-      .upload(filePath, compressedBlob, {
-        contentType: 'image/jpeg',
-        cacheControl: '3600',
-        upsert: false
-      });
-
-    if (error) {
-      console.error('Supabase storage upload error:', error.message);
-      throw error;
+        if (!error && data) {
+          const { data: publicUrlData } = this.supabase.storage
+            .from('menu_images')
+            .getPublicUrl(filePath);
+          if (publicUrlData && publicUrlData.publicUrl) {
+            return publicUrlData.publicUrl;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Supabase storage upload failed, converting to local Base64:', err);
     }
 
-    // 4. Retrieve public URL
-    const { data: publicUrlData } = this.supabase.storage
-      .from('menu_images')
-      .getPublicUrl(filePath);
-
-    return publicUrlData.publicUrl;
+    // Fallback: Convert file to Base64 data URL so product save NEVER fails!
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result || '');
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    });
   }
 
   // ==========================================

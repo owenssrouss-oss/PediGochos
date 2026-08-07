@@ -771,7 +771,7 @@
     </div>
   </div>
 
-  <script src="/js/admin.js?v=88"></script>
+  <script src="/js/admin.js?v=89"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
@@ -1232,6 +1232,10 @@
       
       const submitBtn = e.target.querySelector('button[type="submit"]');
       let catSelect = document.getElementById('form-category').value;
+      if (!catSelect && window.activeCategoryId && window.activeCategoryId !== 'all') {
+        catSelect = window.activeCategoryId;
+      }
+      if (!catSelect) catSelect = 'General';
       const nameInput = document.getElementById('form-name').value;
       const descInput = document.getElementById('form-desc').value;
       
@@ -1388,11 +1392,12 @@
             }
         }
 
-        if (window.activeShopIdForMenu) {
+        if (window.activeShopIdForMenu || (typeof AdminApp !== 'undefined' && AdminApp.activeShopId)) {
           await AdminApp.importNewProductToActiveShop(newProduct);
         }
         
-        closeMenuModal();
+        if (typeof closeMenuModal === 'function') closeMenuModal();
+        if (typeof AdminApp !== 'undefined' && typeof AdminApp.closeMenuModal === 'function') AdminApp.closeMenuModal();
         showToast(`🎉 ¡${newProduct.name} agregado al menú con éxito!`);
         
       } catch (err) {

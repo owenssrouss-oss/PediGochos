@@ -1047,20 +1047,26 @@ class AdminController {
   }
 
   async importNewProductToActiveShop(newProduct) {
-    if (!window.activeShopIdForMenu) return;
-    const est = this.establishments.find(e => e.id === window.activeShopIdForMenu);
+    const shopId = window.activeShopIdForMenu || this.activeShopId;
+    if (!shopId) return;
+
+    const est = this.establishments.find(e => String(e.id) === String(shopId));
     if (!est) return;
 
     if (!est.products) est.products = [];
 
+    const rawPrice = parseFloat(newProduct.price) || 0;
+
     const newLocalProduct = {
       id: `p-${Date.now()}-${Math.floor(Math.random() * 100)}`,
       name: newProduct.name,
-      price: parseFloat(newProduct.price),
+      price: rawPrice,
       description: newProduct.description || '',
-      image: newProduct.image_url,
+      image: newProduct.image_url || newProduct.image || '',
+      category: newProduct.category || newProduct.category_id || '',
+      category_id: newProduct.category_id || '',
       modifiers: newProduct.modifiers,
-      exclusions: newProduct.exclusions ? newProduct.exclusions.map(name => ({ name })) : undefined
+      exclusions: newProduct.exclusions ? newProduct.exclusions.map(name => typeof name === 'string' ? { name } : name) : undefined
     };
 
     est.products.push(newLocalProduct);
@@ -1076,7 +1082,9 @@ class AdminController {
       });
       if (res.ok) {
         this.loadModalProducts();
-        this.loadModalImportCatalog();
+        if (typeof this.loadModalImportCatalog === 'function') {
+          this.loadModalImportCatalog();
+        }
         await this.triggerCloudBackup();
       }
     } catch (err) {
