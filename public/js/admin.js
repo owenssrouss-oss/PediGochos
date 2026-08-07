@@ -540,6 +540,51 @@ class AdminController {
     this.reloadData();
   }
 
+  openMenuModal() {
+    const shopId = window.activeShopIdForMenu || this.activeShopId;
+    if (!shopId) {
+      alert('⚠️ Selecciona primero un establecimiento de la lista para agregarle productos.');
+      return;
+    }
+    window.activeShopIdForMenu = shopId;
+
+    // Populate category dropdown inside create product modal
+    const select = document.getElementById('form-category');
+    if (select) {
+      select.innerHTML = '<option value="">-- Selecciona una categoría --</option>';
+      const cats = window.categoriesList || [];
+      if (cats.length > 0) {
+        cats.forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat.id || cat.slug;
+          opt.innerText = cat.name || cat;
+          select.appendChild(opt);
+        });
+      } else if (typeof MenuBuilder !== 'undefined') {
+        MenuBuilder.getCategories().then(c => {
+          window.categoriesList = c || [];
+          select.innerHTML = '<option value="">-- Selecciona una categoría --</option>';
+          window.categoriesList.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat.id || cat.slug;
+            opt.innerText = cat.name || cat;
+            select.appendChild(opt);
+          });
+        }).catch(err => console.error(err));
+      }
+    }
+
+    const modal = document.getElementById('product-modal');
+    if (modal) modal.classList.add('active');
+  }
+
+  closeMenuModal() {
+    const modal = document.getElementById('product-modal');
+    if (modal) modal.classList.remove('active');
+    const form = document.getElementById('product-form');
+    if (form) form.reset();
+  }
+
   setFloorTool(tool) {
     this.activeFloorTool = tool;
     

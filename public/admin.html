@@ -739,7 +739,7 @@
               <span style="font-size: 20px;">🍔</span>
               <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">Modificación del Menú del Restaurante</h3>
             </div>
-            <button class="btn-neumorphic" onclick="openMenuModal()" style="margin: 0; padding: 8px 16px; font-size: 12px; height: 36px; font-weight: 700;">
+            <button class="btn-neumorphic" onclick="AdminApp.openMenuModal()" style="margin: 0; padding: 8px 16px; font-size: 12px; height: 36px; font-weight: 700; cursor: pointer;">
               <span>➕ Nuevo Producto</span>
             </button>
           </div>
@@ -771,7 +771,7 @@
     </div>
   </div>
 
-  <script src="/js/admin.js?v=83"></script>
+  <script src="/js/admin.js?v=84"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
@@ -969,11 +969,12 @@
     }
 
     function openMenuModal() {
-      if (!window.activeShopIdForMenu) {
-        alert('⚠️ Selecciona primero un establecimiento de la lista para agregarle productos.');
-        return;
+      if (typeof AdminApp !== 'undefined' && typeof AdminApp.openMenuModal === 'function') {
+        AdminApp.openMenuModal();
+      } else {
+        const modal = document.getElementById('product-modal');
+        if (modal) modal.classList.add('active');
       }
-      document.getElementById('product-modal').classList.add('active');
     }
 
     async function resetBillingHistory() {
@@ -983,8 +984,14 @@
     }
 
     function closeMenuModal() {
-      document.getElementById('product-modal').classList.remove('active');
-      document.getElementById('product-form').reset();
+      if (typeof AdminApp !== 'undefined' && typeof AdminApp.closeMenuModal === 'function') {
+        AdminApp.closeMenuModal();
+      } else {
+        const modal = document.getElementById('product-modal');
+        if (modal) modal.classList.remove('active');
+        const form = document.getElementById('product-form');
+        if (form) form.reset();
+      }
     }
 
     async function promptCreateCategory() {
