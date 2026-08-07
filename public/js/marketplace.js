@@ -42,6 +42,13 @@ class MarketplaceController {
   }
 
   async init() {
+    const pendingAdminRedirect = localStorage.getItem('redirect_after_google_login');
+    if (pendingAdminRedirect === '/admin.html') {
+      localStorage.removeItem('redirect_after_google_login');
+      window.location.href = '/admin.html';
+      return;
+    }
+
     // Set initial history state
     window.history.replaceState({ view: 'home' }, '');
     window.addEventListener('popstate', (e) => this.handlePopState(e));

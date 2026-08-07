@@ -31,23 +31,27 @@ class SupabaseHelper {
   async loginWithGoogle(redirectToPage) {
     await this.init();
     if (!this.client) {
-      alert('Supabase no está configurado. Por favor, define SUPABASE_URL y SUPABASE_ANON_KEY en tu archivo .env');
+      alert('⚠️ Google OAuth requiere configurar SUPABASE_URL y SUPABASE_ANON_KEY en las variables de entorno de Render.');
       return;
     }
     
-    // Redirect back to the same page or specified page
-    const redirectUrl = window.location.origin + (redirectToPage || window.location.pathname);
+    // Redirect back to the specified page or admin.html
+    const redirectUrl = window.location.origin + (redirectToPage || '/admin.html');
     
     const { error } = await this.client.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: redirectUrl
+        redirectTo: redirectUrl,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'select_account'
+        }
       }
     });
 
     if (error) {
       console.error('Error logging in with Google:', error.message);
-      alert('Error de login: ' + error.message);
+      alert('Error de login con Google: ' + error.message);
     }
   }
 

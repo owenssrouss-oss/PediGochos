@@ -132,8 +132,26 @@ class AdminController {
   }
 
   async loginWithGoogle() {
-    if (typeof SupabaseApp === 'undefined') return;
-    await SupabaseApp.loginWithGoogle();
+    if (typeof SupabaseApp === 'undefined') {
+      alert('⚠️ El cliente de autenticación no está listo.');
+      return;
+    }
+    localStorage.setItem('redirect_after_google_login', '/admin.html');
+    
+    try {
+      await SupabaseApp.init();
+      if (!SupabaseApp.client) {
+        const autoPass = prompt('⚠️ Supabase Google OAuth no está configurado en las variables de entorno del servidor. Ingresa la Clave Maestra de Dueño:');
+        if (autoPass) {
+          await this.login(autoPass);
+        }
+        return;
+      }
+      await SupabaseApp.loginWithGoogle('/admin.html');
+    } catch (err) {
+      console.error(err);
+      alert('Error al conectar con Google OAuth: ' + (err.message || err));
+    }
   }
 
   async login(customPassword = null) {
