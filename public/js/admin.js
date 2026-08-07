@@ -535,9 +535,10 @@ class AdminController {
   }
 
   closeMenuTablesModal() {
-    document.getElementById('menu-tables-modal').classList.remove('active');
-    this.closeProductSpecsModal();
-    this.reloadData();
+    const modal = document.getElementById('menu-tables-modal');
+    if (modal) modal.classList.remove('active');
+    try { this.closeProductSpecsModal(); } catch(e) { console.error(e); }
+    try { this.reloadData(); } catch(e) { console.error(e); }
   }
 
   openMenuModal() {
