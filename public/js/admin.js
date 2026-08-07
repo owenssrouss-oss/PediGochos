@@ -262,7 +262,8 @@ class AdminController {
   viewShopMenu() {
     if (!this.activeShopId) return;
     this.closeEstActionModal();
-    window.open(window.location.origin + '/?shop=' + this.activeShopId, '_blank');
+    const url = '/?shop=' + this.activeShopId;
+    window.open(url, '_blank') || (window.location.href = url);
   }
 
   openEditShopModal() {
@@ -272,79 +273,93 @@ class AdminController {
 
     this.closeEstActionModal();
 
-    document.getElementById('edit-shop-id').value = est.id;
-    document.getElementById('edit-shop-name').value = est.name;
-    document.getElementById('edit-shop-description').value = est.description || '';
-    document.getElementById('edit-shop-location').value = est.location || 'San Antonio';
-    document.getElementById('edit-shop-delivery').value = est.delivery_fee || 0;
-    const bannerInput = document.getElementById('edit-shop-banner');
-    if (bannerInput) bannerInput.value = est.banner || '';
-    document.getElementById('edit-shop-theme').value = est.themeColor || '#FF5E3A';
+    // Show modal immediately
+    const modal = document.getElementById('edit-est-modal');
+    if (modal) modal.classList.add('active');
 
-    // Show preparation & delivery times only for comidas category
-    const timesGroup = document.getElementById('edit-shop-times-group');
-    const prepInput = document.getElementById('edit-shop-prep-time');
-    const deliveryTimeInput = document.getElementById('edit-shop-delivery-time');
+    try {
+      const idInp = document.getElementById('edit-shop-id');
+      if (idInp) idInp.value = est.id;
+      const nameInp = document.getElementById('edit-shop-name');
+      if (nameInp) nameInp.value = est.name;
+      const descInp = document.getElementById('edit-shop-description');
+      if (descInp) descInp.value = est.description || '';
+      const locInp = document.getElementById('edit-shop-location');
+      if (locInp) locInp.value = est.location || 'San Antonio';
+      const delInp = document.getElementById('edit-shop-delivery');
+      if (delInp) delInp.value = est.delivery_fee || 0;
+      const bannerInput = document.getElementById('edit-shop-banner');
+      if (bannerInput) bannerInput.value = est.banner || '';
+      const themeInp = document.getElementById('edit-shop-theme');
+      if (themeInp) themeInp.value = est.themeColor || '#FF5E3A';
 
-    if (est.category === 'comidas') {
-      timesGroup.classList.remove('hidden');
-      prepInput.value = est.prep_time || '';
-      deliveryTimeInput.value = est.delivery_time || '';
-    } else {
-      timesGroup.classList.add('hidden');
-      prepInput.value = '';
-      deliveryTimeInput.value = '';
-    }
+      // Show preparation & delivery times only for comidas category
+      const timesGroup = document.getElementById('edit-shop-times-group');
+      const prepInput = document.getElementById('edit-shop-prep-time');
+      const deliveryTimeInput = document.getElementById('edit-shop-delivery-time');
 
-    const select = document.getElementById('edit-shop-logo');
-    select.innerHTML = '';
-    const emojis = CATEGORY_EMOJIS[est.category] || ['🏪'];
-    emojis.forEach(emoji => {
-      const opt = document.createElement('option');
-      opt.value = emoji;
-      opt.innerText = `${emoji} Icono`;
-      if (emoji === est.logo) opt.selected = true;
-      select.appendChild(opt);
-    });
+      if (timesGroup && prepInput && deliveryTimeInput) {
+        if (est.category === 'comidas') {
+          timesGroup.classList.remove('hidden');
+          prepInput.value = est.prep_time || '';
+          deliveryTimeInput.value = est.delivery_time || '';
+        } else {
+          timesGroup.classList.add('hidden');
+          prepInput.value = '';
+          deliveryTimeInput.value = '';
+        }
+      }
 
-    // Populate global catalog dropdown for product imports
-    const importSelect = document.getElementById('import-product-select');
-    importSelect.innerHTML = `<option value="">Cargando catálogo...</option>`;
-    
-    if (typeof MenuBuilder !== 'undefined' && MenuBuilder.supabase) {
-      MenuBuilder.supabase
-        .from('products')
-        .select('*')
-        .order('name', { ascending: true })
-        .then(({ data, error }) => {
-          if (error) throw error;
-          this.globalProductsCache = data || [];
-          importSelect.innerHTML = `<option value="">-- Selecciona un producto --</option>`;
-          this.globalProductsCache.forEach(prod => {
-            const opt = document.createElement('option');
-            opt.value = prod.id;
-            opt.innerText = `${prod.name} ($${parseFloat(prod.price).toFixed(2)})`;
-            importSelect.appendChild(opt);
-          });
-        })
-        .catch(err => {
-          console.error(err);
-          importSelect.innerHTML = `<option value="">Error cargando catálogo</option>`;
+      const select = document.getElementById('edit-shop-logo');
+      if (select) {
+        select.innerHTML = '';
+        const emojis = CATEGORY_EMOJIS[est.category] || ['🏪'];
+        emojis.forEach(emoji => {
+          const opt = document.createElement('option');
+          opt.value = emoji;
+          opt.innerText = `${emoji} Icono`;
+          if (emoji === est.logo) opt.selected = true;
+          select.appendChild(opt);
         });
-    } else {
-      importSelect.innerHTML = `<option value="">Catálogo no disponible</option>`;
-    }
+      }
 
-    document.getElementById('edit-est-modal').classList.add('active');
+      // Populate global catalog dropdown for product imports if element exists
+      const importSelect = document.getElementById('import-product-select');
+      if (importSelect) {
+        importSelect.innerHTML = `<option value="">Cargando catálogo...</option>`;
+        if (typeof MenuBuilder !== 'undefined' && MenuBuilder.supabase) {
+          MenuBuilder.supabase
+            .from('products')
+            .select('*')
+            .order('name', { ascending: true })
+            .then(({ data, error }) => {
+              if (error) throw error;
+              this.globalProductsCache = data || [];
+              importSelect.innerHTML = `<option value="">-- Selecciona un producto --</option>`;
+              this.globalProductsCache.forEach(prod => {
+                const opt = document.createElement('option');
+                opt.value = prod.id;
+                opt.innerText = `${prod.name} ($${parseFloat(prod.price).toFixed(2)})`;
+                importSelect.appendChild(opt);
+              });
+            })
+            .catch(err => {
+              console.error(err);
+              importSelect.innerHTML = `<option value="">Error cargando catálogo</option>`;
+            });
+        } else {
+          importSelect.innerHTML = `<option value="">Catálogo no disponible</option>`;
+        }
+      }
 
-    // Also select this shop dynamically in the Menu Builder below
-    if (typeof window.activeShopIdForMenu !== 'undefined') {
       window.activeShopIdForMenu = est.id;
       const builderTitle = document.getElementById('menu-builder-shop-name');
       if (builderTitle) builderTitle.innerText = `🍔 Creador de Menú: ${est.name}`;
       if (typeof window.loadProducts === 'function') {
         window.loadProducts();
       }
+    } catch (err) {
+      console.error(err);
     }
   }
 

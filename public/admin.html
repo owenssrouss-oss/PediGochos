@@ -336,16 +336,16 @@
       </div>
       <p id="action-modal-shop-name" style="color: var(--accent); font-weight: 700; margin-bottom: 24px; font-size: 16px;"></p>
       <div style="display: flex; flex-direction: column; gap: 14px;">
-        <button class="btn-neumorphic" onclick="viewShopMenu()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700;">
+        <button class="btn-neumorphic" onclick="AdminApp.viewShopMenu()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; cursor: pointer;">
           🔍 Ver Menú en Marketplace
         </button>
-        <button class="btn-neumorphic" onclick="openEditShopModal()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700;">
+        <button class="btn-neumorphic" onclick="AdminApp.openEditShopModal()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; cursor: pointer;">
           ⚙️ Modificar Datos del Local
         </button>
-        <button class="btn-neumorphic" onclick="modifyMenuAndTables()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; background-color: var(--accent); color: #121216; border-color: var(--accent);">
+        <button class="btn-neumorphic" onclick="AdminApp.modifyMenuAndTables()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; background-color: var(--accent); color: #121216; border-color: var(--accent); cursor: pointer;">
           🍔 Modificar Menú y Mesas
         </button>
-        <button class="btn-neumorphic" onclick="resetBillingHistory()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; background-color: #FEF3C7; color: #92400E; border-color: #FCD34D;">
+        <button class="btn-neumorphic" onclick="AdminApp.resetBillingHistory()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; background-color: #FEF3C7; color: #92400E; border-color: #FCD34D; cursor: pointer;">
           🔄 Resetear Historial / Facturación (0424)
         </button>
       </div>
@@ -771,7 +771,7 @@
     </div>
   </div>
 
-  <script src="/js/admin.js?v=82"></script>
+  <script src="/js/admin.js?v=83"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
