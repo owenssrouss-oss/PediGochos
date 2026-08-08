@@ -63,8 +63,10 @@
     <section id="home-view" class="view active">
 
       <!-- Real-Time Active Order Tracking Card (Appears after placing an order) -->
-      <div id="active-order-tracking-card" class="active-order-tracking-card hidden" style="margin-bottom: 20px; background: linear-gradient(135deg, #1E293B, #0F172A); border: 1px solid rgba(255, 94, 58, 0.3); border-radius: 16px; padding: 16px; color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 12px;">
+      <div id="active-order-tracking-card" class="active-order-tracking-card hidden" style="margin-bottom: 20px; background: linear-gradient(135deg, #1E293B, #0F172A); border: 1px solid rgba(255, 94, 58, 0.3); border-radius: 16px; padding: 16px; color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.3); position: relative;">
+        <button type="button" onclick="MarketplaceApp.dismissActiveOrderTracking()" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.1); border: none; color: #cbd5e1; border-radius: 50%; width: 28px; height: 28px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;">✕</button>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 12px; padding-right: 32px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 20px;">📍</span>
             <h4 style="margin: 0; font-size: 15px; font-weight: 800; color: #fff;">Seguimiento de tu Pedido en Tiempo Real</h4>
@@ -79,6 +81,12 @@
         <!-- Mini Real-Time Tracking Map -->
         <div id="active-order-map-wrapper" style="width: 100%; height: 200px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #0f172a;">
           <div id="active-order-tracking-map" style="width: 100%; height: 100%;"></div>
+        </div>
+
+        <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
+          <button type="button" onclick="MarketplaceApp.dismissActiveOrderTracking()" style="background: rgba(255, 94, 58, 0.2); border: 1px solid var(--primary); color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            ✅ Marcar como Entregado / Cerrar
+          </button>
         </div>
       </div>
       
@@ -450,6 +458,6 @@
   <script src="/js/supabase-helper.js?v=81"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="/js/sound.js?v=81"></script>
-  <script src="/js/marketplace.js?v=95"></script>
+  <script src="/js/marketplace.js?v=102"></script>
 </body>
 </html>

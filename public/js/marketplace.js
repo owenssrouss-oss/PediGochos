@@ -161,7 +161,7 @@ class MarketplaceController {
   // Navigation
   selectCategory(category) {
     this.currentCategory = category;
-    window.activeFoodTypeFilter = 'all';
+    window.activeFoodTypeFilter = null; // Always reset filter so Food Categories Grid shows first for comidas
     
     // Update active class in categories tabs (DeliverCity style)
     document.querySelectorAll('.category-card-delivercity').forEach(card => {
@@ -172,6 +172,11 @@ class MarketplaceController {
       }
     });
 
+    this.renderEstablishments();
+  }
+
+  showFoodCategoriesGrid() {
+    window.activeFoodTypeFilter = null;
     this.renderEstablishments();
   }
 
@@ -311,28 +316,109 @@ class MarketplaceController {
     }
   }
 
+  renderFoodCategoriesGrid() {
+    const grid = document.getElementById('establishments-grid');
+    if (!grid) return;
+
+    const titleEl = document.getElementById('establishments-title');
+    if (titleEl) {
+      titleEl.innerHTML = `🍽️ Categorías de Comidas`;
+    }
+
+    const container = document.getElementById('food-type-filters-container');
+    if (container) container.style.display = 'none';
+
+    const foodCategories = [
+      { id: 'hamburguesas', name: 'Hamburguesas', icon: '🍔', desc: 'Doble carne, queso cheddar, pepinillos, salsas...', bg: 'linear-gradient(135deg, #FF5E3A 0%, #FF2A00 100%)' },
+      { id: 'pizzas', name: 'Pizzas', icon: '🍕', desc: 'Familiar, napolitana, pepperoni, queso derretido...', bg: 'linear-gradient(135deg, #EAB308 0%, #CA8A04 100%)' },
+      { id: 'arepas', name: 'Arepas & Cachapas', icon: '🫓', desc: 'Queso de mano, carne mechada, reina pepiada...', bg: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)' },
+      { id: 'perros', name: 'Perros Calientes', icon: '🌭', desc: 'Salsas especiales, papitas, queso rallado...', bg: 'linear-gradient(135deg, #EC4899 0%, #BE185D 100%)' },
+      { id: 'pepitos', name: 'Pepitos & Baguettes', icon: '🥖', desc: 'Mixtos, pollo gratinado, carne tierna...', bg: 'linear-gradient(135deg, #10B981 0%, #047857 100%)' },
+      { id: 'bebidas', name: 'Bebidas & Batidos', icon: '🥤', desc: 'Jugos naturales, maltas, sodas, merengadas...', bg: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)' },
+      { id: 'postres', name: 'Postres & Dulces', icon: '🍰', desc: 'Tortas, helados, marquesas, brownies...', bg: 'linear-gradient(135deg, #F43F5E 0%, #E11D48 100%)' },
+      { id: 'all', name: 'Todos los Restaurantes', icon: '⭐', desc: 'Explora el menú completo de todos los comercios', bg: 'linear-gradient(135deg, #475569 0%, #1E293B 100%)' }
+    ];
+
+    grid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; width: 100%;';
+    grid.innerHTML = '';
+
+    foodCategories.forEach(cat => {
+      const card = document.createElement('div');
+      card.className = 'food-cat-grid-card';
+      card.style.cssText = `
+        background: #1E293B;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 18px;
+        padding: 18px 14px;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+        position: relative;
+        overflow: hidden;
+      `;
+      card.onmouseenter = () => { card.style.transform = 'translateY(-4px)'; card.style.borderColor = 'var(--primary)'; };
+      card.onmouseleave = () => { card.style.transform = 'translateY(0)'; card.style.borderColor = 'rgba(255,255,255,0.08)'; };
+      card.onclick = () => this.filterRestaurantsByFoodType(cat.id);
+
+      card.innerHTML = `
+        <div style="width: 56px; height: 56px; border-radius: 16px; background: ${cat.bg}; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+          ${cat.icon}
+        </div>
+        <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: #ffffff;">${cat.name}</h4>
+        <p style="margin: 0; font-size: 11px; color: #94A3B8; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${cat.desc}</p>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
   // Render lists
-  renderEstablishments(filtered = null) {
+  renderEstablishments(filtered = null, isDirectFilter = false) {
+    const grid = document.getElementById('establishments-grid');
+    if (!grid) return;
+
+    // Check if we are in 'comidas' category and NO food type filter has been selected yet
+    if (this.currentCategory === 'comidas' && !window.activeFoodTypeFilter && !isDirectFilter && !filtered) {
+      this.renderFoodCategoriesGrid();
+      return;
+    }
+
+    grid.style.cssText = ''; // restore standard grid layout
     this.renderFoodTypeFilterButtons();
 
     const list = filtered || this.establishments.filter(e => e.category === this.currentCategory && (e.location === this.currentLocation || !e.location));
-    const grid = document.getElementById('establishments-grid');
     grid.innerHTML = '';
 
+    const categoryNames = {
+      'all': '✨ Todos los Restaurantes',
+      'hamburguesas': '🍔 Hamburguesas',
+      'pizzas': '🍕 Pizzas',
+      'arepas': '🫓 Arepas / Cachapas',
+      'perros': '🌭 Perros Calientes',
+      'pepitos': '🥖 Pepitos / Baguettes',
+      'bebidas': '🥤 Bebidas / Batidos',
+      'postres': '🍰 Postres / Dulces'
+    };
+
     let displayTitle = '';
-    if (filtered) {
-      displayTitle = window.activeFoodTypeFilter && window.activeFoodTypeFilter !== 'all'
-        ? `Restaurantes (${this.capitalize(window.activeFoodTypeFilter)})`
-        : 'Resultados de la búsqueda';
+    if (filtered || window.activeFoodTypeFilter) {
+      const activeLabel = categoryNames[window.activeFoodTypeFilter] || (window.activeFoodTypeFilter ? this.capitalize(window.activeFoodTypeFilter) : 'Resultados');
+      displayTitle = `
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 10px;">
+          <span>${activeLabel}</span>
+          <button type="button" onclick="MarketplaceApp.showFoodCategoriesGrid()" style="background: rgba(255, 94, 58, 0.15); color: var(--primary); border: 1px solid var(--primary); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+            ⬅️ Categorías
+          </button>
+        </div>
+      `;
     } else {
-      if (this.currentCategory === 'comidas') {
-        displayTitle = 'Restaurantes';
-      } else {
-        displayTitle = this.capitalize(this.currentCategory);
-      }
+      displayTitle = this.capitalize(this.currentCategory);
     }
     const titleEl = document.getElementById('establishments-title');
-    if (titleEl) titleEl.innerText = displayTitle;
+    if (titleEl) titleEl.innerHTML = displayTitle;
 
     if (list.length === 0) {
       grid.innerHTML = `
@@ -391,7 +477,7 @@ class MarketplaceController {
     const container = document.getElementById('food-type-filters-container');
     if (!container) return;
 
-    if (this.currentCategory !== 'comidas') {
+    if (this.currentCategory !== 'comidas' || !window.activeFoodTypeFilter) {
       container.style.display = 'none';
       return;
     }
@@ -409,10 +495,6 @@ class MarketplaceController {
       { id: 'bebidas', name: 'Bebidas / Merengadas', icon: '🥤' },
       { id: 'postres', name: 'Postres / Dulces', icon: '🍰' }
     ];
-
-    if (!window.activeFoodTypeFilter) {
-      window.activeFoodTypeFilter = 'all';
-    }
 
     foodTypes.forEach(ft => {
       const btn = document.createElement('button');
@@ -447,11 +529,16 @@ class MarketplaceController {
   }
 
   filterRestaurantsByFoodType(foodTypeId) {
+    if (!foodTypeId) {
+      this.showFoodCategoriesGrid();
+      return;
+    }
+
     window.activeFoodTypeFilter = foodTypeId;
     const allEsts = this.establishments.filter(e => e.category === 'comidas' && (e.location === this.currentLocation || !e.location));
 
-    if (!foodTypeId || foodTypeId === 'all') {
-      this.renderEstablishments(null);
+    if (foodTypeId === 'all') {
+      this.renderEstablishments(allEsts, true);
       return;
     }
 
@@ -482,7 +569,7 @@ class MarketplaceController {
       return nameMatch || descMatch || productMatch || aliasMatch;
     });
 
-    this.renderEstablishments(filtered.length > 0 ? filtered : allEsts);
+    this.renderEstablishments(filtered.length > 0 ? filtered : allEsts, true);
   }
 
   renderInternalCategories(est) {
@@ -2669,6 +2756,16 @@ class MarketplaceController {
     } catch (e) {
       console.warn('Could not load system settings:', e);
     }
+  }
+
+  dismissActiveOrderTracking() {
+    localStorage.removeItem('active_order_id');
+    if (this.trackingTimer) {
+      clearTimeout(this.trackingTimer);
+      this.trackingTimer = null;
+    }
+    const card = document.getElementById('active-order-tracking-card');
+    if (card) card.classList.add('hidden');
   }
 
   checkActiveOrderTracking() {
