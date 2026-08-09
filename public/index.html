@@ -249,8 +249,20 @@
 
         <!-- Mesa Form Fields -->
         <div class="form-group-dynamic hidden" id="group-mesa">
-          <label for="order-table-number">Número de Mesa <span class="required">*</span></label>
-          <input type="number" id="order-table-number" placeholder="Ej. 5" min="1">
+          <label style="font-weight: 800; font-size: 13.5px; color: var(--text-main); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <span>🪑 Selecciona tu Mesa en el Plano del Local <span class="required">*</span></span>
+          </label>
+
+          <!-- Visual Floor Plan Grid / Interactive Map -->
+          <div id="customer-table-layout-container" style="background: rgba(15, 23, 42, 0.95); border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-bottom: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.2);">
+            <!-- Rendered dynamically via JS -->
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px;">
+            <label for="order-table-number" style="font-size: 12.5px; font-weight: 800; white-space: nowrap; color: var(--text-main);">Nº de Mesa:</label>
+            <input type="number" id="order-table-number" placeholder="Ej. 5" min="1" style="flex: 1; padding: 8px 12px; border-radius: 8px; font-weight: 800; font-size: 14px;">
+          </div>
+          <div id="customer-selected-table-badge" style="font-size: 12px; font-weight: 800; color: #10B981; margin-top: 6px; display: none;"></div>
         </div>
 
         <!-- Delivery Form Fields -->
@@ -529,6 +541,6 @@
   <script src="/js/supabase-helper.js?v=81"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="/js/sound.js?v=81"></script>
-  <script src="/js/marketplace.js?v=105"></script>
+  <script src="/js/marketplace.js?v=106"></script>
 </body>
 </html>
