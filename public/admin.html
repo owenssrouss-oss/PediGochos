@@ -497,44 +497,40 @@
           <input type="number" id="form-price" step="0.01" min="0" required placeholder="Ej. 12.50" style="width: 100%;">
         </div>
 
-        <!-- Pizza Sizes -->
-        <div id="pizza-sizes-container" style="display: none; background: rgba(255, 193, 7, 0.05); padding: 12px; border-radius: 12px; border: 1px dashed rgba(255, 193, 7, 0.3); margin-bottom: 16px;">
-          <label style="color: #ffc107; margin-bottom: 8px; display: block;">🍕 Precios de la Pizza</label>
-          <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
-              <label for="form-pizza-small" style="font-size: 11px;">Pequeña ($)</label>
-              <input type="number" id="form-pizza-small" step="0.01" min="0" placeholder="Ej. 10" style="width: 100%;">
+        <!-- Universal Tamaños / Variaciones de Precio -->
+        <div class="form-group" style="background: rgba(59, 130, 246, 0.05); padding: 14px; border-radius: 14px; border: 1px dashed rgba(59, 130, 246, 0.3); margin-bottom: 16px;">
+          <label style="color: #60A5FA; font-weight: 800; font-size: 13.5px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+            📏 Tamaños / Variaciones de Precio (Opcional)
+          </label>
+          <p style="font-size: 11px; color: #94A3B8; margin: 0 0 10px 0;">Activa esto si tu producto viene en varios tamaños con precios distintos (ej. Pequeña, Mediana, Familiar o 1 Litro, 2 Litros).</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="form-size-1-name" placeholder="Ej. Pequeña / 1 Litro / Personal" style="flex: 2; font-size: 12px; padding: 7px 10px;">
+              <input type="number" id="form-size-1-price" step="0.01" min="0" placeholder="Precio ($ USD)" style="flex: 1; font-size: 12px; padding: 7px 10px;">
             </div>
-            <div style="flex: 1;">
-              <label for="form-pizza-medium" style="font-size: 11px;">Mediana ($)</label>
-              <input type="number" id="form-pizza-medium" step="0.01" min="0" placeholder="Ej. 15" style="width: 100%;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="form-size-2-name" placeholder="Ej. Mediana / 2 Litros / Doble" style="flex: 2; font-size: 12px; padding: 7px 10px;">
+              <input type="number" id="form-size-2-price" step="0.01" min="0" placeholder="Precio ($ USD)" style="flex: 1; font-size: 12px; padding: 7px 10px;">
             </div>
-            <div style="flex: 1;">
-              <label for="form-pizza-large" style="font-size: 11px;">Grande ($)</label>
-              <input type="number" id="form-pizza-large" step="0.01" min="0" placeholder="Ej. 20" style="width: 100%;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="form-size-3-name" placeholder="Ej. Grande / 3 Litros / Familiar" style="flex: 2; font-size: 12px; padding: 7px 10px;">
+              <input type="number" id="form-size-3-price" step="0.01" min="0" placeholder="Precio ($ USD)" style="flex: 1; font-size: 12px; padding: 7px 10px;">
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="form-size-4-name" placeholder="Ej. Extra Grande / Fiesta" style="flex: 2; font-size: 12px; padding: 7px 10px;">
+              <input type="number" id="form-size-4-price" step="0.01" min="0" placeholder="Precio ($ USD)" style="flex: 1; font-size: 12px; padding: 7px 10px;">
             </div>
           </div>
-          <p style="font-size: 10px; color: var(--text-muted); margin-top: 6px;">Nota: El Precio Base se ajustará automáticamente si llenas estos tamaños.</p>
         </div>
 
-        <!-- Drink/Liquid Sizes -->
-        <div id="drink-sizes-container" style="display: none; background: rgba(0, 184, 148, 0.05); padding: 12px; border-radius: 12px; border: 1px dashed rgba(0, 184, 148, 0.3); margin-bottom: 16px;">
-          <label style="color: #00b894; margin-bottom: 8px; display: block;">🥤 Precios de Bebidas / Líquidos por Tamaño</label>
-          <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
-              <label for="form-drink-peq" style="font-size: 11px;">Pequeño / 10oz ($)</label>
-              <input type="number" id="form-drink-peq" step="0.01" min="0" placeholder="Ej. 2.50" style="width: 100%;">
-            </div>
-            <div style="flex: 1;">
-              <label for="form-drink-med" style="font-size: 11px;">Mediano / 16oz ($)</label>
-              <input type="number" id="form-drink-med" step="0.01" min="0" placeholder="Ej. 3.50" style="width: 100%;">
-            </div>
-            <div style="flex: 1;">
-              <label for="form-drink-gde" style="font-size: 11px;">Grande / 32oz ($)</label>
-              <input type="number" id="form-drink-gde" step="0.01" min="0" placeholder="Ej. 5.00" style="width: 100%;">
-            </div>
-          </div>
-          <p style="font-size: 10px; color: var(--text-muted); margin-top: 6px;">Nota: El Precio Base se ajustará automáticamente si llenas estos tamaños.</p>
+        <!-- Universal Sabores / Variantes disponibles -->
+        <div class="form-group" style="background: rgba(236, 72, 153, 0.05); padding: 14px; border-radius: 14px; border: 1px dashed rgba(236, 72, 153, 0.3); margin-bottom: 16px;">
+          <label for="form-sabores" style="color: #F472B6; font-weight: 800; font-size: 13.5px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+            🍦 Sabores o Variantes disponibles (Elección del cliente)
+          </label>
+          <p style="font-size: 11px; color: #94A3B8; margin: 0 0 8px 0;">Escribe los sabores u opciones separados por coma para que el cliente elija al comprar.</p>
+          <input type="text" id="form-sabores" placeholder="Ej. Chocolate, Mantecado, Fresa, Parchita, Oreo, Choco-Chips" style="width: 100%; font-size: 12.5px;">
         </div>
 
         <!-- Image Upload -->
@@ -545,8 +541,8 @@
 
         <!-- Adicionales -->
         <div class="form-group">
-          <label for="form-adicionales">Adicionales</label>
-          <input type="text" id="form-adicionales" placeholder="Ej. Tocineta 2, Huevo 1" style="width: 100%;">
+          <label for="form-adicionales">Adicionales / Extras</label>
+          <input type="text" id="form-adicionales" placeholder="Ej. Tocineta 2, Huevo 1, Queso Extra 1.50" style="width: 100%;">
         </div>
 
         <!-- Submit Button -->
@@ -771,7 +767,7 @@
     </div>
   </div>
 
-  <script src="/js/admin.js?v=101"></script>
+  <script src="/js/admin.js?v=104"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
@@ -1094,7 +1090,6 @@
         const catSelect = document.getElementById('form-category');
         const nameLower = name.toLowerCase();
         
-        // Category mapping dictionary
         const categoryMapping = {
           'perro': 'hot-dogs-perros-calientes',
           'hot': 'hot-dogs-perros-calientes',
@@ -1141,7 +1136,6 @@
               foundCategory = true;
               break;
             }
-            // fallback: check if name contains any part of the category name
             const cleanOptText = optText.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim();
             if (cleanOptText.length > 2 && nameLower.includes(cleanOptText.split('/')[0].trim().split(' ')[0].toLowerCase())) {
               catSelect.selectedIndex = i;
@@ -1149,7 +1143,6 @@
               break;
             }
             
-            // fallback: first word
             const firstWord = name.split(' ')[0].toLowerCase();
             if (optText.includes(firstWord)) {
               catSelect.selectedIndex = i;
@@ -1172,60 +1165,45 @@
       if (desc) document.getElementById('form-desc').value = desc;
       if (price) document.getElementById('form-price').value = price;
 
-      let extrasText = [];
-      if (desc) {
-        const ingredients = desc.split(/,| y | e /i).map(i => i.trim().replace(/\.$/, '')).filter(i => i.length > 2);
-        extrasText.push(...ingredients);
-      }
-
-      const addMatch = text.match(/adicionales?:?\s*(.+)/i);
-      let addStr = '';
-      if (addMatch) {
-        addStr = addMatch[1];
-      } else if (parts.length >= 4) {
-        addStr = parts[parts.length - 1];
-      }
-
-      if (addStr) {
-        const addParts = addStr.split(',').map(s => s.trim());
-        const filteredAddParts = addParts.filter(s => {
-          const lower = s.toLowerCase();
-          if (lower.match(/^(pequeña|personal|mediana|grande)\s*\d+(?:\.\d+)?$/)) return false;
-          return true;
-        });
-        extrasText.push(...filteredAddParts);
-      }
-      
-      const formAdicionales = document.getElementById('form-adicionales');
-      if (formAdicionales) {
-        formAdicionales.value = extrasText.join(', ');
-      }
-
-      const pizzaContainer = document.getElementById('pizza-sizes-container');
-      if (pizzaContainer && pizzaContainer.style.display === 'block') {
-        const sizesPart = parts.find(p => p.toLowerCase().includes('pequeña') || p.toLowerCase().includes('personal') || p.toLowerCase().includes('mediana'));
-        if (sizesPart) {
-          const sizesArr = sizesPart.split(',');
-          sizesArr.forEach(s => {
-            const sLower = s.toLowerCase();
-            const valMatch = s.match(/\d+(?:\.\d+)?$/);
-            if (valMatch) {
-              const pVal = valMatch[0];
-              if (sLower.includes('pequeña') || sLower.includes('personal')) {
-                const input = document.getElementById('form-pizza-small');
-                if (input) input.value = pVal;
-              } else if (sLower.includes('mediana')) {
-                const input = document.getElementById('form-pizza-medium');
-                if (input) input.value = pVal;
-              } else if (sLower.includes('grande')) {
-                const input = document.getElementById('form-pizza-large');
-                if (input) input.value = pVal;
-              }
+      // Extract sizes / variaciones if present in text
+      const sizesMatch = text.match(/tamaños?:?\s*(.+?)(?:-|$|\n)/i) || text.match(/variaciones?:?\s*(.+?)(?:-|$|\n)/i);
+      if (sizesMatch) {
+        const sizesStr = sizesMatch[1];
+        const sizeItems = sizesStr.split(/,|\//).map(s => s.trim());
+        sizeItems.forEach((item, idx) => {
+          if (idx < 4) {
+            const priceMatch = item.match(/\d+(?:\.\d+)?$/);
+            let sPrice = '';
+            let sName = item;
+            if (priceMatch) {
+              sPrice = priceMatch[0];
+              sName = item.replace(/\d+(?:\.\d+)?$/, '').trim();
             }
-          });
-        }
+            const nameElem = document.getElementById(`form-size-${idx+1}-name`);
+            const priceElem = document.getElementById(`form-size-${idx+1}-price`);
+            if (nameElem) nameElem.value = sName;
+            if (priceElem) priceElem.value = sPrice;
+          }
+        });
       }
-      AdminApp.showToast('✨ Formulario autocompletado');
+
+      // Extract sabores if present in text
+      const flavorsMatch = text.match(/sabores?:?\s*(.+?)(?:-|$|\n)/i) || text.match(/variantes?:?\s*(.+?)(?:-|$|\n)/i);
+      if (flavorsMatch) {
+        const saboresElem = document.getElementById('form-sabores');
+        if (saboresElem) saboresElem.value = flavorsMatch[1].trim();
+      }
+
+      // Extract adicionales
+      const addMatch = text.match(/adicionales?:?\s*(.+?)(?:-|$|\n)/i) || text.match(/extras?:?\s*(.+?)(?:-|$|\n)/i);
+      if (addMatch) {
+        const formAdicionales = document.getElementById('form-adicionales');
+        if (formAdicionales) formAdicionales.value = addMatch[1].trim();
+      }
+
+      if (typeof AdminApp !== 'undefined' && typeof AdminApp.showToast === 'function') {
+        AdminApp.showToast('✨ Formulario autocompletado');
+      }
     }
 
     async function handleProductSubmit(e) {
@@ -1252,25 +1230,29 @@
 
         if (!nameInput) {
           alert('⚠️ Por favor ingresa el nombre del producto.');
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('heartbeat-pulse');
+            submitBtn.innerHTML = `<span>Guardar Producto</span>`;
+          }
           return;
         }
 
-        const isPizza = document.getElementById('pizza-sizes-container')?.style.display === 'block';
-        const isDrink = document.getElementById('drink-sizes-container')?.style.display === 'block';
-
-        const pizzaSmall = document.getElementById('form-pizza-small')?.value;
-        const drinkPeq = document.getElementById('form-drink-peq')?.value;
-        const drinkMed = document.getElementById('form-drink-med')?.value;
-        const drinkGde = document.getElementById('form-drink-gde')?.value;
+        // Gather Size inputs
+        const sizeSlots = [
+          { name: document.getElementById('form-size-1-name')?.value?.trim(), price: document.getElementById('form-size-1-price')?.value?.trim() },
+          { name: document.getElementById('form-size-2-name')?.value?.trim(), price: document.getElementById('form-size-2-price')?.value?.trim() },
+          { name: document.getElementById('form-size-3-name')?.value?.trim(), price: document.getElementById('form-size-3-price')?.value?.trim() },
+          { name: document.getElementById('form-size-4-name')?.value?.trim(), price: document.getElementById('form-size-4-price')?.value?.trim() }
+        ].filter(s => s.name && s.name !== '');
 
         let priceInput = document.getElementById('form-price')?.value;
-        if (isPizza && pizzaSmall) {
-          priceInput = pizzaSmall;
-        } else if (isDrink && drinkPeq) {
-          priceInput = drinkPeq;
+        if (sizeSlots.length > 0 && (!priceInput || parseFloat(priceInput) === 0)) {
+          priceInput = sizeSlots[0].price || '0';
         }
 
-        const extrasInput = document.getElementById('form-adicionales') ? document.getElementById('form-adicionales').value : '';
+        const saboresInput = document.getElementById('form-sabores')?.value?.trim();
+        const extrasInput = document.getElementById('form-adicionales')?.value?.trim();
         const fileInput = document.getElementById('form-image')?.files?.[0];
 
         if (catSelect === 'new') {
@@ -1322,25 +1304,43 @@
         }
 
         let modifiers = [];
-        const pizzaMedium = document.getElementById('form-pizza-medium')?.value;
-        const pizzaLarge = document.getElementById('form-pizza-large')?.value;
 
-        if (isPizza && (pizzaSmall || pizzaMedium || pizzaLarge)) {
-          const smallPriceNum = parseFloat(pizzaSmall) || 0;
-          const options = [];
-          if (pizzaSmall) options.push({ id: 'opt-' + Date.now() + 1, name: 'Pequeña', extra_price: 0, option_id: 'opt-' + Date.now() + 1 });
-          if (pizzaMedium) {
-            const mPrice = parseFloat(pizzaMedium);
-            options.push({ id: 'opt-' + Date.now() + 2, name: 'Mediana', extra_price: mPrice - smallPriceNum, option_id: 'opt-' + Date.now() + 2 });
-          }
-          if (pizzaLarge) {
-            const lPrice = parseFloat(pizzaLarge);
-            options.push({ id: 'opt-' + Date.now() + 3, name: 'Grande', extra_price: lPrice - smallPriceNum, option_id: 'opt-' + Date.now() + 3 });
-          }
-          if (options.length > 0) {
+        // Build Tamaño Modifier Group if size slots were entered
+        if (sizeSlots.length > 0) {
+          const basePriceNum = parseFloat(priceInput) || 0;
+          const options = sizeSlots.map((sz, idx) => {
+            const szPriceNum = parseFloat(sz.price) || 0;
+            return {
+              id: 'opt-sz-' + Date.now() + '-' + idx,
+              name: sz.name,
+              extra_price: idx === 0 ? 0 : Math.max(0, szPriceNum - basePriceNum),
+              option_id: 'opt-sz-' + Date.now() + '-' + idx
+            };
+          });
+
+          modifiers.push({
+            group_id: 'g-tamanos-' + Date.now(),
+            group_name: 'Tamaño',
+            selection_type: 'single',
+            required: true,
+            options: options
+          });
+        }
+
+        // Build Sabor / Elección Modifier Group if sabores were entered
+        if (saboresInput && saboresInput !== '') {
+          const flavorItems = saboresInput.split(/,|\//).map(s => s.trim()).filter(s => s.length > 0);
+          if (flavorItems.length > 0) {
+            const options = flavorItems.map((flv, idx) => ({
+              id: 'opt-flv-' + Date.now() + '-' + idx,
+              name: flv,
+              extra_price: 0,
+              option_id: 'opt-flv-' + Date.now() + '-' + idx
+            }));
+
             modifiers.push({
-              group_id: 'g-tamanos-' + Date.now(),
-              group_name: 'Tamaño',
+              group_id: 'g-sabores-' + Date.now(),
+              group_name: 'Sabor / Elección',
               selection_type: 'single',
               required: true,
               options: options
@@ -1348,42 +1348,17 @@
           }
         }
 
-        if (isDrink && (drinkPeq || drinkMed || drinkGde)) {
-          const peqPriceNum = parseFloat(drinkPeq) || 0;
-          const options = [];
-          if (drinkPeq) options.push({ id: 'opt-drk-' + Date.now() + 1, name: 'Pequeño / 10oz', extra_price: 0, option_id: 'opt-drk-' + Date.now() + 1 });
-          if (drinkMed) {
-            const mPrice = parseFloat(drinkMed);
-            options.push({ id: 'opt-drk-' + Date.now() + 2, name: 'Mediano / 16oz', extra_price: mPrice - peqPriceNum, option_id: 'opt-drk-' + Date.now() + 2 });
-          }
-          if (drinkGde) {
-            const gPrice = parseFloat(drinkGde);
-            options.push({ id: 'opt-drk-' + Date.now() + 3, name: 'Grande / 32oz', extra_price: gPrice - peqPriceNum, option_id: 'opt-drk-' + Date.now() + 3 });
-          }
-          if (options.length > 0) {
-            modifiers.push({
-              group_id: 'g-tamanos-drk-' + Date.now(),
-              group_name: 'Tamaño',
-              selection_type: 'single',
-              required: true,
-              options: options
-            });
-          }
-        }
-
-        if (extrasInput && extrasInput.trim() !== '') {
-          const options = extrasInput.split(',').map(ext => {
-            const extParts = ext.trim().split(' ');
-            let price = parseFloat(extParts.pop());
-            if (isNaN(price)) price = 0;
-            const priceMatch2 = ext.match(/\d+(?:\.\d+)?$/);
+        // Build Adicionales Modifier Group if extras were entered
+        if (extrasInput && extrasInput !== '') {
+          const options = extrasInput.split(',').map((ext, idx) => {
+            const priceMatch = ext.match(/\d+(?:\.\d+)?$/);
             let val = 0;
             let name = ext.trim();
-            if (priceMatch2) {
-              val = parseFloat(priceMatch2[0]);
+            if (priceMatch) {
+              val = parseFloat(priceMatch[0]);
               name = ext.replace(/\d+(?:\.\d+)?$/, '').trim();
             }
-            return { id: 'opt-' + Date.now() + Math.random(), name: name, extra_price: val, option_id: 'opt-' + Date.now() + Math.random() };
+            return { id: 'opt-ext-' + Date.now() + '-' + idx, name: name, extra_price: val, option_id: 'opt-ext-' + Date.now() + '-' + idx };
           }).filter(opt => opt.name !== '');
 
           if (options.length > 0) {
@@ -1396,6 +1371,7 @@
             });
           }
         }
+
         newProduct.modifiers = modifiers.length > 0 ? modifiers : undefined;
 
         if (descInput && descInput.trim() !== '') {
