@@ -42,6 +42,7 @@ class MarketplaceController {
 
     this.activeCoupon = null;
     this.gochoPoints = parseInt(localStorage.getItem('gocho_points') || '0', 10);
+    this.currentCategory = null; // Default to no category selected on home entry
   }
 
   async init() {
@@ -50,6 +51,11 @@ class MarketplaceController {
       localStorage.removeItem('redirect_after_google_login');
       window.location.href = '/admin.html';
       return;
+    }
+
+    // Always reset URL query parameters so user enters clean Home view
+    if (window.location.search || window.location.hash) {
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
 
     // Set initial history state
@@ -64,22 +70,21 @@ class MarketplaceController {
     const display = document.getElementById('active-location-display');
     if (display) display.innerText = this.currentLocation;
 
-    this.selectCategory('comidas');
+    this.currentCategory = null;
+    window.activeFoodTypeFilter = null;
+    
+    // Remove active class from main category cards on entry
+    document.querySelectorAll('.category-card-delivercity').forEach(card => {
+      card.classList.remove('active');
+    });
+
+    this.renderEstablishments();
     this.updateCartBadge();
     await this.checkSupabaseSession();
     this.checkActiveOrderTracking();
     this.updateGochoPointsDisplay();
     this.initPushNotifications();
     this.initOfflineSync();
-
-    // Check if query parameter ?shop=... is provided and auto-open establishment
-    const urlParams = new URLSearchParams(window.location.search);
-    const shopId = urlParams.get('shop');
-    if (shopId) {
-      setTimeout(() => {
-        this.openEstablishment(shopId);
-      }, 500);
-    }
 
     // Show location selector tutorial if visiting for the first time
     if (!localStorage.getItem('location_tutorial_seen')) {
@@ -188,8 +193,21 @@ class MarketplaceController {
 
   goHome(pushState = true) {
     this.selectedEstablishment = null;
+    this.currentCategory = null;
+    window.activeFoodTypeFilter = null;
+
+    // Reset URL query parameters (clear ?shop=... or #...)
+    if (window.location.search || window.location.hash) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     document.getElementById('establishment-view').classList.remove('active');
     document.getElementById('home-view').classList.add('active');
+
+    // Remove active state from main category cards
+    document.querySelectorAll('.category-card-delivercity').forEach(card => {
+      card.classList.remove('active');
+    });
     
     // Reset global theme to default
     document.documentElement.style.setProperty('--primary', '#FF5E3A');
@@ -425,6 +443,31 @@ class MarketplaceController {
   renderEstablishments(filtered = null, isDirectFilter = false) {
     const grid = document.getElementById('establishments-grid');
     if (!grid) return;
+
+    const viewAllBtn = document.querySelector('.btn-view-all');
+
+    // If no category is selected (initial home state)
+    if (!this.currentCategory && !filtered && !isDirectFilter) {
+      const titleEl = document.getElementById('establishments-title');
+      if (titleEl) titleEl.innerText = '👇 Selecciona una Categoría arriba para explorar';
+      const container = document.getElementById('food-type-filters-container');
+      if (container) container.style.display = 'none';
+      if (viewAllBtn) viewAllBtn.style.display = 'none';
+
+      grid.style.cssText = 'display: block; width: 100%;';
+      grid.innerHTML = `
+        <div class="cart-empty-state" style="grid-column: 1 / -1; padding: 36px 20px; text-align: center; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1); border-radius: 20px;">
+          <span style="font-size: 42px; display: block; margin-bottom: 10px;">👆</span>
+          <h3 style="font-size: 16px; font-weight: 800; color: #ffffff; margin: 0 0 6px 0;">¡Bienvenido a Rapi Gochos!</h3>
+          <p style="font-size: 13px; color: #94A3B8; margin: 0; line-height: 1.4;">Presiona una de las categorías arriba (<strong>Restaurantes, Farmacias, Mercados o Ferreterías</strong>) para ver los comercios disponibles.</p>
+        </div>
+      `;
+      return;
+    }
+
+    if (viewAllBtn) {
+      viewAllBtn.style.display = (this.currentCategory === 'comidas') ? 'inline-flex' : 'none';
+    }
 
     // Check if we are in 'comidas' category and NO food type filter has been selected yet
     if (this.currentCategory === 'comidas' && !window.activeFoodTypeFilter && !isDirectFilter && !filtered) {
