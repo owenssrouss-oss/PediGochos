@@ -1,11 +1,17 @@
-// Service worker to make Cocina Rapi Gochos KDS PWA Installable
-const CACHE_NAME = 'pedigochos-v104';
+// Service worker to make Rapi Gochos PWA Offline-First & Push Enabled
+const CACHE_NAME = 'pedigochos-v105';
 const ASSETS = [
+  '/',
+  '/index.html',
+  '/admin.html',
   '/kitchen.html',
   '/css/common.css',
   '/css/kitchen.css',
   '/js/sound.js',
   '/js/kitchen.js',
+  '/js/marketplace.js',
+  '/js/admin.js',
+  '/js/supabase-helper.js',
   '/manifest.json'
 ];
 
@@ -13,7 +19,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
+      return cache.addAll(ASSETS).catch(err => console.warn('Cache addAll partial fail:', err));
     })
   );
 });
@@ -53,7 +59,51 @@ self.addEventListener('fetch', (event) => {
         return response;
       })
       .catch(() => {
-        return caches.match(event.request);
+        return caches.match(event.request).then(res => res || caches.match('/index.html'));
       })
+  );
+});
+
+// Web Push Notification Listener
+self.addEventListener('push', (event) => {
+  let data = { title: 'RapiGochos 🛵', body: '¡Tienes una nueva actualización de tu pedido!', icon: '/images/burger_royale.jpg' };
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch(e) {
+      data.body = event.data.text();
+    }
+  }
+
+  const options = {
+    body: data.body,
+    icon: data.icon || '/images/burger_royale.jpg',
+    badge: '/images/burger_royale.jpg',
+    vibrate: [200, 100, 200],
+    data: { url: data.url || '/' },
+    actions: [
+      { action: 'open', title: 'Ver Pedido 📱' }
+    ]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+// Notification Click Handler
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes('/') && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(event.notification.data.url || '/');
+      }
+    })
   );
 });

@@ -39,6 +39,9 @@ class MarketplaceController {
       'Ureña': [7.9221, -72.4419],
       'San Cristóbal': [7.7667, -72.2292]
     };
+
+    this.activeCoupon = null;
+    this.gochoPoints = parseInt(localStorage.getItem('gocho_points') || '0', 10);
   }
 
   async init() {
@@ -65,6 +68,9 @@ class MarketplaceController {
     this.updateCartBadge();
     await this.checkSupabaseSession();
     this.checkActiveOrderTracking();
+    this.updateGochoPointsDisplay();
+    this.initPushNotifications();
+    this.initOfflineSync();
 
     // Check if query parameter ?shop=... is provided and auto-open establishment
     const urlParams = new URLSearchParams(window.location.search);
@@ -2121,14 +2127,36 @@ class MarketplaceController {
     }
 
     const subtotal = this.cart.items.reduce((sum, item) => sum + this.normalizeCopPrice(item.subtotal_combined), 0);
-    const total = subtotal + totalDeliveryFee;
+    
+    let discountAmount = 0;
+    if (this.activeCoupon) {
+      if (this.activeCoupon.type === 'delivery') {
+        discountAmount = totalDeliveryFee;
+      } else if (this.activeCoupon.type === 'fixed') {
+        const usdRate = (window.systemSettings && window.systemSettings.cop_rate) ? window.systemSettings.cop_rate : 4000;
+        discountAmount = this.activeCoupon.amount * usdRate;
+      } else if (this.activeCoupon.type === 'percent') {
+        discountAmount = Math.round(subtotal * (this.activeCoupon.amount / 100));
+      }
+    }
+    discountAmount = Math.min(discountAmount, subtotal + totalDeliveryFee);
+    const grandTotal = Math.max(0, subtotal + totalDeliveryFee - discountAmount);
 
     document.getElementById('cart-subtotal').innerText = this.formatPesos(subtotal);
     
     const deliveryCostSpan = document.getElementById('cart-delivery-cost');
     deliveryCostSpan.innerText = this.formatPesos(totalDeliveryFee);
+
+    const discountRow = document.getElementById('cart-discount-row');
+    const discountVal = document.getElementById('cart-discount-val');
+    if (discountAmount > 0) {
+      if (discountRow) discountRow.classList.remove('hidden');
+      if (discountVal) discountVal.innerText = `-${this.formatPesos(discountAmount)}`;
+    } else {
+      if (discountRow) discountRow.classList.add('hidden');
+    }
     
-    document.getElementById('cart-grand-total').innerText = this.formatPesos(total);
+    document.getElementById('cart-grand-total').innerText = this.formatPesos(grandTotal);
     
     const deliveryRow = document.querySelector('.delivery-cost-row');
     if (this.orderType === 'delivery') {
@@ -2310,9 +2338,44 @@ class MarketplaceController {
         return createdOrder;
       });
 
+      // Check if Offline
+      if (!navigator.onLine) {
+        const rawQueue = localStorage.getItem('pending_offline_orders') || '[]';
+        const queue = JSON.parse(rawQueue);
+        shopIds.forEach(shopId => {
+          const shop = groupedItems[shopId];
+          const randomCode = Math.floor(100 + Math.random() * 900);
+          queue.push({
+            id: 'ord-off-' + Date.now() + Math.floor(Math.random() * 1000),
+            establishmentId: shop.id,
+            establishmentName: shop.name,
+            items: shop.items,
+            total: shop.items.reduce((sum, item) => sum + this.normalizeCopPrice(item.subtotal_combined), 0),
+            orderType: this.orderType,
+            customerName,
+            tableNumber,
+            deliveryDetails: { phone, address, code: randomCode }
+          });
+        });
+        localStorage.setItem('pending_offline_orders', JSON.stringify(queue));
+        this.addGochoPoints(25);
+        this.showToast('📴 Pedido guardado sin conexión. Se enviará automáticamente al reconectar.');
+        this.clearCart();
+        this.closeCartModal();
+        this.goHome();
+        return;
+      }
+
       await Promise.all(promises);
 
-      this.showToast('🔔 ¡Pedido enviado en tiempo real a cocina!');
+      // Award GochoPoints (10 pts per $1 spent)
+      const cartSubtotalCop = this.cart.items.reduce((sum, item) => sum + this.normalizeCopPrice(item.subtotal_combined), 0);
+      const estUsd = Math.max(1, Math.round(cartSubtotalCop / 4000));
+      const earnedPts = estUsd * 10;
+      this.addGochoPoints(earnedPts);
+
+      this.sendPushNotification('¡Pedido Enviado! 🚀', `Tu pedido en ${shopIds.length} comercio(s) fue recibido. ¡Ganaste +${earnedPts} GochoPoints! ⭐`);
+      this.showToast(`🔔 ¡Pedido enviado en tiempo real! ⭐ Ganaste +${earnedPts} GochoPoints`);
       this.clearCart();
       this.closeCartModal();
       
@@ -2995,6 +3058,155 @@ class MarketplaceController {
     // Fit bounds
     const bounds = L.latLngBounds([estCoords, custCoords]);
     this.trackingMap.fitBounds(bounds, { padding: [30, 30] });
+  }
+
+  // GochoPoints & Coupon Methods
+  updateGochoPointsDisplay() {
+    const valSpan = document.getElementById('header-gochopoints-val');
+    if (valSpan) valSpan.innerText = this.gochoPoints;
+    const modalSpan = document.getElementById('modal-gochopoints-total');
+    if (modalSpan) modalSpan.innerText = `${this.gochoPoints} Pts`;
+  }
+
+  openGochoPointsModal() {
+    this.updateGochoPointsDisplay();
+    const modal = document.getElementById('gochopoints-modal');
+    if (modal) modal.classList.add('active');
+  }
+
+  closeGochoPointsModal() {
+    const modal = document.getElementById('gochopoints-modal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  addGochoPoints(amount) {
+    this.gochoPoints += amount;
+    localStorage.setItem('gocho_points', this.gochoPoints.toString());
+    this.updateGochoPointsDisplay();
+  }
+
+  redeemReward(couponCode, pointsCost) {
+    if (this.gochoPoints < pointsCost) {
+      alert(`⚠️ Necesitas ${pointsCost} Pts para canjear esta recompensa. Tu saldo actual es de ${this.gochoPoints} Pts.`);
+      return;
+    }
+    this.gochoPoints -= pointsCost;
+    localStorage.setItem('gocho_points', this.gochoPoints.toString());
+    this.updateGochoPointsDisplay();
+    this.closeGochoPointsModal();
+    
+    // Apply coupon
+    const couponInput = document.getElementById('checkout-coupon-input');
+    if (couponInput) couponInput.value = couponCode;
+    this.applyCouponCode();
+    this.showToast(`🎉 ¡Canjeaste tu recompensa con éxito! Se aplicó el código ${couponCode}.`);
+  }
+
+  applyCouponCode() {
+    const input = document.getElementById('checkout-coupon-input');
+    const msg = document.getElementById('checkout-coupon-msg');
+    if (!input || !input.value.trim()) return;
+
+    const code = input.value.trim().toUpperCase();
+    if (code === 'GOCHO10') {
+      this.activeCoupon = { code: 'GOCHO10', type: 'fixed', amount: 2.00 };
+      if (msg) { msg.style.color = '#10B981'; msg.innerText = '✅ ¡Cupón GOCHO10 aplicado! ($2.00 USD de descuento)'; }
+    } else if (code === 'ENVIOGRATIS') {
+      this.activeCoupon = { code: 'ENVIOGRATIS', type: 'delivery', amount: 0 };
+      if (msg) { msg.style.color = '#10B981'; msg.innerText = '✅ ¡Cupón ENVIOGRATIS aplicado! (Costo de envío $0.00)'; }
+    } else if (code === 'GOCHOVIP') {
+      this.activeCoupon = { code: 'GOCHOVIP', type: 'percent', amount: 15 };
+      if (msg) { msg.style.color = '#10B981'; msg.innerText = '✅ ¡Cupón GOCHOVIP aplicado! (15% de descuento en tu orden)'; }
+    } else {
+      this.activeCoupon = null;
+      if (msg) { msg.style.color = '#EF4444'; msg.innerText = '❌ Código de cupón inválido o expirado.'; }
+    }
+    this.renderCartItems();
+  }
+
+  // Web Push Notifications
+  async initPushNotifications() {
+    if ('Notification' in window && 'serviceWorker' in navigator) {
+      if (Notification.permission === 'default') {
+        setTimeout(() => {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              console.log('🔔 Web Push notification permission GRANTED');
+            }
+          });
+        }, 3000);
+      }
+    }
+  }
+
+  sendPushNotification(title, body) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+          navigator.serviceWorker.ready.then(registration => {
+            registration.showNotification(title, {
+              body: body,
+              icon: '/images/burger_royale.jpg',
+              vibrate: [200, 100, 200]
+            });
+          });
+        } else {
+          new Notification(title, { body: body, icon: '/images/burger_royale.jpg' });
+        }
+      } catch(e) {
+        console.warn('Local push notification fallback:', e);
+      }
+    }
+  }
+
+  // Offline First Auto-Sync
+  initOfflineSync() {
+    const banner = document.getElementById('offline-banner');
+    const updateOnlineStatus = () => {
+      if (!navigator.onLine) {
+        if (banner) banner.style.display = 'block';
+        this.showToast('📴 Modo Sin Conexión activado. Tus acciones se guardarán localmente.');
+      } else {
+        if (banner) banner.style.display = 'none';
+        this.processPendingOfflineOrders();
+      }
+    };
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    if (!navigator.onLine && banner) {
+      banner.style.display = 'block';
+    }
+  }
+
+  async processPendingOfflineOrders() {
+    const rawQueue = localStorage.getItem('pending_offline_orders');
+    if (!rawQueue) return;
+
+    try {
+      const queue = JSON.parse(rawQueue);
+      if (Array.isArray(queue) && queue.length > 0) {
+        this.showToast(`⚡ Reconectado: Sincronizando ${queue.length} pedido(s) guardado(s)...`);
+        for (const orderData of queue) {
+          try {
+            if (window.SupabaseHelper && window.SupabaseHelper.createOrder) {
+              await window.SupabaseHelper.createOrder(orderData);
+            }
+            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+              this.ws.send(JSON.stringify({ type: 'new_order', data: orderData }));
+            }
+          } catch(err) {
+            console.warn('Error syncing queued order:', err);
+          }
+        }
+        localStorage.removeItem('pending_offline_orders');
+        this.showToast('🎉 ¡Pedidos guardados sincronizados con éxito!');
+        this.sendPushNotification('¡Pedidos Sincronizados! 🚀', 'Tus pedidos sin conexión se enviaron correctamente a la cocina.');
+      }
+    } catch(e) {
+      console.warn('Error parsing offline queue:', e);
+    }
   }
 }
 

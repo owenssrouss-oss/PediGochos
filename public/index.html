@@ -12,6 +12,11 @@
 </head>
 <body>
 
+  <!-- Offline Status Banner -->
+  <div id="offline-banner" style="display: none; background: #E11D48; color: #ffffff; text-align: center; padding: 8px 12px; font-size: 12px; font-weight: 800; position: sticky; top: 0; z-index: 99999;">
+    📴 Modo Sin Conexión - Tus pedidos se guardarán localmente y se sincronizarán automáticamente al conectar.
+  </div>
+
   <!-- App Header (Rapi Gochos Style) -->
   <header class="app-header">
     <div class="header-container">
@@ -28,6 +33,11 @@
       </div>
 
       <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
+        <!-- GochoPoints Badge -->
+        <button type="button" id="header-gochopoints-btn" onclick="MarketplaceApp.openGochoPointsModal()" title="Ver tus GochoPoints" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid #F59E0B; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          ⭐ <span id="header-gochopoints-val">0</span> Pts
+        </button>
+
         <!-- Top Back Button -->
         <button class="btn-top-header" onclick="MarketplaceApp.handleNavBack()" title="Volver / Atrás" style="background: rgba(255,255,255,0.08); color: var(--text-main); border: 1px solid var(--border); padding: 6px 12px; font-size: 13px; font-weight: 700; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
           <span>⬅</span> <span>Atrás</span>
@@ -295,6 +305,16 @@
           <!-- Filled dynamically -->
         </div>
 
+        <!-- Coupon Input Area -->
+        <div class="form-group" style="margin-top: 14px; margin-bottom: 12px; background: rgba(245, 158, 11, 0.08); padding: 10px 12px; border-radius: 12px; border: 1px dashed rgba(245, 158, 11, 0.3);">
+          <label for="checkout-coupon-input" style="font-size: 12px; font-weight: 800; color: #F59E0B; display: flex; align-items: center; gap: 4px;">🎟️ Código de Cupón de Descuento</label>
+          <div style="display: flex; gap: 6px; margin-top: 6px;">
+            <input type="text" id="checkout-coupon-input" placeholder="Ej. GOCHO10, ENVIOGRATIS" style="flex: 1; padding: 8px 10px; font-size: 12.5px; border-radius: 8px; text-transform: uppercase; font-weight: 700;">
+            <button type="button" class="btn-secondary" onclick="MarketplaceApp.applyCouponCode()" style="padding: 8px 14px; font-size: 12px; margin: 0; width: auto; font-weight: 800; background: #F59E0B; color: #1e293b; border: none; border-radius: 8px; cursor: pointer;">Aplicar</button>
+          </div>
+          <div id="checkout-coupon-msg" style="font-size: 11px; margin-top: 4px; font-weight: 700;"></div>
+        </div>
+
         <div class="cart-summary-totals">
           <div class="total-row">
             <span>Subtotal</span>
@@ -303,6 +323,10 @@
           <div class="total-row delivery-cost-row">
             <span>Costo de Envío</span>
             <span id="cart-delivery-cost">$2.00</span>
+          </div>
+          <div class="total-row discount-cost-row hidden" id="cart-discount-row" style="color: #10B981; font-weight: 800;">
+            <span>Descuento Cupón</span>
+            <span id="cart-discount-val">-$0.00</span>
           </div>
           <hr>
           <div class="total-row grand-total">
@@ -430,6 +454,53 @@
   </div>
 
 
+  <!-- GochoPoints & Recompensas Modal -->
+  <div class="modal-overlay" id="gochopoints-modal">
+    <div class="modal-content" style="max-width: 440px; margin: auto; border-radius: 20px; background: #1E293B; color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.5); padding: 20px;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #F59E0B; display: flex; align-items: center; gap: 8px;">
+          ⭐ GochoPoints & Recompensas
+        </h3>
+        <button class="btn-close" onclick="MarketplaceApp.closeGochoPointsModal()" style="background: none; border: none; font-size: 20px; color: #fff; cursor: pointer;">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 16px 0;">
+        <div style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); padding: 18px; border-radius: 16px; text-align: center; color: #fff; margin-bottom: 16px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);">
+          <span style="font-size: 12px; font-weight: 700; opacity: 0.9; text-transform: uppercase;">Tu Saldo de Puntos</span>
+          <h2 id="modal-gochopoints-total" style="font-size: 36px; font-weight: 900; margin: 4px 0 0 0;">0 Pts</h2>
+          <p style="font-size: 11px; margin: 4px 0 0 0; opacity: 0.95;">Ganas 10 GochoPoints por cada $1 de compra en RapiGochos 🚀</p>
+        </div>
+
+        <h4 style="color: #fff; font-size: 14px; font-weight: 800; margin: 0 0 10px 0;">🎁 Recompensas Disponibles:</h4>
+        
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h5 style="margin: 0; font-size: 13px; font-weight: 800; color: #fff;">🚲 Cupón de Envío Gratis</h5>
+              <p style="margin: 2px 0 0 0; font-size: 11px; color: #94A3B8;">Costo de Delivery $0 en tu próxima orden</p>
+            </div>
+            <button type="button" onclick="MarketplaceApp.redeemReward('ENVIOGRATIS', 100)" style="background: #F59E0B; color: #1e293b; border: none; padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer;">Canjear (100 Pts)</button>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h5 style="margin: 0; font-size: 13px; font-weight: 800; color: #fff;">🎟️ $2.00 USD de Descuento</h5>
+              <p style="margin: 2px 0 0 0; font-size: 11px; color: #94A3B8;">Aplica el código `GOCHO10` en tu pedido</p>
+            </div>
+            <button type="button" onclick="MarketplaceApp.redeemReward('GOCHO10', 150)" style="background: #F59E0B; color: #1e293b; border: none; padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer;">Canjear (150 Pts)</button>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h5 style="margin: 0; font-size: 13px; font-weight: 800; color: #fff;">👑 15% Descuento VIP</h5>
+              <p style="margin: 2px 0 0 0; font-size: 11px; color: #94A3B8;">Aplica `GOCHOVIP` en cualquier comercio</p>
+            </div>
+            <button type="button" onclick="MarketplaceApp.redeemReward('GOCHOVIP', 250)" style="background: #F59E0B; color: #1e293b; border: none; padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer;">Canjear (250 Pts)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Location Selector Modal -->
   <div class="modal-overlay" id="location-modal">
     <div class="modal-content" style="max-width: 400px; margin: auto; border-radius: 16px; box-shadow: var(--shadow-lg); background-color: var(--card-bg); color: var(--text-main);">
@@ -458,6 +529,6 @@
   <script src="/js/supabase-helper.js?v=81"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="/js/sound.js?v=81"></script>
-  <script src="/js/marketplace.js?v=103"></script>
+  <script src="/js/marketplace.js?v=105"></script>
 </body>
 </html>
