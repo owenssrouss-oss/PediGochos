@@ -2754,11 +2754,7 @@ class MarketplaceController {
   }
 
   getActiveShopCenter() {
-    // 1. Check if Sede Principal de Domicilios coordinates are set globally by App Owner in admin.html
-    if (this.systemSettings && this.systemSettings.central_delivery_lat !== null && this.systemSettings.central_delivery_lng !== null && !isNaN(parseFloat(this.systemSettings.central_delivery_lat)) && !isNaN(parseFloat(this.systemSettings.central_delivery_lng))) {
-      return [parseFloat(this.systemSettings.central_delivery_lat), parseFloat(this.systemSettings.central_delivery_lng)];
-    }
-    // 2. Check selected establishment coordinates (Sede Comercial)
+    // Determine distance directly from the specific Restaurant's own registered GPS coordinates
     if (this.selectedEstablishment) {
       const lat = (this.selectedEstablishment.location_lat !== undefined && this.selectedEstablishment.location_lat !== null) 
         ? this.selectedEstablishment.location_lat 
@@ -2770,7 +2766,7 @@ class MarketplaceController {
         return [parseFloat(lat), parseFloat(lng)];
       }
     }
-    // 3. Default fallback
+    // Default fallback to city center coordinates
     return this.locationCenters[this.currentLocation] || [7.8131, -72.4439];
   }
 
@@ -2780,7 +2776,7 @@ class MarketplaceController {
       return;
     }
 
-    // Determine Sede Principal de Domicilios Coordinates (Green Marker)
+    // Determine Restaurant Origin Coordinates
     const shopCenter = this.getActiveShopCenter();
 
     if (this.leafMap) {
@@ -2789,7 +2785,7 @@ class MarketplaceController {
       return;
     }
 
-    // Initialize Leaflet map centered at Sede Principal
+    // Initialize Leaflet map centered at Restaurant location
     this.leafMap = L.map('checkout-leaflet-map').setView(shopCenter, 14);
 
     // OpenStreetMap tiles
@@ -2797,30 +2793,13 @@ class MarketplaceController {
       attribution: '&copy; OpenStreetMap'
     }).addTo(this.leafMap);
 
-    // 1. Create GREEN Sede Principal Marker (Base de Domiciliarios de la App)
-    const greenSedeIcon = L.divIcon({
-      className: 'custom-sede-marker',
-      html: `<div style="background-color: #10B981; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5); border: 2px solid white;">🏛️</div>`,
-      iconSize: [36, 36],
-      iconAnchor: [18, 18]
-    });
-    const centralName = (this.systemSettings && this.systemSettings.central_delivery_name) ? this.systemSettings.central_delivery_name : 'Sede Principal Domicilios';
-    this.sedeMarker = L.marker(shopCenter, { icon: greenSedeIcon, draggable: false }).addTo(this.leafMap);
-    this.sedeMarker.bindPopup(`<b>🏛️ ${centralName}</b><br><small>Base de Domiciliarios</small>`);
+    // 1. Create Restaurant Origin Marker
+    const storeIcon = this.createStoreMarkerIcon(this.selectedEstablishment || { name: 'Restaurante', logo: '🏪' });
+    this.sedeMarker = L.marker(shopCenter, { icon: storeIcon, draggable: false }).addTo(this.leafMap);
+    const storeName = this.selectedEstablishment ? this.selectedEstablishment.name : 'Restaurante';
+    this.sedeMarker.bindPopup(`<b>🏪 Restaurante: ${storeName}</b><br><small>Origen del Domicilio</small>`);
 
-    // 2. Create Store Marker (Sede Comercial del Establecimiento con Foto Personalizada)
-    if (this.selectedEstablishment) {
-      const storeLat = this.selectedEstablishment.location_lat || this.selectedEstablishment.latitude;
-      const storeLng = this.selectedEstablishment.location_lng || this.selectedEstablishment.longitude;
-      if (storeLat && storeLng && !isNaN(parseFloat(storeLat)) && !isNaN(parseFloat(storeLng))) {
-        const storeCenter = [parseFloat(storeLat), parseFloat(storeLng)];
-        const storeIcon = this.createStoreMarkerIcon(this.selectedEstablishment);
-        const storeMarker = L.marker(storeCenter, { icon: storeIcon, draggable: false }).addTo(this.leafMap);
-        storeMarker.bindPopup(`<b>🏪 Sede Comercial: ${this.selectedEstablishment.name}</b>`);
-      }
-    }
-
-    // 3. Create User Location Marker (Non-draggable, fixed by GPS)
+    // 2. Create User Destination Location Marker (Fixed by GPS)
     const userIcon = L.divIcon({
       className: 'custom-user-marker',
       html: `<div style="background-color: #FF5E3A; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(255, 94, 58, 0.4); border: 2px solid white;">📍</div>`,

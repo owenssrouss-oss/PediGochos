@@ -73,51 +73,19 @@
       <!-- Left Column: Registration Form & System Settings -->
       <section class="admin-form-column">
 
-        <!-- Card: Configuración Compacta de la Sede Principal de Domicilios (Con Mapa desplegable) -->
-        <div class="admin-card" style="border: 1px solid rgba(139, 92, 246, 0.4); background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(15, 23, 42, 0.95)); margin-bottom: 20px; padding: 14px 16px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
-          <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="AdminApp.toggleSedeCardCollapse()">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 18px;">🏛️</span>
-              <h3 style="color: #a78bfa; margin: 0; font-size: 14px; font-weight: 800;">Sede Principal de Domicilios</h3>
-            </div>
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <button type="button" onclick="event.stopPropagation(); AdminApp.getCurrentGPSForCentralSede()" style="background: #8b5cf6; color: #fff; border: none; padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                📡 GPS
-              </button>
-              <button type="button" onclick="event.stopPropagation(); AdminApp.toggleSedeMap()" style="background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;">
-                🗺️ Mapa
-              </button>
-              <span id="sede-card-chevron" style="transition: transform 0.2s; color: #a78bfa; font-size: 11px;">▼</span>
+        <!-- Store GPS Location Registration Warning Banner (Disappears once GPS is captured) -->
+        <div id="store-gps-warning-banner" class="hidden" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(245, 158, 11, 0.15)); border: 2px dashed #F59E0B; border-radius: 16px; padding: 16px 20px; margin-bottom: 20px; color: #fff; box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+          <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 260px;">
+            <span style="font-size: 28px;">📡</span>
+            <div>
+              <h4 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 800; color: #F59E0B;">⚠️ ¡Ubicación Exacta del Restaurante No Registrada!</h4>
+              <p style="margin: 0; font-size: 12.5px; color: #CBD5E1; line-height: 1.4;">Para calcular la distancia exacta de envío en tiempo real desde tu restaurante hasta la casa del cliente, presiona el botón a continuación para registrar la ubicación GPS exacta de tu local.</p>
             </div>
           </div>
-
-          <!-- Collapsible Body Container -->
-          <div id="admin-sede-card-body" style="margin-top: 12px;">
-            <form id="central-sede-admin-form" onsubmit="AdminApp.handleSaveCentralSede(event)">
-              <div class="admin-sede-grid" style="margin-bottom: 10px;">
-                <div>
-                  <label for="admin-central-sede-name" style="font-size: 10.5px; color: #a78bfa; font-weight: 700;">Nombre Sede</label>
-                  <input type="text" id="admin-central-sede-name" placeholder="Ej. Sede Central" style="width: 100%; font-size: 12px; padding: 6px 8px; border-radius: 6px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff;">
-                </div>
-                <div>
-                  <label for="admin-central-sede-lat" style="font-size: 10.5px; color: #cbd5e1;">Latitud *</label>
-                  <input type="number" step="any" id="admin-central-sede-lat" placeholder="7.8131" required style="width: 100%; font-size: 12px; padding: 6px 8px; border-radius: 6px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff;">
-                </div>
-                <div>
-                  <label for="admin-central-sede-lng" style="font-size: 10.5px; color: #cbd5e1;">Longitud *</label>
-                  <input type="number" step="any" id="admin-central-sede-lng" placeholder="-72.4439" required style="width: 100%; font-size: 12px; padding: 6px 8px; border-radius: 6px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff;">
-                </div>
-              </div>
-
-              <!-- Collapsible Map Container (Desplegar y redesplegar) -->
-              <div id="admin-sede-map-container" class="hidden" style="margin-bottom: 10px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(139, 92, 246, 0.4); height: 200px; background: #0f172a;">
-                <div id="admin-sede-leaflet-map" style="width: 100%; height: 100%;"></div>
-              </div>
-
-              <button type="submit" id="btn-save-central-sede-admin" class="btn-submit-est" style="background: #8b5cf6; border-color: #8b5cf6; width: 100%; font-weight: 800; padding: 8px 12px; font-size: 12px; border-radius: 6px; margin: 0;">
-                💾 Guardar Sede Principal
-              </button>
-            </form>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="button" id="btn-capture-store-gps" onclick="AdminApp.captureCurrentStoreGPS()" style="background: #F59E0B; color: #1E293B; border: none; font-weight: 900; padding: 10px 18px; border-radius: 10px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);">
+              📡 Capturar GPS / Registrar Ubicación del Local
+            </button>
           </div>
         </div>
 
@@ -843,7 +811,7 @@
     </div>
   </div>
 
-  <script src="/js/admin.js?v=109"></script>
+  <script src="/js/admin.js?v=110"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>

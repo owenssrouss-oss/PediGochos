@@ -363,6 +363,8 @@ class AdminController {
     if (modal) modal.classList.add('active');
     this.checkModalOpenState();
 
+    this.checkStoreGPSStatus(est);
+
     try {
       const idInp = document.getElementById('edit-shop-id');
       if (idInp) idInp.value = est.id;
@@ -1959,62 +1961,71 @@ class AdminController {
     });
   }
 
-  getCurrentGPSForCentralSede() {
-    if (navigator.geolocation) {
-      this.showToast('📡 Obteniendo GPS para Sede Principal...');
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const latInp = document.getElementById('admin-central-sede-lat');
-          const lngInp = document.getElementById('admin-central-sede-lng');
-          if (latInp) latInp.value = pos.coords.latitude;
-          if (lngInp) lngInp.value = pos.coords.longitude;
-          if (this.sedeMap && this.sedeMarker) {
-            const newCenter = [pos.coords.latitude, pos.coords.longitude];
-            this.sedeMarker.setLatLng(newCenter);
-            this.sedeMap.setView(newCenter, 15);
-          }
-          this.showToast('✅ Coordenadas de Sede Principal capturadas');
-        },
-        (err) => {
-          alert('No se pudo obtener la ubicación GPS: ' + err.message);
-        },
-        { enableHighAccuracy: true }
-      );
+  checkStoreGPSStatus(est) {
+    const banner = document.getElementById('store-gps-warning-banner');
+    if (!banner) return;
+    if (!est || !est.latitude || !est.longitude || isNaN(parseFloat(est.latitude)) || isNaN(parseFloat(est.longitude))) {
+      banner.classList.remove('hidden');
     } else {
-      alert('Tu navegador no soporta geolocalización.');
+      banner.classList.add('hidden');
     }
   }
 
-  async handleSaveCentralSede(e) {
-    e.preventDefault();
-    const btn = document.getElementById('btn-save-central-sede-admin');
-    if (btn) btn.disabled = true;
+  captureCurrentStoreGPS() {
+    if (!this.activeShopId) {
+      alert('Por favor selecciona un restaurante primero.');
+      return;
+    }
+    const est = this.establishments.find(e => e.id === this.activeShopId);
+    if (!est) return;
 
-    const name = document.getElementById('admin-central-sede-name').value.trim();
-    const lat = document.getElementById('admin-central-sede-lat').value;
-    const lng = document.getElementById('admin-central-sede-lng').value;
+    const btn = document.getElementById('btn-capture-store-gps');
+    if (btn) { btn.disabled = true; btn.innerText = '📡 Obteniendo GPS...'; }
 
-    try {
-      const res = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          central_delivery_name: name,
-          central_delivery_lat: lat !== '' ? parseFloat(lat) : null,
-          central_delivery_lng: lng !== '' ? parseFloat(lng) : null
-        })
-      });
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
 
-      if (res.ok) {
-        this.showToast('🏛️ ¡Sede Principal de Domicilios guardada con éxito!');
-      } else {
-        alert('Error guardando la Sede Principal.');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error de conexión al guardar Sede Principal.');
-    } finally {
-      if (btn) btn.disabled = false;
+          est.latitude = lat;
+          est.longitude = lng;
+          est.location_lat = lat;
+          est.location_lng = lng;
+
+          try {
+            await fetch(`/api/establishments/${est.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                latitude: lat,
+                longitude: lng,
+                location_lat: lat,
+                location_lng: lng
+              })
+            });
+            this.showToast(`✅ Ubicación GPS de ${est.name} registrada (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+
+            // Hide warning notification banner automatically
+            const banner = document.getElementById('store-gps-warning-banner');
+            if (banner) banner.classList.add('hidden');
+          } catch(err) {
+            console.error(err);
+            alert('Error guardando la ubicación GPS en el servidor.');
+          } finally {
+            if (btn) { btn.disabled = false; btn.innerText = '📡 Capturar GPS / Registrar Ubicación del Local'; }
+          }
+        },
+        (err) => {
+          console.error(err);
+          alert('No se pudo acceder al GPS. Asegúrate de permitir el acceso a la ubicación en tu navegador.');
+          if (btn) { btn.disabled = false; btn.innerText = '📡 Capturar GPS / Registrar Ubicación del Local'; }
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    } else {
+      alert('Tu navegador no soporta Geolocalización GPS.');
+      if (btn) { btn.disabled = false; btn.innerText = '📡 Capturar GPS / Registrar Ubicación del Local'; }
     }
   }
 
