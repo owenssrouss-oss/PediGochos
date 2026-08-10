@@ -615,11 +615,23 @@ app.put('/api/establishments/:id', (req, res) => {
   if (req.body.location) {
     est.location = req.body.location;
   }
-  if (req.body.location_lat !== undefined) {
-    est.location_lat = req.body.location_lat !== null && req.body.location_lat !== '' ? parseFloat(req.body.location_lat) : null;
+  if (req.body.latitude !== undefined || req.body.location_lat !== undefined) {
+    const latVal = req.body.latitude !== undefined ? req.body.latitude : req.body.location_lat;
+    const parsedLat = (latVal !== null && latVal !== '') ? parseFloat(latVal) : null;
+    est.latitude = parsedLat;
+    est.location_lat = parsedLat;
   }
-  if (req.body.location_lng !== undefined) {
-    est.location_lng = req.body.location_lng !== null && req.body.location_lng !== '' ? parseFloat(req.body.location_lng) : null;
+  if (req.body.longitude !== undefined || req.body.location_lng !== undefined) {
+    const lngVal = req.body.longitude !== undefined ? req.body.longitude : req.body.location_lng;
+    const parsedLng = (lngVal !== null && lngVal !== '') ? parseFloat(lngVal) : null;
+    est.longitude = parsedLng;
+    est.location_lng = parsedLng;
+  }
+  if (req.body.open_time !== undefined) {
+    est.open_time = req.body.open_time;
+  }
+  if (req.body.close_time !== undefined) {
+    est.close_time = req.body.close_time;
   }
   if (req.body.isHighTraffic !== undefined) {
     est.isHighTraffic = Boolean(req.body.isHighTraffic);

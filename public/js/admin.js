@@ -1994,6 +1994,10 @@ class AdminController {
           est.location_lng = lng;
 
           try {
+            localStorage.setItem('store_gps_' + est.id, JSON.stringify({ latitude: lat, longitude: lng }));
+          } catch(e) {}
+
+          try {
             await fetch(`/api/establishments/${est.id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },

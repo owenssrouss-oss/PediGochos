@@ -158,11 +158,26 @@ class MarketplaceController {
     window.location.reload();
   }
 
-  // Load from database
   async loadEstablishments() {
     try {
       const res = await fetch('/api/establishments');
       this.establishments = await res.json();
+      if (Array.isArray(this.establishments)) {
+        this.establishments.forEach(est => {
+          const cachedGps = localStorage.getItem('store_gps_' + est.id);
+          if (cachedGps) {
+            try {
+              const parsed = JSON.parse(cachedGps);
+              if (parsed.latitude && parsed.longitude) {
+                est.latitude = parseFloat(parsed.latitude);
+                est.longitude = parseFloat(parsed.longitude);
+                est.location_lat = parseFloat(parsed.latitude);
+                est.location_lng = parseFloat(parsed.longitude);
+              }
+            } catch(e) {}
+          }
+        });
+      }
     } catch (e) {
       console.error('Error fetching establishments:', e);
       this.showToast('Error de conexión al cargar comercios');
