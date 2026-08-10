@@ -2547,11 +2547,13 @@ class MarketplaceController {
     if (num >= 100000) {
       num = Math.round(num / 1000);
     }
-    // Small float values <= 100 represent USD float, convert to COP at 4000 COP/USD rate
-    if (num <= 100) {
-      return Math.round(num * 4000);
+    // Restore original thousand-multiplier logic for products saved in thousands notation (e.g. 20 -> 20.000 COP, 7.5 -> 7.500 COP, 15 -> 15.000 COP)
+    if (num < 1000) {
+      if (num >= 100 && num <= 999 && Number.isInteger(num)) {
+        return Math.round(num);
+      }
+      return Math.round(num * 1000);
     }
-    // Standard COP values (500 pesos, 5000 COP, 20000 COP) return as is!
     return Math.round(num);
   }
 
