@@ -570,7 +570,7 @@ class MarketplaceController {
           <div class="est-row-header-flex">
             <h4>${est.name} ${highTrafficBadge} ${closedBadge}</h4>
             <div class="est-row-rating">
-              <span class="star">★</span> 4.8
+              <span class="star">★</span> 0.0
             </div>
           </div>
           <div class="est-row-tags">
@@ -578,7 +578,7 @@ class MarketplaceController {
           </div>
           <div class="est-row-details-row">
             <span>${deliveryTimeStr}</span>
-            <span class="free-delivery">${isOpen ? '🚲 Envío Gratis' : '🔴 Fuera de Horario'}</span>
+            <span class="free-delivery" style="background: rgba(59, 130, 246, 0.15); color: #3B82F6; border: 1px solid #3B82F6;">${isOpen ? '🚲 Domicilio: ' + this.formatPesos(est.delivery_fee || 5000) : '🔴 Fuera de Horario'}</span>
           </div>
         </div>
       `;
@@ -2138,14 +2138,14 @@ class MarketplaceController {
         // Calculate delivery fee using $4.500 COP minimum per establishment + $2.200 COP per km rate
         if (this.calculatedDistanceKm !== null && this.calculatedDistanceKm !== undefined) {
           const calculatedFee = this.calculatedDistanceKm * 2200;
-          let finalFee = Math.max(4500, Math.round(calculatedFee));
+          let finalFee = Math.max(5000, Math.round(calculatedFee));
 
           // Sync fee to the uniqueShops details
           uniqueShops[id].delivery_fee = finalFee;
           totalDeliveryFee += finalFee;
         } else {
-          let baseFee = uniqueShops[id].delivery_fee || 4500;
-          if (baseFee < 4500) baseFee = 4500;
+          let baseFee = uniqueShops[id].delivery_fee || 5000;
+          if (baseFee < 5000) baseFee = 5000;
           uniqueShops[id].delivery_fee = baseFee;
           totalDeliveryFee += baseFee;
         }
@@ -2344,11 +2344,11 @@ class MarketplaceController {
         if (this.orderType === 'delivery') {
           if (this.calculatedDistanceKm !== null && this.calculatedDistanceKm !== undefined) {
             const calculatedFee = this.calculatedDistanceKm * 2200;
-            let finalFee = Math.max(4500, Math.round(calculatedFee));
+            let finalFee = Math.max(5000, Math.round(calculatedFee));
             shopDeliveryCost = finalFee;
           } else {
-            let baseFee = shop.delivery_fee || 4500;
-            if (baseFee < 4500) baseFee = 4500;
+            let baseFee = shop.delivery_fee || 5000;
+            if (baseFee < 5000) baseFee = 5000;
             shopDeliveryCost = baseFee;
           }
         }
@@ -2502,7 +2502,15 @@ class MarketplaceController {
   normalizeCopPrice(val) {
     let num = parseFloat(val);
     if (isNaN(num) || num <= 0) return 0;
-    if (num < 1000) return Math.round(num * 1000);
+    // Fix any 500000 COP price error (e.g. 500 pesos mistakenly saved as 500000)
+    if (num >= 100000) {
+      num = Math.round(num / 1000);
+    }
+    // Small float values <= 100 represent USD float, convert to COP at 4000 COP/USD rate
+    if (num <= 100) {
+      return Math.round(num * 4000);
+    }
+    // Standard COP values (500 pesos, 5000 COP, 20000 COP) return as is!
     return Math.round(num);
   }
 
