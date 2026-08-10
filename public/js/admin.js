@@ -381,26 +381,21 @@ class AdminController {
       const themeInp = document.getElementById('edit-shop-theme');
       if (themeInp) themeInp.value = est.themeColor || '#FF5E3A';
 
-      // Show preparation & delivery times & business hours for comidas category
+      // Show preparation & delivery times & business hours for all establishments
       const timesGroup = document.getElementById('edit-shop-times-group');
       const prepInput = document.getElementById('edit-shop-prep-time');
       const deliveryTimeInput = document.getElementById('edit-shop-delivery-time');
       const openTimeInput = document.getElementById('edit-shop-open-time');
       const closeTimeInput = document.getElementById('edit-shop-close-time');
 
-      if (timesGroup && prepInput && deliveryTimeInput) {
-        if (est.category === 'comidas') {
-          timesGroup.classList.remove('hidden');
-          prepInput.value = est.prep_time || '';
-          deliveryTimeInput.value = est.delivery_time || '';
-          if (openTimeInput) openTimeInput.value = est.open_time || '11:00';
-          if (closeTimeInput) closeTimeInput.value = est.close_time || '23:00';
-        } else {
-          timesGroup.classList.add('hidden');
-          prepInput.value = '';
-          deliveryTimeInput.value = '';
-        }
+      if (timesGroup) {
+        timesGroup.style.display = 'grid';
+        timesGroup.classList.remove('hidden');
       }
+      if (prepInput) prepInput.value = est.prep_time || '';
+      if (deliveryTimeInput) deliveryTimeInput.value = est.delivery_time || '';
+      if (openTimeInput) openTimeInput.value = est.open_time || '11:00';
+      if (closeTimeInput) closeTimeInput.value = est.close_time || '23:00';
 
       const select = document.getElementById('edit-shop-logo');
       if (select) {

@@ -402,6 +402,8 @@ app.post('/api/establishments', (req, res) => {
   // Save/generate the administration key
   newEstablishment.linkKey = newEstablishment.linkKey || Math.random().toString(36).substring(2, 8).toUpperCase();
   newEstablishment.location = newEstablishment.location || 'San Antonio';
+  newEstablishment.open_time = newEstablishment.open_time || '11:00';
+  newEstablishment.close_time = newEstablishment.close_time || '23:00';
 
   db.establishments.push(newEstablishment);
   writeDB(db);
