@@ -242,12 +242,11 @@ class MarketplaceController {
     const est = this.establishments.find(e => e.id === estId);
     if (!est) return;
 
-    if (!this.isEstablishmentOpen(est)) {
-      alert(`🔴 ${est.name} está actualmente CERRADO.\n\nHorario de Atención: ${est.open_time || '11:00 AM'} a ${est.close_time || '11:00 PM'}.\n\nNo se permiten nuevos pedidos fuera de horario.`);
-      return;
-    }
-
     this.selectedEstablishment = est;
+
+    if (!this.isEstablishmentOpen(est)) {
+      this.showToast(`🔴 Local CERRADO (${est.open_time || '11:00'} - ${est.close_time || '23:00'}). Puedes explorar la carta.`);
+    }
 
     if (pushState) {
       window.history.pushState({ view: 'establishment', estId: estId }, '');
@@ -332,6 +331,28 @@ class MarketplaceController {
       highTrafficBanner.style.display = 'block';
     } else if (highTrafficBanner) {
       highTrafficBanner.style.display = 'none';
+    }
+
+    // Closed store banner in store header
+    let closedStoreBanner = document.getElementById('est-closed-store-banner');
+    if (!closedStoreBanner) {
+      closedStoreBanner = document.createElement('div');
+      closedStoreBanner.id = 'est-closed-store-banner';
+      const headerInfo = document.querySelector('.establishment-header .est-info') || document.querySelector('.establishment-header');
+      if (headerInfo) headerInfo.appendChild(closedStoreBanner);
+    }
+
+    const isOpen = this.isEstablishmentOpen(est);
+    if (!isOpen) {
+      closedStoreBanner.innerHTML = `
+        <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 12px; margin-top: 10px; display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 16px;">🔴</span>
+          <span><strong>Restaurante Cerrado:</strong> Horario de Atención: <strong>${est.open_time || '11:00 AM'} a ${est.close_time || '11:00 PM'}</strong>. Puedes consultar el menú pero los pedidos están desactivados fuera de horario.</span>
+        </div>
+      `;
+      closedStoreBanner.style.display = 'block';
+    } else if (closedStoreBanner) {
+      closedStoreBanner.style.display = 'none';
     }
 
     // Render internal categories and products
@@ -1676,6 +1697,11 @@ class MarketplaceController {
 
   addToCart() {
     if (!this.customizerState || !this.customizerState.product) return;
+
+    if (this.selectedEstablishment && !this.isEstablishmentOpen(this.selectedEstablishment)) {
+      alert(`🔴 ${this.selectedEstablishment.name} está actualmente CERRADO.\n\nHorario de Atención: ${this.selectedEstablishment.open_time || '11:00 AM'} a ${this.selectedEstablishment.close_time || '11:00 PM'}.\n\nPuedes explorar el menú completo, pero los pedidos están pausados hasta la hora de apertura.`);
+      return;
+    }
     
     if (!this.validateRequiredModifiers()) {
       alert('Por favor, selecciona las opciones obligatorias marcadas con *');
