@@ -519,9 +519,6 @@ class MarketplaceController {
     grid.style.cssText = ''; // restore standard grid layout
     this.renderFoodTypeFilterButtons();
 
-    const list = filtered || this.establishments.filter(e => e.category === this.currentCategory && (e.location === this.currentLocation || !e.location));
-    grid.innerHTML = '';
-
     const categoryNames = {
       'all': '✨ Todos los Restaurantes',
       'hamburguesas': '🍔 Hamburguesas',
@@ -558,6 +555,15 @@ class MarketplaceController {
     const titleEl = document.getElementById('establishments-title');
     if (titleEl) titleEl.innerHTML = displayTitle;
 
+    // Get session seed for fair play rotation
+    const rawList = filtered || this.establishments.filter(e => e.category === this.currentCategory && (e.location === this.currentLocation || !e.location));
+    const list = this.shuffleWithSeed(rawList, this.getSessionSeed());
+
+    // Render Featured Horizontal Carousel
+    this.renderFeaturedCarousel();
+
+    grid.innerHTML = '';
+
     if (list.length === 0) {
       grid.innerHTML = `
         <div class="cart-empty-state" style="grid-column: 1 / -1;">
@@ -589,36 +595,133 @@ class MarketplaceController {
       }
 
       const deliveryTimeStr = this.getFormattedDeliveryTime(est);
-      const highTrafficBadge = est.isHighTraffic 
-        ? `<span style="background: #dc2626; color: #ffffff; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; margin-left: 6px; display: inline-block;">🚨 Tráfico Alto (+${est.extraPrepTime || 20}m)</span>` 
-        : '';
 
       const closedBadge = !isOpen 
-        ? `<span style="background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 1px solid #EF4444; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; margin-left: 6px; display: inline-block;">🔴 Cerrado (${est.open_time || '11:00'} - ${est.close_time || '23:00'})</span>`
+        ? `<span style="background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 1px solid #EF4444; padding: 2px 5px; border-radius: 6px; font-size: 9.5px; font-weight: 800; position: absolute; top: 6px; right: 6px; z-index: 2;">🔴 Cerrado</span>`
+        : '';
+
+      const highTrafficBadge = est.isHighTraffic 
+        ? `<span style="background: #dc2626; color: #ffffff; padding: 2px 5px; border-radius: 6px; font-size: 9.5px; font-weight: 800; position: absolute; top: 6px; left: 6px; z-index: 2;">🚨 Tráfico Alto</span>` 
         : '';
 
       card.innerHTML = `
-        <div class="est-row-img-wrapper" style="border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); border: 2px solid var(--border);">
+        <div class="est-row-img-wrapper" style="border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); height: 95px; position: relative;">
           ${imgHTML}
           <div class="est-row-img-placeholder hidden">${est.logo || '🏪'}</div>
+          ${closedBadge}
+          ${highTrafficBadge}
         </div>
-        <div class="est-row-info">
-          <div class="est-row-header-flex">
-            <h4>${est.name} ${highTrafficBadge} ${closedBadge}</h4>
-            <div class="est-row-rating">
-              <span class="star">★</span> 0.0
+        <div class="est-row-info" style="display: flex; flex-direction: column; gap: 4px; margin-top: 6px;">
+          <div class="est-row-header-flex" style="display: flex; justify-content: space-between; align-items: center; gap: 4px;">
+            <h4 style="font-size: 13px; font-weight: 800; color: #FFF; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;">${est.name}</h4>
+            <div class="est-row-rating" style="font-size: 10px; font-weight: 800; color: #FFCC00; background: rgba(255, 204, 0, 0.12); padding: 1px 5px; border-radius: 6px; flex-shrink: 0;">
+              ★ 0.0
             </div>
           </div>
-          <div class="est-row-tags">
-            ${this.capitalize(est.category)} • ${est.description.split('.')[0] || est.description} • $$
+          <div style="font-size: 11px; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            ${this.capitalize(est.category)} • ${est.description.split('.')[0] || est.description}
           </div>
-          <div class="est-row-details-row">
+          <div class="est-row-details-row" style="display: flex; justify-content: space-between; align-items: center; font-size: 10.5px; margin-top: 2px;">
             <span>${deliveryTimeStr}</span>
-            <span class="free-delivery" style="background: rgba(59, 130, 246, 0.15); color: #3B82F6; border: 1px solid #3B82F6;">${isOpen ? '🚲 Domicilio: ' + this.formatPesos(est.delivery_fee || 5000) : '🔴 Fuera de Horario'}</span>
+            <span class="free-delivery" style="background: rgba(59, 130, 246, 0.15); color: #3B82F6; border: 1px solid #3B82F6; padding: 1px 5px; border-radius: 6px; font-size: 9.5px; font-weight: 800;">${isOpen ? '🚲 ' + this.formatPesos(est.delivery_fee || 5000) : '🔴 Cerrado'}</span>
           </div>
         </div>
       `;
       grid.appendChild(card);
+    });
+  }
+
+  getSessionSeed() {
+    let seed = sessionStorage.getItem('pedigochos_session_seed');
+    if (!seed) {
+      seed = Date.now().toString() + '_' + Math.floor(Math.random() * 100000);
+      sessionStorage.setItem('pedigochos_session_seed', seed);
+    }
+    return seed;
+  }
+
+  regenerateSessionSeed() {
+    const newSeed = Date.now().toString() + '_' + Math.floor(Math.random() * 100000);
+    sessionStorage.setItem('pedigochos_session_seed', newSeed);
+    return newSeed;
+  }
+
+  seededRandom(seedStr) {
+    let h = 0;
+    for (let i = 0; i < (seedStr || 'default').length; i++) {
+      h = Math.imul(31, h) + seedStr.charCodeAt(i) | 0;
+    }
+    return function() {
+      h = Math.imul(h ^ (h >>> 15), h | 1);
+      h ^= h + Math.imul(h ^ (h >>> 7), h | 61);
+      return ((h ^ (h >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  shuffleWithSeed(array, seedStr) {
+    if (!array || !Array.isArray(array)) return [];
+    const arr = [...array];
+    const rng = this.seededRandom(seedStr);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  renderFeaturedCarousel() {
+    const container = document.getElementById('featured-carousel-container');
+    const section = document.getElementById('featured-carousel-section');
+    if (!container || !section) return;
+
+    if (!this.establishments || this.establishments.length === 0) {
+      section.style.display = 'none';
+      return;
+    }
+
+    section.style.display = 'block';
+    container.innerHTML = '';
+
+    // Shuffle featured items with session seed
+    const featuredShuffled = this.shuffleWithSeed(this.establishments, this.getSessionSeed()).slice(0, 6);
+
+    featuredShuffled.forEach(est => {
+      const card = document.createElement('div');
+      card.style.cssText = 'min-width: 170px; width: 170px; flex-shrink: 0; background: rgba(22, 22, 28, 0.9); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 10px; cursor: pointer; scroll-snap-align: start; transition: transform 0.2s;';
+      const isOpen = this.isEstablishmentOpen(est);
+
+      if (!isOpen) {
+        card.style.opacity = '0.75';
+        card.style.filter = 'grayscale(0.3)';
+      }
+
+      card.onclick = () => this.openEstablishment(est.id);
+
+      const photoUrl = est.logoImage || (est.products && est.products[0] ? est.products[0].image : null);
+      let imgHTML = '';
+      if (photoUrl) {
+        imgHTML = `<img src="${photoUrl}" alt="${est.name}" style="object-fit: cover; width: 100%; height: 100%;" onerror="this.style.display='none'; if (this.nextElementSibling) this.nextElementSibling.style.display='flex'">`;
+      }
+
+      card.innerHTML = `
+        <div style="width: 100%; height: 90px; border-radius: 10px; overflow: hidden; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; position: relative;">
+          ${imgHTML}
+          <div class="hidden" style="font-size: 28px;">${est.logo || '🏪'}</div>
+          <span style="position: absolute; top: 6px; right: 6px; background: rgba(255, 94, 58, 0.9); color: #fff; padding: 2px 6px; border-radius: 6px; font-size: 9px; font-weight: 800;">✨ TOP</span>
+        </div>
+        <div style="margin-top: 6px; display: flex; flex-direction: column; gap: 3px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h5 style="margin: 0; font-size: 12px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;">${est.name}</h5>
+            <span style="font-size: 10px; color: #FFCC00; font-weight: 800; margin-left: 4px;">★ 0.0</span>
+          </div>
+          <div style="font-size: 10.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.capitalize(est.category)}</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; margin-top: 2px;">
+            <span style="color: var(--primary); font-weight: 700;">🚲 ${this.formatPesos(est.delivery_fee || 5000)}</span>
+            <span style="color: #94A3B8;">${this.getFormattedDeliveryTime(est)}</span>
+          </div>
+        </div>
+      `;
+      container.appendChild(card);
     });
   }
 
