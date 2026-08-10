@@ -227,6 +227,11 @@ class MarketplaceController {
     const est = this.establishments.find(e => e.id === estId);
     if (!est) return;
 
+    if (!this.isEstablishmentOpen(est)) {
+      alert(`🔴 ${est.name} está actualmente CERRADO.\n\nHorario de Atención: ${est.open_time || '11:00 AM'} a ${est.close_time || '11:00 PM'}.\n\nNo se permiten nuevos pedidos fuera de horario.`);
+      return;
+    }
+
     this.selectedEstablishment = est;
 
     if (pushState) {
@@ -531,6 +536,13 @@ class MarketplaceController {
     list.forEach(est => {
       const card = document.createElement('div');
       card.className = 'est-row-card';
+      const isOpen = this.isEstablishmentOpen(est);
+
+      if (!isOpen) {
+        card.style.opacity = '0.75';
+        card.style.filter = 'grayscale(0.3)';
+      }
+
       card.onclick = () => this.openEstablishment(est.id);
 
       // Determine representation photo
@@ -545,6 +557,10 @@ class MarketplaceController {
         ? `<span style="background: #dc2626; color: #ffffff; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; margin-left: 6px; display: inline-block;">🚨 Tráfico Alto (+${est.extraPrepTime || 20}m)</span>` 
         : '';
 
+      const closedBadge = !isOpen 
+        ? `<span style="background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 1px solid #EF4444; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; margin-left: 6px; display: inline-block;">🔴 Cerrado (${est.open_time || '11:00'} - ${est.close_time || '23:00'})</span>`
+        : '';
+
       card.innerHTML = `
         <div class="est-row-img-wrapper" style="border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); border: 2px solid var(--border);">
           ${imgHTML}
@@ -552,7 +568,7 @@ class MarketplaceController {
         </div>
         <div class="est-row-info">
           <div class="est-row-header-flex">
-            <h4>${est.name} ${highTrafficBadge}</h4>
+            <h4>${est.name} ${highTrafficBadge} ${closedBadge}</h4>
             <div class="est-row-rating">
               <span class="star">★</span> 4.8
             </div>
@@ -562,7 +578,7 @@ class MarketplaceController {
           </div>
           <div class="est-row-details-row">
             <span>${deliveryTimeStr}</span>
-            <span class="free-delivery">🚲 Envío Gratis</span>
+            <span class="free-delivery">${isOpen ? '🚲 Envío Gratis' : '🔴 Fuera de Horario'}</span>
           </div>
         </div>
       `;
@@ -1558,8 +1574,8 @@ class MarketplaceController {
             group.options.forEach(opt => {
               if (opt && opt.option_id) {
                 const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
-                if (qty > 0) {
-                  sideSum += this.normalizeCopPrice(opt.extra_price) * qty;
+                if (qty > 1) {
+                  sideSum += this.normalizeCopPrice(opt.extra_price) * (qty - 1);
                 }
               }
             });
@@ -1815,10 +1831,11 @@ class MarketplaceController {
                   chosen_option: opt.name
                 });
               } else {
+                const chargeableQty = qty > 1 ? (qty - 1) : 0;
                 addOns.push({
-                  name: prefix + opt.name,
+                  name: prefix + opt.name + (qty === 1 ? ' (Incluido)' : ` (x${qty})`),
                   price_per_unit: opt.extra_price || 0,
-                  quantity: qty
+                  quantity: chargeableQty
                 });
               }
             }
@@ -3166,6 +3183,33 @@ class MarketplaceController {
       if (msg) { msg.style.color = '#EF4444'; msg.innerText = '❌ Código de cupón inválido o expirado.'; }
     }
     this.renderCartItems();
+  }
+
+  isEstablishmentOpen(est) {
+    if (!est) return true;
+    const openTime = est.open_time || '11:00';
+    const closeTime = est.close_time || '23:00';
+
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    const parseMinutes = (timeStr) => {
+      if (!timeStr) return 0;
+      const parts = timeStr.split(':');
+      const h = parseInt(parts[0], 10) || 0;
+      const m = parseInt(parts[1], 10) || 0;
+      return h * 60 + m;
+    };
+
+    const openMin = parseMinutes(openTime);
+    const closeMin = parseMinutes(closeTime);
+
+    if (openMin <= closeMin) {
+      return currentMinutes >= openMin && currentMinutes <= closeMin;
+    } else {
+      // Midnight wrap-around (e.g. 18:00 to 02:00)
+      return currentMinutes >= openMin || currentMinutes <= closeMin;
+    }
   }
 
   // Web Push Notifications

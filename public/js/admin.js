@@ -379,16 +379,20 @@ class AdminController {
       const themeInp = document.getElementById('edit-shop-theme');
       if (themeInp) themeInp.value = est.themeColor || '#FF5E3A';
 
-      // Show preparation & delivery times only for comidas category
+      // Show preparation & delivery times & business hours for comidas category
       const timesGroup = document.getElementById('edit-shop-times-group');
       const prepInput = document.getElementById('edit-shop-prep-time');
       const deliveryTimeInput = document.getElementById('edit-shop-delivery-time');
+      const openTimeInput = document.getElementById('edit-shop-open-time');
+      const closeTimeInput = document.getElementById('edit-shop-close-time');
 
       if (timesGroup && prepInput && deliveryTimeInput) {
         if (est.category === 'comidas') {
           timesGroup.classList.remove('hidden');
           prepInput.value = est.prep_time || '';
           deliveryTimeInput.value = est.delivery_time || '';
+          if (openTimeInput) openTimeInput.value = est.open_time || '11:00';
+          if (closeTimeInput) closeTimeInput.value = est.close_time || '23:00';
         } else {
           timesGroup.classList.add('hidden');
           prepInput.value = '';
@@ -475,6 +479,8 @@ class AdminController {
 
     const prep_time = document.getElementById('edit-shop-prep-time').value;
     const delivery_time = document.getElementById('edit-shop-delivery-time').value;
+    const open_time = document.getElementById('edit-shop-open-time')?.value || '11:00';
+    const close_time = document.getElementById('edit-shop-close-time')?.value || '23:00';
 
     const logoFile = document.getElementById('edit-shop-logo-file').files[0];
     const bannerFile = document.getElementById('edit-shop-banner-file').files[0];
@@ -506,7 +512,9 @@ class AdminController {
         themeColor,
         logoImage,
         prep_time: prep_time ? parseInt(prep_time) : null,
-        delivery_time: delivery_time ? parseInt(delivery_time) : null
+        delivery_time: delivery_time ? parseInt(delivery_time) : null,
+        open_time: open_time,
+        close_time: close_time
       };
 
       const res = await fetch(`/api/establishments/${this.activeShopId}`, {

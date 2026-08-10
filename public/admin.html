@@ -475,7 +475,7 @@
           <input type="file" id="edit-shop-banner-file" accept="image/*" style="width: 100%;">
         </div>
 
-        <!-- Time settings (only visible for comidas) -->
+        <!-- Time settings (Prep time, delivery time, business opening & closing hours) -->
         <div id="edit-shop-times-group" class="form-grid hidden" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
           <div class="form-group">
             <label for="edit-shop-prep-time">Prepara. Aproximada (mins)</label>
@@ -484,6 +484,14 @@
           <div class="form-group">
             <label for="edit-shop-delivery-time">Envío Aproximado (mins)</label>
             <input type="number" id="edit-shop-delivery-time" min="0" placeholder="Ej. 15" style="width: 100%;">
+          </div>
+          <div class="form-group">
+            <label for="edit-shop-open-time" style="color: #a78bfa; font-weight: 800;">🕒 Hora Apertura</label>
+            <input type="time" id="edit-shop-open-time" value="11:00" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: rgba(18, 18, 22, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff;">
+          </div>
+          <div class="form-group">
+            <label for="edit-shop-close-time" style="color: #a78bfa; font-weight: 800;">🌙 Hora Cierre</label>
+            <input type="time" id="edit-shop-close-time" value="23:00" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: rgba(18, 18, 22, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff;">
           </div>
         </div>
 
@@ -835,7 +843,7 @@
     </div>
   </div>
 
-  <script src="/js/admin.js?v=105"></script>
+  <script src="/js/admin.js?v=108"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
