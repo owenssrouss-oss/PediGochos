@@ -455,6 +455,11 @@ wss.on('connection', (ws) => {
       const message = JSON.parse(messageStr);
       console.log('WS Message Received:', message);
 
+      if (message.type === 'PING') {
+        ws.send(JSON.stringify({ type: 'PONG' }));
+        return;
+      }
+
       if (message.type === 'REGISTER_MERCHANT') {
         const { establishmentId, key } = message;
         

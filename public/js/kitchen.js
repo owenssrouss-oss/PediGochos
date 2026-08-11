@@ -15,6 +15,65 @@ class KitchenController {
     this.setupTimer();
     await this.checkSupabaseSession();
     this.checkLocalSession();
+
+    // Unlock Web Audio Context on click/touch anywhere
+    if (typeof Sound !== 'undefined') {
+      const unlockAudio = () => {
+        try { Sound.init(); } catch(e) {}
+      };
+      document.addEventListener('click', unlockAudio, { passive: true });
+      document.addEventListener('touchstart', unlockAudio, { passive: true });
+    }
+
+    // Start 4-second REST polling fallback to guarantee live order updates & sound notifications
+    this.startPollingFallback();
+  }
+
+  startPollingFallback() {
+    if (this.pollingTimer) clearInterval(this.pollingTimer);
+    this.pollingTimer = setInterval(() => {
+      this.pollOrdersFallback();
+    }, 4000);
+  }
+
+  async pollOrdersFallback() {
+    if (!this.selectedId) return;
+    try {
+      const res = await fetch('/api/orders');
+      if (!res.ok) return;
+      const allOrders = await res.json();
+      if (!Array.isArray(allOrders)) return;
+
+      const shopOrders = allOrders.filter(o => o.establishmentId === this.selectedId);
+      const brandNew = shopOrders.filter(so => !this.orders.some(o => o.id === so.id));
+
+      if (brandNew.length > 0) {
+        console.log('🔔 [REST Polling] ¡Nuevos pedidos detectados en tiempo real!', brandNew);
+        this.orders = shopOrders;
+        this.renderOrders();
+
+        if (typeof Sound !== 'undefined') {
+          Sound.playBell();
+          setTimeout(() => Sound.playBell(), 400);
+        }
+        this.showToast(`🔔 ¡NUEVO PEDIDO RECIBIDO! #${brandNew[0].deliveryDetails?.code || brandNew[0].id.slice(-4)}`);
+      } else {
+        let needsReRender = false;
+        shopOrders.forEach(so => {
+          const existing = this.orders.find(o => o.id === so.id);
+          if (existing && (existing.status !== so.status || existing.updatedAt !== so.updatedAt)) {
+            needsReRender = true;
+          }
+        });
+
+        if (needsReRender) {
+          this.orders = shopOrders;
+          this.renderOrders();
+        }
+      }
+    } catch(e) {
+      console.warn('REST Polling fallback error:', e);
+    }
   }
 
   async checkSupabaseSession() {
@@ -240,6 +299,10 @@ class KitchenController {
   }
 
   closeWS() {
+    if (this.pingTimer) {
+      clearInterval(this.pingTimer);
+      this.pingTimer = null;
+    }
     if (this.ws) {
       this.ws.close();
       this.ws = null;
@@ -255,17 +318,26 @@ class KitchenController {
   connectWS(customKey = null) {
     this.closeWS();
 
-    const key = customKey || localStorage.getItem('admin_key_' + this.selectedId);
+    const key = customKey || this.activeKey || localStorage.getItem('admin_key_' + this.selectedId);
     if (!key) {
       console.warn('No linking key found. Re-authorization required.');
       return;
     }
+    this.activeKey = key;
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}`;
     
     console.log('Connecting to WebSocket:', wsUrl);
     this.ws = new WebSocket(wsUrl);
+
+    // Keep-Alive Ping Timer (every 20 seconds) to prevent Render / proxy idle timeouts
+    if (this.pingTimer) clearInterval(this.pingTimer);
+    this.pingTimer = setInterval(() => {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify({ type: 'PING' }));
+      }
+    }, 20000);
 
     this.ws.onopen = () => {
       console.log('WS Connection established');
@@ -282,11 +354,12 @@ class KitchenController {
     this.ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        if (data.type === 'PONG') return;
+
         console.log('WS Message Received:', data);
 
         if (data.type === 'AUTH_ERROR') {
           console.error(data.message);
-          // Show login overlay and error text
           const overlay = document.getElementById('no-shop-overlay');
           if (overlay) overlay.classList.remove('hidden');
           
@@ -299,7 +372,6 @@ class KitchenController {
           const activeShopInfo = document.getElementById('active-shop-info');
           if (activeShopInfo) activeShopInfo.classList.add('hidden');
           
-          // Clear invalid key and session
           localStorage.removeItem('admin_key_' + this.selectedId);
           localStorage.removeItem('active_merchant_shop_id');
           
@@ -316,9 +388,16 @@ class KitchenController {
         }
 
         if (data.type === 'NEW_ORDER') {
-          this.orders.push(data.order);
-          this.renderOrders();
-          Sound.playBell();
+          const exists = this.orders.some(o => o.id === data.order.id);
+          if (!exists) {
+            this.orders.push(data.order);
+            this.renderOrders();
+            if (typeof Sound !== 'undefined') {
+              Sound.playBell();
+              setTimeout(() => Sound.playBell(), 400);
+            }
+            this.showToast(`🔔 ¡NUEVO PEDIDO RECIBIDO! #${data.order.deliveryDetails?.code || data.order.id.slice(-4)}`);
+          }
         }
 
         if (data.type === 'ORDER_UPDATED') {
@@ -335,6 +414,7 @@ class KitchenController {
 
     this.ws.onclose = () => {
       console.log('WS Connection closed, retrying in 5 seconds...');
+      if (this.pingTimer) clearInterval(this.pingTimer);
       this.updateStatusBadge(false);
       this.reconnectTimer = setTimeout(() => this.connectWS(), 5000);
     };
