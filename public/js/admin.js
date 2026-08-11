@@ -2681,31 +2681,76 @@ class AdminController {
         iconAnchor: [19, 19]
       });
 
-      const gmapsLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-
-      const popupContent = `
-        <div style="min-width: 200px; padding: 4px; font-family: sans-serif;">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-            <span style="font-size: 24px;">${est.logo || '🏪'}</span>
-            <div>
-              <strong style="font-size: 14px; color: #0F172A; display: block;">${est.name}</strong>
-              <span style="font-size: 11px; color: #64748B;">📍 ${est.location || 'San Antonio'}</span>
+      const buildPopupHTML = (e, currentLat, currentLng) => {
+        const gmapsLink = `https://www.google.com/maps/search/?api=1&query=${currentLat},${currentLng}`;
+        return `
+          <div style="min-width: 210px; padding: 4px; font-family: system-ui, -apple-system, sans-serif;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+              <span style="font-size: 24px;">${e.logo || '🏪'}</span>
+              <div>
+                <strong style="font-size: 14px; color: #0F172A; display: block;">${e.name}</strong>
+                <span style="font-size: 11px; color: #64748B;">📍 ${e.location || 'San Antonio'}</span>
+              </div>
             </div>
+            <div style="margin-bottom: 8px;">
+              <span style="background: ${e.disabled ? '#FEE2E2' : '#D1FAE5'}; color: ${e.disabled ? '#991B1B' : '#065F46'}; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">
+                ${e.disabled ? '🚫 DESHABILITADO' : '🟢 HABILITADO'}
+              </span>
+            </div>
+            <p style="font-size: 10.5px; color: #475569; margin: 4px 0 8px 0; line-height: 1.3; background: #F1F5F9; padding: 6px; border-radius: 6px;">
+              📌 <strong>Mantén presionado o arrastra</strong> este pin para mover y fijar la ubicación exacta.
+            </p>
+            <a href="${gmapsLink}" target="_blank" style="display: block; width: 100%; text-align: center; background: #2563EB; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 6px 10px; border-radius: 8px; text-decoration: none; box-shadow: 0 2px 6px rgba(37,99,235,0.3); box-sizing: border-box;">
+              📍 Abrir en Google Maps
+            </a>
           </div>
-          <div style="margin-bottom: 8px;">
-            <span style="background: ${est.disabled ? '#FEE2E2' : '#D1FAE5'}; color: ${est.disabled ? '#991B1B' : '#065F46'}; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">
-              ${est.disabled ? '🚫 DESHABILITADO' : '🟢 HABILITADO'}
-            </span>
-            <span style="font-size: 11px; color: #64748B; margin-left: 6px;">Clave: <strong>${est.linkKey}</strong></span>
-          </div>
-          <a href="${gmapsLink}" target="_blank" style="display: block; width: 100%; text-align: center; background: #2563EB; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 6px 10px; border-radius: 8px; text-decoration: none; box-shadow: 0 2px 6px rgba(37,99,235,0.3);">
-            📍 Abrir en Google Maps
-          </a>
-        </div>
-      `;
+        `;
+      };
 
-      const marker = L.marker([lat, lng], { icon: emojiIcon }).addTo(map);
-      marker.bindPopup(popupContent);
+      const marker = L.marker([lat, lng], { icon: emojiIcon, draggable: true }).addTo(map);
+      marker.bindPopup(buildPopupHTML(est, lat, lng));
+
+      marker.on('dragend', async (e) => {
+        const pos = e.target.getLatLng();
+        const newLat = parseFloat(pos.lat.toFixed(6));
+        const newLng = parseFloat(pos.lng.toFixed(6));
+
+        // Update local object coordinates
+        est.latitude = newLat;
+        est.longitude = newLng;
+        est.location_lat = newLat;
+        est.location_lng = newLng;
+
+        marker.setPopupContent(buildPopupHTML(est, newLat, newLng));
+        marker.openPopup();
+
+        this.showToast(`📡 Guardando nueva ubicación de "${est.name}"...`);
+
+        try {
+          const res = await fetch(`/api/establishments/${est.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              isOwner: true,
+              latitude: newLat,
+              longitude: newLng,
+              location_lat: newLat,
+              location_lng: newLng
+            })
+          });
+
+          if (res.ok) {
+            this.showToast(`✅ ¡Ubicación de "${est.name}" fijada y guardada con éxito!`);
+            await this.triggerCloudBackup();
+          } else {
+            this.showToast('⚠️ Error al guardar la ubicación en el servidor.');
+          }
+        } catch(err) {
+          console.error('Error saving moved store position:', err);
+          this.showToast('⚠️ Error de conexión al actualizar posición GPS.');
+        }
+      });
+
       this.globalMapMarkers.push({ estId: est.id, marker });
     });
 
