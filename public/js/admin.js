@@ -304,7 +304,12 @@ class AdminController {
       row.innerHTML = `
         <td class="shop-title-cell" style="font-weight: 700;">
           ${est.logo || '🏪'} ${est.name} ${disabledBadge}
-          <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">📍 ${est.location || 'San Antonio'}</span>
+          <div style="margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">📍 ${est.location || 'San Antonio'}</span>
+            <button type="button" onclick="event.stopPropagation(); AdminApp.openStoreMapSingle('${est.id}')" style="background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;">
+              🗺️ GPS
+            </button>
+          </div>
         </td>
         <td><span class="shop-category-cell">${est.category}</span></td>
         <td style="font-weight: 600;">${ordersCount}</td>
@@ -312,10 +317,13 @@ class AdminController {
         <td style="font-weight: 700; color: var(--primary);">${this.formatPesos(totalRevenue)}</td>
         <td class="shop-key-cell" style="font-family: monospace; font-size: 13px; font-weight: 700;">${est.linkKey}</td>
         <td style="text-align: center; white-space: nowrap;">
-          <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.toggleDisableEstablishment('${est.id}')" style="background-color: ${est.disabled ? '#FEF3C7' : '#F3F4F6'}; color: ${est.disabled ? '#D97706' : '#374151'}; border: 1px solid ${est.disabled ? '#FCD34D' : '#D1D5DB'}; font-size: 12px; padding: 6px 12px; border-radius: var(--radius-sm); font-weight: 700; margin: 0 4px; width: auto; display: inline-block; cursor: pointer;">
+          <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.openStoreMapSingle('${est.id}')" style="background-color: #E0E7FF; color: #3730A3; border: 1px solid #A5B4FC; font-size: 12px; padding: 6px 10px; border-radius: var(--radius-sm); font-weight: 700; margin: 0 2px; width: auto; display: inline-block; cursor: pointer;">
+            🗺️ Ubicación GPS
+          </button>
+          <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.toggleDisableEstablishment('${est.id}')" style="background-color: ${est.disabled ? '#FEF3C7' : '#F3F4F6'}; color: ${est.disabled ? '#D97706' : '#374151'}; border: 1px solid ${est.disabled ? '#FCD34D' : '#D1D5DB'}; font-size: 12px; padding: 6px 10px; border-radius: var(--radius-sm); font-weight: 700; margin: 0 2px; width: auto; display: inline-block; cursor: pointer;">
             ${est.disabled ? '🟢 Habilitar' : '🚫 Deshabilitar'}
           </button>
-          <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.deleteEstablishment('${est.id}', '${est.name}')" style="background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; font-size: 12px; padding: 6px 12px; border-radius: var(--radius-sm); font-weight: 700; margin: 0; width: auto; display: inline-block; cursor: pointer;">
+          <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.deleteEstablishment('${est.id}', '${est.name}')" style="background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; font-size: 12px; padding: 6px 10px; border-radius: var(--radius-sm); font-weight: 700; margin: 0 2px; width: auto; display: inline-block; cursor: pointer;">
             🗑️ Eliminar
           </button>
         </td>
@@ -2452,6 +2460,155 @@ class AdminController {
         }, 3000);
       }
     }
+  }
+
+  openAllStoresMapModal() {
+    const modal = document.getElementById('admin-all-stores-map-modal');
+    if (!modal) return;
+    modal.classList.add('active');
+    this.checkModalOpenState();
+
+    setTimeout(() => {
+      this.initAdminGlobalStoresMap();
+    }, 250);
+  }
+
+  closeAllStoresMapModal() {
+    const modal = document.getElementById('admin-all-stores-map-modal');
+    if (modal) modal.classList.remove('active');
+    this.checkModalOpenState();
+  }
+
+  openStoreMapSingle(estId) {
+    const est = (this.establishments || []).find(e => e.id === estId);
+    if (!est) return;
+
+    if (est.latitude && est.longitude) {
+      this.openAllStoresMapModal();
+      setTimeout(() => {
+        if (this.globalMap && est.latitude && est.longitude) {
+          this.globalMap.setView([est.latitude, est.longitude], 16);
+          const item = (this.globalMapMarkers || []).find(m => m.estId === est.id);
+          if (item && item.marker) item.marker.openPopup();
+        }
+      }, 400);
+    } else {
+      const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(est.name + ' ' + (est.location || 'San Antonio'))}`;
+      if (confirm(`📡 El establecimiento "${est.name}" aún no tiene coordenadas GPS exactas cargadas.\n\n¿Deseas buscar su ubicación en Google Maps ahora?`)) {
+        window.open(gmapsUrl, '_blank');
+      } else {
+        this.openAllStoresMapModal();
+      }
+    }
+  }
+
+  initAdminGlobalStoresMap(filterLoc = 'all') {
+    const container = document.getElementById('admin-global-stores-map');
+    if (!container || typeof L === 'undefined') return;
+
+    if (this.globalMap) {
+      this.globalMap.remove();
+      this.globalMap = null;
+    }
+    this.globalMapMarkers = [];
+
+    let centerLat = 7.8145;
+    let centerLng = -72.4430;
+
+    let targetEsts = this.establishments || [];
+    if (filterLoc !== 'all') {
+      targetEsts = targetEsts.filter(e => (e.location || 'San Antonio').toLowerCase().includes(filterLoc.toLowerCase()));
+    }
+
+    const estsWithGPS = targetEsts.filter(e => e.latitude && e.longitude);
+
+    if (estsWithGPS.length > 0) {
+      centerLat = estsWithGPS[0].latitude;
+      centerLng = estsWithGPS[0].longitude;
+    }
+
+    const map = L.map('admin-global-stores-map').setView([centerLat, centerLng], 14);
+    this.globalMap = map;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    const statsText = document.getElementById('admin-map-stats-text');
+    if (statsText) {
+      statsText.innerHTML = `<span>📡</span> <span>Locales con GPS Registrado: <strong>${estsWithGPS.length}</strong> / <strong>${targetEsts.length}</strong> Comercios</span>`;
+    }
+
+    const bounds = L.latLngBounds();
+
+    targetEsts.forEach((est, idx) => {
+      let lat = est.latitude;
+      let lng = est.longitude;
+
+      if (!lat || !lng) {
+        const offsetLat = (idx % 5 - 2) * 0.004;
+        const offsetLng = (Math.floor(idx / 5) - 2) * 0.004;
+        if ((est.location || '').includes('Ureña')) {
+          lat = 7.9170 + offsetLat;
+          lng = -72.4400 + offsetLng;
+        } else if ((est.location || '').includes('Cristóbal')) {
+          lat = 7.7669 + offsetLat;
+          lng = -72.2250 + offsetLng;
+        } else {
+          lat = 7.8145 + offsetLat;
+          lng = -72.4430 + offsetLng;
+        }
+      }
+
+      bounds.extend([lat, lng]);
+
+      const emojiIcon = L.divIcon({
+        className: 'custom-admin-store-pin',
+        html: `
+          <div style="background: ${est.disabled ? '#EF4444' : '#10B981'}; color: #FFF; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); border: 2px solid #FFFFFF;">
+            ${est.logo || '🏪'}
+          </div>
+        `,
+        iconSize: [38, 38],
+        iconAnchor: [19, 19]
+      });
+
+      const gmapsLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+
+      const popupContent = `
+        <div style="min-width: 200px; padding: 4px; font-family: sans-serif;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 24px;">${est.logo || '🏪'}</span>
+            <div>
+              <strong style="font-size: 14px; color: #0F172A; display: block;">${est.name}</strong>
+              <span style="font-size: 11px; color: #64748B;">📍 ${est.location || 'San Antonio'}</span>
+            </div>
+          </div>
+          <div style="margin-bottom: 8px;">
+            <span style="background: ${est.disabled ? '#FEE2E2' : '#D1FAE5'}; color: ${est.disabled ? '#991B1B' : '#065F46'}; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">
+              ${est.disabled ? '🚫 DESHABILITADO' : '🟢 HABILITADO'}
+            </span>
+            <span style="font-size: 11px; color: #64748B; margin-left: 6px;">Clave: <strong>${est.linkKey}</strong></span>
+          </div>
+          <a href="${gmapsLink}" target="_blank" style="display: block; width: 100%; text-align: center; background: #2563EB; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 6px 10px; border-radius: 8px; text-decoration: none; box-shadow: 0 2px 6px rgba(37,99,235,0.3);">
+            📍 Abrir en Google Maps
+          </a>
+        </div>
+      `;
+
+      const marker = L.marker([lat, lng], { icon: emojiIcon }).addTo(map);
+      marker.bindPopup(popupContent);
+      this.globalMapMarkers.push({ estId: est.id, marker });
+    });
+
+    if (targetEsts.length > 0) {
+      map.fitBounds(bounds, { padding: [40, 40] });
+    }
+  }
+
+  filterGlobalMapLocation(loc) {
+    this.initAdminGlobalStoresMap(loc);
   }
 }
 
