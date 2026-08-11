@@ -258,9 +258,41 @@ class AdminController {
     }
 
     this.establishments.forEach(est => {
-      const estOrders = this.orders.filter(o => o.establishmentId === est.id);
+      const estOrders = this.orders.filter(o => o.establishmentId === est.id || o.establishment_id === est.id);
       const ordersCount = estOrders.length;
       const totalRevenue = estOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+
+      // Find last order details
+      let lastOrderHTML = '<span style="color: var(--text-muted); font-size: 11px;">Sin pedidos aún</span>';
+      if (estOrders.length > 0) {
+        const sortedOrders = [...estOrders].sort((a, b) => new Date(b.createdAt || b.timestamp || b.created_at || 0) - new Date(a.createdAt || a.timestamp || a.created_at || 0));
+        const lastOrder = sortedOrders[0];
+        
+        const rawDate = lastOrder.createdAt || lastOrder.timestamp || lastOrder.created_at;
+        const orderDate = rawDate ? new Date(rawDate) : null;
+        const timeAgoStr = orderDate ? this.getTimeAgoStr(orderDate) : 'Reciente';
+
+        const statusMap = {
+          'pending': { label: '⏳ Pendiente', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.15)' },
+          'preparing': { label: '👨‍🍳 En Preparación', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)' },
+          'ready': { label: '📦 Listo', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.15)' },
+          'on_the_way': { label: '🛵 En Camino', color: '#06B6D4', bg: 'rgba(6, 182, 212, 0.15)' },
+          'completed': { label: '✅ Entregado', color: '#10B981', bg: 'rgba(16, 185, 129, 0.15)' },
+          'cancelled': { label: '❌ Cancelado', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)' }
+        };
+
+        const statusObj = statusMap[lastOrder.status] || { label: lastOrder.status || 'Registrado', color: '#94A3B8', bg: 'rgba(255,255,255,0.08)' };
+        const codeStr = lastOrder.deliveryDetails?.code || lastOrder.orderCode || (lastOrder.id ? lastOrder.id.slice(-4) : '---');
+
+        lastOrderHTML = `
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 11px; font-weight: 700; color: #FFF;">⏱️ ${timeAgoStr}</span>
+            <span style="background: ${statusObj.bg}; color: ${statusObj.color}; border: 1px solid ${statusObj.color}; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; display: inline-block; width: fit-content;">
+              ${statusObj.label} (#${codeStr})
+            </span>
+          </div>
+        `;
+      }
 
       const row = document.createElement('tr');
       row.style.cursor = 'pointer';
@@ -277,6 +309,7 @@ class AdminController {
         </td>
         <td><span class="shop-category-cell">${est.category}</span></td>
         <td style="font-weight: 600;">${ordersCount}</td>
+        <td>${lastOrderHTML}</td>
         <td style="font-weight: 700; color: var(--primary);">${this.formatPesos(totalRevenue)}</td>
         <td class="shop-key-cell" style="font-family: monospace; font-size: 13px; font-weight: 700;">${est.linkKey}</td>
         <td style="text-align: center; white-space: nowrap;">
@@ -2092,6 +2125,20 @@ class AdminController {
     if (this.activeShopId) {
       this.toggleDisableEstablishment(this.activeShopId);
     }
+  }
+
+  getTimeAgoStr(date) {
+    if (!date || isNaN(date.getTime())) return 'Hace poco';
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return 'Hace un instante';
+    if (diffMins < 60) return `Hace ${diffMins} min`;
+    if (diffHours < 24) return `Hace ${diffHours}h ${diffMins % 60}m`;
+    return `Hace ${diffDays}d (${date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })})`;
   }
 
   async loadAdminMasterCatalogTable() {
