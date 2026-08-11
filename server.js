@@ -198,8 +198,8 @@ async function saveToPostgres() {
         longitude: est.longitude || null,
         location_lat: est.location_lat || null,
         location_lng: est.location_lng || null,
-        open_time: est.open_time || '11:00',
-        close_time: est.close_time || '23:00',
+        open_time: est.open_time || '17:00',
+        close_time: est.close_time || '00:00',
         isHighTraffic: Boolean(est.isHighTraffic),
         extraPrepTime: est.extraPrepTime || 20
       }));
@@ -307,7 +307,18 @@ function readDB() {
       return { establishments: [], orders: [] };
     }
     const data = fs.readFileSync(DB_FILE, 'utf8');
-    return JSON.parse(data);
+    const db = JSON.parse(data);
+    if (db && Array.isArray(db.establishments)) {
+      db.establishments.forEach(est => {
+        if (!est.open_time || est.open_time === '11:00') {
+          est.open_time = '17:00';
+        }
+        if (!est.close_time || est.close_time === '23:00') {
+          est.close_time = '00:00';
+        }
+      });
+    }
+    return db;
   } catch (err) {
     console.error('Error reading DB:', err);
     logAppError('readDB', err);
@@ -424,8 +435,8 @@ app.post('/api/establishments', (req, res) => {
   // Save/generate the administration key
   newEstablishment.linkKey = newEstablishment.linkKey || Math.random().toString(36).substring(2, 8).toUpperCase();
   newEstablishment.location = newEstablishment.location || 'San Antonio';
-  newEstablishment.open_time = newEstablishment.open_time || '11:00';
-  newEstablishment.close_time = newEstablishment.close_time || '23:00';
+  newEstablishment.open_time = newEstablishment.open_time || '17:00';
+  newEstablishment.close_time = newEstablishment.close_time || '00:00';
 
   db.establishments.push(newEstablishment);
   writeDB(db);

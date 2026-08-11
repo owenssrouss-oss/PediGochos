@@ -252,7 +252,7 @@ class MarketplaceController {
     this.selectedEstablishment = est;
 
     if (!this.isEstablishmentOpen(est)) {
-      this.showToast(`🔴 Local CERRADO (${est.open_time || '11:00'} - ${est.close_time || '23:00'}). Puedes explorar la carta.`);
+      this.showToast(`🔴 Local CERRADO (${this.formatTime12h(est.open_time)} - ${this.formatTime12h(est.close_time)}). Puedes explorar la carta.`);
     }
 
     if (pushState) {
@@ -354,7 +354,7 @@ class MarketplaceController {
       closedStoreBanner.innerHTML = `
         <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 12px; margin-top: 10px; display: flex; align-items: center; gap: 8px;">
           <span style="font-size: 16px;">🔴</span>
-          <span><strong>Restaurante Cerrado:</strong> Horario de Atención: <strong>${est.open_time || '11:00 AM'} a ${est.close_time || '11:00 PM'}</strong>. Puedes consultar el menú pero los pedidos están desactivados fuera de horario.</span>
+          <span><strong>Restaurante Cerrado:</strong> Horario de Atención: <strong>${this.formatTime12h(est.open_time)} a ${this.formatTime12h(est.close_time)}</strong>. Puedes consultar el menú pero los pedidos están desactivados fuera de horario.</span>
         </div>
       `;
       closedStoreBanner.style.display = 'block';
@@ -1809,7 +1809,7 @@ class MarketplaceController {
     if (!this.customizerState || !this.customizerState.product) return;
 
     if (this.selectedEstablishment && !this.isEstablishmentOpen(this.selectedEstablishment)) {
-      alert(`🔴 ${this.selectedEstablishment.name} está actualmente CERRADO.\n\nHorario de Atención: ${this.selectedEstablishment.open_time || '11:00 AM'} a ${this.selectedEstablishment.close_time || '11:00 PM'}.\n\nPuedes explorar el menú completo, pero los pedidos están pausados hasta la hora de apertura.`);
+      alert(`🔴 ${this.selectedEstablishment.name} está actualmente CERRADO.\n\nHorario de Atención: ${this.formatTime12h(this.selectedEstablishment.open_time)} a ${this.formatTime12h(this.selectedEstablishment.close_time)}.\n\nPuedes explorar el menú completo, pero los pedidos están pausados hasta la hora de apertura.`);
       return;
     }
     
@@ -3397,8 +3397,8 @@ class MarketplaceController {
 
   isEstablishmentOpen(est) {
     if (!est) return true;
-    const openTime = est.open_time || '11:00';
-    const closeTime = est.close_time || '23:00';
+    const openTime = est.open_time || '17:00';
+    const closeTime = est.close_time || '00:00';
 
     const now = new Date();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -3406,20 +3406,40 @@ class MarketplaceController {
     const parseMinutes = (timeStr) => {
       if (!timeStr) return 0;
       const parts = timeStr.split(':');
-      const h = parseInt(parts[0], 10) || 0;
-      const m = parseInt(parts[1], 10) || 0;
+      let h = parseInt(parts[0], 10) || 0;
+      let m = parseInt(parts[1], 10) || 0;
+      if ((h === 0 && m === 0 && (timeStr === '00:00' || timeStr === '24:00')) || h === 24) {
+        return 1440; // 12:00 AM Midnight (24:00) is end of day
+      }
       return h * 60 + m;
     };
 
-    const openMin = parseMinutes(openTime);
-    const closeMin = parseMinutes(closeTime);
+    let openMin = parseMinutes(openTime);
+    let closeMin = parseMinutes(closeTime);
 
     if (openMin <= closeMin) {
       return currentMinutes >= openMin && currentMinutes <= closeMin;
     } else {
-      // Midnight wrap-around (e.g. 18:00 to 02:00)
+      // Overnight wrap-around (e.g. 17:00 to 02:00)
       return currentMinutes >= openMin || currentMinutes <= closeMin;
     }
+  }
+
+  formatTime12h(timeStr) {
+    if (!timeStr) return '5:00 PM';
+    const parts = timeStr.split(':');
+    let h = parseInt(parts[0], 10) || 0;
+    let m = parseInt(parts[1], 10) || 0;
+    
+    if (h === 0 && m === 0) return '12:00 AM (Medianoche)';
+    if (h === 12 && m === 0) return '12:00 PM (Mediodía)';
+    if (h === 24) return '12:00 AM (Medianoche)';
+    
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12;
+    if (h === 0) h = 12;
+    const mStr = m < 10 ? '0' + m : m;
+    return `${h}:${mStr} ${ampm}`;
   }
 
   // Web Push Notifications

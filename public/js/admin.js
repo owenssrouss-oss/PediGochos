@@ -450,8 +450,8 @@ class AdminController {
       }
       if (prepInput) prepInput.value = est.prep_time || '';
       if (deliveryTimeInput) deliveryTimeInput.value = est.delivery_time || '';
-      if (openTimeInput) openTimeInput.value = est.open_time || '11:00';
-      if (closeTimeInput) closeTimeInput.value = est.close_time || '23:00';
+      if (openTimeInput) openTimeInput.value = est.open_time || '17:00';
+      if (closeTimeInput) closeTimeInput.value = est.close_time || '00:00';
 
       const select = document.getElementById('edit-shop-logo');
       if (select) {
@@ -532,8 +532,8 @@ class AdminController {
 
     const prep_time = document.getElementById('edit-shop-prep-time').value;
     const delivery_time = document.getElementById('edit-shop-delivery-time').value;
-    const open_time = document.getElementById('edit-shop-open-time')?.value || '11:00';
-    const close_time = document.getElementById('edit-shop-close-time')?.value || '23:00';
+    const open_time = document.getElementById('edit-shop-open-time')?.value || '17:00';
+    const close_time = document.getElementById('edit-shop-close-time')?.value || '00:00';
 
     const logoFile = document.getElementById('edit-shop-logo-file').files[0];
     const bannerFile = document.getElementById('edit-shop-banner-file').files[0];
