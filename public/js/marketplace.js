@@ -688,7 +688,7 @@ class MarketplaceController {
 
     featuredShuffled.forEach(est => {
       const card = document.createElement('div');
-      card.style.cssText = 'min-width: 170px; width: 170px; flex-shrink: 0; background: rgba(22, 22, 28, 0.9); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 10px; cursor: pointer; scroll-snap-align: start; transition: transform 0.2s;';
+      card.style.cssText = 'min-width: 200px; width: 200px; flex-shrink: 0; background: rgba(18, 18, 24, 0.95); border: 1px solid rgba(255, 94, 58, 0.2); border-radius: 14px; padding: 8px 10px; cursor: pointer; scroll-snap-align: start; transition: transform 0.2s, border-color 0.2s; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);';
       const isOpen = this.isEstablishmentOpen(est);
 
       if (!isOpen) {
@@ -705,19 +705,18 @@ class MarketplaceController {
       }
 
       card.innerHTML = `
-        <div style="width: 100%; height: 90px; border-radius: 10px; overflow: hidden; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; position: relative;">
+        <div style="width: 54px; height: 54px; border-radius: 10px; overflow: hidden; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; border: 1px solid rgba(255,255,255,0.1);">
           ${imgHTML}
-          <div class="hidden" style="font-size: 28px;">${est.logo || '🏪'}</div>
-          <span style="position: absolute; top: 6px; right: 6px; background: rgba(255, 94, 58, 0.9); color: #fff; padding: 2px 6px; border-radius: 6px; font-size: 9px; font-weight: 800;">✨ TOP</span>
+          <div class="hidden" style="font-size: 22px;">${est.logo || '🏪'}</div>
         </div>
-        <div style="margin-top: 6px; display: flex; flex-direction: column; gap: 3px;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
             <h5 style="margin: 0; font-size: 12px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;">${est.name}</h5>
-            <span style="font-size: 10px; color: #FFCC00; font-weight: 800; margin-left: 4px;">★ 0.0</span>
+            <span style="font-size: 9.5px; color: #FFCC00; font-weight: 800; flex-shrink: 0;">★ 0.0</span>
           </div>
-          <div style="font-size: 10.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${this.capitalize(est.category)}</div>
-          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; margin-top: 2px;">
-            <span style="color: var(--primary); font-weight: 700;">🚲 ${this.formatPesos(est.delivery_fee || 5000)}</span>
+          <div style="font-size: 10px; color: var(--accent); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">✨ Destacado</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 9.5px; margin-top: 2px;">
+            <span style="color: #3B82F6; font-weight: 800;">🚲 ${this.formatPesos(est.delivery_fee || 5000)}</span>
             <span style="color: #94A3B8;">${this.getFormattedDeliveryTime(est)}</span>
           </div>
         </div>

@@ -158,16 +158,24 @@
         </div>
 
         <!-- Featured Carousel Section (Carrusel Horizontal de Destacados) -->
-        <section id="featured-carousel-section" style="margin-bottom: 18px;">
-          <div class="section-header-flex" style="margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+        <section id="featured-carousel-section" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(255, 94, 58, 0.08), rgba(22, 22, 28, 0.95)); border: 1px solid rgba(255, 94, 58, 0.25); border-radius: 18px; padding: 14px 12px 10px 12px; box-shadow: 0 8px 24px rgba(255, 94, 58, 0.08);">
+          <div class="section-header-flex" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
             <h4 style="font-size: 14px; font-weight: 800; color: #FFF; margin: 0; display: flex; align-items: center; gap: 6px;">
-              <span>✨</span> Destacados & Recomendados
+              <span style="font-size: 16px;">✨</span> Destacados del Día
             </h4>
+            <span style="font-size: 10px; color: var(--accent); background: rgba(255, 94, 58, 0.15); padding: 2px 8px; border-radius: 20px; font-weight: 800;">Desliza ➔</span>
           </div>
           <div id="featured-carousel-container" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;" class="premium-scroll">
             <!-- Dynamically populated horizontal cards -->
           </div>
         </section>
+
+        <!-- Divider & Section Header for Main Establishments Grid -->
+        <div id="all-restaurants-header" style="margin: 16px 0 12px 0; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1);">
+          <h4 style="font-size: 15px; font-weight: 800; color: #ffffff; margin: 0; display: flex; align-items: center; gap: 6px;">
+            <span>🏪</span> Todos los Comercios
+          </h4>
+        </div>
 
         <div class="establishments-list-delivercity" id="establishments-grid">
           <!-- Dynamically filled -->
@@ -553,6 +561,6 @@
   <script src="/js/supabase-helper.js?v=81"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="/js/sound.js?v=81"></script>
-  <script src="/js/marketplace.js?v=117"></script>
+  <script src="/js/marketplace.js?v=118"></script>
 </body>
 </html>

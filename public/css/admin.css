@@ -551,3 +551,39 @@ body.modal-open {
   pointer-events: auto !important;
   touch-action: pan-y !important;
 }
+
+/* Responsive Fullscreen Optimization for Mobile Devices */
+@media (max-width: 768px) {
+  #menu-tables-modal {
+    padding: 0 !important;
+    align-items: stretch !important;
+  }
+
+  #menu-tables-modal .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    padding: 14px 10px !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  #menu-tables-modal .import-catalog-section {
+    padding: 12px 10px !important;
+    border-radius: 12px !important;
+  }
+
+  #modal-products-catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  #modal-import-catalog-tbody tr td {
+    padding: 8px 6px !important;
+    font-size: 12px !important;
+  }
+}
