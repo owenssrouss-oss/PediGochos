@@ -2600,11 +2600,53 @@ class AdminController {
         }
       }, 400);
     } else {
-      const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(est.name + ' ' + (est.location || 'San Antonio'))}`;
-      if (confirm(`📡 El establecimiento "${est.name}" aún no tiene coordenadas GPS exactas cargadas.\n\n¿Deseas buscar su ubicación en Google Maps ahora?`)) {
-        window.open(gmapsUrl, '_blank');
-      } else {
+      this.showToast(`📡 Detectando tu ubicación GPS para situar a "${est.name}"...`);
+
+      const placePinAt = (lat, lng, isUserGPS = true) => {
+        est.latitude = lat;
+        est.longitude = lng;
+        est.location_lat = lat;
+        est.location_lng = lng;
+
         this.openAllStoresMapModal();
+        setTimeout(() => {
+          if (this.globalMap) {
+            this.globalMap.setView([lat, lng], 16);
+            const item = (this.globalMapMarkers || []).find(m => m.estId === est.id);
+            if (item && item.marker) {
+              item.marker.setLatLng([lat, lng]);
+              item.marker.openPopup();
+            }
+          }
+          if (isUserGPS) {
+            this.showToast(`📍 Pin colocado en tu GPS actual. Arrastra el pin para fijar la ubicación de "${est.name}".`);
+          } else {
+            this.showToast(`📍 Pin colocado en la ciudad. Arrastra el pin para fijar la ubicación de "${est.name}".`);
+          }
+        }, 400);
+      };
+
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            placePinAt(pos.coords.latitude, pos.coords.longitude, true);
+          },
+          (err) => {
+            let defaultLat = 7.8145;
+            let defaultLng = -72.4430;
+            if ((est.location || '').includes('Ureña')) {
+              defaultLat = 7.9170; defaultLng = -72.4400;
+            } else if ((est.location || '').includes('Cristóbal')) {
+              defaultLat = 7.7669; defaultLng = -72.2250;
+            }
+            placePinAt(defaultLat, defaultLng, false);
+          },
+          { enableHighAccuracy: true, timeout: 7000 }
+        );
+      } else {
+        let defaultLat = 7.8145;
+        let defaultLng = -72.4430;
+        placePinAt(defaultLat, defaultLng, false);
       }
     }
   }
