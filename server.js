@@ -314,10 +314,13 @@ async function deleteEstablishmentFromPostgres(id) {
 function readDB() {
   try {
     if (!fs.existsSync(DB_FILE)) {
-      return { establishments: [], orders: [] };
+      return { establishments: [], orders: [], reviews: [], drivers: [] };
     }
     const data = fs.readFileSync(DB_FILE, 'utf8');
     const db = JSON.parse(data);
+    if (!db.reviews) db.reviews = [];
+    if (!db.drivers) db.drivers = [];
+
     if (db && Array.isArray(db.establishments)) {
       db.establishments.forEach(est => {
         if (!est.open_time || est.open_time === '11:00') {
@@ -332,7 +335,7 @@ function readDB() {
   } catch (err) {
     console.error('Error reading DB:', err);
     logAppError('readDB', err);
-    return { establishments: [], orders: [] };
+    return { establishments: [], orders: [], reviews: [], drivers: [] };
   }
 }
 
@@ -755,6 +758,225 @@ app.post('/api/establishments/:id/orders/reset', (req, res) => {
   db.orders = db.orders.filter(o => o.establishmentId !== id);
   writeDB(db);
   res.json({ success: true });
+});
+
+// ==========================================
+// REVIEWS & RATINGS (5-STAR SYSTEM) ENDPOINTS
+// ==========================================
+
+// GET reviews and average rating for an establishment
+app.get('/api/establishments/:id/reviews', (req, res) => {
+  const { id } = req.params;
+  const db = readDB();
+  const reviews = (db.reviews || []).filter(r => r.establishmentId === id);
+  
+  let avgRating = 5.0;
+  if (reviews.length > 0) {
+    const sum = reviews.reduce((acc, r) => acc + (parseFloat(r.rating) || 5), 0);
+    avgRating = parseFloat((sum / reviews.length).toFixed(1));
+  }
+
+  res.json({
+    establishmentId: id,
+    avgRating: avgRating,
+    totalReviews: reviews.length,
+    reviews: reviews
+  });
+});
+
+// POST submit a new review
+app.post('/api/reviews', (req, res) => {
+  const { orderId, establishmentId, customerName, rating, comment } = req.body;
+  if (!establishmentId || !rating) {
+    return res.status(400).json({ error: 'EstablishmentId and rating are required' });
+  }
+
+  const db = readDB();
+  if (!db.reviews) db.reviews = [];
+
+  // Prevent duplicate reviews for same order
+  if (orderId && db.reviews.some(r => r.orderId === orderId)) {
+    return res.status(400).json({ error: 'Ya has calificado este pedido.' });
+  }
+
+  const newReview = {
+    id: 'rev-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+    orderId: orderId || null,
+    establishmentId,
+    customerName: customerName || 'Cliente de Rapi Gochos',
+    rating: Math.min(5, Math.max(1, parseFloat(rating))),
+    comment: comment || '',
+    createdAt: new Date().toISOString()
+  };
+
+  db.reviews.push(newReview);
+
+  // Update establishment rating cache if establishment exists
+  const est = db.establishments.find(e => e.id === establishmentId);
+  if (est) {
+    const estReviews = db.reviews.filter(r => r.establishmentId === establishmentId);
+    const sum = estReviews.reduce((acc, r) => acc + r.rating, 0);
+    est.avgRating = parseFloat((sum / estReviews.length).toFixed(1));
+    est.totalReviews = estReviews.length;
+  }
+
+  writeDB(db);
+  console.log(`⭐ New review added for establishment ${establishmentId}: ${newReview.rating} stars`);
+
+  res.status(201).json(newReview);
+});
+
+// ==========================================
+// DRIVER APP (REPARTIDORES) ENDPOINTS
+// ==========================================
+
+// GET all drivers (admin view)
+app.get('/api/drivers', (req, res) => {
+  const db = readDB();
+  res.json(db.drivers || []);
+});
+
+// POST register or update driver (admin view)
+app.post('/api/drivers/register', (req, res) => {
+  const { name, phone, linkKey, vehicleType } = req.body;
+  if (!name || !phone) {
+    return res.status(400).json({ error: 'Nombre y teléfono son obligatorios' });
+  }
+
+  const db = readDB();
+  if (!db.drivers) db.drivers = [];
+
+  const existingIndex = db.drivers.findIndex(d => d.phone === phone || d.linkKey === linkKey);
+  const driverData = {
+    id: existingIndex !== -1 ? db.drivers[existingIndex].id : 'drv-' + Date.now(),
+    name,
+    phone,
+    linkKey: linkKey || 'GOCHO-' + Math.floor(1000 + Math.random() * 9000),
+    vehicleType: vehicleType || 'Moto 🛵',
+    status: 'Disponible', // 'Disponible', 'En Camino', 'Fuera de Servicio'
+    totalDeliveries: existingIndex !== -1 ? db.drivers[existingIndex].totalDeliveries || 0 : 0,
+    latitude: existingIndex !== -1 ? db.drivers[existingIndex].latitude : null,
+    longitude: existingIndex !== -1 ? db.drivers[existingIndex].longitude : null,
+    lastActive: new Date().toISOString()
+  };
+
+  if (existingIndex !== -1) {
+    db.drivers[existingIndex] = driverData;
+  } else {
+    db.drivers.push(driverData);
+  }
+
+  writeDB(db);
+  res.status(201).json(driverData);
+});
+
+// GET orders ready for drivers
+app.get('/api/driver/orders', (req, res) => {
+  const { location } = req.query;
+  const db = readDB();
+
+  let readyOrders = db.orders.filter(o => o.status === 'Listo' || o.status === 'Preparando' || o.status === 'En Camino');
+
+  if (location && location !== 'all') {
+    const matchingEstIds = db.establishments
+      .filter(e => (e.location || 'San Antonio').toLowerCase().includes(location.toLowerCase()))
+      .map(e => e.id);
+    readyOrders = readyOrders.filter(o => matchingEstIds.includes(o.establishmentId));
+  }
+
+  res.json(readyOrders);
+});
+
+// POST driver accepts order
+app.post('/api/driver/accept-order', (req, res) => {
+  const { orderId, driverId, driverName, driverPhone } = req.body;
+  if (!orderId || !driverName) {
+    return res.status(400).json({ error: 'OrderId and driverName are required' });
+  }
+
+  const db = readDB();
+  const order = db.orders.find(o => o.id === orderId);
+  if (!order) {
+    return res.status(404).json({ error: 'Pedido no encontrado' });
+  }
+
+  order.status = 'En Camino';
+  order.driver = {
+    id: driverId || 'drv-temp',
+    name: driverName,
+    phone: driverPhone || '',
+    acceptedAt: new Date().toISOString()
+  };
+  order.updatedAt = new Date().toISOString();
+
+  // Update driver status
+  if (db.drivers) {
+    const drv = db.drivers.find(d => d.id === driverId || d.phone === driverPhone);
+    if (drv) drv.status = 'En Camino';
+  }
+
+  writeDB(db);
+
+  // Broadcast to merchant WebSocket clients
+  broadcastToMerchant(order.establishmentId, {
+    type: 'ORDER_UPDATED',
+    orderId: order.id,
+    status: 'En Camino',
+    order: order
+  });
+
+  res.json({ success: true, order: order });
+});
+
+// POST driver completes order (marks Entregado)
+app.post('/api/driver/complete-order', (req, res) => {
+  const { orderId, driverPhone } = req.body;
+  const db = readDB();
+  const order = db.orders.find(o => o.id === orderId);
+  if (!order) {
+    return res.status(404).json({ error: 'Pedido no encontrado' });
+  }
+
+  order.status = 'Entregado';
+  order.updatedAt = new Date().toISOString();
+
+  if (db.drivers) {
+    const drv = db.drivers.find(d => d.phone === driverPhone || (order.driver && d.id === order.driver.id));
+    if (drv) {
+      drv.status = 'Disponible';
+      drv.totalDeliveries = (drv.totalDeliveries || 0) + 1;
+    }
+  }
+
+  writeDB(db);
+
+  broadcastToMerchant(order.establishmentId, {
+    type: 'ORDER_UPDATED',
+    orderId: order.id,
+    status: 'Entregado',
+    order: order
+  });
+
+  res.json({ success: true, order: order });
+});
+
+// POST driver broadcasts live GPS location
+app.post('/api/driver/location', (req, res) => {
+  const { driverPhone, latitude, longitude } = req.body;
+  if (!driverPhone || latitude === undefined || longitude === undefined) {
+    return res.status(400).json({ error: 'driverPhone, latitude and longitude required' });
+  }
+
+  const db = readDB();
+  let drv = (db.drivers || []).find(d => d.phone === driverPhone);
+  if (drv) {
+    drv.latitude = parseFloat(latitude);
+    drv.longitude = parseFloat(longitude);
+    drv.lastActive = new Date().toISOString();
+    writeDB(db);
+  }
+
+  res.json({ success: true, latitude, longitude });
 });
 
 // Fallback for SPA routing (if any) or simple index.html

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Rapi Gochos Driver - App de Repartidores</title>
+  <link rel="stylesheet" href="/css/common.css?v=80">
+  <link rel="stylesheet" href="/css/driver.css?v=131">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+</head>
+<body class="driver-body">
+
+  <!-- Driver Login Gate Overlay -->
+  <div id="driver-login-gate" class="driver-gate-overlay">
+    <div class="driver-gate-card">
+      <div class="gate-icon-pulse">🛵</div>
+      <h2>Rapi Gochos <span>Driver</span></h2>
+      <p class="gate-subtitle">Portal Oficial de Repartidores Gochos</p>
+      
+      <div class="form-group" style="margin-top: 20px; text-align: left;">
+        <label for="driver-input-phone">Teléfono Móvil (WhatsApp) *</label>
+        <input type="tel" id="driver-input-phone" placeholder="Ej. 04141234567" class="input-3d">
+      </div>
+
+      <div class="form-group" style="margin-top: 12px; text-align: left;">
+        <label for="driver-input-key">Clave Privada de Repartidor *</label>
+        <input type="password" id="driver-input-key" placeholder="Ej. GOCHO-8821" class="input-3d">
+      </div>
+
+      <button type="button" class="btn-3d btn-3d-emerald" onclick="DriverApp.loginDriver()" style="width: 100%; margin-top: 16px; font-size: 15px; padding: 14px;">
+        🚀 Iniciar Sesión de Repartidor
+      </button>
+
+      <div id="driver-login-error" class="error-text hidden" style="margin-top: 12px;"></div>
+    </div>
+  </div>
+
+  <!-- Main Driver Container -->
+  <div class="driver-app-container">
+    
+    <!-- Top Header -->
+    <header class="driver-header">
+      <div class="driver-brand">
+        <span class="logo-emoji">🛵</span>
+        <div>
+          <h2 id="driver-profile-name">Repartidor Gocho</h2>
+          <span id="driver-profile-phone" class="driver-sub-info">Cargando perfil...</span>
+        </div>
+      </div>
+      
+      <div class="driver-status-toggle">
+        <label class="switch-3d">
+          <input type="checkbox" id="driver-duty-toggle" onchange="DriverApp.toggleDutyStatus(this.checked)">
+          <span class="slider-3d"></span>
+        </label>
+        <span id="duty-status-badge" class="duty-badge badge-offline">🔴 Fuera de Servicio</span>
+      </div>
+    </header>
+
+    <!-- Navigation Bar Tabs -->
+    <nav class="driver-nav-tabs">
+      <button type="button" class="tab-btn-3d active" onclick="DriverApp.switchTab('available')" id="tab-btn-available">
+        📦 Encomiendas <span id="badge-available-count" class="count-pill">0</span>
+      </button>
+      <button type="button" class="tab-btn-3d" onclick="DriverApp.switchTab('active')" id="tab-btn-active">
+        🛵 Pedido Activo
+      </button>
+      <button type="button" class="tab-btn-3d" onclick="DriverApp.switchTab('earnings')" id="tab-btn-earnings">
+        💰 Mis Ganancias
+      </button>
+    </nav>
+
+    <!-- Tab 1: Available Orders for Pickup -->
+    <main id="tab-view-available" class="tab-content active">
+      <div class="section-title-bar">
+        <h3>📦 Pedidos Listos para Recoger</h3>
+        <button type="button" class="btn-3d-icon" onclick="DriverApp.loadAvailableOrders()" title="Actualizar">🔄</button>
+      </div>
+
+      <div id="available-orders-list" class="orders-cards-grid">
+        <div class="loading-spinner">Cargando encomiendas disponibles en tu zona...</div>
+      </div>
+    </main>
+
+    <!-- Tab 2: Active Assigned Order -->
+    <main id="tab-view-active" class="tab-content hidden">
+      <div id="no-active-order-msg" class="empty-state-card">
+        <span class="empty-icon">🛵</span>
+        <h3>Sin Pedido Activo en Curso</h3>
+        <p>Acepta una encomienda disponible en la pestaña de pedidos para iniciar tu ruta de entrega.</p>
+        <button type="button" class="btn-3d btn-3d-orange" onclick="DriverApp.switchTab('available')">
+          📦 Ver Pedidos Disponibles
+        </button>
+      </div>
+
+      <div id="active-order-details-card" class="active-order-card hidden">
+        <!-- Filled dynamically via driver.js -->
+      </div>
+    </main>
+
+    <!-- Tab 3: Wallet & Daily Earnings -->
+    <main id="tab-view-earnings" class="tab-content hidden">
+      <div class="earnings-summary-card">
+        <span class="summary-label">Ganancias Totales de Hoy</span>
+        <div class="summary-amount" id="driver-today-earnings">$0.00 USD</div>
+        <span class="summary-sub" id="driver-today-deliveries-count">0 Envíos Realizados</span>
+      </div>
+
+      <div class="history-section">
+        <h3>📋 Historial de Entregas Realizadas</h3>
+        <div id="driver-history-list" class="orders-cards-grid">
+          <!-- Filled dynamically -->
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <script src="/js/sound.js?v=81"></script>
+  <script src="/js/driver.js?v=131"></script>
+</body>
+</html>

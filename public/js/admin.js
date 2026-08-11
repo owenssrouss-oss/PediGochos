@@ -331,7 +331,100 @@ class AdminController {
       tbody.appendChild(row);
     });
 
+    this.loadDriversTable();
     this.loadAdminMasterCatalogTable();
+  }
+
+  async loadDriversTable() {
+    const tbody = document.getElementById('admin-drivers-table-body');
+    if (!tbody) return;
+
+    try {
+      const res = await fetch('/api/drivers');
+      if (!res.ok) return;
+      const drivers = await res.json();
+
+      if (!Array.isArray(drivers) || drivers.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">
+              No hay repartidores registrados en el sistema. Registra el primero con el botón azul arriba.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = drivers.map(d => {
+        const isOnline = d.status === 'Disponible' || d.status === 'En Camino';
+        const statusBadge = d.status === 'En Camino' 
+          ? '<span style="background: rgba(59,130,246,0.2); color: #3B82F6; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 6px;">🛵 En Camino</span>'
+          : (d.status === 'Disponible' 
+            ? '<span style="background: rgba(16,185,129,0.2); color: #10B981; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 6px;">🟢 Disponible</span>'
+            : '<span style="background: rgba(239,68,68,0.2); color: #EF4444; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 6px;">🔴 Fuera de Servicio</span>');
+
+        return `
+          <tr>
+            <td style="font-weight: 800; color: #FFF;">🛵 ${d.name}</td>
+            <td style="font-size: 12px; font-weight: 600;">📱 ${d.phone}</td>
+            <td style="font-size: 12px;">${d.vehicleType || 'Moto 🛵'}</td>
+            <td style="font-family: monospace; font-size: 13px; font-weight: 800; color: #10B981;">${d.linkKey}</td>
+            <td style="font-weight: 800; color: var(--primary); text-align: center;">${d.totalDeliveries || 0}</td>
+            <td>${statusBadge}</td>
+            <td style="text-align: center;">
+              <a href="/driver.html" target="_blank" style="background: rgba(59,130,246,0.15); color: #3B82F6; border: 1px solid rgba(59,130,246,0.3); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 8px; text-decoration: none; display: inline-block;">
+                🛵 Abrir App Driver
+              </a>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    } catch(e) {
+      console.warn('Error loading drivers table:', e);
+    }
+  }
+
+  openRegisterDriverModal() {
+    const modal = document.getElementById('admin-register-driver-modal');
+    if (!modal) return;
+    document.getElementById('reg-driver-name').value = '';
+    document.getElementById('reg-driver-phone').value = '';
+    document.getElementById('reg-driver-key').value = 'GOCHO-' + Math.floor(1000 + Math.random() * 9000);
+    modal.classList.add('active');
+    this.checkModalOpenState();
+  }
+
+  closeRegisterDriverModal() {
+    const modal = document.getElementById('admin-register-driver-modal');
+    if (modal) modal.classList.remove('active');
+    this.checkModalOpenState();
+  }
+
+  async handleRegisterDriverSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('reg-driver-name').value.trim();
+    const phone = document.getElementById('reg-driver-phone').value.trim();
+    const vehicleType = document.getElementById('reg-driver-vehicle').value;
+    const linkKey = document.getElementById('reg-driver-key').value.trim().toUpperCase();
+
+    try {
+      const res = await fetch('/api/drivers/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, vehicleType, linkKey })
+      });
+
+      if (res.ok) {
+        this.showToast('✅ Repartidor registrado con éxito.');
+        this.closeRegisterDriverModal();
+        this.loadDriversTable();
+      } else {
+        alert('Error al registrar repartidor.');
+      }
+    } catch(err) {
+      console.error(err);
+      alert('Error de conexión al registrar repartidor.');
+    }
   }
 
   showEstablishmentActions(id) {

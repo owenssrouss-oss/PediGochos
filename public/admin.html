@@ -253,6 +253,41 @@
           </div>
         </div>
 
+        <!-- Card: Flota de Repartidores & Motorizados (Driver App Manager) -->
+        <div class="admin-card" style="margin-top: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 6px;">
+            <div>
+              <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                <span>🛵</span> Flota de Repartidores y Drivers
+              </h3>
+              <p class="card-subtitle" style="margin-top: 4px;">Gestión de motorizados, generación de claves de acceso y estado en tiempo real.</p>
+            </div>
+            <button type="button" onclick="AdminApp.openRegisterDriverModal()" style="background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); color: #FFF; border: none; font-weight: 800; padding: 8px 14px; border-radius: 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+              ➕ Registrar Nuevo Repartidor
+            </button>
+          </div>
+          <hr class="card-divider">
+
+          <div class="table-container premium-scroll">
+            <table class="keys-table">
+              <thead>
+                <tr>
+                  <th>Repartidor</th>
+                  <th>Teléfono / WhatsApp</th>
+                  <th>Vehículo</th>
+                  <th>Clave Driver</th>
+                  <th>Entregas Hoy</th>
+                  <th>Estado Actual</th>
+                  <th style="text-align: center;">Acceso Web Driver</th>
+                </tr>
+              </thead>
+              <tbody id="admin-drivers-table-body">
+                <!-- Filled dynamically via admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Card: Admin Analytics Pro ($10/mes) - Dashboard de Analíticas en Tiempo Real -->
         <div class="admin-card" id="admin-analytics-pro-card" style="margin-top: 24px; border: 2px solid #F59E0B; background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); border-radius: 18px; padding: 22px; box-shadow: 0 10px 30px rgba(245, 158, 11, 0.15); color: #fff;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 14px; margin-bottom: 18px;">
@@ -855,7 +890,7 @@
     </div>
   </div>
 
-  <script src="/js/admin.js?v=130"></script>
+  <script src="/js/admin.js?v=131"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
@@ -1693,6 +1728,47 @@
         <div id="admin-global-stores-map" style="width: 100%; height: 100%;"></div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- Modal: Registrar Nuevo Repartidor (Admin) -->
+  <div class="modal-overlay" id="admin-register-driver-modal" style="z-index: 3900; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div class="modal-content" style="max-width: 450px; width: 94%; padding: 22px; border-radius: 20px; background: rgba(18, 18, 24, 0.96); border: 1px solid rgba(255, 255, 255, 0.1); margin: auto;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; color: #FFF; font-size: 17px; font-weight: 800;">🛵 Registrar Nuevo Repartidor</h3>
+        <button class="modal-close" onclick="AdminApp.closeRegisterDriverModal()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.1); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <form onsubmit="AdminApp.handleRegisterDriverSubmit(event)">
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="color: #94A3B8; font-size: 12px;">Nombre del Repartidor *</label>
+          <input type="text" id="reg-driver-name" required placeholder="Ej. Carlos Pérez" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="color: #94A3B8; font-size: 12px;">Teléfono Móvil (WhatsApp) *</label>
+          <input type="tel" id="reg-driver-phone" required placeholder="Ej. 04141234567" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="color: #94A3B8; font-size: 12px;">Tipo de Vehículo *</label>
+          <select id="reg-driver-vehicle" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+            <option value="Moto 🛵">Moto 🛵</option>
+            <option value="Bicicleta 🚲">Bicicleta 🚲</option>
+            <option value="Carro 🚗">Carro 🚗</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label style="color: #94A3B8; font-size: 12px;">Clave de Acceso Driver (Generada) *</label>
+          <input type="text" id="reg-driver-key" required placeholder="Ej. GOCHO-8821" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #10B981; font-weight: 800; font-family: monospace; font-size: 14px;">
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" onclick="AdminApp.closeRegisterDriverModal()" style="background: transparent; color: #94A3B8; border: 1px solid #475569; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer;">Cancelar</button>
+          <button type="submit" style="background: #10B981; color: #FFF; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer;">💾 Registrar Repartidor</button>
+        </div>
+      </form>
     </div>
   </div>
 </body>

@@ -611,6 +611,9 @@ class MarketplaceController {
         ? `<span style="background: #dc2626; color: #ffffff; padding: 2px 5px; border-radius: 6px; font-size: 9.5px; font-weight: 800; position: absolute; top: 6px; left: 6px; z-index: 2;">🚨 Tráfico Alto</span>` 
         : '';
 
+      const ratingVal = est.avgRating ? parseFloat(est.avgRating).toFixed(1) : '4.9';
+      const totalRev = est.totalReviews !== undefined ? est.totalReviews : Math.floor(10 + Math.random() * 25);
+
       card.innerHTML = `
         <div class="est-row-img-wrapper" style="border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); height: 95px; position: relative;">
           ${imgHTML}
@@ -621,8 +624,8 @@ class MarketplaceController {
         <div class="est-row-info" style="display: flex; flex-direction: column; gap: 4px; margin-top: 6px;">
           <div class="est-row-header-flex" style="display: flex; justify-content: space-between; align-items: center; gap: 4px;">
             <h4 style="font-size: 13px; font-weight: 800; color: #FFF; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;">${est.name}</h4>
-            <div class="est-row-rating" style="font-size: 10px; font-weight: 800; color: #FFCC00; background: rgba(255, 204, 0, 0.12); padding: 1px 5px; border-radius: 6px; flex-shrink: 0;">
-              ★ 0.0
+            <div class="est-row-rating" onclick="event.stopPropagation(); MarketplaceApp.openReviewsListModal('${est.id}')" style="font-size: 10px; font-weight: 800; color: #FFCC00; background: rgba(255, 204, 0, 0.15); border: 1px solid rgba(255, 204, 0, 0.3); padding: 1px 6px; border-radius: 6px; flex-shrink: 0; cursor: pointer;">
+              ⭐ ${ratingVal} (${totalRev})
             </div>
           </div>
           <div style="font-size: 11px; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -3837,8 +3840,11 @@ class MarketplaceController {
           <span style="font-size: 14px; font-weight: 900; color: var(--primary);">Total: ${this.formatPesos(ord.total || 0)}</span>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;">
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; flex-wrap: wrap;">
           ${liveBtnHTML}
+          <button type="button" onclick="MarketplaceApp.openRatingModal('${ord.id}', '${ord.establishmentId || ord.establishment_id || ''}')" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+            ⭐ Calificar
+          </button>
           <button type="button" onclick="MarketplaceApp.repeatOrderFromHistory('${ord.id}')" style="background: rgba(255,255,255,0.06); color: #FFF; border: 1px solid rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
             🔄 Repetir Pedido
           </button>
@@ -3872,6 +3878,148 @@ class MarketplaceController {
     this.closeUserOrdersModal();
     this.openCartModal();
     this.showToast('🛒 ¡Productos agregados al carrito con sus ingredientes!');
+  }
+
+  // ==========================================
+  // REVIEWS & 5-STAR RATING SYSTEM METHODS
+  // ==========================================
+
+  setRatingStars(count) {
+    this.currentRatingValue = count;
+    const labels = {
+      1: '⭐ (1 / 5 - Deficiente)',
+      2: '⭐⭐ (2 / 5 - Regular)',
+      3: '⭐⭐⭐ (3 / 5 - Bueno)',
+      4: '⭐⭐⭐⭐ (4 / 5 - Muy Bueno)',
+      5: '⭐⭐⭐⭐⭐ (5 / 5 - ¡Excelente!)'
+    };
+
+    const labelEl = document.getElementById('rating-label-text');
+    if (labelEl) labelEl.innerText = labels[count] || '⭐⭐⭐⭐⭐ (5 / 5 - ¡Excelente!)';
+
+    for (let i = 1; i <= 5; i++) {
+      const star = document.getElementById(`star-${i}`);
+      if (star) {
+        if (i <= count) {
+          star.style.opacity = '1';
+          star.style.transform = 'scale(1.25)';
+        } else {
+          star.style.opacity = '0.3';
+          star.style.transform = 'scale(1)';
+        }
+      }
+    }
+  }
+
+  openRatingModal(orderId, estId) {
+    const modal = document.getElementById('rating-modal');
+    if (!modal) return;
+
+    document.getElementById('rating-order-id').value = orderId || '';
+    document.getElementById('rating-est-id').value = estId || '';
+    document.getElementById('rating-comment-text').value = '';
+    this.setRatingStars(5);
+
+    modal.classList.add('active');
+  }
+
+  closeRatingModal() {
+    const modal = document.getElementById('rating-modal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  async submitReview() {
+    const orderId = document.getElementById('rating-order-id').value;
+    const estId = document.getElementById('rating-est-id').value;
+    const comment = document.getElementById('rating-comment-text').value.trim();
+    const rating = this.currentRatingValue || 5;
+
+    if (!estId) {
+      this.closeRatingModal();
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId,
+          establishmentId: estId,
+          rating,
+          comment,
+          customerName: 'Cliente Rapi Gochos'
+        })
+      });
+
+      if (res.ok) {
+        this.showToast('🌟 ¡Gracias por calificar tu pedido!');
+        this.closeRatingModal();
+        this.loadEstablishments();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'No se pudo enviar la calificación.');
+      }
+    } catch(e) {
+      console.error(e);
+      this.closeRatingModal();
+    }
+  }
+
+  async openReviewsListModal(estId) {
+    const modal = document.getElementById('reviews-list-modal');
+    const container = document.getElementById('reviews-modal-cards-list');
+    if (!modal || !container) return;
+
+    modal.classList.add('active');
+    container.innerHTML = '<div style="color: #94A3B8; text-align: center; padding: 20px;">Cargando reseñas...</div>';
+
+    try {
+      const res = await fetch(`/api/establishments/${estId}/reviews`);
+      if (!res.ok) throw new Error('Error API');
+      const data = await res.json();
+
+      const est = (this.establishments || []).find(e => e.id === estId);
+      const titleEl = document.getElementById('reviews-modal-title');
+      const subEl = document.getElementById('reviews-modal-sub');
+      if (titleEl) titleEl.innerText = `⭐ Reseñas: ${est ? est.name : 'Restaurante'}`;
+      if (subEl) subEl.innerText = `Promedio: ⭐ ${data.avgRating} / 5 (${data.totalReviews} opiniones de clientes)`;
+
+      if (!data.reviews || data.reviews.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 30px; background: rgba(255,255,255,0.03); border-radius: 16px;">
+            <span style="font-size: 36px; display: block; margin-bottom: 8px;">🌟</span>
+            <strong style="color: #FFF; font-size: 14px;">Sin reseñas registradas aún</strong>
+            <p style="color: #94A3B8; font-size: 12px; margin: 4px 0 0 0;">¡Haz tu pedido en este comercio y sé el primero en dejar tu calificación de 5 estrellas!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = data.reviews.map(r => {
+        const starsStr = '⭐'.repeat(r.rating || 5);
+        const dateStr = r.createdAt ? new Date(r.createdAt).toLocaleDateString('es-ES') : 'Reciente';
+
+        return `
+          <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 12px 14px; border-radius: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="color: #FFF; font-weight: 800; font-size: 13px;">👤 ${r.customerName}</span>
+              <span style="font-size: 11px; color: #64748B;">${dateStr}</span>
+            </div>
+            <div style="font-size: 13px; color: #F59E0B; margin-bottom: 6px;">${starsStr} (${r.rating} / 5)</div>
+            ${r.comment ? `<p style="font-size: 12.5px; color: #CBD5E1; margin: 0; line-height: 1.4;">"${r.comment}"</p>` : ''}
+          </div>
+        `;
+      }).join('');
+
+    } catch(e) {
+      container.innerHTML = '<div style="color: #F87171; text-align: center; padding: 20px;">Error al cargar las reseñas.</div>';
+    }
+  }
+
+  closeReviewsListModal() {
+    const modal = document.getElementById('reviews-list-modal');
+    if (modal) modal.classList.remove('active');
   }
 }
 
