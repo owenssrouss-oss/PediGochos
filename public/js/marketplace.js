@@ -556,7 +556,7 @@ class MarketplaceController {
     if (titleEl) titleEl.innerHTML = displayTitle;
 
     // Get session seed for fair play rotation
-    const rawList = filtered || this.establishments.filter(e => e.category === this.currentCategory && (e.location === this.currentLocation || !e.location));
+    const rawList = filtered || this.establishments.filter(e => !e.disabled && e.category === this.currentCategory && (e.location === this.currentLocation || !e.location));
     const list = this.shuffleWithSeed(rawList, this.getSessionSeed());
 
     // Render Featured Horizontal Carousel
@@ -682,8 +682,9 @@ class MarketplaceController {
     section.style.display = 'block';
     container.innerHTML = '';
 
-    // Shuffle featured items with session seed
-    const featuredShuffled = this.shuffleWithSeed(this.establishments, this.getSessionSeed()).slice(0, 6);
+    // Shuffle featured items with session seed (excluding disabled stores)
+    const activeEsts = (this.establishments || []).filter(e => !e.disabled);
+    const featuredShuffled = this.shuffleWithSeed(activeEsts, this.getSessionSeed()).slice(0, 6);
 
     featuredShuffled.forEach(est => {
       const card = document.createElement('div');

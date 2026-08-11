@@ -266,16 +266,23 @@ class AdminController {
       row.style.cursor = 'pointer';
       row.onclick = () => AdminApp.showEstablishmentActions(est.id);
 
+      const disabledBadge = est.disabled 
+        ? `<span style="background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 1px solid #EF4444; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; margin-left: 6px;">🚫 DESHABILITADO</span>`
+        : '';
+
       row.innerHTML = `
         <td class="shop-title-cell" style="font-weight: 700;">
-          ${est.logo || '🏪'} ${est.name}
+          ${est.logo || '🏪'} ${est.name} ${disabledBadge}
           <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">📍 ${est.location || 'San Antonio'}</span>
         </td>
         <td><span class="shop-category-cell">${est.category}</span></td>
         <td style="font-weight: 600;">${ordersCount}</td>
         <td style="font-weight: 700; color: var(--primary);">${this.formatPesos(totalRevenue)}</td>
         <td class="shop-key-cell" style="font-family: monospace; font-size: 13px; font-weight: 700;">${est.linkKey}</td>
-        <td style="text-align: center;">
+        <td style="text-align: center; white-space: nowrap;">
+          <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.toggleDisableEstablishment('${est.id}')" style="background-color: ${est.disabled ? '#FEF3C7' : '#F3F4F6'}; color: ${est.disabled ? '#D97706' : '#374151'}; border: 1px solid ${est.disabled ? '#FCD34D' : '#D1D5DB'}; font-size: 12px; padding: 6px 12px; border-radius: var(--radius-sm); font-weight: 700; margin: 0 4px; width: auto; display: inline-block; cursor: pointer;">
+            ${est.disabled ? '🟢 Habilitar' : '🚫 Deshabilitar'}
+          </button>
           <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.deleteEstablishment('${est.id}', '${est.name}')" style="background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; font-size: 12px; padding: 6px 12px; border-radius: var(--radius-sm); font-weight: 700; margin: 0; width: auto; display: inline-block; cursor: pointer;">
             🗑️ Eliminar
           </button>
@@ -331,7 +338,22 @@ class AdminController {
 
     this.activeShopId = id;
     const nameEl = document.getElementById('action-modal-shop-name');
-    if (nameEl) nameEl.innerText = `${est.logo || '🏪'} ${est.name}`;
+    if (nameEl) nameEl.innerText = `${est.logo || '🏪'} ${est.name} ${est.disabled ? '(DESHABILITADO)' : ''}`;
+
+    const disableBtn = document.getElementById('btn-toggle-disable-modal');
+    if (disableBtn) {
+      if (est.disabled) {
+        disableBtn.innerText = '🟢 Habilitar Comercio (Mostrar en Marketplace)';
+        disableBtn.style.backgroundColor = '#D1FAE5';
+        disableBtn.style.color = '#065F46';
+        disableBtn.style.borderColor = '#6EE7B7';
+      } else {
+        disableBtn.innerText = '🚫 Deshabilitar Comercio (Ocultar del Marketplace)';
+        disableBtn.style.backgroundColor = '#FEF3C7';
+        disableBtn.style.color = '#92400E';
+        disableBtn.style.borderColor = '#FCD34D';
+      }
+    }
 
     const modal = document.getElementById('est-action-modal');
     if (modal) modal.classList.add('active');
@@ -380,6 +402,8 @@ class AdminController {
       if (bannerInput) bannerInput.value = est.banner || '';
       const themeInp = document.getElementById('edit-shop-theme');
       if (themeInp) themeInp.value = est.themeColor || '#FF5E3A';
+      const disabledInp = document.getElementById('edit-shop-disabled');
+      if (disabledInp) disabledInp.checked = Boolean(est.disabled);
 
       // Show preparation & delivery times & business hours for all establishments
       const timesGroup = document.getElementById('edit-shop-times-group');
@@ -498,6 +522,8 @@ class AdminController {
         banner = await MenuBuilder.uploadProductImage(bannerFile);
       }
 
+      const disabled = document.getElementById('edit-shop-disabled')?.checked || false;
+
       const payload = {
         isOwner: true,
         name,
@@ -508,6 +534,7 @@ class AdminController {
         banner,
         themeColor,
         logoImage,
+        disabled,
         prep_time: prep_time ? parseInt(prep_time) : null,
         delivery_time: delivery_time ? parseInt(delivery_time) : null,
         open_time: open_time,
@@ -2025,6 +2052,45 @@ class AdminController {
     } else {
       alert('Tu navegador no soporta Geolocalización GPS.');
       if (btn) { btn.disabled = false; btn.innerText = '📡 Capturar GPS / Registrar Ubicación del Local'; }
+    }
+  }
+
+  async toggleDisableEstablishment(id) {
+    const est = this.establishments.find(e => e.id === id);
+    if (!est) return;
+
+    const newDisabledState = !est.disabled;
+    const actionName = newDisabledState ? 'DESHABILITAR' : 'HABILITAR';
+
+    if (!confirm(`¿Estás seguro de que deseas ${actionName} el comercio "${est.name}"?\n\n${newDisabledState ? 'El comercio quedará oculto en el Marketplace para los clientes.' : 'El comercio volverá a ser visible en el Marketplace.'}`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/establishments/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isOwner: true, disabled: newDisabledState })
+      });
+
+      if (res.ok) {
+        est.disabled = newDisabledState;
+        this.showToast(`✅ Comercio "${est.name}" ${newDisabledState ? 'deshabilitado' : 'habilitado'} con éxito.`);
+        this.closeEstActionModal();
+        await this.reloadData();
+        await this.triggerCloudBackup();
+      } else {
+        alert('Error al cambiar el estado del comercio.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de conexión al actualizar el estado del comercio.');
+    }
+  }
+
+  toggleActiveShopDisable() {
+    if (this.activeShopId) {
+      this.toggleDisableEstablishment(this.activeShopId);
     }
   }
 

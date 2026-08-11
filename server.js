@@ -638,6 +638,9 @@ app.put('/api/establishments/:id', (req, res) => {
   if (req.body.isHighTraffic !== undefined) {
     est.isHighTraffic = Boolean(req.body.isHighTraffic);
   }
+  if (req.body.disabled !== undefined) {
+    est.disabled = Boolean(req.body.disabled);
+  }
   if (req.body.extraPrepTime !== undefined) {
     est.extraPrepTime = req.body.extraPrepTime ? parseInt(req.body.extraPrepTime) : 20;
   }
