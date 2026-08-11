@@ -130,11 +130,21 @@ async function syncFromPostgres() {
         const localData = readDB();
         const localEsts = (localData && Array.isArray(localData.establishments)) ? localData.establishments : [];
 
-        // Preserve local disabled state if set
+        // Preserve local disabled state and GPS coordinates if set locally
         establishments.forEach(est => {
           const localMatch = localEsts.find(l => l.id === est.id);
-          if (localMatch && localMatch.disabled !== undefined) {
-            est.disabled = Boolean(localMatch.disabled);
+          if (localMatch) {
+            if (localMatch.disabled !== undefined) {
+              est.disabled = Boolean(localMatch.disabled);
+            } else {
+              est.disabled = Boolean(est.disabled);
+            }
+            if (localMatch.latitude && localMatch.longitude && (!est.latitude || !est.longitude)) {
+              est.latitude = parseFloat(localMatch.latitude);
+              est.longitude = parseFloat(localMatch.longitude);
+              est.location_lat = est.latitude;
+              est.location_lng = est.longitude;
+            }
           } else {
             est.disabled = Boolean(est.disabled);
           }

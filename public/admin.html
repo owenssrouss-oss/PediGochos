@@ -470,8 +470,35 @@
           </div>
           <div class="form-group">
             <label for="edit-shop-close-time" style="color: #a78bfa; font-weight: 800;">🌙 Hora Cierre</label>
-            <input type="time" id="edit-shop-close-time" value="23:00" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: rgba(18, 18, 22, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff;">
+            <input type="time" id="edit-shop-close-time" value="00:00" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: rgba(18, 18, 22, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff;">
           </div>
+        </div>
+
+        <!-- Store GPS Location Coords Picker (Latitude & Longitude) -->
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 12px; border-radius: 12px; margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+            <label style="color: #10B981; font-weight: 800; margin: 0; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+              <span>📍</span> Coordenadas GPS Exactas del Local
+            </label>
+            <button type="button" onclick="AdminApp.getCurrentLocationForEditShop()" style="background: #10B981; color: #FFF; border: none; font-size: 10.5px; font-weight: 800; padding: 4px 10px; border-radius: 8px; cursor: pointer;">
+              📡 Usar Mi Ubicación Actual
+            </button>
+          </div>
+          <p style="font-size: 11px; color: #94A3B8; margin: 0 0 10px 0;">Toca o arrastra en el mapa interactivo para marcar la ubicación GPS exacta de tu local en el mapa del admin y del domiciliario.</p>
+          
+          <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+            <div class="form-group" style="margin: 0;">
+              <label for="edit-shop-latitude" style="font-size: 11px; color: #CBD5E1;">Latitud (Lat)</label>
+              <input type="number" step="any" id="edit-shop-latitude" placeholder="Ej. 7.8145" style="width: 100%; padding: 8px; font-size: 12px; background: rgba(18, 18, 22, 0.9); color: #FFF; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label for="edit-shop-longitude" style="font-size: 11px; color: #CBD5E1;">Longitud (Lng)</label>
+              <input type="number" step="any" id="edit-shop-longitude" placeholder="Ej. -72.4430" style="width: 100%; padding: 8px; font-size: 12px; background: rgba(18, 18, 22, 0.9); color: #FFF; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
+            </div>
+          </div>
+
+          <!-- Interactive Leaflet Map for Editing Shop GPS -->
+          <div id="edit-shop-gps-map" style="width: 100%; height: 200px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); background: #0F172A;"></div>
         </div>
 
         <!-- Custom Button / Theme Color -->
@@ -828,7 +855,7 @@
     </div>
   </div>
 
-  <script src="/js/admin.js?v=129"></script>
+  <script src="/js/admin.js?v=130"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>

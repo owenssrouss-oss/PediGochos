@@ -445,6 +445,11 @@ class AdminController {
       const disabledInp = document.getElementById('edit-shop-disabled');
       if (disabledInp) disabledInp.checked = Boolean(est.disabled);
 
+      // Initialize GPS map for editing establishment
+      setTimeout(() => {
+        this.initEditShopGPSMap(est);
+      }, 200);
+
       // Show preparation & delivery times & business hours for all establishments
       const timesGroup = document.getElementById('edit-shop-times-group');
       const prepInput = document.getElementById('edit-shop-prep-time');
@@ -564,6 +569,11 @@ class AdminController {
 
       const disabled = document.getElementById('edit-shop-disabled')?.checked || false;
 
+      const latVal = document.getElementById('edit-shop-latitude')?.value;
+      const lngVal = document.getElementById('edit-shop-longitude')?.value;
+      const latitude = (latVal !== '' && latVal !== null && latVal !== undefined) ? parseFloat(latVal) : null;
+      const longitude = (lngVal !== '' && lngVal !== null && lngVal !== undefined) ? parseFloat(lngVal) : null;
+
       const payload = {
         isOwner: true,
         name,
@@ -575,6 +585,10 @@ class AdminController {
         themeColor,
         logoImage,
         disabled,
+        latitude,
+        longitude,
+        location_lat: latitude,
+        location_lng: longitude,
         prep_time: prep_time ? parseInt(prep_time) : null,
         delivery_time: delivery_time ? parseInt(delivery_time) : null,
         open_time: open_time,
@@ -2609,6 +2623,74 @@ class AdminController {
 
   filterGlobalMapLocation(loc) {
     this.initAdminGlobalStoresMap(loc);
+  }
+
+  initEditShopGPSMap(est) {
+    const container = document.getElementById('edit-shop-gps-map');
+    if (!container || typeof L === 'undefined') return;
+
+    if (this.editShopMap) {
+      this.editShopMap.remove();
+      this.editShopMap = null;
+    }
+
+    let lat = est.latitude ? parseFloat(est.latitude) : 7.8145;
+    let lng = est.longitude ? parseFloat(est.longitude) : -72.4430;
+
+    const latInp = document.getElementById('edit-shop-latitude');
+    const lngInp = document.getElementById('edit-shop-longitude');
+    if (latInp) latInp.value = est.latitude !== undefined && est.latitude !== null ? est.latitude : '';
+    if (lngInp) lngInp.value = est.longitude !== undefined && est.longitude !== null ? est.longitude : '';
+
+    const map = L.map('edit-shop-gps-map').setView([lat, lng], 15);
+    this.editShopMap = map;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    const marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+    this.editShopMarker = marker;
+
+    const updateInputs = (newLat, newLng) => {
+      if (latInp) latInp.value = newLat.toFixed(6);
+      if (lngInp) lngInp.value = newLng.toFixed(6);
+    };
+
+    marker.on('dragend', (e) => {
+      const pos = e.target.getLatLng();
+      updateInputs(pos.lat, pos.lng);
+    });
+
+    map.on('click', (e) => {
+      marker.setLatLng(e.latlng);
+      updateInputs(e.latlng.lat, e.latlng.lng);
+    });
+  }
+
+  getCurrentLocationForEditShop() {
+    if ('geolocation' in navigator) {
+      this.showToast('📡 Capturando ubicación GPS actual...');
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const latInp = document.getElementById('edit-shop-latitude');
+        const lngInp = document.getElementById('edit-shop-longitude');
+        if (latInp) latInp.value = lat.toFixed(6);
+        if (lngInp) lngInp.value = lng.toFixed(6);
+
+        if (this.editShopMap && this.editShopMarker) {
+          this.editShopMap.setView([lat, lng], 17);
+          this.editShopMarker.setLatLng([lat, lng]);
+        }
+        this.showToast('✅ Ubicación GPS capturada exitosamente.');
+      }, (err) => {
+        alert('⚠️ No se pudo obtener la ubicación GPS automática. Por favor activa el GPS o selecciona en el mapa.');
+      }, { enableHighAccuracy: true });
+    } else {
+      alert('Tu navegador no soporta geolocalización GPS.');
+    }
   }
 }
 
