@@ -51,8 +51,8 @@ class KitchenController {
           console.warn('Asociado a comercio inexistente:', estId);
         }
       } else if (roleData && roleData.role === 'owner') {
-        alert('Sesión detectada como Dueño de la Plataforma. Redirigiendo a Panel Central...');
-        window.location.href = '/admin.html';
+        console.log('👑 Sesión detectada como Dueño de la Plataforma. Acceso a cocina concedido.');
+        this.showToast('👑 Sesión detectada como Dueño. Puedes ingresar la clave de cualquier comercio.');
       } else {
         alert('Tu cuenta de Google (' + user.email + ') no tiene permisos de Cocina (merchant).');
         await SupabaseApp.logout();
