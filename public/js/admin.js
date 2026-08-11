@@ -2108,6 +2108,12 @@ class AdminController {
 
       if (res.ok) {
         est.disabled = newDisabledState;
+        try {
+          let disabledMap = JSON.parse(localStorage.getItem('pedigochos_disabled_stores') || '{}');
+          disabledMap[id] = newDisabledState;
+          localStorage.setItem('pedigochos_disabled_stores', JSON.stringify(disabledMap));
+        } catch(e) {}
+
         this.showToast(`✅ Comercio "${est.name}" ${newDisabledState ? 'deshabilitado' : 'habilitado'} con éxito.`);
         this.closeEstActionModal();
         await this.reloadData();

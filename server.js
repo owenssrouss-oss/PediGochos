@@ -127,6 +127,19 @@ async function syncFromPostgres() {
       const orders = await ordRes.json();
 
       if (establishments && Array.isArray(establishments) && establishments.length > 0) {
+        const localData = readDB();
+        const localEsts = (localData && Array.isArray(localData.establishments)) ? localData.establishments : [];
+
+        // Preserve local disabled state if set
+        establishments.forEach(est => {
+          const localMatch = localEsts.find(l => l.id === est.id);
+          if (localMatch && localMatch.disabled !== undefined) {
+            est.disabled = Boolean(localMatch.disabled);
+          } else {
+            est.disabled = Boolean(est.disabled);
+          }
+        });
+
         const dbState = {
           establishments: establishments,
           orders: orders || [],
@@ -174,12 +187,21 @@ async function saveToPostgres() {
         delivery_fee: est.delivery_fee !== undefined ? parseFloat(est.delivery_fee) : 0,
         themeColor: est.themeColor || null,
         logoImage: est.logoImage || null,
+        disabled: Boolean(est.disabled),
         tables: est.tables || [],
         layout: est.layout || [],
         products: est.products || [],
         prep_time: est.prep_time !== undefined ? est.prep_time : null,
         delivery_time: est.delivery_time !== undefined ? est.delivery_time : null,
-        location: est.location || 'San Antonio'
+        location: est.location || 'San Antonio',
+        latitude: est.latitude || null,
+        longitude: est.longitude || null,
+        location_lat: est.location_lat || null,
+        location_lng: est.location_lng || null,
+        open_time: est.open_time || '11:00',
+        close_time: est.close_time || '23:00',
+        isHighTraffic: Boolean(est.isHighTraffic),
+        extraPrepTime: est.extraPrepTime || 20
       }));
 
       const estRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/establishments`, {
