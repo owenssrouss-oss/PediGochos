@@ -46,12 +46,8 @@ class MarketplaceController {
   }
 
   async init() {
-    const pendingAdminRedirect = localStorage.getItem('redirect_after_google_login');
-    if (pendingAdminRedirect === '/admin.html') {
-      localStorage.removeItem('redirect_after_google_login');
-      window.location.href = '/admin.html';
-      return;
-    }
+    // Clear any lingering redirect flag
+    localStorage.removeItem('redirect_after_google_login');
 
     // Always reset URL query parameters so user enters clean Home view
     if (window.location.search || window.location.hash) {

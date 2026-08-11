@@ -137,7 +137,6 @@ class AdminController {
       alert('⚠️ El cliente de autenticación no está listo.');
       return;
     }
-    localStorage.setItem('redirect_after_google_login', '/admin.html');
     
     try {
       await SupabaseApp.init();
