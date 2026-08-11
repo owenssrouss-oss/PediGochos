@@ -2608,6 +2608,7 @@ class MarketplaceController {
         const createdOrder = await response.json();
         if (createdOrder && createdOrder.id) {
           localStorage.setItem('active_order_id', createdOrder.id);
+          this.saveUserOrderToHistory(createdOrder);
         }
         return createdOrder;
       });
@@ -3603,6 +3604,247 @@ class MarketplaceController {
       fallbackDiv.appendChild(chipsGrid);
       container.appendChild(fallbackDiv);
     }
+  }
+
+  saveUserOrderToHistory(order) {
+    if (!order || !order.id) return;
+    try {
+      let orders = JSON.parse(localStorage.getItem('pedigochos_user_orders') || '[]');
+      if (!Array.isArray(orders)) orders = [];
+      
+      const index = orders.findIndex(o => o.id === order.id);
+      if (index !== -1) {
+        orders[index] = { ...orders[index], ...order };
+      } else {
+        orders.unshift(order);
+      }
+      
+      if (orders.length > 50) orders = orders.slice(0, 50);
+      localStorage.setItem('pedigochos_user_orders', JSON.stringify(orders));
+    } catch(e) {
+      console.error('Error saving order to history:', e);
+    }
+  }
+
+  getUserOrdersHistory() {
+    try {
+      let orders = JSON.parse(localStorage.getItem('pedigochos_user_orders') || '[]');
+      return Array.isArray(orders) ? orders : [];
+    } catch(e) {
+      return [];
+    }
+  }
+
+  async openUserOrdersModal() {
+    const modal = document.getElementById('user-orders-modal');
+    if (modal) modal.classList.add('active');
+    document.body.classList.add('modal-open');
+
+    // Fetch live status from server
+    try {
+      const res = await fetch('/api/orders');
+      if (res.ok) {
+        const liveOrders = await res.json();
+        let userOrders = this.getUserOrdersHistory();
+        
+        if (Array.isArray(liveOrders) && userOrders.length > 0) {
+          userOrders.forEach(localOrd => {
+            const serverOrd = liveOrders.find(o => o.id === localOrd.id);
+            if (serverOrd) {
+              this.saveUserOrderToHistory(serverOrd);
+            }
+          });
+        }
+      }
+    } catch(e) {
+      console.error('Error syncing live orders history:', e);
+    }
+
+    this.renderUserOrdersList('all');
+  }
+
+  closeUserOrdersModal() {
+    const modal = document.getElementById('user-orders-modal');
+    if (modal) modal.classList.remove('active');
+    document.body.classList.remove('modal-open');
+  }
+
+  filterUserOrders(filterType) {
+    document.querySelectorAll('.active-order-filter').forEach(btn => {
+      btn.style.background = 'rgba(255,255,255,0.06)';
+      btn.style.color = '#FFF';
+      btn.style.border = '1px solid rgba(255,255,255,0.1)';
+      btn.classList.remove('active-order-filter');
+    });
+
+    const activeBtn = document.getElementById(`user-order-filter-${filterType}`);
+    if (activeBtn) {
+      activeBtn.style.background = 'var(--primary)';
+      activeBtn.style.color = '#fff';
+      activeBtn.style.border = 'none';
+      activeBtn.classList.add('active-order-filter');
+    }
+
+    this.renderUserOrdersList(filterType);
+  }
+
+  renderUserOrdersList(filterType = 'all') {
+    const container = document.getElementById('user-orders-list-container');
+    if (!container) return;
+
+    let orders = this.getUserOrdersHistory();
+
+    if (filterType === 'active') {
+      orders = orders.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+    } else if (filterType === 'completed') {
+      orders = orders.filter(o => o.status === 'completed' || o.status === 'cancelled');
+    }
+
+    if (orders.length === 0) {
+      container.innerHTML = `
+        <div style="padding: 40px 20px; text-align: center; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 16px;">
+          <span style="font-size: 42px; display: block; margin-bottom: 10px;">📋</span>
+          <h4 style="margin: 0 0 6px 0; color: #FFF; font-size: 15px; font-weight: 800;">No tienes pedidos registrados ${filterType !== 'all' ? 'en esta categoría' : ''}</h4>
+          <p style="margin: 0; font-size: 12px; color: var(--text-muted);">Tus pedidos realizados aparecerán aquí con su estado en vivo e ingredientes.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = '';
+
+    orders.forEach(ord => {
+      const est = this.establishments.find(e => e.id === ord.establishmentId || e.id === ord.establishment_id);
+      const estName = est ? est.name : (ord.establishmentName || 'Restaurante');
+      const estLogo = est ? (est.logo || '🏪') : '🏪';
+      const estPhoto = est ? (est.logoImage || null) : null;
+
+      const rawDate = ord.createdAt || ord.timestamp || ord.created_at;
+      const dateObj = rawDate ? new Date(rawDate) : new Date();
+      const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+      const statusMap = {
+        'pending': { label: '⏳ Pendiente', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.15)' },
+        'preparing': { label: '👨‍🍳 En Preparación', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)' },
+        'ready': { label: '📦 Listo', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.15)' },
+        'on_the_way': { label: '🛵 En Camino', color: '#06B6D4', bg: 'rgba(6, 182, 212, 0.15)' },
+        'completed': { label: '✅ Entregado', color: '#10B981', bg: 'rgba(16, 185, 129, 0.15)' },
+        'cancelled': { label: '❌ Cancelado', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)' }
+      };
+
+      const statusObj = statusMap[ord.status] || { label: ord.status || 'Enviado', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)' };
+      const codeStr = ord.deliveryDetails?.code || ord.orderCode || (ord.id ? ord.id.slice(-4) : '---');
+
+      // Build items breakdown
+      let itemsHTML = '';
+      if (Array.isArray(ord.items)) {
+        itemsHTML = ord.items.map(item => {
+          let specsHTML = '';
+          
+          // Render specifications / ingredients
+          if (item.selected_specifications && typeof item.selected_specifications === 'object') {
+            const specParts = [];
+            Object.keys(item.selected_specifications).forEach(groupTitle => {
+              const selections = item.selected_specifications[groupTitle];
+              if (Array.isArray(selections) && selections.length > 0) {
+                const names = selections.map(s => typeof s === 'string' ? s : (s.name || s.title)).join(', ');
+                specParts.push(`<strong>${groupTitle}:</strong> ${names}`);
+              } else if (typeof selections === 'string') {
+                specParts.push(`<strong>${groupTitle}:</strong> ${selections}`);
+              }
+            });
+            if (specParts.length > 0) {
+              specsHTML = `<div style="font-size: 11px; color: #F59E0B; margin-top: 3px; background: rgba(245, 158, 11, 0.08); padding: 4px 8px; border-radius: 6px; border-left: 2px solid #F59E0B;">${specParts.join('<br>')}</div>`;
+            }
+          } else if (item.specifications) {
+            specsHTML = `<div style="font-size: 11px; color: #F59E0B; margin-top: 3px; background: rgba(245, 158, 11, 0.08); padding: 4px 8px; border-radius: 6px; border-left: 2px solid #F59E0B;">${item.specifications}</div>`;
+          }
+
+          const priceVal = item.unit_total_calculated || item.price || 0;
+          return `
+            <div style="border-bottom: 1px dashed rgba(255,255,255,0.06); padding-bottom: 6px; margin-bottom: 6px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; font-weight: 700; color: #FFF;">
+                <span>x${item.quantity || 1} ${item.name || item.product_name}</span>
+                <span style="color: var(--primary);">${this.formatPesos(this.normalizeCopPrice(priceVal) * (item.quantity || 1))}</span>
+              </div>
+              ${specsHTML}
+            </div>
+          `;
+        }).join('');
+      }
+
+      const card = document.createElement('div');
+      card.style.cssText = 'background: rgba(22, 22, 28, 0.9); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.3);';
+
+      const isLiveActive = ord.status !== 'completed' && ord.status !== 'cancelled';
+      const liveBtnHTML = isLiveActive ? `
+        <button type="button" onclick="MarketplaceApp.closeUserOrdersModal(); MarketplaceApp.trackActiveOrder('${ord.id}')" style="background: var(--primary); color: #FFF; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          🛵 Rastreo en Vivo
+        </button>
+      ` : '';
+
+      card.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 38px; height: 38px; border-radius: 8px; overflow: hidden; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); font-size: 18px;">
+              ${estPhoto ? `<img src="${estPhoto}" style="width:100%; height:100%; object-fit:cover;">` : estLogo}
+            </div>
+            <div>
+              <h4 style="margin: 0; font-size: 14px; font-weight: 800; color: #FFF;">${estName}</h4>
+              <span style="font-size: 11px; color: var(--text-muted);">${dateStr} • Código: #${codeStr}</span>
+            </div>
+          </div>
+          <span style="background: ${statusObj.bg}; color: ${statusObj.color}; border: 1px solid ${statusObj.color}; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;">
+            ${statusObj.label}
+          </span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.04);">
+          ${itemsHTML}
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; background: rgba(255,255,255,0.02); padding: 8px 10px; border-radius: 8px;">
+          <span style="color: var(--text-muted);">
+            ${ord.orderType === 'delivery' ? `🚚 Domicilio: ${ord.deliveryDetails?.address || 'Dirección provista'}` : `🍽️ En Mesa #${ord.tableNumber || 1}`}
+          </span>
+          <span style="font-size: 14px; font-weight: 900; color: var(--primary);">Total: ${this.formatPesos(ord.total || 0)}</span>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;">
+          ${liveBtnHTML}
+          <button type="button" onclick="MarketplaceApp.repeatOrderFromHistory('${ord.id}')" style="background: rgba(255,255,255,0.06); color: #FFF; border: 1px solid rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+            🔄 Repetir Pedido
+          </button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  repeatOrderFromHistory(orderId) {
+    const orders = this.getUserOrdersHistory();
+    const ord = orders.find(o => o.id === orderId);
+    if (!ord || !Array.isArray(ord.items) || ord.items.length === 0) {
+      alert('No se pudo encontrar el detalle de este pedido para repetirlo.');
+      return;
+    }
+
+    ord.items.forEach(item => {
+      this.cart.addItem({
+        product_id: item.id || item.product_id,
+        product_name: item.name || item.product_name,
+        unit_total_calculated: item.price || item.unit_total_calculated,
+        subtotal_combined: (item.price || item.unit_total_calculated) * (item.quantity || 1),
+        quantity: item.quantity || 1,
+        selected_specifications: item.selected_specifications || {},
+        restaurant_id: ord.establishmentId || ord.establishment_id
+      });
+    });
+
+    this.updateCartBadge();
+    this.closeUserOrdersModal();
+    this.openCartModal();
+    this.showToast('🛒 ¡Productos agregados al carrito con sus ingredientes!');
   }
 }
 

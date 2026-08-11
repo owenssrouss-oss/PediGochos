@@ -38,6 +38,11 @@
           ⭐ <span id="header-gochopoints-val">0</span> Pts
         </button>
 
+        <!-- User Orders History Button -->
+        <button type="button" id="header-orders-btn" onclick="MarketplaceApp.openUserOrdersModal()" title="Mis Pedidos" style="background: rgba(59, 130, 246, 0.15); color: #3B82F6; border: 1px solid #3B82F6; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          📋 <span>Mis Pedidos</span>
+        </button>
+
         <!-- Top Back Button -->
         <button class="btn-top-header" onclick="MarketplaceApp.handleNavBack()" title="Volver / Atrás" style="background: rgba(255,255,255,0.08); color: var(--text-main); border: 1px solid var(--border); padding: 6px 12px; font-size: 13px; font-weight: 700; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
           <span>⬅</span> <span>Atrás</span>
@@ -557,6 +562,35 @@
     </div>
   </div>
 
+  <!-- User Orders History Modal -->
+  <div class="modal-overlay" id="user-orders-modal" style="z-index: 3500; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; padding: 20px; border-radius: 20px; background: rgba(18, 18, 24, 0.96); border: 1px solid rgba(255, 255, 255, 0.1); margin: auto;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="margin: 0; color: #FFF; font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+            <span>📋</span> Mis Pedidos Realizados
+          </h3>
+          <p style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted);">Historial de compras, ingredientes, estados en vivo y detalles.</p>
+        </div>
+        <button class="modal-close" onclick="MarketplaceApp.closeUserOrdersModal()" style="font-size: 20px; color: #fff; background: rgba(255,255,255,0.1); border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div style="display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px;" class="premium-scroll">
+        <button class="btn-secondary active-order-filter" onclick="MarketplaceApp.filterUserOrders('all')" id="user-order-filter-all" style="padding: 6px 14px; font-size: 12px; font-weight: 800; border-radius: 20px; background: var(--primary); color: #fff; border: none; cursor: pointer; white-space: nowrap;">Todos</button>
+        <button class="btn-secondary" onclick="MarketplaceApp.filterUserOrders('active')" id="user-order-filter-active" style="padding: 6px 14px; font-size: 12px; font-weight: 800; border-radius: 20px; background: rgba(255,255,255,0.06); color: #FFF; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; white-space: nowrap;">⏳ En Camino / Activos</button>
+        <button class="btn-secondary" onclick="MarketplaceApp.filterUserOrders('completed')" id="user-order-filter-completed" style="padding: 6px 14px; font-size: 12px; font-weight: 800; border-radius: 20px; background: rgba(255,255,255,0.06); color: #FFF; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; white-space: nowrap;">✅ Entregados</button>
+      </div>
+
+      <!-- Orders List Container -->
+      <div id="user-orders-list-container" class="premium-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-right: 4px;">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+  </div>
+
   <!-- Toast notification -->
   <div id="toast" class="toast hidden">Mensaje de notificación</div>
 
@@ -564,6 +598,6 @@
   <script src="/js/supabase-helper.js?v=81"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="/js/sound.js?v=81"></script>
-  <script src="/js/marketplace.js?v=120"></script>
+  <script src="/js/marketplace.js?v=121"></script>
 </body>
 </html>
