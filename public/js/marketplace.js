@@ -2399,6 +2399,75 @@ class MarketplaceController {
     this.renderCartItems();
   }
 
+  detectPhoneCountry() {
+    const phoneInput = document.getElementById('order-phone');
+    const countrySelect = document.getElementById('order-phone-country');
+    const badgeEl = document.getElementById('phone-country-detected-badge');
+    if (!phoneInput || !countrySelect) return;
+
+    let raw = phoneInput.value.trim();
+    if (!raw) {
+      if (badgeEl) badgeEl.style.display = 'none';
+      return;
+    }
+
+    let clean = raw.replace(/[^\d+]/g, '');
+    let detectedCountry = null;
+
+    // Check international prefixes
+    if (clean.startsWith('+58') || clean.startsWith('58')) {
+      detectedCountry = { code: '+58', name: 'Venezuela', flag: '🇻🇪' };
+    } else if (clean.startsWith('+57') || clean.startsWith('57')) {
+      detectedCountry = { code: '+57', name: 'Colombia', flag: '🇨🇴' };
+    } else if (clean.startsWith('+52') || clean.startsWith('52')) {
+      detectedCountry = { code: '+52', name: 'México', flag: '🇲🇽' };
+    } else if (clean.startsWith('+1') || (clean.startsWith('1') && clean.length >= 10)) {
+      detectedCountry = { code: '+1', name: 'EE.UU. / Canadá', flag: '🇺🇸' };
+    } else if (clean.startsWith('+34') || clean.startsWith('34')) {
+      detectedCountry = { code: '+34', name: 'España', flag: '🇪🇸' };
+    } else if (clean.startsWith('+593') || clean.startsWith('593')) {
+      detectedCountry = { code: '+593', name: 'Ecuador', flag: '🇪🇨' };
+    } else if (clean.startsWith('+51') || clean.startsWith('51')) {
+      detectedCountry = { code: '+51', name: 'Perú', flag: '🇵🇪' };
+    } else if (clean.startsWith('+56') || clean.startsWith('56')) {
+      detectedCountry = { code: '+56', name: 'Chile', flag: '🇨🇱' };
+    } else if (clean.startsWith('+54') || clean.startsWith('54')) {
+      detectedCountry = { code: '+54', name: 'Argentina', flag: '🇦🇷' };
+    } 
+    // Check local mobile prefixes
+    else if (/^(0?412|0?414|0?424|0?416|0?426)/.test(clean)) {
+      detectedCountry = { code: '+58', name: 'Venezuela', flag: '🇻🇪' };
+    } else if (/^3[0-2,5]\d{8}/.test(clean) || /^3(0[0-5]|1[0-9]|2[0-4]|50)/.test(clean)) {
+      detectedCountry = { code: '+57', name: 'Colombia', flag: '🇨🇴' };
+    } else if (/^[67]\d{8}/.test(clean)) {
+      detectedCountry = { code: '+34', name: 'España', flag: '🇪🇸' };
+    }
+
+    if (detectedCountry) {
+      countrySelect.value = detectedCountry.code;
+
+      // Auto-clean prefix from input text box if user typed country code
+      if (raw.startsWith('+') || raw.startsWith(detectedCountry.code.replace('+', ''))) {
+        let stripped = raw;
+        if (stripped.startsWith(detectedCountry.code)) {
+          stripped = stripped.replace(detectedCountry.code, '').trim();
+        } else if (stripped.startsWith(detectedCountry.code.replace('+', ''))) {
+          stripped = stripped.replace(detectedCountry.code.replace('+', ''), '').trim();
+        }
+        if (stripped !== raw && stripped.length > 0) {
+          phoneInput.value = stripped;
+        }
+      }
+
+      if (badgeEl) {
+        badgeEl.style.display = 'inline-flex';
+        badgeEl.innerHTML = `<span>${detectedCountry.flag}</span> ${detectedCountry.name} (${detectedCountry.code})`;
+      }
+    } else {
+      if (badgeEl) badgeEl.style.display = 'none';
+    }
+  }
+
   async submitOrder() {
     const acceptTerms = document.getElementById('checkout-accept-terms').checked;
     if (!acceptTerms) {
