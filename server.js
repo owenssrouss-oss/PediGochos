@@ -953,11 +953,15 @@ app.put('/api/establishments/:id', (req, res) => {
     est.longitude = parsedLng;
     est.location_lng = parsedLng;
   }
+  const storeGpsMap = readStoreGps();
   if (est.latitude && est.longitude) {
-    const storeGpsMap = readStoreGps();
     storeGpsMap[id] = { latitude: est.latitude, longitude: est.longitude };
     writeStoreGps(storeGpsMap);
     console.log(`📍 Establishment [${id}] (${est.name}) GPS locked to: ${est.latitude}, ${est.longitude}`);
+  } else if (req.body.latitude === null || req.body.location_lat === null) {
+    delete storeGpsMap[id];
+    writeStoreGps(storeGpsMap);
+    console.log(`🗑️ Establishment [${id}] (${est.name}) GPS cleared.`);
   }
   if (req.body.working_days !== undefined) {
     est.working_days = Array.isArray(req.body.working_days) ? req.body.working_days : [];

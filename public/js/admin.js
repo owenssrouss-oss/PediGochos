@@ -2675,6 +2675,7 @@ class AdminController {
       if (res.ok) {
         this.showToast(`✅ ¡Ubicación de "${est.name}" fijada y guardada en la nube con éxito!`);
         await this.triggerCloudBackup();
+        this.initAdminGlobalStoresMap(this.currentGlobalMapFilter || 'all');
       } else {
         this.showToast('⚠️ Error al guardar la ubicación en el servidor.');
       }
@@ -2684,7 +2685,52 @@ class AdminController {
     }
   }
 
+  async removeStoreGPS(estId) {
+    const est = (this.establishments || []).find(e => String(e.id) === String(estId));
+    if (!est) return;
+
+    const confirmDelete = confirm(`¿Estás seguro de quitar el marcador GPS de "${est.name}" del mapa?\n\n(El restaurante, sus productos y su menú permanecerán intactos sin ningún cambio).`);
+    if (!confirmDelete) return;
+
+    est.latitude = null;
+    est.longitude = null;
+    est.location_lat = null;
+    est.location_lng = null;
+
+    try {
+      localStorage.removeItem('store_gps_' + est.id);
+    } catch(e) {}
+
+    this.showToast(`🗑️ Eliminando marcador GPS de "${est.name}"...`);
+
+    try {
+      const res = await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          latitude: null,
+          longitude: null,
+          location_lat: null,
+          location_lng: null
+        })
+      });
+
+      if (res.ok) {
+        this.showToast(`🗑️ Marcador de "${est.name}" eliminado del mapa (restaurante intacto).`);
+        await this.triggerCloudBackup();
+        this.initAdminGlobalStoresMap(this.currentGlobalMapFilter || 'all');
+      } else {
+        this.showToast('⚠️ Error al eliminar el marcador en el servidor.');
+      }
+    } catch(err) {
+      console.error('Error removing store GPS position:', err);
+      this.showToast('⚠️ Error de conexión al eliminar el marcador GPS.');
+    }
+  }
+
   initAdminGlobalStoresMap(filterLoc = 'all') {
+    this.currentGlobalMapFilter = filterLoc;
     const container = document.getElementById('admin-global-stores-map');
     if (!container || typeof L === 'undefined') return;
 
@@ -2788,6 +2834,7 @@ class AdminController {
 
       const buildPopupHTML = (e, currentLat, currentLng) => {
         const gmapsLink = `https://www.google.com/maps/search/?api=1&query=${currentLat},${currentLng}`;
+        const hasSavedGPS = Boolean(e.latitude && e.longitude);
         return `
           <div style="min-width: 220px; padding: 4px; font-family: system-ui, -apple-system, sans-serif;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
@@ -2797,17 +2844,23 @@ class AdminController {
                 <span style="font-size: 11px; color: #64748B;">📍 ${e.location || 'San Antonio'}</span>
               </div>
             </div>
-            <div style="margin-bottom: 8px;">
+            <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
               <span style="background: ${e.disabled ? '#FEE2E2' : '#D1FAE5'}; color: ${e.disabled ? '#991B1B' : '#065F46'}; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">
                 ${e.disabled ? '🚫 DESHABILITADO' : '🟢 HABILITADO'}
               </span>
+              ${hasSavedGPS ? '<span style="background: #DBEAFE; color: #1E40AF; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">📡 GPS FIJO</span>' : '<span style="background: #FEF3C7; color: #92400E; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">⚠️ SIN GPS REGISTRADO</span>'}
             </div>
             <p style="font-size: 10.5px; color: #475569; margin: 4px 0 8px 0; line-height: 1.3; background: #F1F5F9; padding: 6px; border-radius: 6px;">
-              📌 Arrastra este pin a la ubicación deseada y presiona el botón abajo para guardar en la nube.
+              📌 Arrastra este pin a la ubicación deseada y presiona el botón verde para guardar en la nube.
             </p>
             <button onclick="AdminApp.saveStoreGPS('${e.id}')" style="display: block; width: 100%; text-align: center; background: #10B981; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 7px 10px; border-radius: 8px; border: none; cursor: pointer; margin-bottom: 6px; box-shadow: 0 2px 6px rgba(16,185,129,0.3); box-sizing: border-box;">
-              💾 Guardar Esta Ubicación GPS
+              💾 Guardar Ubicación GPS
             </button>
+            ${hasSavedGPS ? `
+              <button onclick="AdminApp.removeStoreGPS('${e.id}')" style="display: block; width: 100%; text-align: center; background: rgba(239, 68, 68, 0.1); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 800; font-size: 11px; padding: 6px 10px; border-radius: 8px; cursor: pointer; margin-bottom: 6px; box-sizing: border-box;">
+                🗑️ Quitar Marcador del Mapa
+              </button>
+            ` : ''}
             <a href="${gmapsLink}" target="_blank" style="display: block; width: 100%; text-align: center; background: #2563EB; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 6px 10px; border-radius: 8px; text-decoration: none; box-shadow: 0 2px 6px rgba(37,99,235,0.3); box-sizing: border-box;">
               📍 Abrir en Google Maps
             </a>
