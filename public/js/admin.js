@@ -2761,16 +2761,19 @@ class AdminController {
         const newLat = parseFloat(pos.lat.toFixed(6));
         const newLng = parseFloat(pos.lng.toFixed(6));
 
-        // Update local object coordinates
+        // Update local object coordinates & cache in localStorage
         est.latitude = newLat;
         est.longitude = newLng;
         est.location_lat = newLat;
         est.location_lng = newLng;
+        try {
+          localStorage.setItem('store_gps_' + est.id, JSON.stringify({ latitude: newLat, longitude: newLng }));
+        } catch(e) {}
 
         marker.setPopupContent(buildPopupHTML(est, newLat, newLng));
         marker.openPopup();
 
-        this.showToast(`📡 Guardando nueva ubicación de "${est.name}"...`);
+        this.showToast(`📡 Guardando nueva ubicación exacta de "${est.name}"...`);
 
         try {
           const res = await fetch(`/api/establishments/${est.id}`, {

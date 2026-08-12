@@ -73,6 +73,27 @@ function writeDisabledStores(map) {
   }
 }
 
+const STORE_GPS_FILE = path.join(__dirname, 'store_gps.json');
+
+function readStoreGps() {
+  try {
+    if (fs.existsSync(STORE_GPS_FILE)) {
+      return JSON.parse(fs.readFileSync(STORE_GPS_FILE, 'utf8')) || {};
+    }
+  } catch (e) {
+    console.error('Error reading store_gps.json:', e);
+  }
+  return {};
+}
+
+function writeStoreGps(map) {
+  try {
+    fs.writeFileSync(STORE_GPS_FILE, JSON.stringify(map, null, 2), 'utf8');
+  } catch (e) {
+    console.error('Error writing store_gps.json:', e);
+  }
+}
+
 async function syncFromSupabase() {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
     console.log('Supabase env vars missing. Skipping cloud DB sync.');
@@ -106,6 +127,14 @@ async function syncFromSupabase() {
         fs.writeFileSync(DISABLED_STORES_FILE, disText, 'utf8');
         console.log('🎉 disabled_stores.json restored from Supabase Storage!');
       }
+
+      const gpsUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/menu_images/store_gps.json`;
+      const gpsRes = await fetch(gpsUrl);
+      if (gpsRes.ok) {
+        const gpsText = await gpsRes.text();
+        fs.writeFileSync(STORE_GPS_FILE, gpsText, 'utf8');
+        console.log('🎉 store_gps.json restored from Supabase Storage!');
+      }
     } catch(e) {}
   } catch (err) {
     console.error('Error syncing database from Supabase:', err);
@@ -132,8 +161,13 @@ async function uploadToSupabase() {
       promises.push(fetch(`${process.env.SUPABASE_URL}/storage/v1/object/menu_images/disabled_stores.json`, { method: 'POST', headers, body: disabledContent }));
     }
 
+    if (fs.existsSync(STORE_GPS_FILE)) {
+      const gpsContent = fs.readFileSync(STORE_GPS_FILE, 'utf8');
+      promises.push(fetch(`${process.env.SUPABASE_URL}/storage/v1/object/menu_images/store_gps.json`, { method: 'POST', headers, body: gpsContent }));
+    }
+
     await Promise.all(promises);
-    console.log('☁️ Database state & disabled stores backup updated successfully in Supabase Storage!');
+    console.log('☁️ Database state, disabled stores & GPS backup updated successfully in Supabase Storage!');
   } catch (err) {
     console.error('Error backing up database to Supabase:', err);
     logAppError('uploadToSupabase', err);
@@ -169,7 +203,8 @@ async function syncFromPostgres() {
         const localEsts = (localData && Array.isArray(localData.establishments)) ? localData.establishments : [];
 
         const disabledMap = readDisabledStores();
-        // Preserve local disabled state and GPS coordinates if set locally
+        const storeGpsMap = readStoreGps();
+        // Preserve local disabled state and exact GPS coordinates
         establishments.forEach(est => {
           const localMatch = localEsts.find(l => l.id === est.id);
           if (disabledMap[est.id] !== undefined) {
@@ -181,14 +216,27 @@ async function syncFromPostgres() {
             est.disabled = Boolean(est.disabled);
           }
 
-          if (localMatch && localMatch.latitude && localMatch.longitude && (!est.latitude || !est.longitude)) {
+          if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
+            est.latitude = parseFloat(storeGpsMap[est.id].latitude);
+            est.longitude = parseFloat(storeGpsMap[est.id].longitude);
+            est.location_lat = est.latitude;
+            est.location_lng = est.longitude;
+          } else if (localMatch && localMatch.latitude && localMatch.longitude) {
             est.latitude = parseFloat(localMatch.latitude);
             est.longitude = parseFloat(localMatch.longitude);
             est.location_lat = est.latitude;
             est.location_lng = est.longitude;
+            storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
+          } else if (est.latitude && est.longitude) {
+            est.latitude = parseFloat(est.latitude);
+            est.longitude = parseFloat(est.longitude);
+            est.location_lat = est.latitude;
+            est.location_lng = est.longitude;
+            storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
           }
         });
         writeDisabledStores(disabledMap);
+        writeStoreGps(storeGpsMap);
 
         const dbState = {
           establishments: establishments,
@@ -362,6 +410,7 @@ function readDB() {
     if (!db.drivers) db.drivers = [];
 
     const disabledMap = readDisabledStores();
+    const storeGpsMap = readStoreGps();
 
     if (db && Array.isArray(db.establishments)) {
       db.establishments.forEach(est => {
@@ -369,6 +418,12 @@ function readDB() {
           est.disabled = Boolean(disabledMap[est.id]);
         } else {
           est.disabled = Boolean(est.disabled);
+        }
+        if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
+          est.latitude = parseFloat(storeGpsMap[est.id].latitude);
+          est.longitude = parseFloat(storeGpsMap[est.id].longitude);
+          est.location_lat = est.latitude;
+          est.location_lng = est.longitude;
         }
         if (!est.open_time || est.open_time === '11:00') {
           est.open_time = '17:00';
@@ -737,6 +792,12 @@ app.put('/api/establishments/:id', (req, res) => {
     const parsedLng = (lngVal !== null && lngVal !== '') ? parseFloat(lngVal) : null;
     est.longitude = parsedLng;
     est.location_lng = parsedLng;
+  }
+  if (est.latitude && est.longitude) {
+    const storeGpsMap = readStoreGps();
+    storeGpsMap[id] = { latitude: est.latitude, longitude: est.longitude };
+    writeStoreGps(storeGpsMap);
+    console.log(`📍 Establishment [${id}] (${est.name}) GPS locked to: ${est.latitude}, ${est.longitude}`);
   }
   if (req.body.open_time !== undefined) {
     est.open_time = req.body.open_time;
