@@ -1,5 +1,5 @@
 // Service worker to make Rapi Gochos PWA Offline-First & Push Enabled
-const CACHE_NAME = 'pedigochos-v149';
+const CACHE_NAME = 'pedigochos-v150';
 const ASSETS = [
   '/',
   '/index.html',

@@ -576,10 +576,18 @@ function writeDB(data) {
         const disabledMap = readDisabledStores();
         const storeGpsMap = readStoreGps();
         data.establishments.forEach(est => {
-          if (est.disabled !== undefined) {
+          if (disabledMap[est.id] !== undefined) {
+            est.disabled = Boolean(disabledMap[est.id]);
+          } else if (est.disabled !== undefined) {
             disabledMap[est.id] = Boolean(est.disabled);
           }
-          if (est.latitude && est.longitude) {
+
+          if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
+            est.latitude = parseFloat(storeGpsMap[est.id].latitude);
+            est.longitude = parseFloat(storeGpsMap[est.id].longitude);
+            est.location_lat = est.latitude;
+            est.location_lng = est.longitude;
+          } else if (est.latitude && est.longitude) {
             storeGpsMap[est.id] = {
               latitude: parseFloat(est.latitude),
               longitude: parseFloat(est.longitude)

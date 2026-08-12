@@ -2621,67 +2621,66 @@ class AdminController {
   }
 
   openStoreMapSingle(estId) {
-    const est = (this.establishments || []).find(e => e.id === estId);
+    const est = (this.establishments || []).find(e => String(e.id) === String(estId));
     if (!est) return;
 
-    if (est.latitude && est.longitude) {
-      this.openAllStoresMapModal();
-      setTimeout(() => {
-        if (this.globalMap && est.latitude && est.longitude) {
-          this.globalMap.setView([est.latitude, est.longitude], 16);
-          const item = (this.globalMapMarkers || []).find(m => m.estId === est.id);
-          if (item && item.marker) item.marker.openPopup();
+    this.openAllStoresMapModal();
+    setTimeout(() => {
+      if (this.globalMap) {
+        let lat = est.latitude ? parseFloat(est.latitude) : 7.8145;
+        let lng = est.longitude ? parseFloat(est.longitude) : -72.4430;
+        if (!est.latitude || !est.longitude) {
+          if ((est.location || '').includes('Ureña')) {
+            lat = 7.9170; lng = -72.4400;
+          } else if ((est.location || '').includes('Cristóbal')) {
+            lat = 7.7669; lng = -72.2250;
+          }
         }
-      }, 400);
-    } else {
-      this.showToast(`📡 Detectando tu ubicación GPS para situar a "${est.name}"...`);
-
-      const placePinAt = (lat, lng, isUserGPS = true) => {
-        est.latitude = lat;
-        est.longitude = lng;
-        est.location_lat = lat;
-        est.location_lng = lng;
-
-        this.openAllStoresMapModal();
-        setTimeout(() => {
-          if (this.globalMap) {
-            this.globalMap.setView([lat, lng], 16);
-            const item = (this.globalMapMarkers || []).find(m => m.estId === est.id);
-            if (item && item.marker) {
-              item.marker.setLatLng([lat, lng]);
-              item.marker.openPopup();
-            }
-          }
-          if (isUserGPS) {
-            this.showToast(`📍 Pin colocado en tu GPS actual. Arrastra el pin para fijar la ubicación de "${est.name}".`);
-          } else {
-            this.showToast(`📍 Pin colocado en la ciudad. Arrastra el pin para fijar la ubicación de "${est.name}".`);
-          }
-        }, 400);
-      };
-
-      if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            placePinAt(pos.coords.latitude, pos.coords.longitude, true);
-          },
-          (err) => {
-            let defaultLat = 7.8145;
-            let defaultLng = -72.4430;
-            if ((est.location || '').includes('Ureña')) {
-              defaultLat = 7.9170; defaultLng = -72.4400;
-            } else if ((est.location || '').includes('Cristóbal')) {
-              defaultLat = 7.7669; defaultLng = -72.2250;
-            }
-            placePinAt(defaultLat, defaultLng, false);
-          },
-          { enableHighAccuracy: true, timeout: 7000 }
-        );
-      } else {
-        let defaultLat = 7.8145;
-        let defaultLng = -72.4430;
-        placePinAt(defaultLat, defaultLng, false);
+        this.globalMap.setView([lat, lng], 16);
+        const item = (this.globalMapMarkers || []).find(m => String(m.estId) === String(est.id));
+        if (item && item.marker) item.marker.openPopup();
       }
+    }, 400);
+  }
+
+  async saveStoreGPS(estId) {
+    const item = (this.globalMapMarkers || []).find(m => String(m.estId) === String(estId));
+    const est = (this.establishments || []).find(e => String(e.id) === String(estId));
+    if (!item || !item.marker || !est) return;
+
+    const pos = item.marker.getLatLng();
+    const newLat = parseFloat(pos.lat.toFixed(6));
+    const newLng = parseFloat(pos.lng.toFixed(6));
+
+    est.latitude = newLat;
+    est.longitude = newLng;
+    est.location_lat = newLat;
+    est.location_lng = newLng;
+
+    this.showToast(`📡 Guardando nueva ubicación exacta de "${est.name}" en la nube...`);
+
+    try {
+      const res = await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          latitude: newLat,
+          longitude: newLng,
+          location_lat: newLat,
+          location_lng: newLng
+        })
+      });
+
+      if (res.ok) {
+        this.showToast(`✅ ¡Ubicación de "${est.name}" fijada y guardada en la nube con éxito!`);
+        await this.triggerCloudBackup();
+      } else {
+        this.showToast('⚠️ Error al guardar la ubicación en el servidor.');
+      }
+    } catch(err) {
+      console.error('Error saving moved store position:', err);
+      this.showToast('⚠️ Error de conexión al actualizar posición GPS.');
     }
   }
 
@@ -2790,7 +2789,7 @@ class AdminController {
       const buildPopupHTML = (e, currentLat, currentLng) => {
         const gmapsLink = `https://www.google.com/maps/search/?api=1&query=${currentLat},${currentLng}`;
         return `
-          <div style="min-width: 210px; padding: 4px; font-family: system-ui, -apple-system, sans-serif;">
+          <div style="min-width: 220px; padding: 4px; font-family: system-ui, -apple-system, sans-serif;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
               <span style="font-size: 24px;">${e.logo || '🏪'}</span>
               <div>
@@ -2804,8 +2803,11 @@ class AdminController {
               </span>
             </div>
             <p style="font-size: 10.5px; color: #475569; margin: 4px 0 8px 0; line-height: 1.3; background: #F1F5F9; padding: 6px; border-radius: 6px;">
-              📌 <strong>Mantén presionado o arrastra</strong> este pin para mover y fijar la ubicación exacta.
+              📌 Arrastra este pin a la ubicación deseada y presiona el botón abajo para guardar en la nube.
             </p>
+            <button onclick="AdminApp.saveStoreGPS('${e.id}')" style="display: block; width: 100%; text-align: center; background: #10B981; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 7px 10px; border-radius: 8px; border: none; cursor: pointer; margin-bottom: 6px; box-shadow: 0 2px 6px rgba(16,185,129,0.3); box-sizing: border-box;">
+              💾 Guardar Esta Ubicación GPS
+            </button>
             <a href="${gmapsLink}" target="_blank" style="display: block; width: 100%; text-align: center; background: #2563EB; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 6px 10px; border-radius: 8px; text-decoration: none; box-shadow: 0 2px 6px rgba(37,99,235,0.3); box-sizing: border-box;">
               📍 Abrir en Google Maps
             </a>
@@ -2816,48 +2818,14 @@ class AdminController {
       const marker = L.marker([lat, lng], { icon: emojiIcon, draggable: true }).addTo(map);
       marker.bindPopup(buildPopupHTML(est, lat, lng));
 
-      marker.on('dragend', async (e) => {
+      marker.on('dragend', (e) => {
         const pos = e.target.getLatLng();
         const newLat = parseFloat(pos.lat.toFixed(6));
         const newLng = parseFloat(pos.lng.toFixed(6));
 
-        // Update local object coordinates & cache in localStorage
-        est.latitude = newLat;
-        est.longitude = newLng;
-        est.location_lat = newLat;
-        est.location_lng = newLng;
-        try {
-          localStorage.setItem('store_gps_' + est.id, JSON.stringify({ latitude: newLat, longitude: newLng }));
-        } catch(e) {}
-
         marker.setPopupContent(buildPopupHTML(est, newLat, newLng));
         marker.openPopup();
-
-        this.showToast(`📡 Guardando nueva ubicación exacta de "${est.name}"...`);
-
-        try {
-          const res = await fetch(`/api/establishments/${est.id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              isOwner: true,
-              latitude: newLat,
-              longitude: newLng,
-              location_lat: newLat,
-              location_lng: newLng
-            })
-          });
-
-          if (res.ok) {
-            this.showToast(`✅ ¡Ubicación de "${est.name}" fijada y guardada con éxito!`);
-            await this.triggerCloudBackup();
-          } else {
-            this.showToast('⚠️ Error al guardar la ubicación en el servidor.');
-          }
-        } catch(err) {
-          console.error('Error saving moved store position:', err);
-          this.showToast('⚠️ Error de conexión al actualizar posición GPS.');
-        }
+        this.showToast(`📌 Pin movido. Presiona "💾 Guardar Esta Ubicación GPS" en la burbuja para confirmar.`);
       });
 
       this.globalMapMarkers.push({ estId: est.id, marker });
