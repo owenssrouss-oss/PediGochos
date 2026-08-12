@@ -172,18 +172,10 @@ class MarketplaceController {
             est.disabled = Boolean(est.disabled);
           }
 
-          const cachedGps = localStorage.getItem('store_gps_' + est.id);
-          if (cachedGps) {
-            try {
-              const parsed = JSON.parse(cachedGps);
-              if (parsed.latitude && parsed.longitude) {
-                est.latitude = parseFloat(parsed.latitude);
-                est.longitude = parseFloat(parsed.longitude);
-                est.location_lat = parseFloat(parsed.latitude);
-                est.location_lng = parseFloat(parsed.longitude);
-              }
-            } catch(e) {}
-          }
+          // Clear stale client localStorage GPS overrides so server authoritative GPS is always rendered
+          try {
+            localStorage.removeItem('store_gps_' + est.id);
+          } catch(e) {}
         });
       }
     } catch (e) {

@@ -112,6 +112,15 @@ async function syncFromSupabase() {
       const text = await res.text();
       const cloudData = JSON.parse(text);
       if (cloudData && Array.isArray(cloudData.establishments) && cloudData.establishments.length > 0) {
+        const localData = readDB();
+        const localEsts = (localData && Array.isArray(localData.establishments)) ? localData.establishments : [];
+        const cloudEstIds = new Set(cloudData.establishments.map(e => e.id));
+        localEsts.forEach(localEst => {
+          if (localEst && localEst.id && !cloudEstIds.has(localEst.id)) {
+            console.log(`📌 Preserving local establishment [${localEst.id}] (${localEst.name}) during Storage sync!`);
+            cloudData.establishments.push(localEst);
+          }
+        });
         fs.writeFileSync(DB_FILE, JSON.stringify(cloudData, null, 2), 'utf8');
         console.log('🎉 Database synced successfully from Supabase Storage!');
       }
@@ -239,6 +248,15 @@ async function syncFromPostgres() {
             storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
           }
         });
+        // Preserve local establishments that are not yet in Supabase/Postgres
+        const cloudEstIds = new Set(establishments.map(e => e.id));
+        localEsts.forEach(localEst => {
+          if (localEst && localEst.id && !cloudEstIds.has(localEst.id)) {
+            console.log(`📌 Preserving local establishment [${localEst.id}] (${localEst.name}) during Postgres sync!`);
+            establishments.push(localEst);
+          }
+        });
+
         writeDisabledStores(disabledMap);
         writeStoreGps(storeGpsMap);
 
@@ -456,6 +474,23 @@ function readDB() {
 function writeDB(data) {
   try {
     data.lastUpdated = new Date().toISOString();
+    if (data && Array.isArray(data.establishments)) {
+      const disabledMap = readDisabledStores();
+      const storeGpsMap = readStoreGps();
+      data.establishments.forEach(est => {
+        if (est.disabled !== undefined) {
+          disabledMap[est.id] = Boolean(est.disabled);
+        }
+        if (est.latitude && est.longitude) {
+          storeGpsMap[est.id] = {
+            latitude: parseFloat(est.latitude),
+            longitude: parseFloat(est.longitude)
+          };
+        }
+      });
+      writeDisabledStores(disabledMap);
+      writeStoreGps(storeGpsMap);
+    }
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
     uploadToSupabase();
     saveToPostgres();
@@ -564,6 +599,12 @@ app.post('/api/establishments', (req, res) => {
   newEstablishment.location = newEstablishment.location || 'San Antonio';
   newEstablishment.open_time = newEstablishment.open_time || '17:00';
   newEstablishment.close_time = newEstablishment.close_time || '00:00';
+
+  if (newEstablishment.latitude && newEstablishment.longitude) {
+    const storeGpsMap = readStoreGps();
+    storeGpsMap[id] = { latitude: parseFloat(newEstablishment.latitude), longitude: parseFloat(newEstablishment.longitude) };
+    writeStoreGps(storeGpsMap);
+  }
 
   db.establishments.push(newEstablishment);
   writeDB(db);
