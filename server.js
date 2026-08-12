@@ -94,6 +94,28 @@ function writeStoreGps(map) {
   }
 }
 
+// GPS Deleted Blacklist: tracks establishments whose GPS was explicitly removed
+const GPS_DELETED_FILE = path.join(__dirname, 'gps_deleted.json');
+
+function readGpsDeleted() {
+  try {
+    if (fs.existsSync(GPS_DELETED_FILE)) {
+      return JSON.parse(fs.readFileSync(GPS_DELETED_FILE, 'utf8')) || {};
+    }
+  } catch (e) {
+    console.error('Error reading gps_deleted.json:', e);
+  }
+  return {};
+}
+
+function writeGpsDeleted(map) {
+  try {
+    fs.writeFileSync(GPS_DELETED_FILE, JSON.stringify(map, null, 2), 'utf8');
+  } catch (e) {
+    console.error('Error writing gps_deleted.json:', e);
+  }
+}
+
 const DRIVERS_FILE = path.join(__dirname, 'drivers.json');
 
 function readDrivers() {
@@ -193,6 +215,29 @@ async function syncFromSupabase() {
           console.log('🎉 drivers.json restored from Supabase Storage!');
         }
       }
+
+      const gpsDeletedUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/menu_images/gps_deleted.json`;
+      const gpsDelRes = await fetch(gpsDeletedUrl);
+      if (gpsDelRes.ok) {
+        try {
+          const cloudGpsDel = await gpsDelRes.json();
+          const localGpsDel = readGpsDeleted();
+          // Merge: local entries win (local deletions stay), cloud deletions also respected
+          const mergedGpsDel = { ...cloudGpsDel, ...localGpsDel };
+          writeGpsDeleted(mergedGpsDel);
+          // Remove any entries in storeGpsMap that are in the deleted blacklist
+          const storeGpsMap = readStoreGps();
+          let gpsDirty = false;
+          Object.keys(mergedGpsDel).forEach(delId => {
+            if (storeGpsMap[delId]) {
+              delete storeGpsMap[delId];
+              gpsDirty = true;
+            }
+          });
+          if (gpsDirty) writeStoreGps(storeGpsMap);
+          console.log('🎉 gps_deleted.json restored and merged from Supabase Storage!');
+        } catch(e) {}
+      }
     } catch(e) {}
   } catch (err) {
     console.error('Error syncing database from Supabase:', err);
@@ -227,6 +272,11 @@ async function uploadToSupabase() {
     if (fs.existsSync(DRIVERS_FILE)) {
       const driversContent = fs.readFileSync(DRIVERS_FILE, 'utf8');
       promises.push(fetch(`${process.env.SUPABASE_URL}/storage/v1/object/menu_images/drivers.json`, { method: 'POST', headers, body: driversContent }));
+    }
+
+    if (fs.existsSync(GPS_DELETED_FILE)) {
+      const gpsDeletedContent = fs.readFileSync(GPS_DELETED_FILE, 'utf8');
+      promises.push(fetch(`${process.env.SUPABASE_URL}/storage/v1/object/menu_images/gps_deleted.json`, { method: 'POST', headers, body: gpsDeletedContent }));
     }
 
     await Promise.all(promises);
@@ -280,26 +330,36 @@ async function syncFromPostgres() {
             disabledMap[est.id] = est.disabled;
           }
 
-          // Bulletproof GPS Preservation: Never overwrite valid GPS coordinates with null or 0
-          const hasGpsMap = storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude;
-          const hasLocalMatchGps = localMatch && localMatch.latitude && localMatch.longitude;
-          if (hasGpsMap) {
-            est.latitude = parseFloat(storeGpsMap[est.id].latitude);
-            est.longitude = parseFloat(storeGpsMap[est.id].longitude);
-            est.location_lat = est.latitude;
-            est.location_lng = est.longitude;
-          } else if (hasLocalMatchGps) {
-            est.latitude = parseFloat(localMatch.latitude);
-            est.longitude = parseFloat(localMatch.longitude);
-            est.location_lat = est.latitude;
-            est.location_lng = est.longitude;
-            storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
-          } else if (est.latitude && est.longitude) {
-            est.latitude = parseFloat(est.latitude);
-            est.longitude = parseFloat(est.longitude);
-            est.location_lat = est.latitude;
-            est.location_lng = est.longitude;
-            storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
+          // GPS Deletion Blacklist: if GPS was explicitly deleted by admin, never restore it
+          const gpsDeletedMap = readGpsDeleted();
+          if (gpsDeletedMap[est.id]) {
+            est.latitude = null;
+            est.longitude = null;
+            est.location_lat = null;
+            est.location_lng = null;
+            delete storeGpsMap[est.id];
+          } else {
+            // Bulletproof GPS Preservation: Never overwrite valid GPS with null or 0
+            const hasGpsMap = storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude;
+            const hasLocalMatchGps = localMatch && localMatch.latitude && localMatch.longitude;
+            if (hasGpsMap) {
+              est.latitude = parseFloat(storeGpsMap[est.id].latitude);
+              est.longitude = parseFloat(storeGpsMap[est.id].longitude);
+              est.location_lat = est.latitude;
+              est.location_lng = est.longitude;
+            } else if (hasLocalMatchGps) {
+              est.latitude = parseFloat(localMatch.latitude);
+              est.longitude = parseFloat(localMatch.longitude);
+              est.location_lat = est.latitude;
+              est.location_lng = est.longitude;
+              storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
+            } else if (est.latitude && est.longitude) {
+              est.latitude = parseFloat(est.latitude);
+              est.longitude = parseFloat(est.longitude);
+              est.location_lat = est.latitude;
+              est.location_lng = est.longitude;
+              storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
+            }
           }
         });
         // Preserve local establishments that are not yet in Supabase/Postgres
@@ -540,7 +600,14 @@ function readDB() {
         } else {
           est.disabled = Boolean(est.disabled);
         }
-        if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
+        // Respect GPS deleted blacklist - never restore GPS for explicitly deleted entries
+        const gpsDeletedMap = readGpsDeleted();
+        if (gpsDeletedMap[est.id]) {
+          est.latitude = null;
+          est.longitude = null;
+          est.location_lat = null;
+          est.location_lng = null;
+        } else if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
           est.latitude = parseFloat(storeGpsMap[est.id].latitude);
           est.longitude = parseFloat(storeGpsMap[est.id].longitude);
           est.location_lat = est.latitude;
@@ -957,14 +1024,21 @@ app.put('/api/establishments/:id', (req, res) => {
     est.location_lng = parsedLng;
   }
   const storeGpsMap = readStoreGps();
+  const gpsDeletedMap = readGpsDeleted();
   if (est.latitude && est.longitude) {
     storeGpsMap[id] = { latitude: est.latitude, longitude: est.longitude };
     writeStoreGps(storeGpsMap);
+    // If GPS is being re-added, remove from deleted blacklist
+    delete gpsDeletedMap[id];
+    writeGpsDeleted(gpsDeletedMap);
     console.log(`📍 Establishment [${id}] (${est.name}) GPS locked to: ${est.latitude}, ${est.longitude}`);
   } else if (req.body.latitude === null || req.body.location_lat === null) {
     delete storeGpsMap[id];
     writeStoreGps(storeGpsMap);
-    console.log(`🗑️ Establishment [${id}] (${est.name}) GPS cleared.`);
+    // Add to deleted blacklist so Postgres/Supabase syncs never restore GPS
+    gpsDeletedMap[id] = true;
+    writeGpsDeleted(gpsDeletedMap);
+    console.log(`🗑️ Establishment [${id}] (${est.name}) GPS cleared and blacklisted from restore.`);
   }
   if (req.body.working_days !== undefined) {
     est.working_days = Array.isArray(req.body.working_days) ? req.body.working_days : [];
