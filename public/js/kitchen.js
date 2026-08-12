@@ -992,8 +992,7 @@ class KitchenController {
       messageText += `🗺️ *Ubicación GPS:* https://maps.google.com/?q=${clientLat},${clientLng}\n`;
     }
 
-    messageText += `🔑 *Código de Seguridad:* ${securityCode}\n\n` +
-      `📝 *DETALLE DE LA ORDEN:*\n${itemsSummary}\n\n` +
+    messageText += `\n📝 *DETALLE DE LA ORDEN:*\n${itemsSummary}\n\n` +
       `💰 *TOTAL A COBRAR EN DESTINO:* ${formattedTotal}`;
 
     if (housePhotoUrl) {
