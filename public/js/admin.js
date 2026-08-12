@@ -72,6 +72,8 @@ class AdminController {
       this.renderTable();
       await this.loadCentralSedeSettings();
       this.initPresence(user.email);
+      this.initWebSocket();
+      this.requestNotificationPermission();
       this.showToast('👑 Acceso de Dueño verificado con Google');
     } catch (err) {
       console.error(err);
@@ -195,6 +197,8 @@ class AdminController {
         // Render data
         this.renderTable();
         await this.loadCentralSedeSettings();
+        this.initWebSocket();
+        this.requestNotificationPermission();
         this.showToast('👑 Acceso de Dueño verificado con éxito');
         
         const warningBanner = document.getElementById('backup-warning-banner');
@@ -2871,6 +2875,161 @@ class AdminController {
     } else {
       alert('Tu navegador no soporta geolocalización GPS.');
     }
+  }
+
+  initWebSocket() {
+    if (this.ws) {
+      try { this.ws.close(); } catch(e) {}
+    }
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}`;
+    
+    console.log('👑 Admin Owner App connecting to WebSocket:', wsUrl);
+    this.ws = new WebSocket(wsUrl);
+
+    if (this.pingTimer) clearInterval(this.pingTimer);
+    this.pingTimer = setInterval(() => {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify({ type: 'PING' }));
+      }
+    }, 20000);
+
+    this.ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'PONG') return;
+
+        if (data.type === 'GLOBAL_NEW_ORDER' || data.type === 'NEW_ORDER') {
+          const order = data.order;
+          if (!order) return;
+
+          const exists = this.orders.some(o => o.id === order.id);
+          if (!exists) {
+            this.orders.push(order);
+          } else {
+            const idx = this.orders.findIndex(o => o.id === order.id);
+            if (idx !== -1) this.orders[idx] = order;
+          }
+
+          this.renderTable();
+          this.playOrderNotification(order);
+        }
+      } catch (err) {
+        console.error('Error parsing WS message in admin:', err);
+      }
+    };
+
+    this.ws.onclose = () => {
+      if (this.pingTimer) clearInterval(this.pingTimer);
+      setTimeout(() => this.initWebSocket(), 5000);
+    };
+  }
+
+  requestNotificationPermission() {
+    if ('Notification' in window) {
+      if (Notification.permission === 'granted') {
+        this.showToast('🔔 Notificaciones de escritorio ya están activadas.');
+      } else {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            this.showToast('✅ ¡Notificaciones de escritorio activadas exitosamente!');
+          } else {
+            alert('⚠️ Para recibir alertas de pedidos nuevos, por favor permite las notificaciones en tu navegador.');
+          }
+        });
+      }
+    } else {
+      alert('⚠️ Tu navegador no soporta notificaciones de escritorio.');
+    }
+  }
+
+  playOrderNotification(order) {
+    // 1. Play loud multi-tone audio alarm
+    if (typeof Sound !== 'undefined' && Sound.playOrderAlarm) {
+      Sound.playOrderAlarm();
+    } else if (typeof Sound !== 'undefined' && Sound.playBell) {
+      Sound.playBell();
+    }
+
+    const est = this.establishments.find(e => e.id === order.establishmentId || e.id === order.establishment_id);
+    const storeName = est ? est.name : 'Restaurante';
+    const customerName = order.customerName || order.deliveryDetails?.name || 'Cliente';
+    const orderCode = order.deliveryDetails?.code || (order.id ? order.id.slice(-4) : '####');
+    const orderTotal = order.total !== undefined ? `$${parseFloat(order.total).toFixed(2)}` : '';
+    const orderType = order.orderType === 'mesa' ? '🍽️ Mesa ' + (order.mesaNumber || order.deliveryDetails?.mesa || '') : '🚴 Delivery';
+
+    // 2. Native OS Push Notification
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification(`🚨 ¡NUEVO PEDIDO RECIBIDO! #${orderCode}`, {
+          body: `🏪 ${storeName}\n👤 ${customerName} (${orderType})\n💰 Total: ${orderTotal}`,
+          icon: '/icons/icon-192.png',
+          tag: 'order-' + order.id,
+          requireInteraction: true
+        });
+      } catch(e) {}
+    }
+
+    // 3. Display High-Priority 3D Toast Alert in Admin UI
+    this.showToast(`🚨 ¡NUEVO PEDIDO! #${orderCode} en ${storeName} - ${customerName} (${orderTotal})`);
+
+    // 4. Show high-priority popup modal with all order details
+    this.showNewOrderModal(order, storeName);
+  }
+
+  showNewOrderModal(order, storeName) {
+    let modal = document.getElementById('admin-new-order-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'admin-new-order-modal';
+      modal.className = 'modal-overlay';
+      document.body.appendChild(modal);
+    }
+
+    const orderCode = order.deliveryDetails?.code || (order.id ? order.id.slice(-4) : '####');
+    const customerName = order.customerName || order.deliveryDetails?.name || 'Cliente';
+    const phone = order.customerPhone || order.deliveryDetails?.phone || 'Sin teléfono';
+    const address = order.deliveryDetails?.address || order.deliveryDetails?.mesa || 'Sin dirección';
+    const total = order.total !== undefined ? parseFloat(order.total).toFixed(2) : '0.00';
+    const items = order.items || [];
+
+    modal.innerHTML = `
+      <div class="modal-content" style="max-width: 440px; border-radius: 24px; border: 2px solid var(--primary); background: #111827; box-shadow: 0 0 35px rgba(255, 94, 58, 0.4); animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div style="background: linear-gradient(135deg, #FF5E3A 0%, #FF2A00 100%); color: #FFF; padding: 18px 20px; border-radius: 22px 22px 0 0; text-align: center; position: relative;">
+          <span style="font-size: 36px; display: block; margin-bottom: 4px;">🔔</span>
+          <h3 style="margin: 0; font-size: 18px; font-weight: 800;">¡NUEVO PEDIDO RECIBIDO!</h3>
+          <span style="background: rgba(0,0,0,0.25); padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 800;">Código #${orderCode}</span>
+        </div>
+        <div style="padding: 20px; color: #FFF;">
+          <div style="background: rgba(255,255,255,0.05); border-radius: 14px; padding: 12px 16px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.08);">
+            <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: #FFD700;">🏪 ${storeName}</p>
+            <p style="margin: 0 0 4px 0; font-size: 13px;">👤 <strong>Cliente:</strong> ${customerName}</p>
+            <p style="margin: 0 0 4px 0; font-size: 13px;">📞 <strong>Teléfono:</strong> ${phone}</p>
+            <p style="margin: 0; font-size: 13px;">📍 <strong>Ubicación/Mesa:</strong> ${address}</p>
+          </div>
+          <div style="margin-bottom: 16px;">
+            <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #CBD5E1;">📦 Productos Solicitados:</h4>
+            <div style="max-height: 140px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;" class="premium-scroll">
+              ${items.map(item => `
+                <div style="display: flex; justify-content: space-between; font-size: 12.5px; background: rgba(255,255,255,0.04); padding: 7px 10px; border-radius: 8px;">
+                  <span>${item.quantity || 1}x ${item.name}</span>
+                  <strong style="color: var(--primary);">$${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</strong>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255, 94, 58, 0.15); border: 1px solid var(--primary); padding: 12px 16px; border-radius: 14px; margin-bottom: 18px;">
+            <span style="font-size: 14px; font-weight: 700;">Total del Pedido:</span>
+            <span style="font-size: 20px; font-weight: 800; color: #FFD700;">$${total}</span>
+          </div>
+          <button type="button" onclick="document.getElementById('admin-new-order-modal').style.display='none'" class="btn-primary" style="width: 100%; padding: 12px; font-size: 14px; font-weight: 800; border-radius: 14px; cursor: pointer; background: linear-gradient(135deg, #FF5E3A 0%, #FF2A00 100%); border: none; color: #FFF;">
+            ✅ Entendido / Cerrar Alerta
+          </button>
+        </div>
+      </div>
+    `;
+    modal.style.display = 'flex';
   }
 }
 

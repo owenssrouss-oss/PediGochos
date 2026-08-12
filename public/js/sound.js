@@ -57,6 +57,43 @@ class SoundManager {
       console.warn('Web Audio API not supported or blocked by user interaction policy.', e);
     }
   }
+
+  // Synthesizes a loud, distinctive multi-tone order alarm sequence for Owners
+  playOrderAlarm() {
+    try {
+      this.init();
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+
+      const notes = [
+        { freq: 880, start: 0, duration: 0.15 },
+        { freq: 1174.66, start: 0.18, duration: 0.18 },
+        { freq: 1396.91, start: 0.38, duration: 0.25 },
+        { freq: 1760, start: 0.65, duration: 0.6 }
+      ];
+
+      notes.forEach(note => {
+        const now = this.ctx.currentTime + note.start;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(note.freq, now);
+        
+        gain.gain.setValueAtTime(0.45, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + note.duration);
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.start(now);
+        osc.stop(now + note.duration);
+      });
+    } catch (e) {
+      console.warn('Web Audio API playOrderAlarm error:', e);
+    }
+  }
 }
 
 const Sound = new SoundManager();

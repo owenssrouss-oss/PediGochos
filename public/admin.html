@@ -56,6 +56,7 @@
             <span class="status-dot" style="width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; animation: pulse 2s infinite;"></span>
             <span id="online-owners-count">1 activo</span>
           </div>
+          <button class="btn-logout" onclick="AdminApp.requestNotificationPermission()" style="background-color: #3B82F6; color: #FFFFFF; font-weight: 800; border: 1px solid #3B82F6;">🔔 Notificaciones</button>
           <button class="btn-logout" onclick="AdminApp.triggerCloudBackup()" style="background-color: #10b981; color: #121216; font-weight: 800; border: 1px solid #10b981;">☁️ Respaldar Cloud</button>
           <button class="btn-logout" onclick="AdminApp.logout()">🚪 Cerrar Sesión</button>
         </div>
@@ -890,7 +891,8 @@
     </div>
   </div>
 
-  <script src="/js/admin.js?v=135"></script>
+  <script src="/js/sound.js?v=81"></script>
+  <script src="/js/admin.js?v=137"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>

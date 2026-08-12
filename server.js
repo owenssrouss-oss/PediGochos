@@ -657,6 +657,17 @@ app.post('/api/orders', (req, res) => {
     order: order
   });
 
+  // Broadcast to all connected clients (Admin/Owner dashboard)
+  const globalPayload = JSON.stringify({
+    type: 'GLOBAL_NEW_ORDER',
+    order: order
+  });
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(globalPayload);
+    }
+  });
+
   res.status(201).json(order);
 });
 
