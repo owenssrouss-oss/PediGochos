@@ -2703,6 +2703,24 @@ class AdminController {
       targetEsts = targetEsts.filter(e => (e.location || 'San Antonio').toLowerCase().includes(filterLoc.toLowerCase()));
     }
 
+    // Filter duplicates by ID and by normalized Name to guarantee unique markers on map
+    const seenEstIds = new Set();
+    const seenEstNames = new Set();
+    const uniqueTargetEsts = [];
+
+    (targetEsts || []).forEach(est => {
+      if (!est || !est.id) return;
+      const sId = String(est.id).trim();
+      const normName = (est.name || '').trim().toLowerCase();
+      if (!seenEstIds.has(sId) && (!normName || !seenEstNames.has(normName))) {
+        seenEstIds.add(sId);
+        if (normName) seenEstNames.add(normName);
+        uniqueTargetEsts.push(est);
+      }
+    });
+
+    targetEsts = uniqueTargetEsts;
+
     const estsWithGPS = targetEsts.filter(e => e.latitude && e.longitude);
 
     if (estsWithGPS.length > 0) {
@@ -2724,10 +2742,11 @@ class AdminController {
     }
 
     const bounds = L.latLngBounds();
+    const usedCoords = new Set();
 
     targetEsts.forEach((est, idx) => {
-      let lat = est.latitude;
-      let lng = est.longitude;
+      let lat = est.latitude ? parseFloat(est.latitude) : null;
+      let lng = est.longitude ? parseFloat(est.longitude) : null;
 
       if (!lat || !lng) {
         const offsetLat = (idx % 5 - 2) * 0.004;
@@ -2743,6 +2762,17 @@ class AdminController {
           lng = -72.4430 + offsetLng;
         }
       }
+
+      // Slightly offset if two different stores have identical lat/lng coordinates
+      let coordKey = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+      let jitterCount = 0;
+      while (usedCoords.has(coordKey) && jitterCount < 10) {
+        jitterCount++;
+        lat += 0.00018;
+        lng += 0.00018;
+        coordKey = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+      }
+      usedCoords.add(coordKey);
 
       bounds.extend([lat, lng]);
 

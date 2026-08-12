@@ -137,9 +137,9 @@ async function syncFromSupabase() {
       if (cloudData && Array.isArray(cloudData.establishments) && cloudData.establishments.length > 0) {
         const localData = readDB();
         const localEsts = (localData && Array.isArray(localData.establishments)) ? localData.establishments : [];
-        const cloudEstIds = new Set(cloudData.establishments.map(e => e.id));
+        const cloudEstIds = new Set(cloudData.establishments.map(e => String(e.id).trim()));
         localEsts.forEach(localEst => {
-          if (localEst && localEst.id && !cloudEstIds.has(localEst.id)) {
+          if (localEst && localEst.id && !cloudEstIds.has(String(localEst.id).trim())) {
             console.log(`📌 Preserving local establishment [${localEst.id}] (${localEst.name}) during Storage sync!`);
             cloudData.establishments.push(localEst);
           }
@@ -303,9 +303,9 @@ async function syncFromPostgres() {
           }
         });
         // Preserve local establishments that are not yet in Supabase/Postgres
-        const cloudEstIds = new Set(establishments.map(e => e.id));
+        const cloudEstIds = new Set(establishments.map(e => String(e.id).trim()));
         localEsts.forEach(localEst => {
-          if (localEst && localEst.id && !cloudEstIds.has(localEst.id)) {
+          if (localEst && localEst.id && !cloudEstIds.has(String(localEst.id).trim())) {
             console.log(`📌 Preserving local establishment [${localEst.id}] (${localEst.name}) during Postgres sync!`);
             establishments.push(localEst);
           }
@@ -511,6 +511,29 @@ function readDB() {
     const storeGpsMap = readStoreGps();
 
     if (db && Array.isArray(db.establishments)) {
+      const seenIds = new Set();
+      const uniqueEsts = [];
+      db.establishments.forEach(est => {
+        if (!est || !est.id) return;
+        const estIdStr = String(est.id).trim();
+        if (!seenIds.has(estIdStr)) {
+          seenIds.add(estIdStr);
+          uniqueEsts.push(est);
+        } else {
+          // If a duplicate exists in db.json, keep the one with more products/data
+          const existingIdx = uniqueEsts.findIndex(u => String(u.id).trim() === estIdStr);
+          if (existingIdx !== -1) {
+            const existing = uniqueEsts[existingIdx];
+            const existingProdCount = Array.isArray(existing.products) ? existing.products.length : 0;
+            const newProdCount = Array.isArray(est.products) ? est.products.length : 0;
+            if (newProdCount > existingProdCount) {
+              uniqueEsts[existingIdx] = est;
+            }
+          }
+        }
+      });
+      db.establishments = uniqueEsts;
+
       db.establishments.forEach(est => {
         if (disabledMap[est.id] !== undefined) {
           est.disabled = Boolean(disabledMap[est.id]);
