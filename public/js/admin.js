@@ -2644,18 +2644,25 @@ class AdminController {
     const est = (this.establishments || []).find(e => String(e.id) === String(estId));
     if (!est) return;
 
-    this.openAllStoresMapModal();
+    const modal = document.getElementById('admin-all-stores-map-modal');
+    if (!modal) return;
+    modal.classList.add('active');
+    this.checkModalOpenState();
+
     setTimeout(() => {
-      if (this.globalMap) {
-        const item = (this.globalMapMarkers || []).find(m => String(m.estId) === String(est.id));
-        if (item && item.marker) {
-          const latLng = item.marker.getLatLng();
-          const hasGPS = Boolean(est.latitude && est.longitude);
-          this.globalMap.setView(latLng, hasGPS ? 16 : 14);
-          item.marker.openPopup();
+      this.initAdminGlobalStoresMap(this.currentGlobalMapFilter || 'all', est.id);
+      setTimeout(() => {
+        if (this.globalMap) {
+          const item = (this.globalMapMarkers || []).find(m => String(m.estId) === String(est.id));
+          if (item && item.marker) {
+            const latLng = item.marker.getLatLng();
+            const hasGPS = Boolean(est.latitude && est.longitude);
+            this.globalMap.setView(latLng, hasGPS ? 16 : 14);
+            item.marker.openPopup();
+          }
         }
-      }
-    }, 400);
+      }, 200);
+    }, 250);
   }
 
   async saveStoreGPS(estId) {
@@ -2672,7 +2679,7 @@ class AdminController {
     est.location_lat = newLat;
     est.location_lng = newLng;
 
-    this.showToast(`📡 Guardando nueva ubicación exacta de "${est.name}" en la nube...`);
+    this.showToast(`📡 Guardando nueva posición GPS de "${est.name}"...`);
 
     try {
       const res = await fetch(`/api/establishments/${est.id}`, {
@@ -2744,7 +2751,7 @@ class AdminController {
     }
   }
 
-  initAdminGlobalStoresMap(filterLoc = 'all') {
+  initAdminGlobalStoresMap(filterLoc = 'all', pendingEstId = null) {
     this.currentGlobalMapFilter = filterLoc;
     const container = document.getElementById('admin-global-stores-map');
     if (!container || typeof L === 'undefined') return;
@@ -2778,6 +2785,13 @@ class AdminController {
 
     targetEsts = uniqueTargetEsts;
 
+    // Only render stores that have explicit, valid GPS coordinates (or the pending store being configured)
+    const estsToRender = targetEsts.filter(e => {
+      const hasGPS = Boolean(e.latitude && e.longitude);
+      const isPending = pendingEstId && String(e.id) === String(pendingEstId);
+      return hasGPS || isPending;
+    });
+
     const estsWithGPS = targetEsts.filter(e => e.latitude && e.longitude);
 
     if (estsWithGPS.length > 0) {
@@ -2801,24 +2815,9 @@ class AdminController {
     const bounds = L.latLngBounds();
     const usedCoords = new Set();
 
-    targetEsts.forEach((est, idx) => {
-      let lat = est.latitude ? parseFloat(est.latitude) : null;
-      let lng = est.longitude ? parseFloat(est.longitude) : null;
-
-      if (!lat || !lng) {
-        const offsetLat = (idx % 5 - 2) * 0.004;
-        const offsetLng = (Math.floor(idx / 5) - 2) * 0.004;
-        if ((est.location || '').includes('Ureña')) {
-          lat = 7.9170 + offsetLat;
-          lng = -72.4400 + offsetLng;
-        } else if ((est.location || '').includes('Cristóbal')) {
-          lat = 7.7669 + offsetLat;
-          lng = -72.2250 + offsetLng;
-        } else {
-          lat = 7.8145 + offsetLat;
-          lng = -72.4430 + offsetLng;
-        }
-      }
+    estsToRender.forEach((est) => {
+      let lat = est.latitude ? parseFloat(est.latitude) : centerLat;
+      let lng = est.longitude ? parseFloat(est.longitude) : centerLng;
 
       // Slightly offset if two different stores have identical lat/lng coordinates
       let coordKey = `${lat.toFixed(5)},${lng.toFixed(5)}`;
@@ -2863,14 +2862,16 @@ class AdminController {
               ${hasSavedGPS ? '<span style="background: #DBEAFE; color: #1E40AF; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">📡 GPS FIJO</span>' : '<span style="background: #FEF3C7; color: #92400E; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">⚠️ SIN GPS REGISTRADO</span>'}
             </div>
             <p style="font-size: 10.5px; color: #475569; margin: 4px 0 8px 0; line-height: 1.3; background: #F1F5F9; padding: 6px; border-radius: 6px;">
-              📌 Arrastra este pin a la ubicación deseada y presiona el botón verde para guardar en la nube.
+              📌 Arrastra este pin a la ubicación deseada y presiona el botón verde para guardar.
             </p>
             <button onclick="AdminApp.saveStoreGPS('${e.id}')" style="display: block; width: 100%; text-align: center; background: #10B981; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 7px 10px; border-radius: 8px; border: none; cursor: pointer; margin-bottom: 6px; box-shadow: 0 2px 6px rgba(16,185,129,0.3); box-sizing: border-box;">
               💾 Guardar Ubicación GPS
             </button>
+            ${hasSavedGPS ? `
             <button onclick="AdminApp.removeStoreGPS('${e.id}')" style="display: block; width: 100%; text-align: center; background: rgba(239, 68, 68, 0.1); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 800; font-size: 11px; padding: 6px 10px; border-radius: 8px; cursor: pointer; margin-bottom: 6px; box-sizing: border-box;">
               🗑️ Quitar Marcador del Mapa
             </button>
+            ` : ''}
             <a href="${gmapsLink}" target="_blank" style="display: block; width: 100%; text-align: center; background: #2563EB; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 6px 10px; border-radius: 8px; text-decoration: none; box-shadow: 0 2px 6px rgba(37,99,235,0.3); box-sizing: border-box;">
               📍 Abrir en Google Maps
             </a>
@@ -2888,7 +2889,7 @@ class AdminController {
 
         marker.setPopupContent(buildPopupHTML(est, newLat, newLng));
         marker.openPopup();
-        this.showToast(`📌 Pin movido. Presiona "💾 Guardar Esta Ubicación GPS" en la burbuja para confirmar.`);
+        this.showToast(`📌 Pin movido. Presiona "💾 Guardar Ubicación GPS" en la burbuja para confirmar.`);
       });
 
       this.globalMapMarkers.push({ estId: est.id, marker });
