@@ -235,24 +235,24 @@
           <p style="font-size: 10px; color: var(--text-muted); margin-top: 6px;">Nota: El Precio Base se ajustará automáticamente si llenas estos tamaños.</p>
         </div>
 
-        <!-- Drink/Liquid Sizes -->
-        <div id="drink-sizes-container" style="display: none; background: rgba(0, 184, 148, 0.05); padding: 12px; border-radius: 12px; border: 1px dashed rgba(0, 184, 148, 0.3); margin-bottom: 16px;">
-          <label style="color: #00b894; margin-bottom: 8px; display: block;">🥤 Precios de Bebidas / Líquidos por Tamaño</label>
-          <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
-              <label for="form-drink-peq" style="font-size: 11px;">Pequeño / 10oz ($)</label>
-              <input type="number" id="form-drink-peq" step="0.01" min="0" placeholder="Ej. 2.50" style="width: 100%;">
-            </div>
-            <div style="flex: 1;">
-              <label for="form-drink-med" style="font-size: 11px;">Mediano / 16oz ($)</label>
-              <input type="number" id="form-drink-med" step="0.01" min="0" placeholder="Ej. 3.50" style="width: 100%;">
-            </div>
-            <div style="flex: 1;">
-              <label for="form-drink-gde" style="font-size: 11px;">Grande / 32oz ($)</label>
-              <input type="number" id="form-drink-gde" step="0.01" min="0" placeholder="Ej. 5.00" style="width: 100%;">
-            </div>
+        <!-- Drink/Liquid Dynamic Sizes -->
+        <div id="drink-sizes-container" style="display: none; background: rgba(0, 184, 148, 0.06); padding: 14px; border-radius: 12px; border: 1px dashed rgba(0, 184, 148, 0.35); margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <label style="color: #00b894; margin: 0; font-weight: 800; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+              <span>🥤</span> Tamaños y Capacidad del Batido / Bebida
+            </label>
+            <button type="button" onclick="addDrinkSizeRow()" style="background: rgba(0, 184, 148, 0.2); color: #00b894; border: 1px solid #00b894; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 14px; cursor: pointer;">
+              ➕ Agregar Tamaño
+            </button>
           </div>
-          <p style="font-size: 10px; color: var(--text-muted); margin-top: 6px;">Nota: El Precio Base se ajustará automáticamente si llenas estos tamaños.</p>
+          
+          <div id="drink-sizes-rows-list" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Rows rendered dynamically -->
+          </div>
+
+          <p style="font-size: 10.5px; color: var(--text-muted); margin-top: 10px; margin-bottom: 0; line-height: 1.3;">
+            💡 Puedes <strong>eliminar tamaños con el botón 🗑️</strong> (ej. dejar solo Pequeño y Grande) y personalizar la capacidad/onzas (12 oz, 16 oz, 1 Litro, etc.).
+          </p>
         </div>
 
         <!-- Image Upload -->
@@ -656,7 +656,7 @@
 
   <script src="/js/sound.js?v=81"></script>
   <script src="/js/menu-builder.js?v=81"></script>
-  <script src="/js/kitchen.js?v=143"></script>
+  <script src="/js/kitchen.js?v=144"></script>
   <script>
     let activeCategoryId = 'all';
     let categoriesList = [];

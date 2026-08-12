@@ -2202,20 +2202,22 @@ class KitchenController {
           }
       }
 
-      // Drink explicit sizes
-      if (isDrink && (drinkPeq || drinkMed || drinkGde)) {
-          const peqPriceNum = parseFloat(drinkPeq) || 0;
-          const options = [];
-          if (drinkPeq) options.push({ id: 'opt-drk-' + Date.now() + 1, name: 'Pequeño / 10oz', extra_price: 0, option_id: 'opt-drk-' + Date.now() + 1 });
-          if (drinkMed) {
-             const mPrice = parseFloat(drinkMed);
-             options.push({ id: 'opt-drk-' + Date.now() + 2, name: 'Mediano / 16oz', extra_price: mPrice - peqPriceNum, option_id: 'opt-drk-' + Date.now() + 2 });
-          }
-          if (drinkGde) {
-             const gPrice = parseFloat(drinkGde);
-             options.push({ id: 'opt-drk-' + Date.now() + 3, name: 'Grande / 32oz', extra_price: gPrice - peqPriceNum, option_id: 'opt-drk-' + Date.now() + 3 });
-          }
-          
+      // Drink dynamic sizes
+      const drinkSizes = window.getDrinkSizesFromUI ? window.getDrinkSizesFromUI() : [];
+      if (isDrink && drinkSizes.length > 0) {
+          const basePrice = drinkSizes[0].price || 0;
+          priceInput = basePrice;
+          const options = drinkSizes.map((s, i) => {
+             const optName = `${s.name}${s.oz ? ' (' + s.oz + ')' : ''}`;
+             const extraPrice = Math.max(0, s.price - basePrice);
+             return {
+               id: 'opt-drk-' + Date.now() + '-' + i,
+               name: optName,
+               extra_price: extraPrice,
+               option_id: 'opt-drk-' + Date.now() + '-' + i
+             };
+          });
+
           if (options.length > 0) {
               modifiers.push({
                   group_id: 'g-tamanos-drk-' + Date.now(),
@@ -2600,6 +2602,88 @@ window.handleCategoryChange = function(selectElem) {
   if (typeof togglePizzaSizes === 'function') togglePizzaSizes(selectElem);
 };
 
+window.renderDrinkSizeRows = function(sizes = []) {
+  const container = document.getElementById('drink-sizes-rows-list');
+  if (!container) return;
+
+  if (!sizes || sizes.length === 0) {
+    sizes = [
+      { name: 'Pequeño', oz: '10 oz', price: '' },
+      { name: 'Mediano', oz: '16 oz', price: '' },
+      { name: 'Grande', oz: '32 oz', price: '' }
+    ];
+  }
+
+  container.innerHTML = sizes.map(s => `
+    <div class="drink-size-row" style="display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+      <div style="flex: 1.2;">
+        <label style="font-size: 10px; color: #94A3B8; display: block; margin-bottom: 2px;">Tamaño</label>
+        <input type="text" class="drink-size-name" value="${s.name || ''}" placeholder="Ej. Pequeño, Grande" style="width: 100%; padding: 6px; border-radius: 6px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px;">
+      </div>
+      <div style="flex: 1;">
+        <label style="font-size: 10px; color: #94A3B8; display: block; margin-bottom: 2px;">Capacidad / Onzas</label>
+        <input type="text" class="drink-size-oz" value="${s.oz || ''}" placeholder="Ej. 12 oz, 16 oz" style="width: 100%; padding: 6px; border-radius: 6px; background: #0F172A; border: 1px solid #334155; color: #00b894; font-size: 12px; font-weight: 700;">
+      </div>
+      <div style="flex: 1.2;">
+        <label style="font-size: 10px; color: #94A3B8; display: block; margin-bottom: 2px;">Precio (COP)</label>
+        <input type="number" class="drink-size-price" value="${s.price !== undefined ? s.price : ''}" placeholder="Ej. 12000" style="width: 100%; padding: 6px; border-radius: 6px; background: #0F172A; border: 1px solid #334155; color: #10B981; font-size: 12px; font-weight: 800;">
+      </div>
+      <button type="button" onclick="removeDrinkSizeRow(this)" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #EF4444; border-radius: 6px; padding: 6px 10px; font-size: 12px; cursor: pointer; margin-top: 14px;" title="Eliminar este tamaño">
+        🗑️
+      </button>
+    </div>
+  `).join('');
+};
+
+window.addDrinkSizeRow = function() {
+  const container = document.getElementById('drink-sizes-rows-list');
+  if (!container) return;
+  const div = document.createElement('div');
+  div.className = 'drink-size-row';
+  div.style.cssText = 'display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);';
+  div.innerHTML = `
+    <div style="flex: 1.2;">
+      <label style="font-size: 10px; color: #94A3B8; display: block; margin-bottom: 2px;">Tamaño</label>
+      <input type="text" class="drink-size-name" placeholder="Ej. Jumbo, Litro" style="width: 100%; padding: 6px; border-radius: 6px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px;">
+    </div>
+    <div style="flex: 1;">
+      <label style="font-size: 10px; color: #94A3B8; display: block; margin-bottom: 2px;">Capacidad / Onzas</label>
+      <input type="text" class="drink-size-oz" placeholder="Ej. 24 oz, 1L" style="width: 100%; padding: 6px; border-radius: 6px; background: #0F172A; border: 1px solid #334155; color: #00b894; font-size: 12px; font-weight: 700;">
+    </div>
+    <div style="flex: 1.2;">
+      <label style="font-size: 10px; color: #94A3B8; display: block; margin-bottom: 2px;">Precio (COP)</label>
+      <input type="number" class="drink-size-price" placeholder="Ej. 18000" style="width: 100%; padding: 6px; border-radius: 6px; background: #0F172A; border: 1px solid #334155; color: #10B981; font-size: 12px; font-weight: 800;">
+    </div>
+    <button type="button" onclick="removeDrinkSizeRow(this)" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #EF4444; border-radius: 6px; padding: 6px 10px; font-size: 12px; cursor: pointer; margin-top: 14px;" title="Eliminar este tamaño">
+      🗑️
+    </button>
+  `;
+  container.appendChild(div);
+};
+
+window.removeDrinkSizeRow = function(btn) {
+  const row = btn.closest('.drink-size-row');
+  if (row) row.remove();
+};
+
+window.getDrinkSizesFromUI = function() {
+  const rows = document.querySelectorAll('#drink-sizes-rows-list .drink-size-row');
+  const sizes = [];
+  rows.forEach(r => {
+    const name = r.querySelector('.drink-size-name')?.value.trim();
+    const oz = r.querySelector('.drink-size-oz')?.value.trim();
+    const priceVal = r.querySelector('.drink-size-price')?.value;
+    if (name || priceVal) {
+      sizes.push({
+        name: name || 'Tamaño',
+        oz: oz || '',
+        price: parseFloat(priceVal) || 0
+      });
+    }
+  });
+  return sizes;
+};
+
 window.togglePizzaSizes = function(selectElem) {
   const selectedText = selectElem.options[selectElem.selectedIndex].text.toLowerCase();
   const pizzaContainer = document.getElementById('pizza-sizes-container');
@@ -2622,6 +2706,10 @@ window.togglePizzaSizes = function(selectElem) {
     if (basePriceInput) {
       basePriceInput.required = false;
       basePriceInput.value = '0';
+    }
+    const list = document.getElementById('drink-sizes-rows-list');
+    if (list && list.children.length === 0) {
+      window.renderDrinkSizeRows();
     }
   } else {
     if (pizzaContainer) pizzaContainer.style.display = 'none';
