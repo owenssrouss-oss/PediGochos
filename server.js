@@ -964,6 +964,45 @@ app.get('/api/drivers', (req, res) => {
   res.json(db.drivers || []);
 });
 
+// GET next available driver with fair round-robin rotation
+app.get('/api/drivers/next-available', (req, res) => {
+  const db = readDB();
+  const drivers = db.drivers || [];
+
+  if (drivers.length === 0) {
+    return res.json({
+      success: true,
+      driver: {
+        id: 'default-central',
+        name: 'Central Gocho',
+        phone: '573227949751',
+        totalDeliveries: 0
+      }
+    });
+  }
+
+  // Prefer drivers with status 'Disponible', otherwise all registered drivers
+  let available = drivers.filter(d => d.status === 'Disponible');
+  if (available.length === 0) {
+    available = drivers; // fallback to all drivers for fair rotation
+  }
+
+  // Sort by lastDispatchedAt ascending (oldest timestamp first = round robin fair turn)
+  available.sort((a, b) => {
+    const timeA = a.lastDispatchedAt ? new Date(a.lastDispatchedAt).getTime() : 0;
+    const timeB = b.lastDispatchedAt ? new Date(b.lastDispatchedAt).getTime() : 0;
+    return timeA - timeB;
+  });
+
+  const nextDriver = available[0];
+  nextDriver.lastDispatchedAt = new Date().toISOString();
+  nextDriver.totalDeliveries = (nextDriver.totalDeliveries || 0) + 1;
+  writeDB(db);
+
+  console.log(`🚴 Rotated next driver: ${nextDriver.name} (${nextDriver.phone}) - Total Deliveries: ${nextDriver.totalDeliveries}`);
+  res.json({ success: true, driver: nextDriver });
+});
+
 // POST register or update driver (admin view)
 app.post('/api/drivers/register', (req, res) => {
   const { name, phone, linkKey, vehicleType } = req.body;

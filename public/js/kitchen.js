@@ -946,7 +946,7 @@ class KitchenController {
     }
   }
 
-  callDelivery(orderId) {
+  async callDelivery(orderId) {
     const order = this.orders.find(o => o.id === orderId);
     if (!order) return;
 
@@ -958,12 +958,29 @@ class KitchenController {
       order.deliveryDetails.code = order.deliveryDetails.code || Math.floor(1000 + Math.random() * 9000).toString();
     }
 
+    // Fetch next rotated driver equitably
+    let driverPhone = '573227949751';
+    let driverName = 'Central Gocho';
+    try {
+      const driverRes = await fetch('/api/drivers/next-available');
+      if (driverRes.ok) {
+        const driverData = await driverRes.json();
+        if (driverData && driverData.driver) {
+          driverName = driverData.driver.name || 'Repartidor';
+          driverPhone = driverData.driver.phone || '573227949751';
+        }
+      }
+    } catch(e) {
+      console.warn('Error fetching rotated driver, using fallback:', e);
+    }
+
+    const cleanDriverPhone = driverPhone.replace(/\D/g, '');
+
     // Build driver notification message
     const storeName = this.establishments.find(e => e.id === this.selectedId)?.name || order.establishmentName || 'El Local';
     const clientName = order.customerName || 'Cliente';
     const clientPhone = order.deliveryDetails?.phone || 'N/A';
     const clientAddress = order.deliveryDetails?.address || 'N/A';
-    const securityCode = order.deliveryDetails?.code || 'N/A';
     const housePhotoUrl = order.deliveryDetails?.housePhotoUrl || null;
     const clientLat = order.deliveryDetails?.latitude;
     const clientLng = order.deliveryDetails?.longitude;
@@ -982,7 +999,8 @@ class KitchenController {
     const totalCop = Math.round(rawTotal < 1000 ? rawTotal * 1000 : rawTotal);
     const formattedTotal = `$${totalCop.toLocaleString('de-DE')} COP`;
 
-    let messageText = `🚴 *Rapi Gochos - SOLICITUD DE DOMICILIO*\n\n` +
+    let messageText = `🚴 *Rapi Gochos - SOLICITUD DE DOMICILIO*\n` +
+      `👤 *Asignado a:* ${driverName}\n\n` +
       `🏬 *Establecimiento:* ${storeName}\n` +
       `👤 *Cliente:* ${clientName}\n` +
       `📞 *Teléfono:* ${clientPhone}\n` +
@@ -999,8 +1017,10 @@ class KitchenController {
       messageText += `\n\n🏡 *FOTO FACHADA/CASA:* ${housePhotoUrl}`;
     }
 
-    const whatsappUrl = `https://wa.me/573227949751?text=${encodeURIComponent(messageText)}`;
+    const whatsappUrl = `https://wa.me/${cleanDriverPhone}?text=${encodeURIComponent(messageText)}`;
     
+    this.showToast(`✨ Pedido asignado equitativamente a ${driverName} (${driverPhone})`);
+
     // Open WhatsApp directly
     window.open(whatsappUrl, '_blank');
 

@@ -896,7 +896,7 @@
   </div>
 
   <script src="/js/sound.js?v=81"></script>
-  <script src="/js/admin.js?v=141"></script>
+  <script src="/js/admin.js?v=142"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
@@ -1753,7 +1753,13 @@
 
         <div class="form-group" style="margin-bottom: 10px;">
           <label style="color: #94A3B8; font-size: 12px;">Teléfono Móvil (WhatsApp) *</label>
-          <input type="tel" id="reg-driver-phone" required placeholder="Ej. 04141234567" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+          <div style="display: flex; gap: 8px;">
+            <select id="reg-driver-prefix" style="width: 110px; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px; font-weight: 700;">
+              <option value="+57">🇨🇴 +57</option>
+              <option value="+58">🇻🇪 +58</option>
+            </select>
+            <input type="tel" id="reg-driver-phone" required placeholder="Ej. 3227949751 u 04141234567" style="flex: 1; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+          </div>
         </div>
 
         <div class="form-group" style="margin-bottom: 10px;">

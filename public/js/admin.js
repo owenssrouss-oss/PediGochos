@@ -367,18 +367,33 @@ class AdminController {
             ? '<span style="background: rgba(16,185,129,0.2); color: #10B981; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 6px;">🟢 Disponible</span>'
             : '<span style="background: rgba(239,68,68,0.2); color: #EF4444; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 6px;">🔴 Fuera de Servicio</span>');
 
+        const cleanPhone = (d.phone || '').replace(/\D/g, '');
+        const waLink = `https://wa.me/${cleanPhone}`;
+
         return `
           <tr>
             <td style="font-weight: 800; color: #FFF;">🛵 ${d.name}</td>
-            <td style="font-size: 12px; font-weight: 600;">📱 ${d.phone}</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 12px; font-weight: 700; color: #E2E8F0;">📱 ${d.phone}</span>
+                <a href="${waLink}" target="_blank" style="background: rgba(37,211,102,0.18); color: #25D366; border: 1px solid rgba(37,211,102,0.4); font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="Chat directo por WhatsApp">
+                  💬 Chat
+                </a>
+              </div>
+            </td>
             <td style="font-size: 12px;">${d.vehicleType || 'Moto 🛵'}</td>
             <td style="font-family: monospace; font-size: 13px; font-weight: 800; color: #10B981;">${d.linkKey}</td>
             <td style="font-weight: 800; color: var(--primary); text-align: center;">${d.totalDeliveries || 0}</td>
             <td>${statusBadge}</td>
             <td style="text-align: center;">
-              <a href="/driver.html" target="_blank" style="background: rgba(59,130,246,0.15); color: #3B82F6; border: 1px solid rgba(59,130,246,0.3); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 8px; text-decoration: none; display: inline-block;">
-                🛵 Abrir App Driver
-              </a>
+              <div style="display: flex; gap: 6px; justify-content: center;">
+                <a href="${waLink}" target="_blank" style="background: rgba(37,211,102,0.2); color: #25D366; border: 1px solid rgba(37,211,102,0.4); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 8px; text-decoration: none; display: inline-block;">
+                  💬 WhatsApp
+                </a>
+                <a href="/driver.html" target="_blank" style="background: rgba(59,130,246,0.15); color: #3B82F6; border: 1px solid rgba(59,130,246,0.3); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 8px; text-decoration: none; display: inline-block;">
+                  🛵 App Driver
+                </a>
+              </div>
             </td>
           </tr>
         `;
@@ -407,9 +422,14 @@ class AdminController {
   async handleRegisterDriverSubmit(e) {
     e.preventDefault();
     const name = document.getElementById('reg-driver-name').value.trim();
-    const phone = document.getElementById('reg-driver-phone').value.trim();
+    const prefixEl = document.getElementById('reg-driver-prefix');
+    const prefix = prefixEl ? prefixEl.value : '+57';
+    let rawPhone = document.getElementById('reg-driver-phone').value.trim();
     const vehicleType = document.getElementById('reg-driver-vehicle').value;
     const linkKey = document.getElementById('reg-driver-key').value.trim().toUpperCase();
+
+    const cleanDigits = rawPhone.replace(/\D/g, '').replace(/^0+/, '');
+    const phone = rawPhone.startsWith('+') ? rawPhone : `${prefix}${cleanDigits}`;
 
     try {
       const res = await fetch('/api/drivers/register', {
@@ -419,7 +439,7 @@ class AdminController {
       });
 
       if (res.ok) {
-        this.showToast('✅ Repartidor registrado con éxito.');
+        this.showToast(`✅ Repartidor "${name}" (${phone}) registrado con éxito.`);
         this.closeRegisterDriverModal();
         this.loadDriversTable();
       } else {
