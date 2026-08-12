@@ -155,17 +155,25 @@ async function syncFromSupabase() {
       const disabledUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/menu_images/disabled_stores.json`;
       const disRes = await fetch(disabledUrl);
       if (disRes.ok) {
-        const disText = await disRes.text();
-        fs.writeFileSync(DISABLED_STORES_FILE, disText, 'utf8');
-        console.log('🎉 disabled_stores.json restored from Supabase Storage!');
+        try {
+          const cloudDisabled = await disRes.json();
+          const localDisabled = readDisabledStores();
+          const mergedDisabled = { ...cloudDisabled, ...localDisabled };
+          writeDisabledStores(mergedDisabled);
+          console.log('🎉 disabled_stores.json restored and merged from Supabase Storage!');
+        } catch(e) {}
       }
 
       const gpsUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/menu_images/store_gps.json`;
       const gpsRes = await fetch(gpsUrl);
       if (gpsRes.ok) {
-        const gpsText = await gpsRes.text();
-        fs.writeFileSync(STORE_GPS_FILE, gpsText, 'utf8');
-        console.log('🎉 store_gps.json restored from Supabase Storage!');
+        try {
+          const cloudGps = await gpsRes.json();
+          const localGps = readStoreGps();
+          const mergedGps = { ...cloudGps, ...localGps };
+          writeStoreGps(mergedGps);
+          console.log('🎉 store_gps.json restored and merged from Supabase Storage!');
+        } catch(e) {}
       }
 
       const drvUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/menu_images/drivers.json`;
@@ -262,25 +270,25 @@ async function syncFromPostgres() {
         // Preserve local disabled state and exact GPS coordinates
         establishments.forEach(est => {
           const localMatch = localEsts.find(l => l.id === est.id);
-          if (disabledMap[est.id] === true) {
-            est.disabled = true;
-          } else if (localMatch && localMatch.disabled === true) {
+          // Bulletproof Disabled State Preservation: Never un-disable a locally disabled store
+          const isLocallyDisabled = disabledMap[est.id] === true || (localMatch && localMatch.disabled === true);
+          if (isLocallyDisabled) {
             est.disabled = true;
             disabledMap[est.id] = true;
-          } else if (disabledMap[est.id] === false) {
-            est.disabled = false;
-          } else if (localMatch && localMatch.disabled === false) {
-            est.disabled = false;
-          } else {
+          } else if (est.disabled !== undefined) {
             est.disabled = Boolean(est.disabled);
+            disabledMap[est.id] = est.disabled;
           }
 
-          if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
+          // Bulletproof GPS Preservation: Never overwrite valid GPS coordinates with null or 0
+          const hasGpsMap = storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude;
+          const hasLocalMatchGps = localMatch && localMatch.latitude && localMatch.longitude;
+          if (hasGpsMap) {
             est.latitude = parseFloat(storeGpsMap[est.id].latitude);
             est.longitude = parseFloat(storeGpsMap[est.id].longitude);
             est.location_lat = est.latitude;
             est.location_lng = est.longitude;
-          } else if (localMatch && localMatch.latitude && localMatch.longitude) {
+          } else if (hasLocalMatchGps) {
             est.latitude = parseFloat(localMatch.latitude);
             est.longitude = parseFloat(localMatch.longitude);
             est.location_lat = est.latitude;

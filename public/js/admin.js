@@ -42,29 +42,6 @@ class AdminController {
     if (!user || this.isAuthenticated) return;
     this.isAuthenticated = true;
 
-    if (SupabaseApp.client && user.email) {
-      try {
-        const { data: existing } = await SupabaseApp.client
-          .from('user_roles')
-          .select('id')
-          .eq('email', user.email)
-          .maybeSingle();
-
-        if (existing) {
-          await SupabaseApp.client
-            .from('user_roles')
-            .update({ role: 'owner', updated_at: new Date().toISOString() })
-            .eq('email', user.email);
-        } else {
-          await SupabaseApp.client
-            .from('user_roles')
-            .insert({ email: user.email, role: 'owner', updated_at: new Date().toISOString() });
-        }
-      } catch (e) {
-        // Silent catch to prevent 400 bad request in developer console
-      }
-    }
-
     try {
       const res = await fetch('/api/owner/establishments');
       this.establishments = await res.json();
