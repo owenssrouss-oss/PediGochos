@@ -582,7 +582,10 @@ function writeDB(data) {
             disabledMap[est.id] = Boolean(est.disabled);
           }
 
-          if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
+          // If est has GPS explicitly cleared (null), remove from storeGpsMap too
+          if (est.latitude === null && est.longitude === null) {
+            delete storeGpsMap[est.id];
+          } else if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
             est.latitude = parseFloat(storeGpsMap[est.id].latitude);
             est.longitude = parseFloat(storeGpsMap[est.id].longitude);
             est.location_lat = est.latitude;
