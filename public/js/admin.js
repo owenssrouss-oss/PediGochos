@@ -2627,18 +2627,13 @@ class AdminController {
     this.openAllStoresMapModal();
     setTimeout(() => {
       if (this.globalMap) {
-        let lat = est.latitude ? parseFloat(est.latitude) : 7.8145;
-        let lng = est.longitude ? parseFloat(est.longitude) : -72.4430;
-        if (!est.latitude || !est.longitude) {
-          if ((est.location || '').includes('Ureña')) {
-            lat = 7.9170; lng = -72.4400;
-          } else if ((est.location || '').includes('Cristóbal')) {
-            lat = 7.7669; lng = -72.2250;
-          }
-        }
-        this.globalMap.setView([lat, lng], 16);
         const item = (this.globalMapMarkers || []).find(m => String(m.estId) === String(est.id));
-        if (item && item.marker) item.marker.openPopup();
+        if (item && item.marker) {
+          const latLng = item.marker.getLatLng();
+          const hasGPS = Boolean(est.latitude && est.longitude);
+          this.globalMap.setView(latLng, hasGPS ? 16 : 14);
+          item.marker.openPopup();
+        }
       }
     }, 400);
   }
@@ -2748,18 +2743,15 @@ class AdminController {
       targetEsts = targetEsts.filter(e => (e.location || 'San Antonio').toLowerCase().includes(filterLoc.toLowerCase()));
     }
 
-    // Filter duplicates by ID and by normalized Name to guarantee unique markers on map
+    // Filter targetEsts strictly by unique ID to ensure every store gets its own exact marker
     const seenEstIds = new Set();
-    const seenEstNames = new Set();
     const uniqueTargetEsts = [];
 
     (targetEsts || []).forEach(est => {
       if (!est || !est.id) return;
       const sId = String(est.id).trim();
-      const normName = (est.name || '').trim().toLowerCase();
-      if (!seenEstIds.has(sId) && (!normName || !seenEstNames.has(normName))) {
+      if (!seenEstIds.has(sId)) {
         seenEstIds.add(sId);
-        if (normName) seenEstNames.add(normName);
         uniqueTargetEsts.push(est);
       }
     });
