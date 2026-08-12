@@ -1448,19 +1448,15 @@ class AdminController {
 
   async reloadData() {
     try {
+      try {
+        localStorage.removeItem('pedigochos_disabled_stores');
+      } catch(e) {}
+
       const res = await fetch('/api/owner/establishments');
       this.establishments = await res.json();
       if (Array.isArray(this.establishments)) {
-        let disabledMap = {};
-        try {
-          disabledMap = JSON.parse(localStorage.getItem('pedigochos_disabled_stores') || '{}');
-        } catch(e) {}
         this.establishments.forEach(est => {
-          if (disabledMap[est.id] !== undefined) {
-            est.disabled = Boolean(disabledMap[est.id]);
-          } else {
-            est.disabled = Boolean(est.disabled);
-          }
+          est.disabled = Boolean(est.disabled);
         });
       }
       await this.loadOrders();
@@ -2256,12 +2252,7 @@ class AdminController {
 
       if (res.ok) {
         est.disabled = newDisabledState;
-        try {
-          let disabledMap = JSON.parse(localStorage.getItem('pedigochos_disabled_stores') || '{}');
-          disabledMap[id] = newDisabledState;
-          localStorage.setItem('pedigochos_disabled_stores', JSON.stringify(disabledMap));
-        } catch(e) {}
-
+        // DO NOT cache in localStorage - server is the authoritative source for disabled state
         this.showToast(`✅ Comercio "${est.name}" ${newDisabledState ? 'deshabilitado' : 'habilitado'} con éxito.`);
         this.closeEstActionModal();
         await this.reloadData();

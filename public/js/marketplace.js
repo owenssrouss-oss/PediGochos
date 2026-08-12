@@ -157,20 +157,15 @@ class MarketplaceController {
 
   async loadEstablishments() {
     try {
+      // Clear any stale localStorage disabled state - server disabled_stores.json is authoritative
+      try { localStorage.removeItem('pedigochos_disabled_stores'); } catch(e) {}
+
       const res = await fetch('/api/establishments');
       this.establishments = await res.json();
       if (Array.isArray(this.establishments)) {
-        let disabledMap = {};
-        try {
-          disabledMap = JSON.parse(localStorage.getItem('pedigochos_disabled_stores') || '{}');
-        } catch(e) {}
-
         this.establishments.forEach(est => {
-          if (disabledMap[est.id] !== undefined) {
-            est.disabled = Boolean(disabledMap[est.id]);
-          } else {
-            est.disabled = Boolean(est.disabled);
-          }
+          // Server already applies disabled_stores.json in readDB(), trust it directly
+          est.disabled = Boolean(est.disabled);
 
           // Clear stale client localStorage GPS overrides so server authoritative GPS is always rendered
           try {
