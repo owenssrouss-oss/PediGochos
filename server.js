@@ -669,8 +669,8 @@ function writeDB(data) {
       }
     }
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
-    uploadToSupabase();
-    saveToPostgres();
+    // NOTE: Cloud backup (uploadToSupabase + saveToPostgres) is now MANUAL ONLY
+    // Triggered via POST /api/cloud/save endpoint, not automatically on every write
   } catch (err) {
     console.error('Error writing DB:', err);
     logAppError('writeDB', err);
@@ -693,6 +693,20 @@ app.post('/api/owner/login', (req, res) => {
     res.json({ success: true, establishments: db.establishments });
   } else {
     res.status(401).json({ success: false, error: 'Clave de Dueño incorrecta' });
+  }
+});
+
+// Manual Cloud Save - Only called when admin clicks "💾 Guardar Cambios" button
+app.post('/api/cloud/save', async (req, res) => {
+  try {
+    console.log('☁️ Manual cloud save triggered by admin...');
+    await Promise.all([uploadToSupabase(), saveToPostgres()]);
+    console.log('☁️ Manual cloud save completed successfully.');
+    res.json({ success: true, message: 'Datos guardados en la nube exitosamente.' });
+  } catch (err) {
+    console.error('Error during manual cloud save:', err);
+    logAppError('manual_cloud_save', err);
+    res.status(500).json({ success: false, error: 'Error al guardar en la nube.' });
   }
 });
 

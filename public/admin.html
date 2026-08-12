@@ -61,7 +61,8 @@
             <span id="online-owners-count">1 activo</span>
           </div>
           <button class="btn-logout" onclick="AdminApp.requestNotificationPermission()" style="background-color: #3B82F6; color: #FFFFFF; font-weight: 800; border: 1px solid #3B82F6;">🔔 Notificaciones</button>
-          <button class="btn-logout" onclick="AdminApp.triggerCloudBackup()" style="background-color: #10b981; color: #121216; font-weight: 800; border: 1px solid #10b981;">☁️ Respaldar Cloud</button>
+          <button id="btn-cloud-load" class="btn-logout" onclick="AdminApp.loadLatestVersionFromCloud()" style="background-color: #1E293B; color: #38BDF8; font-weight: 800; border: 1px solid #38BDF8; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer;" title="Cargar última versión guardada en la nube">📥 Cargar Última Versión</button>
+          <button id="btn-cloud-save" class="btn-logout" onclick="AdminApp.saveChangesToCloud()" style="background-color: #374151; color: #9CA3AF; font-weight: 800; border: 1px solid #4B5563; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; transition: all 0.3s ease;" title="Guardar cambios pendientes en la nube">💾 Guardar Cambios</button>
           <button class="btn-logout" onclick="AdminApp.logout()">🚪 Cerrar Sesión</button>
         </div>
       </div>
@@ -926,7 +927,7 @@
   </div>
 
   <script src="/js/sound.js?v=81"></script>
-  <script src="/js/admin.js?v=154"></script>
+  <script src="/js/admin.js?v=156"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>

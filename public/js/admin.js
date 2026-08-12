@@ -232,6 +232,7 @@ class AdminController {
   }
 
   renderTable() {
+    this.updateSaveButtonState();
     this.renderAnalyticsPro();
     const tbody = document.getElementById('keys-table-body');
     if (!tbody) return;
@@ -724,7 +725,7 @@ class AdminController {
         document.getElementById('edit-shop-banner-file').value = '';
         
         await this.reloadData();
-        await this.triggerCloudBackup();
+        this.markPendingChanges();
       } else {
         alert('Error al guardar los cambios.');
       }
@@ -789,7 +790,7 @@ class AdminController {
             await window.loadProducts();
           }
         }
-        await this.triggerCloudBackup();
+        this.markPendingChanges();
       } else {
         alert('Error al guardar el producto importado.');
       }
@@ -996,7 +997,7 @@ class AdminController {
 
       if (res.ok) {
         this.renderFloorGrid();
-        await this.triggerCloudBackup();
+        this.markPendingChanges();
       } else {
         console.error('Failed to save layout to server');
       }
@@ -1254,7 +1255,7 @@ class AdminController {
         this.showToast(`📥 ¡${selected.name} importado con éxito!`);
         this.loadModalProducts();
         this.renderImportCatalogTable(this.globalProductsCache);
-        await this.triggerCloudBackup();
+        this.markPendingChanges();
       }
     } catch (err) {
       console.error(err);
@@ -1329,7 +1330,7 @@ class AdminController {
         if (typeof this.renderImportCatalogTable === 'function') {
           this.renderImportCatalogTable(this.globalProductsCache || []);
         }
-        await this.triggerCloudBackup();
+        this.markPendingChanges();
       } else {
         alert('Error al guardar la eliminación del producto.');
       }
@@ -1378,7 +1379,7 @@ class AdminController {
         if (typeof this.loadModalImportCatalog === 'function') {
           this.loadModalImportCatalog();
         }
-        await this.triggerCloudBackup();
+        this.markPendingChanges();
       }
     } catch (err) {
       console.error('Error importing newly created product:', err);
@@ -1402,7 +1403,7 @@ class AdminController {
       if (response.ok) {
         alert(`🗑️ El establecimiento "${name}" ha sido eliminado del sistema con éxito.`);
         await this.reloadData();
-        await this.triggerCloudBackup();
+        this.markPendingChanges();
       } else {
         const data = await response.json();
         alert('Error al eliminar establecimiento: ' + (data.error || 'Problema desconocido'));
@@ -1435,7 +1436,7 @@ class AdminController {
         alert(`🔄 ¡Historial de facturación de "${est.name}" reseteado a $0 con éxito!`);
         this.closeEstActionModal();
         await this.reloadData();
-        await this.triggerCloudBackup();
+        this.markPendingChanges();
       } else {
         const data = await response.json();
         alert('Error al resetear la facturación: ' + (data.error || 'Problema de red.'));
@@ -1644,7 +1645,7 @@ class AdminController {
 
         // Reload data from api
         await this.reloadData();
-        await this.triggerCloudBackup();
+        this.markPendingChanges();
       } else {
         const errorText = await response.text();
         alert('Error al registrar establecimiento: ' + errorText);
@@ -2016,7 +2017,7 @@ class AdminController {
         if (typeof window.loadProducts === 'function') {
           await window.loadProducts();
         }
-        await this.triggerCloudBackup();
+        this.markPendingChanges();
       } else {
         alert('Error al guardar especificaciones.');
       }
@@ -2026,53 +2027,81 @@ class AdminController {
     }
   }
 
+  markPendingChanges() {
+    this.hasPendingChanges = true;
+    this.updateSaveButtonState();
+  }
+
+  updateSaveButtonState() {
+    const btnSave = document.getElementById('btn-cloud-save');
+    if (!btnSave) return;
+    if (this.hasPendingChanges) {
+      btnSave.style.backgroundColor = '#10B981';
+      btnSave.style.color = '#FFFFFF';
+      btnSave.style.borderColor = '#10B981';
+      btnSave.style.boxShadow = '0 0 14px rgba(16, 185, 129, 0.7)';
+      btnSave.innerHTML = '🟢 💾 Guardar Cambios Pendientes';
+    } else {
+      btnSave.style.backgroundColor = '#374151';
+      btnSave.style.color = '#9CA3AF';
+      btnSave.style.borderColor = '#4B5563';
+      btnSave.style.boxShadow = 'none';
+      btnSave.innerHTML = '💾 Guardar Cambios';
+    }
+  }
+
+  async loadLatestVersionFromCloud() {
+    try {
+      this.showToast('📥 Cargando la última versión desde la nube...');
+      const res = await fetch('/api/owner/establishments');
+      if (res.ok) {
+        this.establishments = await res.json();
+        this.hasPendingChanges = false;
+        this.updateSaveButtonState();
+        await this.loadOrders();
+        this.renderTable();
+        if (this.globalMap) {
+          this.initAdminGlobalStoresMap(this.currentGlobalMapFilter || 'all');
+        }
+        this.showToast('✅ Última versión cargada exitosamente.');
+      } else {
+        alert('Error al cargar la última versión desde el servidor.');
+      }
+    } catch (err) {
+      console.error('Error loading latest version:', err);
+      alert('Error de conexión al cargar la última versión.');
+    }
+  }
+
+  async saveChangesToCloud() {
+    try {
+      const btnSave = document.getElementById('btn-cloud-save');
+      if (btnSave) btnSave.innerText = '⏳ Guardando en Nube...';
+      await this.triggerCloudBackup();
+      this.hasPendingChanges = false;
+      this.updateSaveButtonState();
+      this.showToast('✅ Cambios guardados en la nube con éxito.');
+    } catch (err) {
+      console.error('Error saving changes to cloud:', err);
+      this.showToast('⚠️ Error al guardar los cambios en la nube.');
+      this.updateSaveButtonState();
+    }
+  }
+
   async triggerCloudBackup() {
     try {
-      if (typeof MenuBuilder === 'undefined' || !MenuBuilder.supabase) {
-        console.warn('MenuBuilder not initialized. Cannot run cloud backup.');
-        return;
-      }
-      
-      let session = (await MenuBuilder.supabase.auth.getSession()).data.session;
-      if (!session) {
-        console.log('No active session, attempting anonymous sign in for cloud backup...');
-        const { data: authData, error: authError } = await MenuBuilder.supabase.auth.signInAnonymously();
-        if (authError) {
-          console.error('Anonymous auth failed:', authError.message);
-          return;
-        }
-        session = authData.session;
-        console.log('Anonymous sign in successful for backup!');
-      }
-      
-      const estRes = await fetch('/api/owner/establishments');
-      if (!estRes.ok) throw new Error('Failed to fetch establishments for backup');
-      const establishments = await estRes.json();
-      
-      const ordRes = await fetch('/api/orders');
-      if (!ordRes.ok) throw new Error('Failed to fetch orders for backup');
-      const orders = await ordRes.json();
-      
-      const dbState = { establishments, orders };
-      const blob = new Blob([JSON.stringify(dbState, null, 2)], { type: 'application/json' });
-      
-      console.log('☁️ Triggering cloud backup of db.json to Supabase Storage...');
-      const { data, error } = await MenuBuilder.supabase.storage
-        .from('menu_images')
-        .upload('uploads/db_backup.json', blob, {
-          contentType: 'application/json',
-          upsert: true
-        });
-        
-      if (error) {
-        console.error('Failed to upload db_backup.json:', error.message);
+      console.log('☁️ Triggering manual cloud save via server...');
+      const res = await fetch('/api/cloud/save', { method: 'POST' });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        console.error('Cloud save failed:', errData.error || res.status);
         this.showToast('❌ Error al guardar el respaldo en la nube.');
       } else {
-        console.log('🎉 Cloud backup of db.json completed successfully!');
-        this.showToast('☁️ Respaldo en la nube guardado con éxito.');
+        console.log('🎉 Cloud save completed successfully!');
       }
     } catch (err) {
       console.error('Error during cloud backup:', err);
+      throw err;
     }
   }
 
@@ -2256,7 +2285,7 @@ class AdminController {
         this.showToast(`✅ Comercio "${est.name}" ${newDisabledState ? 'deshabilitado' : 'habilitado'} con éxito.`);
         this.closeEstActionModal();
         await this.reloadData();
-        await this.triggerCloudBackup();
+        this.markPendingChanges();
       } else {
         alert('Error al cambiar el estado del comercio.');
       }
@@ -2659,8 +2688,8 @@ class AdminController {
       });
 
       if (res.ok) {
-        this.showToast(`✅ ¡Ubicación de "${est.name}" fijada y guardada en la nube con éxito!`);
-        await this.triggerCloudBackup();
+        this.showToast(`✅ ¡Ubicación de "${est.name}" fijada con éxito!`);
+        this.markPendingChanges();
         this.initAdminGlobalStoresMap(this.currentGlobalMapFilter || 'all');
       } else {
         this.showToast('⚠️ Error al guardar la ubicación en el servidor.');
@@ -2704,7 +2733,7 @@ class AdminController {
 
       if (res.ok) {
         this.showToast(`🗑️ Marcador de "${est.name}" eliminado del mapa (restaurante intacto).`);
-        await this.triggerCloudBackup();
+        this.markPendingChanges();
         this.initAdminGlobalStoresMap(this.currentGlobalMapFilter || 'all');
       } else {
         this.showToast('⚠️ Error al eliminar el marcador en el servidor.');

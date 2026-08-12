@@ -544,7 +544,6 @@ class KitchenController {
         } else {
           this.showLocalToast(`🟢 ¡Modo Tráfico Normal Restablecido!`);
         }
-        await this.triggerCloudBackup();
       }
     } catch (err) {
       console.error(err);
@@ -943,7 +942,6 @@ class KitchenController {
         est.products = updatedProducts;
         alert('💾 ¡Precios actualizados con éxito en todo el sistema!');
         this.closePricesModal();
-        await this.triggerCloudBackup();
       } else {
         const data = await res.json();
         alert('Error al guardar precios: ' + (data.error || 'Problema desconocido'));
@@ -1629,7 +1627,6 @@ class KitchenController {
         this.showLocalToast(`📥 "${selected.name}" agregado a tu carta.`);
         this.loadModalProducts();
         this.renderImportCatalogTable(this.globalProductsCache);
-        await this.triggerCloudBackup();
       }
     } catch (err) {
       console.error(err);
@@ -1656,7 +1653,6 @@ class KitchenController {
       if (res.ok) {
         this.showLocalToast('🗑️ Producto eliminado de la carta.');
         this.loadModalProducts();
-        await this.triggerCloudBackup();
       }
     } catch (err) {
       console.error(err);
@@ -2013,7 +2009,6 @@ class KitchenController {
         this.showLocalToast('✅ Especificaciones guardadas con éxito.');
         this.closeProductSpecsModal();
         this.loadModalProducts();
-        await this.triggerCloudBackup();
       }
     } catch (err) {
       console.error(err);
@@ -2305,7 +2300,6 @@ class KitchenController {
       });
       if (res.ok) {
         this.loadModalProducts();
-        await this.triggerCloudBackup();
       }
     } catch (err) {
       console.error(err);
@@ -2561,9 +2555,6 @@ class KitchenController {
         this.showLocalToast('✅ Cambios estéticos guardados con éxito.');
         this.closeCustomizeShopModal();
         await this.loadEstablishments();
-        
-        // Trigger backup to Supabase
-        await this.triggerCloudBackup();
       } else {
         const errText = await res.text();
         alert('Error al guardar cambios: ' + errText);
