@@ -207,11 +207,15 @@ async function syncFromPostgres() {
         // Preserve local disabled state and exact GPS coordinates
         establishments.forEach(est => {
           const localMatch = localEsts.find(l => l.id === est.id);
-          if (disabledMap[est.id] !== undefined) {
-            est.disabled = Boolean(disabledMap[est.id]);
-          } else if (localMatch && localMatch.disabled !== undefined) {
-            est.disabled = Boolean(localMatch.disabled);
-            disabledMap[est.id] = Boolean(localMatch.disabled);
+          if (disabledMap[est.id] === true) {
+            est.disabled = true;
+          } else if (localMatch && localMatch.disabled === true) {
+            est.disabled = true;
+            disabledMap[est.id] = true;
+          } else if (disabledMap[est.id] === false) {
+            est.disabled = false;
+          } else if (localMatch && localMatch.disabled === false) {
+            est.disabled = false;
           } else {
             est.disabled = Boolean(est.disabled);
           }

@@ -1433,6 +1433,19 @@ class AdminController {
     try {
       const res = await fetch('/api/owner/establishments');
       this.establishments = await res.json();
+      if (Array.isArray(this.establishments)) {
+        let disabledMap = {};
+        try {
+          disabledMap = JSON.parse(localStorage.getItem('pedigochos_disabled_stores') || '{}');
+        } catch(e) {}
+        this.establishments.forEach(est => {
+          if (disabledMap[est.id] !== undefined) {
+            est.disabled = Boolean(disabledMap[est.id]);
+          } else {
+            est.disabled = Boolean(est.disabled);
+          }
+        });
+      }
       await this.loadOrders();
       this.renderTable();
     } catch (err) {
