@@ -94,6 +94,29 @@ function writeStoreGps(map) {
   }
 }
 
+const DRIVERS_FILE = path.join(__dirname, 'drivers.json');
+
+function readDrivers() {
+  try {
+    if (fs.existsSync(DRIVERS_FILE)) {
+      return JSON.parse(fs.readFileSync(DRIVERS_FILE, 'utf8')) || [];
+    }
+  } catch (e) {
+    console.error('Error reading drivers.json:', e);
+  }
+  return [];
+}
+
+function writeDrivers(drivers) {
+  try {
+    if (Array.isArray(drivers)) {
+      fs.writeFileSync(DRIVERS_FILE, JSON.stringify(drivers, null, 2), 'utf8');
+    }
+  } catch (e) {
+    console.error('Error writing drivers.json:', e);
+  }
+}
+
 async function syncFromSupabase() {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
     console.log('Supabase env vars missing. Skipping cloud DB sync.');
@@ -144,6 +167,24 @@ async function syncFromSupabase() {
         fs.writeFileSync(STORE_GPS_FILE, gpsText, 'utf8');
         console.log('🎉 store_gps.json restored from Supabase Storage!');
       }
+
+      const drvUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/menu_images/drivers.json`;
+      const drvRes = await fetch(drvUrl);
+      if (drvRes.ok) {
+        const drvText = await drvRes.text();
+        const cloudDrivers = JSON.parse(drvText);
+        if (Array.isArray(cloudDrivers) && cloudDrivers.length > 0) {
+          const localDrivers = readDrivers();
+          const cloudPhones = new Set(cloudDrivers.map(d => d.phone));
+          localDrivers.forEach(ld => {
+            if (ld && ld.phone && !cloudPhones.has(ld.phone)) {
+              cloudDrivers.push(ld);
+            }
+          });
+          writeDrivers(cloudDrivers);
+          console.log('🎉 drivers.json restored from Supabase Storage!');
+        }
+      }
     } catch(e) {}
   } catch (err) {
     console.error('Error syncing database from Supabase:', err);
@@ -175,8 +216,13 @@ async function uploadToSupabase() {
       promises.push(fetch(`${process.env.SUPABASE_URL}/storage/v1/object/menu_images/store_gps.json`, { method: 'POST', headers, body: gpsContent }));
     }
 
+    if (fs.existsSync(DRIVERS_FILE)) {
+      const driversContent = fs.readFileSync(DRIVERS_FILE, 'utf8');
+      promises.push(fetch(`${process.env.SUPABASE_URL}/storage/v1/object/menu_images/drivers.json`, { method: 'POST', headers, body: driversContent }));
+    }
+
     await Promise.all(promises);
-    console.log('☁️ Database state, disabled stores & GPS backup updated successfully in Supabase Storage!');
+    console.log('☁️ Database state, disabled stores, GPS & Drivers backup updated successfully in Supabase Storage!');
   } catch (err) {
     console.error('Error backing up database to Supabase:', err);
     logAppError('uploadToSupabase', err);
@@ -260,12 +306,22 @@ async function syncFromPostgres() {
         writeDisabledStores(disabledMap);
         writeStoreGps(storeGpsMap);
 
+        const existingDrivers = (localData && Array.isArray(localData.drivers) && localData.drivers.length > 0)
+          ? localData.drivers
+          : readDrivers();
+        const existingReviews = (localData && Array.isArray(localData.reviews)) ? localData.reviews : [];
+        const existingPromos = (localData && Array.isArray(localData.promotions)) ? localData.promotions : [];
+
         const dbState = {
           establishments: establishments,
           orders: orders || [],
+          drivers: existingDrivers,
+          reviews: existingReviews,
+          promotions: existingPromos,
           lastUpdated: new Date().toISOString()
         };
         fs.writeFileSync(DB_FILE, JSON.stringify(dbState, null, 2), 'utf8');
+        writeDrivers(existingDrivers);
         console.log('🎉 Database synced successfully from Supabase PostgreSQL tables!');
       }
       return true;
@@ -429,7 +485,11 @@ function readDB() {
     const data = fs.readFileSync(DB_FILE, 'utf8');
     const db = JSON.parse(data);
     if (!db.reviews) db.reviews = [];
-    if (!db.drivers) db.drivers = [];
+    if (!db.drivers || db.drivers.length === 0) {
+      db.drivers = readDrivers();
+    } else {
+      writeDrivers(db.drivers);
+    }
     if (!db.promotions) db.promotions = [];
 
     // Filter out promotions older than 24h
@@ -467,29 +527,37 @@ function readDB() {
   } catch (err) {
     console.error('Error reading DB:', err);
     logAppError('readDB', err);
-    return { establishments: [], orders: [], reviews: [], drivers: [] };
+    return { establishments: [], orders: [], reviews: [], drivers: readDrivers() };
   }
 }
 
 function writeDB(data) {
   try {
     data.lastUpdated = new Date().toISOString();
-    if (data && Array.isArray(data.establishments)) {
-      const disabledMap = readDisabledStores();
-      const storeGpsMap = readStoreGps();
-      data.establishments.forEach(est => {
-        if (est.disabled !== undefined) {
-          disabledMap[est.id] = Boolean(est.disabled);
-        }
-        if (est.latitude && est.longitude) {
-          storeGpsMap[est.id] = {
-            latitude: parseFloat(est.latitude),
-            longitude: parseFloat(est.longitude)
-          };
-        }
-      });
-      writeDisabledStores(disabledMap);
-      writeStoreGps(storeGpsMap);
+    if (data) {
+      if (Array.isArray(data.drivers) && data.drivers.length > 0) {
+        writeDrivers(data.drivers);
+      } else {
+        data.drivers = readDrivers();
+      }
+
+      if (Array.isArray(data.establishments)) {
+        const disabledMap = readDisabledStores();
+        const storeGpsMap = readStoreGps();
+        data.establishments.forEach(est => {
+          if (est.disabled !== undefined) {
+            disabledMap[est.id] = Boolean(est.disabled);
+          }
+          if (est.latitude && est.longitude) {
+            storeGpsMap[est.id] = {
+              latitude: parseFloat(est.latitude),
+              longitude: parseFloat(est.longitude)
+            };
+          }
+        });
+        writeDisabledStores(disabledMap);
+        writeStoreGps(storeGpsMap);
+      }
     }
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
     uploadToSupabase();
