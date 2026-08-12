@@ -388,103 +388,61 @@ class MarketplaceController {
     }
   }
 
-  renderFoodCategoriesGrid() {
-    const grid = document.getElementById('establishments-grid');
-    if (!grid) return;
+  renderFoodBubbleCarousel() {
+    const container = document.getElementById('food-type-filters-container');
+    if (!container) return;
 
-    const titleEl = document.getElementById('establishments-title');
-    if (titleEl) {
-      titleEl.innerHTML = `🍽️ Categorías de Comidas`;
+    if (this.currentCategory !== 'comidas') {
+      container.style.display = 'none';
+      return;
     }
 
-    const container = document.getElementById('food-type-filters-container');
-    if (container) container.style.display = 'none';
+    container.style.display = 'flex';
+    container.className = 'food-bubbles-wrapper premium-scroll';
 
-    // Core separated categories requested by user
     const foodCategories = [
-      { id: 'hamburguesas', name: 'Hamburguesas', icon: '🍔', desc: 'Doble carne, queso cheddar, pepinillos, salsas...', bg: 'linear-gradient(135deg, #FF5E3A 0%, #FF2A00 100%)' },
-      { id: 'perros', name: 'Perros Calientes', icon: '🌭', desc: 'Salsas especiales, papitas, queso rallado...', bg: 'linear-gradient(135deg, #EC4899 0%, #BE185D 100%)' },
-      { id: 'pizzas', name: 'Pizzas', icon: '🍕', desc: 'Familiar, napolitana, pepperoni, queso derretido...', bg: 'linear-gradient(135deg, #EAB308 0%, #CA8A04 100%)' },
-      { id: 'patacones', name: 'Patacones', icon: '🍌', desc: 'Plátano verde crujiente, carne mechada, queso...', bg: 'linear-gradient(135deg, #10B981 0%, #047857 100%)' },
-      { id: 'arepas', name: 'Arepas', icon: '🫓', desc: 'Queso de mano, reina pepiada, carne desmechada...', bg: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)' },
-      { id: 'cachapas', name: 'Cachapas', icon: '🌽', desc: 'Maíz tierno, queso telita, mantequilla, pernil...', bg: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)' },
-      { id: 'sushi', name: 'Sushi & Asiatica', icon: '🍣', desc: 'Rolls, maki, tempura, salmón y salsa de soya...', bg: 'linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)' },
-      { id: 'mariscos', name: 'Mariscos & Pescado', icon: '🦐', desc: 'Camarones, paella, ceviche y pescado fresco...', bg: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)' },
-      { id: 'sandwiches', name: 'Sándwiches', icon: '🥪', desc: 'Club house, jamón y queso, pan artesanal...', bg: 'linear-gradient(135deg, #65A30D 0%, #4D7C0F 100%)' },
-      { id: 'pepitos', name: 'Pepitos & Baguettes', icon: '🥖', desc: 'Mixtos, pollo gratinado, carne tierna...', bg: 'linear-gradient(135deg, #059669 0%, #047857 100%)' },
-      { id: 'alitas', name: 'Alitas & Chicken', icon: '🍗', desc: 'BBQ, picantes, crujientes con papitas...', bg: 'linear-gradient(135deg, #EA580C 0%, #C2410C 100%)' },
-      { id: 'salchipapas', name: 'Salchipapas', icon: '🍟', desc: 'Salchichas premium, papitas, queso y salsas...', bg: 'linear-gradient(135deg, #E11D48 0%, #BE123C 100%)' },
-      { id: 'picadas', name: 'Picadas & Parrillas', icon: '🍖', desc: 'Carne asada, chorizo, morcilla y yuca...', bg: 'linear-gradient(135deg, #991B1B 0%, #7F1D1D 100%)' },
-      { id: 'bebidas', name: 'Bebidas & Batidos', icon: '🥤', desc: 'Jugos naturales, maltas, sodas, merengadas...', bg: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)' },
-      { id: 'postres', name: 'Postres & Helados', icon: '🍰', desc: 'Tortas, helados, marquesas, brownies...', bg: 'linear-gradient(135deg, #F43F5E 0%, #E11D48 100%)' },
-      { id: 'all', name: 'Todos los Restaurantes', icon: '⭐', desc: 'Explora el menú completo de todos los comercios', bg: 'linear-gradient(135deg, #475569 0%, #1E293B 100%)' }
+      { id: 'all', name: 'Todos', icon: '⭐' },
+      { id: 'hamburguesas', name: 'Burgers', icon: '🍔' },
+      { id: 'perros', name: 'Perros', icon: '🌭' },
+      { id: 'pizzas', name: 'Pizzas', icon: '🍕' },
+      { id: 'patacones', name: 'Patacones', icon: '🍌' },
+      { id: 'arepas', name: 'Arepas', icon: '🫓' },
+      { id: 'cachapas', name: 'Cachapas', icon: '🌽' },
+      { id: 'sushi', name: 'Sushi', icon: '🍣' },
+      { id: 'mariscos', name: 'Mariscos', icon: '🦐' },
+      { id: 'sandwiches', name: 'Sándwiches', icon: '🥪' },
+      { id: 'pepitos', name: 'Pepitos', icon: '🥖' },
+      { id: 'alitas', name: 'Alitas', icon: '🍗' },
+      { id: 'salchipapas', name: 'Salchipapas', icon: '🍟' },
+      { id: 'picadas', name: 'Parrillas', icon: '🍖' },
+      { id: 'bebidas', name: 'Bebidas', icon: '🥤' },
+      { id: 'postres', name: 'Postres', icon: '🍰' }
     ];
 
-    // Dynamically gather custom product categories from active establishments
-    const customCats = new Set();
-    const foodEsts = this.establishments.filter(e => e.category === 'comidas' && (e.location === this.currentLocation || !e.location));
-    foodEsts.forEach(est => {
-      if (est.products) {
-        est.products.forEach(p => {
-          const catName = p.category || p.category_id;
-          if (catName) {
-            const cleanCat = catName.trim().replace(/^[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]+/, '').trim();
-            if (cleanCat && cleanCat.length > 2) {
-              const lower = cleanCat.toLowerCase();
-              const alreadyCovered = foodCategories.some(c => c.name.toLowerCase().includes(lower) || lower.includes(c.id));
-              if (!alreadyCovered) {
-                customCats.add(cleanCat);
-              }
-            }
-          }
-        });
-      }
-    });
+    const activeFilter = window.activeFoodTypeFilter || 'all';
 
-    customCats.forEach(customCat => {
-      foodCategories.splice(foodCategories.length - 1, 0, {
-        id: customCat.toLowerCase(),
-        name: customCat,
-        icon: '🍽️',
-        desc: `Especialidades de ${customCat}`,
-        bg: 'linear-gradient(135deg, #0F766E 0%, #115E59 100%)'
-      });
-    });
+    container.innerHTML = `
+      <div class="food-bubbles-container">
+        ${foodCategories.map(cat => {
+          const isActive = activeFilter === cat.id;
+          return `
+            <div class="bubble-story-item ${isActive ? 'active' : ''}" onclick="MarketplaceApp.filterRestaurantsByFoodType('${cat.id}')">
+              <div class="bubble-ring">
+                <div class="bubble-inner">
+                  ${cat.icon}
+                </div>
+              </div>
+              <span class="bubble-label">${cat.name}</span>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
 
-    grid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 14px; width: 100%;';
-    grid.innerHTML = '';
-
-    foodCategories.forEach(cat => {
-      const card = document.createElement('div');
-      card.className = 'food-cat-grid-card';
-      card.style.cssText = `
-        background: #1E293B;
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 18px;
-        padding: 16px 12px;
-        cursor: pointer;
-        transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.12);
-        position: relative;
-        overflow: hidden;
-      `;
-      card.onmouseenter = () => { card.style.transform = 'translateY(-4px)'; card.style.borderColor = 'var(--primary)'; };
-      card.onmouseleave = () => { card.style.transform = 'translateY(0)'; card.style.borderColor = 'rgba(255,255,255,0.08)'; };
-      card.onclick = () => this.filterRestaurantsByFoodType(cat.id);
-
-      card.innerHTML = `
-        <div style="width: 52px; height: 52px; border-radius: 16px; background: ${cat.bg}; display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-          ${cat.icon}
-        </div>
-        <h4 style="margin: 0 0 4px 0; font-size: 13.5px; font-weight: 800; color: #ffffff;">${cat.name}</h4>
-        <p style="margin: 0; font-size: 10.5px; color: #94A3B8; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${cat.desc}</p>
-      `;
-      grid.appendChild(card);
-    });
+  // Legacy fallback grid
+  renderFoodCategoriesGrid() {
+    this.renderFoodBubbleCarousel();
   }
 
   // Render lists
@@ -517,14 +475,8 @@ class MarketplaceController {
       viewAllBtn.style.display = (this.currentCategory === 'comidas') ? 'inline-flex' : 'none';
     }
 
-    // Check if we are in 'comidas' category and NO food type filter has been selected yet
-    if (this.currentCategory === 'comidas' && !window.activeFoodTypeFilter && !isDirectFilter && !filtered) {
-      this.renderFoodCategoriesGrid();
-      return;
-    }
-
     grid.style.cssText = ''; // restore standard grid layout
-    this.renderFoodTypeFilterButtons();
+    this.renderFoodBubbleCarousel();
 
     const categoryNames = {
       'all': '✨ Todos los Restaurantes',
@@ -551,8 +503,8 @@ class MarketplaceController {
       displayTitle = `
         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 10px;">
           <span>${activeLabel}</span>
-          <button type="button" onclick="MarketplaceApp.showFoodCategoriesGrid()" style="background: rgba(255, 94, 58, 0.15); color: var(--primary); border: 1px solid var(--primary); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
-            ⬅️ Categorías
+          <button type="button" onclick="MarketplaceApp.filterRestaurantsByFoodType('all')" style="background: rgba(255, 94, 58, 0.15); color: var(--primary); border: 1px solid var(--primary); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+            ⭐ Ver Todos
           </button>
         </div>
       `;

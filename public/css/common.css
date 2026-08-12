@@ -153,3 +153,87 @@ a {
 .hidden {
   display: none !important;
 }
+
+/* Horizontal Bubbles / Stories Carousel Styling */
+.food-bubbles-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  padding: 8px 0 14px 0;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.food-bubbles-container {
+  display: flex;
+  gap: 12px;
+  padding: 0 4px;
+  flex-wrap: nowrap;
+}
+
+.bubble-story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  width: 68px;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  user-select: none;
+}
+
+.bubble-story-item:hover {
+  transform: translateY(-2px);
+}
+
+.bubble-story-item:active {
+  transform: scale(0.92);
+}
+
+.bubble-ring {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  padding: 2.5px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.bubble-story-item.active .bubble-ring {
+  background: linear-gradient(135deg, #FF5E3A 0%, #FF2A00 50%, #F59E0B 100%);
+  box-shadow: 0 0 16px rgba(255, 94, 58, 0.6);
+  transform: scale(1.08);
+  border-color: transparent;
+}
+
+.bubble-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #1E293B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+}
+
+.bubble-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #CBD5E1;
+  text-align: center;
+  margin-top: 5px;
+  white-space: nowrap;
+  max-width: 68px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s;
+}
+
+.bubble-story-item.active .bubble-label {
+  color: #FF5E3A;
+  font-weight: 800;
+}
