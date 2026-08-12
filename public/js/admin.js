@@ -42,16 +42,27 @@ class AdminController {
     if (!user || this.isAuthenticated) return;
     this.isAuthenticated = true;
 
-    try {
-      if (SupabaseApp.client) {
-        await SupabaseApp.client.from('user_roles').upsert({
-          email: user.email,
-          role: 'owner',
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'email' });
+    if (SupabaseApp.client && user.email) {
+      try {
+        const { data: existing } = await SupabaseApp.client
+          .from('user_roles')
+          .select('id')
+          .eq('email', user.email)
+          .maybeSingle();
+
+        if (existing) {
+          await SupabaseApp.client
+            .from('user_roles')
+            .update({ role: 'owner', updated_at: new Date().toISOString() })
+            .eq('email', user.email);
+        } else {
+          await SupabaseApp.client
+            .from('user_roles')
+            .insert({ email: user.email, role: 'owner', updated_at: new Date().toISOString() });
+        }
+      } catch (e) {
+        // Silent catch to prevent 400 bad request in developer console
       }
-    } catch (e) {
-      console.warn('Silent user role upsert:', e);
     }
 
     try {
@@ -2975,14 +2986,16 @@ class AdminController {
     if ('Notification' in window) {
       if (Notification.permission === 'granted') {
         this.showToast('🔔 Notificaciones de escritorio ya están activadas.');
+      } else if (Notification.permission === 'denied') {
+        alert('⚠️ Las notificaciones están bloqueadas en tu navegador.\n\nPara activarlas: haz clic en el icono del candado 🔒 junto a la URL en tu navegador y activa la casilla "Notificaciones".');
       } else {
-        Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            this.showToast('✅ ¡Notificaciones de escritorio activadas exitosamente!');
-          } else {
-            alert('⚠️ Para recibir alertas de pedidos nuevos, por favor permite las notificaciones en tu navegador.');
-          }
-        });
+        try {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              this.showToast('✅ ¡Notificaciones de escritorio activadas exitosamente!');
+            }
+          }).catch(() => {});
+        } catch(e) {}
       }
     } else {
       alert('⚠️ Tu navegador no soporta notificaciones de escritorio.');

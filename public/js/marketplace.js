@@ -3478,12 +3478,17 @@ class MarketplaceController {
     if ('Notification' in window && 'serviceWorker' in navigator) {
       if (Notification.permission === 'default') {
         setTimeout(() => {
-          Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-              console.log('🔔 Web Push notification permission GRANTED');
+          try {
+            const res = Notification.requestPermission();
+            if (res && typeof res.then === 'function') {
+              res.then(permission => {
+                if (permission === 'granted') {
+                  console.log('🔔 Web Push notification permission GRANTED');
+                }
+              }).catch(() => {});
             }
-          });
-        }, 3000);
+          } catch(e) {}
+        }, 5000);
       }
     }
   }
