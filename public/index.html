@@ -166,6 +166,19 @@
         <div id="food-type-filters-container" style="display: flex; gap: 8px; overflow-x: auto; padding: 6px 0 14px 0; -webkit-overflow-scrolling: touch;" class="premium-scroll">
         </div>
 
+        <!-- Daily Promotions Carousel Section (Carrusel Horizontal de Promociones del Día - 24 Horas) -->
+        <section id="daily-promotions-section" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 18px; padding: 14px 12px 10px 12px; box-shadow: 0 8px 24px rgba(239, 68, 68, 0.12);" class="hidden">
+          <div class="section-header-flex" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+            <h4 style="font-size: 14px; font-weight: 800; color: #FFF; margin: 0; display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 18px;">🔥</span> <span>PROMO DEL DÍA</span> <span style="font-size: 10px; background: #EF4444; color: #FFF; padding: 2px 8px; border-radius: 12px; font-weight: 900;">24h Oferta</span>
+            </h4>
+            <span style="font-size: 10.5px; color: #FCA5A5; font-weight: 700;">⏱️ Expira en 24h</span>
+          </div>
+          <div id="daily-promotions-container" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;" class="premium-scroll">
+            <!-- Dynamically populated promo cards -->
+          </div>
+        </section>
+
         <!-- Featured Carousel Section (Carrusel Horizontal de Destacados) -->
         <section id="featured-carousel-section" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(255, 94, 58, 0.08), rgba(22, 22, 28, 0.95)); border: 1px solid rgba(255, 94, 58, 0.25); border-radius: 18px; padding: 14px 12px 10px 12px; box-shadow: 0 8px 24px rgba(255, 94, 58, 0.08);">
           <div class="section-header-flex" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
@@ -649,6 +662,6 @@
   <script src="/js/supabase-helper.js?v=81"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="/js/sound.js?v=81"></script>
-  <script src="/js/marketplace.js?v=141"></script>
+  <script src="/js/marketplace.js?v=143"></script>
 </body>
 </html>

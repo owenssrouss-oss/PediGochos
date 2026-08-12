@@ -583,6 +583,14 @@ class AdminController {
       if (openTimeInput) openTimeInput.value = est.open_time || '17:00';
       if (closeTimeInput) closeTimeInput.value = est.close_time || '00:00';
 
+      const workingDays = Array.isArray(est.working_days) && est.working_days.length > 0
+        ? est.working_days
+        : ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
+      document.querySelectorAll('input[name="edit-working-day"]').forEach(chk => {
+        chk.checked = workingDays.includes(chk.value);
+      });
+
       const select = document.getElementById('edit-shop-logo');
       if (select) {
         select.innerHTML = '';
@@ -709,7 +717,8 @@ class AdminController {
         prep_time: prep_time ? parseInt(prep_time) : null,
         delivery_time: delivery_time ? parseInt(delivery_time) : null,
         open_time: open_time,
-        close_time: close_time
+        close_time: close_time,
+        working_days: Array.from(document.querySelectorAll('input[name="edit-working-day"]:checked')).map(c => c.value)
       };
 
       const res = await fetch(`/api/establishments/${this.activeShopId}`, {

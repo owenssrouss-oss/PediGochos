@@ -412,6 +412,14 @@ function readDB() {
     const db = JSON.parse(data);
     if (!db.reviews) db.reviews = [];
     if (!db.drivers) db.drivers = [];
+    if (!db.promotions) db.promotions = [];
+
+    // Filter out promotions older than 24h
+    const nowMs = Date.now();
+    db.promotions = db.promotions.filter(p => {
+      const createdAtMs = new Date(p.createdAt || p.created_at || nowMs).getTime();
+      return (nowMs - createdAtMs) < (24 * 60 * 60 * 1000);
+    });
 
     const disabledMap = readDisabledStores();
     const storeGpsMap = readStoreGps();
@@ -802,6 +810,9 @@ app.put('/api/establishments/:id', (req, res) => {
     storeGpsMap[id] = { latitude: est.latitude, longitude: est.longitude };
     writeStoreGps(storeGpsMap);
     console.log(`📍 Establishment [${id}] (${est.name}) GPS locked to: ${est.latitude}, ${est.longitude}`);
+  }
+  if (req.body.working_days !== undefined) {
+    est.working_days = Array.isArray(req.body.working_days) ? req.body.working_days : [];
   }
   if (req.body.open_time !== undefined) {
     est.open_time = req.body.open_time;

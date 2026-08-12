@@ -60,6 +60,7 @@ class MarketplaceController {
 
     await this.loadSystemSettings();
     await this.loadEstablishments();
+    await this.loadPromotions();
     this.initWebSocket();
     
     // Update active location display in header on startup
@@ -189,6 +190,78 @@ class MarketplaceController {
       console.error('Error fetching establishments:', e);
       this.showToast('Error de conexión al cargar comercios');
     }
+  }
+
+  async loadPromotions() {
+    try {
+      const res = await fetch('/api/promotions');
+      const promos = await res.json();
+      const container = document.getElementById('daily-promotions-container');
+      const section = document.getElementById('daily-promotions-section');
+      if (!container || !section) return;
+
+      if (!Array.isArray(promos) || promos.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+
+      const now = Date.now();
+      container.innerHTML = promos.map(p => {
+        const expiresMs = new Date(p.expiresAt || p.expires_at || (new Date(p.createdAt).getTime() + 24*60*60*1000)).getTime();
+        const diffMs = Math.max(0, expiresMs - now);
+        const hoursLeft = Math.floor(diffMs / (1000 * 60 * 60));
+        const minsLeft = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+        const origPrice = p.originalPrice || p.promoPrice;
+        const discountPct = origPrice > p.promoPrice ? Math.round(((origPrice - p.promoPrice) / origPrice) * 100) : 0;
+        const discountBadge = discountPct > 0 ? `<span style="background: #EF4444; color: #FFF; font-size: 10px; font-weight: 900; padding: 2px 6px; border-radius: 8px; position: absolute; top: 8px; left: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">- ${discountPct}% OFF</span>` : '';
+
+        return `
+          <div onclick="MarketplaceApp.openPromoDirectly('${p.id}', '${p.establishmentId}', '${p.productId}')" style="min-width: 220px; max-width: 220px; background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 14px; overflow: hidden; cursor: pointer; flex-shrink: 0; position: relative; scroll-snap-align: start; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: transform 0.2s ease;">
+            <div style="width: 100%; height: 110px; position: relative; background: #000;">
+              <img src="${p.image}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/burger_royale.jpg'">
+              ${discountBadge}
+              <span style="position: absolute; bottom: 6px; right: 6px; background: rgba(15, 23, 42, 0.85); color: #FCA5A5; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.4);">
+                ⏱️ ${hoursLeft}h ${minsLeft}m
+              </span>
+            </div>
+            <div style="padding: 10px;">
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                <span style="font-size: 14px;">${p.establishmentLogo || '🏪'}</span>
+                <span style="font-size: 11px; font-weight: 700; color: #94A3B8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${p.establishmentName}</span>
+              </div>
+              <h5 style="margin: 0 0 4px 0; font-size: 13px; font-weight: 800; color: #FFF; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${p.title}</h5>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px;">
+                <div>
+                  ${origPrice > p.promoPrice ? `<span style="font-size: 10.5px; color: #64748B; text-decoration: line-through; display: block;">$${Math.round(origPrice).toLocaleString('de-DE')}</span>` : ''}
+                  <span style="font-size: 13.5px; font-weight: 900; color: #10B981;">$${Math.round(p.promoPrice).toLocaleString('de-DE')} COP</span>
+                </div>
+                <span style="background: rgba(239,68,68,0.2); color: #F87171; border: 1px solid rgba(239,68,68,0.4); border-radius: 20px; font-size: 10px; font-weight: 800; padding: 4px 8px;">🔥 Ver Promo</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      section.classList.remove('hidden');
+    } catch(e) {
+      console.warn('Error loading daily promos:', e);
+    }
+  }
+
+  async openPromoDirectly(promoId, establishmentId, productId) {
+    const est = this.establishments.find(e => e.id === establishmentId);
+    if (!est) return;
+    
+    // Open store view
+    this.openEstablishment(establishmentId);
+
+    // After store renders, open product details modal directly!
+    setTimeout(() => {
+      if (typeof this.openProductModal === 'function') {
+        this.openProductModal(productId);
+      }
+    }, 350);
   }
 
   // Navigation
@@ -3352,6 +3425,17 @@ class MarketplaceController {
 
   isEstablishmentOpen(est) {
     if (!est) return true;
+    if (est.disabled) return false;
+
+    // Working Days Schedule Check
+    const daysOfWeek = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const todayName = daysOfWeek[new Date().getDay()];
+    if (Array.isArray(est.working_days) && est.working_days.length > 0) {
+      if (!est.working_days.includes(todayName)) {
+        return false; // Closed today based on working_days schedule calendar
+      }
+    }
+
     const openTime = est.open_time || '17:00';
     const closeTime = est.close_time || '00:00';
 

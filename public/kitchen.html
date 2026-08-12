@@ -39,6 +39,7 @@
         </select>
         <button id="btn-manage-prices" class="btn-manage-prices hidden" onclick="KitchenApp.openMenuTablesModal()" style="margin-left:12px; background-color:#10b981; border:1px solid #10b981; color:#121216; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🍔 Taller de Local</button>
         <button id="btn-customize-shop" class="btn-manage-prices hidden" onclick="KitchenApp.openCustomizeShopModal()" style="margin-left:8px; background-color:#3b82f6; border:1px solid #3b82f6; color:#ffffff; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🏪 Sede Comercial</button>
+        <button id="btn-daily-promo" class="btn-manage-prices hidden" onclick="KitchenApp.openDailyPromoModal()" style="margin-left:8px; background-color:#ff5e3a; border:1px solid #ff5e3a; color:#ffffff; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🔥 Promociones del Día</button>
         <button id="btn-panic-high-traffic" class="btn-panic-toggle hidden" onclick="KitchenApp.toggleHighTrafficPanicMode()" style="margin-left:8px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: var(--radius-sm); padding: 8px 12px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px;" title="Activar/Desactivar tiempo extra por alto tráfico de personas en cocina">
           <span id="panic-icon">🚨</span>
           <span id="panic-text">Modo Tráfico Alto (+20 min)</span>
@@ -595,9 +596,67 @@
     </div>
   </div>
 
+  <!-- Modal: Promociones del Día (Cocina) -->
+  <div class="modal-overlay" id="kitchen-promo-modal" style="z-index: 3900; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div class="modal-content" style="max-width: 500px; width: 94%; padding: 22px; border-radius: 20px; background: rgba(18, 18, 24, 0.96); border: 1px solid rgba(255, 255, 255, 0.1); margin: auto;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; color: #FFF; font-size: 17px; font-weight: 800;">🔥 Publicar Promoción del Día (24 Horas)</h3>
+        <button class="modal-close" onclick="KitchenApp.closeDailyPromoModal()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.1); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <form onsubmit="KitchenApp.handleCreatePromoSubmit(event)">
+        <p style="font-size: 12px; color: #94A3B8; margin-top: 0; margin-bottom: 14px; line-height: 1.4;">
+          ✨ Esta oferta aparecerá destacada en el inicio de la app en la sección <strong>🔥 PROMO DEL DÍA</strong> y expirará automáticamente a las 24 horas.
+        </p>
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="color: #94A3B8; font-size: 12px;">Seleccionar Producto de tu Menú (Opcional)</label>
+          <select id="promo-select-product" onchange="KitchenApp.handlePromoProductSelect(this.value)" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+            <option value="">-- Nuevo Plato en Promoción --</option>
+            <!-- Filled dynamically -->
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="color: #94A3B8; font-size: 12px;">Nombre de la Promoción / Plato *</label>
+          <input type="text" id="promo-title" required placeholder="Ej. Combo Burger + Papas 2x1" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="color: #94A3B8; font-size: 12px;">Descripción Corta</label>
+          <input type="text" id="promo-description" placeholder="Ej. Incluye bebida gratis solo por hoy" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+          <div class="form-group" style="flex: 1;">
+            <label style="color: #94A3B8; font-size: 12px;">Precio Regular (COP) *</label>
+            <input type="number" id="promo-original-price" required placeholder="Ej. 25000" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #94A3B8; font-size: 13px; text-decoration: line-through;">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label style="color: #10B981; font-size: 12px; font-weight: 800;">🔥 Precio Oferta (COP) *</label>
+            <input type="number" id="promo-price" required placeholder="Ej. 18000" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #10B981; color: #10B981; font-weight: 800; font-size: 14px;">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label style="color: #94A3B8; font-size: 12px;">URL de Imagen del Plato</label>
+          <input type="url" id="promo-image" placeholder="https://..." style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" onclick="KitchenApp.closeDailyPromoModal()" style="background: transparent; color: #94A3B8; border: 1px solid #475569; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer;">Cancelar</button>
+          <button type="submit" style="background: #FF5E3A; color: #FFF; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer;">🔥 Publicar Promo (24h)</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+    </div>
+  </div>
+
   <script src="/js/sound.js?v=81"></script>
   <script src="/js/menu-builder.js?v=81"></script>
-  <script src="/js/kitchen.js?v=142"></script>
+  <script src="/js/kitchen.js?v=143"></script>
   <script>
     let activeCategoryId = 'all';
     let categoriesList = [];

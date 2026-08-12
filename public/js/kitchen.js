@@ -456,6 +456,14 @@ class KitchenController {
         btnCust.classList.add('hidden');
       }
     }
+    const btnPromo = document.getElementById('btn-daily-promo');
+    if (btnPromo) {
+      if (visible) {
+        btnPromo.classList.remove('hidden');
+      } else {
+        btnPromo.classList.add('hidden');
+      }
+    }
     if (btnPanic) {
       if (visible) {
         btnPanic.classList.remove('hidden');
@@ -1108,6 +1116,97 @@ class KitchenController {
 
     const clientWhatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(confirmationMessage)}`;
     window.open(clientWhatsappUrl, '_blank');
+  }
+
+  openDailyPromoModal() {
+    if (!this.selectedId) return;
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+
+    const modal = document.getElementById('kitchen-promo-modal');
+    if (!modal) return;
+
+    // Populate products select
+    const select = document.getElementById('promo-select-product');
+    if (select) {
+      select.innerHTML = '<option value="">-- Nuevo Plato en Promoción --</option>';
+      const products = est.products || [];
+      products.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.innerText = `${p.name} ($${(p.price || 0).toLocaleString('de-DE')})`;
+        select.appendChild(opt);
+      });
+    }
+
+    document.getElementById('promo-title').value = '';
+    document.getElementById('promo-description').value = '';
+    document.getElementById('promo-original-price').value = '';
+    document.getElementById('promo-price').value = '';
+    document.getElementById('promo-image').value = '';
+
+    modal.classList.add('active');
+  }
+
+  closeDailyPromoModal() {
+    const modal = document.getElementById('kitchen-promo-modal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  handlePromoProductSelect(productId) {
+    if (!this.selectedId || !productId) return;
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+    const prod = (est.products || []).find(p => p.id === productId);
+    if (!prod) return;
+
+    document.getElementById('promo-title').value = prod.name || '';
+    document.getElementById('promo-description').value = prod.description || '';
+    document.getElementById('promo-original-price').value = prod.originalPrice || prod.price || '';
+    document.getElementById('promo-price').value = Math.round((prod.price || 0) * 0.85); // Suggest 15% discount
+    document.getElementById('promo-image').value = prod.image || '';
+  }
+
+  async handleCreatePromoSubmit(e) {
+    e.preventDefault();
+    if (!this.selectedId) return;
+    const est = this.establishments.find(e => e.id === this.selectedId);
+    if (!est) return;
+
+    const productId = document.getElementById('promo-select-product').value;
+    const title = document.getElementById('promo-title').value.trim();
+    const description = document.getElementById('promo-description').value.trim();
+    const originalPrice = document.getElementById('promo-original-price').value;
+    const promoPrice = document.getElementById('promo-price').value;
+    const image = document.getElementById('promo-image').value.trim();
+
+    try {
+      const res = await fetch('/api/promotions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          establishmentId: est.id,
+          linkKey: est.linkKey,
+          productId,
+          title,
+          description,
+          originalPrice,
+          promoPrice,
+          image: image || est.logoImage || '/images/burger_royale.jpg'
+        })
+      });
+
+      if (res.ok) {
+        this.showToast('🔥 ¡Promoción del día publicada con éxito por 24 horas!');
+        this.closeDailyPromoModal();
+        await this.loadEstablishments();
+      } else {
+        alert('Error al publicar la promoción.');
+      }
+    } catch(err) {
+      console.error('Error publishing daily promo:', err);
+      alert('Error de conexión al publicar la promoción.');
+    }
   }
 
   // Immersive local layout & menu management
