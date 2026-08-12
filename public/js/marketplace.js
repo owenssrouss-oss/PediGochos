@@ -330,9 +330,9 @@ class MarketplaceController {
     if (est && est.isHighTraffic) {
       const extra = est.extraPrepTime || 20;
       highTrafficBanner.innerHTML = `
-        <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 8px 14px; border-radius: 10px; font-weight: 700; font-size: 12px; margin-top: 10px; display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 16px;">🚨</span>
-          <span><strong>Tráfico Alto en Cocina:</strong> El tiempo estimado de entrega aumenta en <strong>+${extra} min</strong> debido a la alta afluencia de personas en el local.</span>
+        <div style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid #F59E0B; color: #FFFFFF; padding: 12px 16px; border-radius: 14px; font-weight: 700; font-size: 12.5px; margin-top: 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+          <span style="font-size: 22px; flex-shrink: 0;">🚨</span>
+          <span style="line-height: 1.4;"><strong style="color: #FCD34D; font-size: 13px;">Tráfico Alto en Cocina:</strong> El tiempo estimado de entrega aumenta en <strong style="color: #FEF08A;">+${extra} min</strong> debido a la alta afluencia de personas en el local.</span>
         </div>
       `;
       highTrafficBanner.style.display = 'block';
@@ -352,9 +352,9 @@ class MarketplaceController {
     const isOpen = this.isEstablishmentOpen(est);
     if (!isOpen) {
       closedStoreBanner.innerHTML = `
-        <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 12px; margin-top: 10px; display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 16px;">🔴</span>
-          <span><strong>Restaurante Cerrado:</strong> Horario de Atención: <strong>${this.formatTime12h(est.open_time)} a ${this.formatTime12h(est.close_time)}</strong>. Puedes consultar el menú pero los pedidos están desactivados fuera de horario.</span>
+        <div style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid #EF4444; color: #FFFFFF; padding: 12px 16px; border-radius: 14px; font-weight: 700; font-size: 12.5px; margin-top: 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+          <span style="font-size: 22px; flex-shrink: 0;">🔴</span>
+          <span style="line-height: 1.4;"><strong style="color: #FCA5A5; font-size: 13px;">Restaurante Cerrado:</strong> Horario de Atención: <strong style="color: #FEF08A;">${this.formatTime12h(est.open_time)} a ${this.formatTime12h(est.close_time)}</strong>. Puedes consultar el menú pero los pedidos están desactivados fuera de horario.</span>
         </div>
       `;
       closedStoreBanner.style.display = 'block';
