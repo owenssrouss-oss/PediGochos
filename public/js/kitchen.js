@@ -551,13 +551,36 @@ class KitchenController {
     }
   }
 
-  updateOrderStatus(orderId, nextStatus) {
+  showToast(message, isError = false) {
+    this.showLocalToast(message, isError);
+  }
+
+  async updateOrderStatus(orderId, nextStatus) {
+    // 1. Optimistic local update
+    const ord = (this.orders || []).find(o => String(o.id) === String(orderId));
+    if (ord) {
+      ord.status = nextStatus;
+      this.renderOrders();
+    }
+
+    // 2. WebSocket broadcast
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({
         type: 'UPDATE_STATUS',
         orderId: orderId,
         status: nextStatus
       }));
+    }
+
+    // 3. HTTP API fallback update to server
+    try {
+      await fetch(`/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: nextStatus })
+      });
+    } catch(e) {
+      console.warn('HTTP status update fallback error:', e);
     }
   }
 
@@ -953,10 +976,18 @@ class KitchenController {
   }
 
   async callDelivery(orderId) {
-    const order = this.orders.find(o => o.id === orderId);
+    const order = (this.orders || []).find(o => String(o.id) === String(orderId));
     if (!order) return;
 
-    Sound.playBell();
+    if (typeof Sound !== 'undefined' && Sound.playBell) {
+      Sound.playBell();
+    }
+
+    // Open blank window IMMEDIATELY on click event turn to bypass browser popup blocker
+    let popupWin = null;
+    try {
+      popupWin = window.open('about:blank', '_blank');
+    } catch(e) {}
     
     // Auto-generate code if missing
     if (order.orderType === 'delivery') {
@@ -980,10 +1011,17 @@ class KitchenController {
       console.warn('Error fetching rotated driver, using fallback:', e);
     }
 
-    const cleanDriverPhone = driverPhone.replace(/\D/g, '');
+    let cleanDriverPhone = driverPhone.replace(/\D/g, '');
+    if (cleanDriverPhone.startsWith('04')) {
+      cleanDriverPhone = '58' + cleanDriverPhone.slice(1);
+    } else if (cleanDriverPhone.startsWith('4') && cleanDriverPhone.length === 10) {
+      cleanDriverPhone = '58' + cleanDriverPhone;
+    } else if (cleanDriverPhone.startsWith('3') && cleanDriverPhone.length === 10) {
+      cleanDriverPhone = '57' + cleanDriverPhone;
+    }
 
     // Build driver notification message
-    const storeName = this.establishments.find(e => e.id === this.selectedId)?.name || order.establishmentName || 'El Local';
+    const storeName = (this.establishments || []).find(e => String(e.id) === String(this.selectedId))?.name || order.establishmentName || 'El Local';
     const clientName = order.customerName || 'Cliente';
     const clientPhone = order.deliveryDetails?.phone || 'N/A';
     const clientAddress = order.deliveryDetails?.address || 'N/A';
@@ -1023,14 +1061,18 @@ class KitchenController {
       messageText += `\n\n🏡 *FOTO FACHADA/CASA:* ${housePhotoUrl}`;
     }
 
-    const whatsappUrl = `https://wa.me/${cleanDriverPhone}?text=${encodeURIComponent(messageText)}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanDriverPhone}&text=${encodeURIComponent(messageText)}`;
     
-    this.showToast(`✨ Pedido asignado equitativamente a ${driverName} (${driverPhone})`);
+    this.showLocalToast(`✨ Pedido asignado equitativamente a ${driverName} (${driverPhone})`);
 
-    // Open WhatsApp directly
-    window.open(whatsappUrl, '_blank');
+    // Redirect popup window or current location
+    if (popupWin && !popupWin.closed) {
+      popupWin.location.href = whatsappUrl;
+    } else {
+      window.location.href = whatsappUrl;
+    }
 
-    this.updateOrderStatus(orderId, 'En Camino');
+    await this.updateOrderStatus(orderId, 'En Camino');
   }
 
   cancelOrderPrompt(orderId) {

@@ -910,7 +910,32 @@ function broadcastToMerchant(establishmentId, data) {
       }
     });
   }
-}
+// HTTP endpoint to update order status (fallback for WebSocket)
+app.put('/api/orders/:id/status', (req, res) => {
+  const orderId = req.params.id;
+  const { status, reason, paymentStatus } = req.body;
+  const db = readDB();
+  const order = db.orders.find(o => o.id === orderId);
+
+  if (!order) {
+    return res.status(404).json({ success: false, error: 'Pedido no encontrado' });
+  }
+
+  if (status) order.status = status;
+  if (reason) order.cancelReason = reason;
+  if (paymentStatus) order.paymentStatus = paymentStatus;
+  order.updatedAt = new Date().toISOString();
+  writeDB(db);
+
+  broadcastToMerchant(order.establishmentId, {
+    type: 'ORDER_UPDATED',
+    orderId,
+    status: order.status,
+    order
+  });
+
+  res.json({ success: true, order });
+});
 
 // API configuration endpoint for Supabase
 app.get('/api/config/supabase', (req, res) => {
