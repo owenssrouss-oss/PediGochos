@@ -238,6 +238,20 @@ class AdminController {
     if (!tbody) return;
     tbody.innerHTML = '';
 
+    // Deduplicate establishments by ID before rendering
+    const seenRenderIds = new Set();
+    const uniqueEsts = (this.establishments || []).filter(e => {
+      if (!e || !e.id) return false;
+      const sid = String(e.id).trim();
+      if (seenRenderIds.has(sid)) return false;
+      seenRenderIds.add(sid);
+      return true;
+    });
+    if (uniqueEsts.length !== (this.establishments || []).length) {
+      console.warn(`⚠️ renderTable: Deduplicated ${(this.establishments || []).length - uniqueEsts.length} duplicate establishment(s) from display.`);
+      this.establishments = uniqueEsts;
+    }
+
     if (this.establishments.length === 0) {
       tbody.innerHTML = `
         <tr>

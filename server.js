@@ -166,6 +166,15 @@ async function syncFromSupabase() {
             cloudData.establishments.push(localEst);
           }
         });
+        // Deduplicate before saving
+        const seenIds = new Set();
+        cloudData.establishments = cloudData.establishments.filter(e => {
+          if (!e || !e.id) return false;
+          const sid = String(e.id).trim();
+          if (seenIds.has(sid)) return false;
+          seenIds.add(sid);
+          return true;
+        });
         fs.writeFileSync(DB_FILE, JSON.stringify(cloudData, null, 2), 'utf8');
         console.log('🎉 Database synced successfully from Supabase Storage!');
       }
@@ -388,6 +397,15 @@ async function syncFromPostgres() {
           promotions: existingPromos,
           lastUpdated: new Date().toISOString()
         };
+        // Deduplicate establishments before writing to disk
+        const seenPgIds = new Set();
+        dbState.establishments = establishments.filter(e => {
+          if (!e || !e.id) return false;
+          const sid = String(e.id).trim();
+          if (seenPgIds.has(sid)) return false;
+          seenPgIds.add(sid);
+          return true;
+        });
         fs.writeFileSync(DB_FILE, JSON.stringify(dbState, null, 2), 'utf8');
         writeDrivers(existingDrivers);
         console.log('🎉 Database synced successfully from Supabase PostgreSQL tables!');
@@ -592,6 +610,7 @@ function readDB() {
           }
         }
       });
+        const hadDuplicates = db.establishments.length !== uniqueEsts.length;
       db.establishments = uniqueEsts;
 
       db.establishments.forEach(est => {
@@ -620,6 +639,16 @@ function readDB() {
           est.close_time = '00:00';
         }
       });
+
+      // Auto-heal: if we found duplicates, save the clean version back to disk immediately
+      if (hadDuplicates) {
+        console.log(`🧹 readDB: Found and removed ${db.establishments.length} duplicates from db.json — auto-healing file.`);
+        try {
+          fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf8');
+        } catch(e) {
+          console.error('Failed to auto-heal db.json duplicates:', e);
+        }
+      }
     }
     return db;
   } catch (err) {
@@ -666,6 +695,22 @@ function writeDB(data) {
         });
         writeDisabledStores(disabledMap);
         writeStoreGps(storeGpsMap);
+
+        // Deduplicate establishments before writing to disk
+        const seenWriteIds = new Set();
+        const dedupedEsts = [];
+        data.establishments.forEach(est => {
+          if (!est || !est.id) return;
+          const sid = String(est.id).trim();
+          if (!seenWriteIds.has(sid)) {
+            seenWriteIds.add(sid);
+            dedupedEsts.push(est);
+          }
+        });
+        if (dedupedEsts.length !== data.establishments.length) {
+          console.log(`🧹 writeDB: Removed ${data.establishments.length - dedupedEsts.length} duplicate establishments before saving.`);
+        }
+        data.establishments = dedupedEsts;
       }
     }
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
