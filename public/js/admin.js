@@ -238,13 +238,17 @@ class AdminController {
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    // Deduplicate establishments by ID before rendering
+    // Deduplicate establishments by ID and normalized name before rendering
+    const normNameFn = (n) => (n || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '').trim();
     const seenRenderIds = new Set();
+    const seenNormNames = new Set();
     const uniqueEsts = (this.establishments || []).filter(e => {
-      if (!e || !e.id) return false;
+      if (!e || !e.id || !e.name) return false;
       const sid = String(e.id).trim();
-      if (seenRenderIds.has(sid)) return false;
+      const nName = normNameFn(e.name);
+      if (seenRenderIds.has(sid) || seenNormNames.has(nName)) return false;
       seenRenderIds.add(sid);
+      seenNormNames.add(nName);
       return true;
     });
     if (uniqueEsts.length !== (this.establishments || []).length) {
@@ -2845,15 +2849,18 @@ class AdminController {
       targetEsts = targetEsts.filter(e => (e.location || 'San Antonio').toLowerCase().includes(filterLoc.toLowerCase()));
     }
 
-    // Filter targetEsts strictly by unique ID to ensure every store gets its own exact marker
+    // Filter targetEsts strictly by unique ID and normalized name to ensure every store gets its own exact marker
     const seenEstIds = new Set();
+    const seenNormNames = new Set();
     const uniqueTargetEsts = [];
 
     (targetEsts || []).forEach(est => {
-      if (!est || !est.id) return;
+      if (!est || !est.id || !est.name) return;
       const sId = String(est.id).trim();
-      if (!seenEstIds.has(sId)) {
+      const nName = normNameFn(est.name);
+      if (!seenEstIds.has(sId) && !seenNormNames.has(nName)) {
         seenEstIds.add(sId);
+        seenNormNames.add(nName);
         uniqueTargetEsts.push(est);
       }
     });

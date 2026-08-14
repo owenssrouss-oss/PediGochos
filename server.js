@@ -162,21 +162,12 @@ async function syncFromSupabase() {
         const cloudEstIds = new Set(cloudData.establishments.map(e => String(e.id).trim()));
         localEsts.forEach(localEst => {
           if (localEst && localEst.id && !cloudEstIds.has(String(localEst.id).trim())) {
-            console.log(`📌 Preserving local establishment [${localEst.id}] (${localEst.name}) during Storage sync!`);
             cloudData.establishments.push(localEst);
           }
         });
-        // Deduplicate before saving
-        const seenIds = new Set();
-        cloudData.establishments = cloudData.establishments.filter(e => {
-          if (!e || !e.id) return false;
-          const sid = String(e.id).trim();
-          if (seenIds.has(sid)) return false;
-          seenIds.add(sid);
-          return true;
-        });
+        cloudData.establishments = deduplicateEstablishments(cloudData.establishments);
         fs.writeFileSync(DB_FILE, JSON.stringify(cloudData, null, 2), 'utf8');
-        console.log('🎉 Database synced successfully from Supabase Storage!');
+        console.log(`🎉 Database synced & deduplicated (${cloudData.establishments.length} unique stores) from Supabase Storage!`);
       }
     } else {
       console.log('No backup db.json found in Supabase Storage or request failed. Status:', res.status);
@@ -371,15 +362,7 @@ async function syncFromPostgres() {
             }
           }
         });
-        // Preserve local establishments that are not yet in Supabase/Postgres
-        const cloudEstIds = new Set(establishments.map(e => String(e.id).trim()));
-        localEsts.forEach(localEst => {
-          if (localEst && localEst.id && !cloudEstIds.has(String(localEst.id).trim())) {
-            console.log(`📌 Preserving local establishment [${localEst.id}] (${localEst.name}) during Postgres sync!`);
-            establishments.push(localEst);
-          }
-        });
-
+        establishments = deduplicateEstablishments(establishments);
         writeDisabledStores(disabledMap);
         writeStoreGps(storeGpsMap);
 
@@ -563,6 +546,123 @@ async function deleteEstablishmentFromPostgres(id) {
   }
 }
 
+function normalizeStoreName(name) {
+  if (!name) return '';
+  return name.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '')
+    .trim();
+}
+
+const VERIFIED_STORE_GPS = {
+  'sabor-venezolano-arepas-1784413922154': { latitude: 7.8135, longitude: -72.4432 },
+  'boby-burgers-1784410785941': { latitude: 7.8142, longitude: -72.4445 },
+  'carritos-de-manuel-1784411690116': { latitude: 7.8128, longitude: -72.4451 },
+  'shawarma-dunes-1784412375653': { latitude: 7.8150, longitude: -72.4438 },
+  'mak-pizza-1784350135697': { latitude: 7.8138, longitude: -72.4420 },
+  'm-ster-cachapa-1784291108772': { latitude: 7.8148, longitude: -72.4455 },
+  'gema-1784920874883': { latitude: 7.8122, longitude: -72.4435 },
+  'boki-arepas-1784927442087': { latitude: 7.8155, longitude: -72.4440 },
+  'burger-grill-puente-sucre--1784935634396': { latitude: 7.8172, longitude: -72.4425 },
+  'frutyheladosgourmet-1785013456147': { latitude: 7.8130, longitude: -72.4425 },
+  'la-casa-de-los-batidos-1784613906898': { latitude: 7.8140, longitude: -72.4430 },
+  'latinos-burguer-1785037895471': { latitude: 7.8160, longitude: -72.4450 },
+  'muchos-burguer-1784912818841': { latitude: 7.8125, longitude: -72.4440 },
+  'patac-n-fire-1784739591782': { latitude: 7.8152, longitude: -72.4428 },
+  'thanos-resto-bar-1784933679966': { latitude: 7.8145, longitude: -72.4435 }
+};
+
+const VERIFIED_NAME_GPS = {
+  'saborvenezolanoarepas': { latitude: 7.8135, longitude: -72.4432 },
+  'bobyburgers': { latitude: 7.8142, longitude: -72.4445 },
+  'carritosdemanuel': { latitude: 7.8128, longitude: -72.4451 },
+  'shawarmadunes': { latitude: 7.8150, longitude: -72.4438 },
+  'makpizza': { latitude: 7.8138, longitude: -72.4420 },
+  'mistercachapa': { latitude: 7.8148, longitude: -72.4455 },
+  'gemapop': { latitude: 7.8122, longitude: -72.4435 },
+  'bokiarepas': { latitude: 7.8155, longitude: -72.4440 },
+  'burgergrillpuentesucre': { latitude: 7.8172, longitude: -72.4425 },
+  'frutyheladosgourmet': { latitude: 7.8130, longitude: -72.4425 },
+  'lacasadelosbatidos': { latitude: 7.8140, longitude: -72.4430 },
+  'latinosburguer': { latitude: 7.8160, longitude: -72.4450 },
+  'muchosburguer': { latitude: 7.8125, longitude: -72.4440 },
+  'pataconfire': { latitude: 7.8152, longitude: -72.4428 },
+  'tanosrestobar': { latitude: 7.8145, longitude: -72.4435 }
+};
+
+function deduplicateEstablishments(establishments) {
+  if (!Array.isArray(establishments)) return [];
+  const seenNormNames = new Map();
+  const seenIds = new Map();
+  const unique = [];
+
+  const storeGpsMap = readStoreGps();
+  const disabledMap = readDisabledStores();
+  const gpsDeletedMap = readGpsDeleted();
+
+  establishments.forEach(est => {
+    if (!est || !est.id || !est.name) return;
+    const estIdStr = String(est.id).trim();
+    const normName = normalizeStoreName(est.name);
+
+    if (disabledMap[est.id] !== undefined) {
+      est.disabled = Boolean(disabledMap[est.id]);
+    } else {
+      est.disabled = Boolean(est.disabled);
+    }
+
+    if (gpsDeletedMap[est.id]) {
+      est.latitude = null;
+      est.longitude = null;
+      est.location_lat = null;
+      est.location_lng = null;
+    } else {
+      if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
+        est.latitude = parseFloat(storeGpsMap[est.id].latitude);
+        est.longitude = parseFloat(storeGpsMap[est.id].longitude);
+      } else if (VERIFIED_STORE_GPS[est.id]) {
+        est.latitude = VERIFIED_STORE_GPS[est.id].latitude;
+        est.longitude = VERIFIED_STORE_GPS[est.id].longitude;
+      } else if (VERIFIED_NAME_GPS[normName]) {
+        est.latitude = VERIFIED_NAME_GPS[normName].latitude;
+        est.longitude = VERIFIED_NAME_GPS[normName].longitude;
+      }
+      est.location_lat = est.latitude;
+      est.location_lng = est.longitude;
+    }
+
+    if (!est.open_time || est.open_time === '11:00') est.open_time = '17:00';
+    if (!est.close_time || est.close_time === '23:00') est.close_time = '00:00';
+    if (!est.location) est.location = 'San Antonio';
+
+    const hasNorm = seenNormNames.has(normName);
+    const hasId = seenIds.has(estIdStr);
+
+    if (!hasNorm && !hasId) {
+      const idx = unique.length;
+      seenNormNames.set(normName, idx);
+      seenIds.set(estIdStr, idx);
+      unique.push(est);
+    } else {
+      const existingIdx = hasNorm ? seenNormNames.get(normName) : seenIds.get(estIdStr);
+      const existing = unique[existingIdx];
+      const existingProdCount = Array.isArray(existing.products) ? existing.products.length : 0;
+      const newProdCount = Array.isArray(est.products) ? est.products.length : 0;
+
+      if (newProdCount >= existingProdCount) {
+        est.linkKey = est.linkKey || existing.linkKey;
+        est.latitude = est.latitude || existing.latitude;
+        est.longitude = est.longitude || existing.longitude;
+        est.location_lat = est.latitude;
+        est.location_lng = est.longitude;
+        unique[existingIdx] = est;
+      }
+    }
+  });
+
+  return unique;
+}
+
 function readDB() {
   try {
     if (!fs.existsSync(DB_FILE)) {
@@ -585,73 +685,14 @@ function readDB() {
       return (nowMs - createdAtMs) < (24 * 60 * 60 * 1000);
     });
 
-    const disabledMap = readDisabledStores();
-    const storeGpsMap = readStoreGps();
-
     if (db && Array.isArray(db.establishments)) {
-      const seenIds = new Set();
-      const uniqueEsts = [];
-      db.establishments.forEach(est => {
-        if (!est || !est.id) return;
-        const estIdStr = String(est.id).trim();
-        if (!seenIds.has(estIdStr)) {
-          seenIds.add(estIdStr);
-          uniqueEsts.push(est);
-        } else {
-          // If a duplicate exists in db.json, keep the one with more products/data
-          const existingIdx = uniqueEsts.findIndex(u => String(u.id).trim() === estIdStr);
-          if (existingIdx !== -1) {
-            const existing = uniqueEsts[existingIdx];
-            const existingProdCount = Array.isArray(existing.products) ? existing.products.length : 0;
-            const newProdCount = Array.isArray(est.products) ? est.products.length : 0;
-            if (newProdCount > existingProdCount) {
-              uniqueEsts[existingIdx] = est;
-            }
-          }
-        }
-      });
-        const hadDuplicates = db.establishments.length !== uniqueEsts.length;
-      db.establishments = uniqueEsts;
-
-      db.establishments.forEach(est => {
-        if (disabledMap[est.id] !== undefined) {
-          est.disabled = Boolean(disabledMap[est.id]);
-        } else {
-          est.disabled = Boolean(est.disabled);
-        }
-        // Respect GPS deleted blacklist - never restore GPS for explicitly deleted entries
-        const gpsDeletedMap = readGpsDeleted();
-        if (gpsDeletedMap[est.id]) {
-          est.latitude = null;
-          est.longitude = null;
-          est.location_lat = null;
-          est.location_lng = null;
-        } else {
-          if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
-            est.latitude = parseFloat(storeGpsMap[est.id].latitude);
-            est.longitude = parseFloat(storeGpsMap[est.id].longitude);
-          } else if (est.latitude && est.longitude) {
-            storeGpsMap[est.id] = { latitude: parseFloat(est.latitude), longitude: parseFloat(est.longitude) };
-          }
-          est.location_lat = est.latitude;
-          est.location_lng = est.longitude;
-        }
-        if (!est.open_time || est.open_time === '11:00') {
-          est.open_time = '17:00';
-        }
-        if (!est.close_time || est.close_time === '23:00') {
-          est.close_time = '00:00';
-        }
-      });
-
-      // Auto-heal: if we found duplicates, save the clean version back to disk immediately
-      if (hadDuplicates) {
-        console.log(`🧹 readDB: Found and removed ${db.establishments.length} duplicates from db.json — auto-healing file.`);
+      const origCount = db.establishments.length;
+      db.establishments = deduplicateEstablishments(db.establishments);
+      if (origCount !== db.establishments.length) {
+        console.log(`🧹 Cleaned store duplicates: ${origCount} -> ${db.establishments.length} unique stores.`);
         try {
           fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf8');
-        } catch(e) {
-          console.error('Failed to auto-heal db.json duplicates:', e);
-        }
+        } catch(e) {}
       }
     }
     return db;
