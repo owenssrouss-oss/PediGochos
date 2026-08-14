@@ -1193,7 +1193,7 @@ class KitchenController {
       return;
     }
 
-    if (!confirm('¿Deseas enviar el mensaje de confirmación y detalle de la cuenta al cliente por WhatsApp?')) {
+    if (!confirm('¿Deseas enviar la solicitud de confirmación de pedido al cliente por WhatsApp?')) {
       return;
     }
 
@@ -1212,7 +1212,7 @@ class KitchenController {
       order.deliveryDetails.code = order.deliveryDetails.code || Math.floor(1000 + Math.random() * 9000).toString();
     }
 
-    // 2. Parse customer phone & name
+    // 2. Parse customer phone (without using customer personal name)
     let rawPhone = order.deliveryDetails?.phone || order.customerPhone || '';
     let cleanPhone = String(rawPhone).replace(/\D/g, '');
     if (cleanPhone.startsWith('04')) {
@@ -1224,7 +1224,6 @@ class KitchenController {
     }
     
     const storeName = (this.establishments || []).find(e => String(e.id) === String(this.selectedId))?.name || order.establishmentName || 'El Restaurante';
-    const clientName = order.customerName || 'Estimado/a Cliente';
     const orderCode = order.deliveryDetails?.code || (order.id ? String(order.id).slice(-4) : 'ORD');
 
     // 3. Build detailed items summary with explicit addition quantities (1x, 2x) & subtotals
@@ -1326,19 +1325,15 @@ class KitchenController {
     // 5. Modality & payment details
     let modalLabel = '🚴 Envío a Domicilio';
     let deliveryExtraLines = '';
-    let deliveryNotice = '';
+    const securityCode = (order.deliveryDetails && order.deliveryDetails.code) ? order.deliveryDetails.code : 'N/A';
 
     if (order.orderType === 'mesa' || order.tableNumber) {
       modalLabel = `🍽️ Consumo en Local (Mesa #${order.tableNumber || '1'})`;
-      deliveryNotice = `🍴 ¡Tu mesa será atendida en breve con tu orden recién preparada!`;
     } else if (order.orderType === 'pickup') {
       modalLabel = `🛍️ Para Llevar / Retiro en Restaurante`;
-      deliveryNotice = `📦 Te avisaremos en cuanto tu paquete esté listo para recoger.`;
     } else {
       const address = order.deliveryDetails?.address || 'Dirección acordada';
-      const securityCode = order.deliveryDetails?.code || 'N/A';
       deliveryExtraLines = `• *Dirección de Entrega:* ${address}\n• *Código de Entrega:* *${securityCode}*`;
-      deliveryNotice = `🛵 Por favor, ten a mano tu código *${securityCode}* para entregárselo al repartidor al recibir tu pedido.`;
     }
 
     let payMethodText = '💵 Efectivo';
@@ -1350,16 +1345,16 @@ class KitchenController {
       payMethodText = order.paymentMethod;
     }
 
-    // 6. Assemble the warm, friendly, comprehensive confirmation message
+    // 6. Confirmation request message with items, address, security code, and safety warnings (No sensitive customer name)
     const confirmationMessage =
-      `👋 ¡Hola *${clientName}*! Nos alegra mucho saludarte.\n\n` +
-      `En *${storeName}* hemos recibido y confirmado tu pedido con éxito 🎉\n\n` +
+      `👋 ¡Hola! Te saludamos de *${storeName}* 🏪\n\n` +
+      `Hemos recibido una solicitud de pedido asociada a este número. Por favor *confírmanos si realizaste esta orden* respondiendo a este mensaje para comenzar su preparación de inmediato 👨‍🍳\n\n` +
       `━━━━━━━━━━━━━━━━━━━━\n` +
-      `📋 *RESUMEN DE TU PEDIDO:* (#${orderCode})\n` +
+      `📋 *DETALLE DEL PEDIDO:* (#${orderCode})\n` +
       `━━━━━━━━━━━━━━━━━━━━\n` +
       `${itemsSummaryLines.join('\n\n')}\n\n` +
       `━━━━━━━━━━━━━━━━━━━━\n` +
-      `🛵 *DETALLES DEL SERVICIO:*\n` +
+      `📍 *DATOS DE ENTREGA Y SERVICIO:*\n` +
       `• *Modalidad:* ${modalLabel}\n` +
       (deliveryExtraLines ? `${deliveryExtraLines}\n` : '') +
       `• *Forma de Pago:* ${payMethodText}\n\n` +
@@ -1367,14 +1362,16 @@ class KitchenController {
       `💵 *DESGLOSE DE LA CUENTA:*\n` +
       `${accountBreakdown}\n` +
       `━━━━━━━━━━━━━━━━━━━━\n\n` +
-      `👨‍🍳 Ya estamos preparando tu orden con la mejor calidad y cariño.\n` +
-      (deliveryNotice ? `${deliveryNotice}\n\n` : '\n') +
-      `¡Muchas gracias por tu compra y que lo disfrutes! ✨🍽️`;
+      `⚠️ *ACCIONES REQUERIDAS Y ADVERTENCIAS:*\n` +
+      `1️⃣ *Confirmación:* Responde este mensaje con un *"SÍ, CONFIRMO EL PEDIDO"* para ingresar tu orden a cocina.\n` +
+      (order.orderType === 'delivery' ? `2️⃣ *Seguridad:* Entrega el código *${securityCode}* ÚNICAMENTE en persona al repartidor al recibir tu entrega.\n` : '') +
+      `3️⃣ *Verificación:* Revisa que los artículos y la dirección sean exactos para evitar demoras.\n\n` +
+      `¡Esperamos tu pronta confirmación para comenzar a preparar tu comida! ✨🍽️`;
 
     const clientWhatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(confirmationMessage)}`;
 
     try {
-      this.showLocalToast(`💬 Abriendo WhatsApp para ${clientName}...`);
+      this.showLocalToast(`💬 Abriendo WhatsApp para solicitar confirmación...`);
     } catch(e) {}
 
     let opened = false;
