@@ -554,6 +554,15 @@ class KitchenController {
     this.showLocalToast(message, isError);
   }
 
+  formatCop(amount) {
+    if (amount === null || amount === undefined || isNaN(amount)) return '$0 COP';
+    let num = parseFloat(amount);
+    if (num < 1000 && num > 0) {
+      num = num * 1000;
+    }
+    return `$${Math.round(num).toLocaleString('de-DE')} COP`;
+  }
+
   async updateOrderStatus(orderId, nextStatus, driver = null) {
     // 1. Local update
     const ord = (this.orders || []).find(o => String(o.id) === String(orderId));
@@ -638,9 +647,43 @@ class KitchenController {
       let itemsListHTML = '';
       order.items.forEach(item => {
         let specsHTML = '';
-        if (item.specifications) {
-          const formattedSpecs = item.specifications.split(' | ').join('\n');
-          specsHTML = `<div class="order-item-specs">${formattedSpecs}</div>`;
+        if (item.selected_specifications && typeof item.selected_specifications === 'object') {
+          const specParts = [];
+          const specs = item.selected_specifications;
+          if (Array.isArray(specs.single_selections)) {
+            specs.single_selections.forEach(sel => {
+              if (sel && sel.chosen_option) {
+                const deltaVal = sel.price_delta ? (sel.price_delta < 1000 && sel.price_delta > 0 ? sel.price_delta * 1000 : sel.price_delta) : 0;
+                const delta = deltaVal > 0 ? ` (+${this.formatCop(deltaVal)})` : '';
+                specParts.push(`${sel.group_name || 'Opción'}: ${sel.chosen_option}${delta}`);
+              }
+            });
+          }
+          if (Array.isArray(specs.add_ons)) {
+            specs.add_ons.forEach(add => {
+              if (add && add.name) {
+                const aQty = add.quantity || 1;
+                const unitP = add.price_per_unit || 0;
+                const totalP = (unitP < 1000 && unitP > 0 ? unitP * 1000 : unitP) * aQty;
+                const priceText = totalP > 0 ? ` (+${this.formatCop(totalP)})` : '';
+                specParts.push(`+ ${aQty}x ${add.name}${priceText}`);
+              }
+            });
+          }
+          if (Array.isArray(specs.exclusions)) {
+            specs.exclusions.forEach(exc => {
+              if (exc && exc.name) specParts.push(`- Sin ${exc.name}`);
+            });
+          }
+          if (specs.special_notes && String(specs.special_notes).trim()) {
+            specParts.push(`Nota: "${String(specs.special_notes).trim()}"`);
+          }
+          if (specParts.length > 0) {
+            specsHTML = `<div class="order-item-specs" style="font-size: 11.5px; line-height: 1.4; color: #FBBF24; margin-top: 2px;">${specParts.join('<br>')}</div>`;
+          }
+        } else if (item.specifications) {
+          const formattedSpecs = item.specifications.split(' | ').join('<br>');
+          specsHTML = `<div class="order-item-specs" style="font-size: 11.5px; line-height: 1.4; color: #FBBF24; margin-top: 2px;">${formattedSpecs}</div>`;
         }
         
         itemsListHTML += `
@@ -658,10 +701,15 @@ class KitchenController {
       let typeBadge = '';
       if (order.orderType === 'mesa') {
         typeBadge = `<span class="order-type-badge mesa">Mesa ${order.tableNumber}</span>`;
-        detailsHTML = `<div class="order-address-box"><strong>📍 Consumo Local</strong><p>Servir en Mesa #${order.tableNumber}</p></div>`;
+        let phoneRow = '';
+        if (order.customerPhone || (order.deliveryDetails && order.deliveryDetails.phone)) {
+          const ph = order.customerPhone || order.deliveryDetails.phone;
+          phoneRow = `<p style="margin-top: 4px;"><strong>Tlf:</strong> <a href="#" onclick="KitchenApp.handleCustomerWhatsAppClick(event, '${order.id}')" style="color: #10B981; text-decoration: none; font-weight: 800; background: rgba(16, 185, 129, 0.15); padding: 2px 7px; border-radius: 5px; border: 1px solid rgba(16, 185, 129, 0.3);">💬 ${ph} (Confirmar)</a></p>`;
+        }
+        detailsHTML = `<div class="order-address-box"><strong>📍 Consumo Local</strong><p>Servir en Mesa #${order.tableNumber}</p>${phoneRow}</div>`;
       } else {
         typeBadge = `<span class="order-type-badge delivery">Delivery</span>`;
-        const phoneLink = `<a href="#" onclick="KitchenApp.handleCustomerWhatsAppClick(event, '${order.id}')" style="color: #10B981; text-decoration: underline; font-weight: 700;">${order.deliveryDetails.phone || 'N/A'}</a>`;
+        const phoneLink = `<a href="#" onclick="KitchenApp.handleCustomerWhatsAppClick(event, '${order.id}')" style="color: #10B981; text-decoration: none; font-weight: 800; background: rgba(16, 185, 129, 0.15); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3); display: inline-flex; align-items: center; gap: 4px;" title="Enviar confirmación y cuenta por WhatsApp">💬 ${order.deliveryDetails.phone || 'N/A'} (Confirmar)</a>`;
         const codeHTML = order.deliveryDetails.code ? `<p><strong>Código de Seguridad:</strong> <span style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-weight: 700; color: var(--accent);">${order.deliveryDetails.code}</span></p>` : '';
         const housePhotoUrl = order.deliveryDetails.housePhotoUrl || order.deliveryDetails.house_photo_url || null;
         const photoHTML = housePhotoUrl 
@@ -1139,19 +1187,22 @@ class KitchenController {
   async handleCustomerWhatsAppClick(event, orderId) {
     if (event) event.preventDefault();
     
-    const order = this.orders.find(o => o.id === orderId);
-    if (!order) return;
-
-    if (!confirm('¿Deseas confirmar este pedido y concretar el pago?')) {
+    const order = (this.orders || []).find(o => String(o.id) === String(orderId));
+    if (!order) {
+      alert('No se encontró el pedido seleccionado.');
       return;
     }
 
-    // 1. Mark order as paid in database
+    if (!confirm('¿Deseas enviar el mensaje de confirmación y detalle de la cuenta al cliente por WhatsApp?')) {
+      return;
+    }
+
+    // 1. Mark order payment status if needed (or broadcast status)
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({
         type: 'UPDATE_STATUS',
         orderId: orderId,
-        paymentStatus: 'Pagado'
+        paymentStatus: order.paymentStatus || 'Pagado'
       }));
     }
 
@@ -1161,42 +1212,190 @@ class KitchenController {
       order.deliveryDetails.code = order.deliveryDetails.code || Math.floor(1000 + Math.random() * 9000).toString();
     }
 
-    // 2. Open WhatsApp link to client
-    const rawPhone = (order.deliveryDetails && order.deliveryDetails.phone) ? order.deliveryDetails.phone : '';
-    const cleanPhone = rawPhone.replace(/\D/g, ''); // Keep only digits
+    // 2. Parse customer phone & name
+    let rawPhone = order.deliveryDetails?.phone || order.customerPhone || '';
+    let cleanPhone = String(rawPhone).replace(/\D/g, '');
+    if (cleanPhone.startsWith('04')) {
+      cleanPhone = '58' + cleanPhone.slice(1);
+    } else if (cleanPhone.startsWith('4') && cleanPhone.length === 10) {
+      cleanPhone = '58' + cleanPhone;
+    } else if (cleanPhone.startsWith('3') && cleanPhone.length === 10) {
+      cleanPhone = '57' + cleanPhone;
+    }
     
-    const storeName = this.establishments.find(e => e.id === this.selectedId)?.name || order.establishmentName || 'El Local';
-    const clientName = order.customerName || 'Cliente';
-    const securityCode = (order.deliveryDetails && order.deliveryDetails.code) ? order.deliveryDetails.code : 'N/A';
+    const storeName = (this.establishments || []).find(e => String(e.id) === String(this.selectedId))?.name || order.establishmentName || 'El Restaurante';
+    const clientName = order.customerName || 'Estimado/a Cliente';
+    const orderCode = order.deliveryDetails?.code || (order.id ? String(order.id).slice(-4) : 'ORD');
 
-    // Calculate total quantity of items & itemized summary with specs/observations
+    // 3. Build detailed items summary with explicit addition quantities (1x, 2x) & subtotals
     let totalItemsCount = 0;
-    const itemsSummary = (order.items || []).map(item => {
+    let productsSubtotal = 0;
+
+    const itemsSummaryLines = (order.items || []).map(item => {
       const qty = item.quantity || 1;
       totalItemsCount += qty;
-      let line = `• *${qty}x* ${item.name}`;
-      if (item.specifications) line += `\n  ↳ _${item.specifications}_`;
-      const itemSub = item.subtotal_combined || (item.price * qty);
-      const itemSubCop = itemSub < 1000 ? itemSub * 1000 : itemSub;
-      line += ` - *$${Math.round(itemSubCop).toLocaleString('de-DE')} COP*`;
-      return line;
-    }).join('\n');
 
+      let itemSub = item.subtotal_combined || (item.unit_total_calculated ? item.unit_total_calculated * qty : (item.price || 0) * qty);
+      if (itemSub < 1000 && itemSub > 0) itemSub = itemSub * 1000;
+      productsSubtotal += Math.round(itemSub);
+
+      let itemBlock = `• *${qty}x* ${item.name}`;
+
+      const specLines = [];
+
+      // Check structured selected_specifications
+      if (item.selected_specifications && typeof item.selected_specifications === 'object') {
+        const specs = item.selected_specifications;
+
+        if (Array.isArray(specs.single_selections) && specs.single_selections.length > 0) {
+          specs.single_selections.forEach(sel => {
+            if (sel && sel.chosen_option) {
+              const deltaVal = sel.price_delta ? (sel.price_delta < 1000 && sel.price_delta > 0 ? sel.price_delta * 1000 : sel.price_delta) : 0;
+              const delta = deltaVal > 0 ? ` (+${this.formatCop(deltaVal)})` : '';
+              specLines.push(`  ↳ • ${sel.group_name || 'Opción'}: ${sel.chosen_option}${delta}`);
+            }
+          });
+        }
+
+        if (Array.isArray(specs.add_ons) && specs.add_ons.length > 0) {
+          specs.add_ons.forEach(add => {
+            if (add && add.name) {
+              const aQty = add.quantity || 1;
+              const unitP = add.price_per_unit || 0;
+              const totalP = (unitP < 1000 && unitP > 0 ? unitP * 1000 : unitP) * aQty;
+              const priceText = totalP > 0 ? ` (+${this.formatCop(totalP)})` : '';
+              specLines.push(`  ↳ + *${aQty}x* ${add.name}${priceText}`);
+            }
+          });
+        }
+
+        if (Array.isArray(specs.exclusions) && specs.exclusions.length > 0) {
+          specs.exclusions.forEach(exc => {
+            if (exc && exc.name) {
+              specLines.push(`  ↳ - Sin ${exc.name}`);
+            }
+          });
+        }
+
+        if (specs.special_notes && String(specs.special_notes).trim()) {
+          specLines.push(`  ↳ 📝 Nota: "${String(specs.special_notes).trim()}"`);
+        }
+      } else if (item.specifications && String(item.specifications).trim()) {
+        const parts = String(item.specifications).split(' | ');
+        parts.forEach(p => {
+          if (p.trim()) {
+            specLines.push(`  ↳ _${p.trim()}_`);
+          }
+        });
+      }
+
+      if (specLines.length > 0) {
+        itemBlock += '\n' + specLines.join('\n');
+      }
+
+      itemBlock += `\n  ↳ *Subtotal: ${this.formatCop(itemSub)}*`;
+      return itemBlock;
+    });
+
+    // 4. Financial calculations
     const rawTotal = order.total || 0;
-    const totalCop = Math.round(rawTotal < 1000 ? rawTotal * 1000 : rawTotal);
+    const finalTotal = Math.round(rawTotal < 1000 && rawTotal > 0 ? rawTotal * 1000 : rawTotal);
 
-    const confirmationMessage = `👋 ¡Hola *${clientName}*!\n\n` +
-      `🎉 *¡TU PEDIDO HA SIDO CONFIRMADO CON ÉXITO!* 🎉\n` +
-      `🏬 *Establecimiento:* ${storeName}\n\n` +
-      `📦 *CANTIDAD DE ARTÍCULOS:* ${totalItemsCount} producto(s)\n` +
-      `📝 *DETALLE Y OBSERVACIONES:*\n${itemsSummary}\n\n` +
-      `💰 *MONTO TOTAL A PAGAR:* *$${totalCop.toLocaleString('de-DE')} COP*\n` +
-      `🔑 *CÓDIGO DE SEGURIDAD:* *${securityCode}*\n\n` +
-      `🛵 *Indicaciones:* Por favor, ten listo tu código de entrega de 4 dígitos y entrégalo al repartidor al recibir tu pedido.\n\n` +
-      `¡Muchas gracias por tu compra y buen provecho! ✨`;
+    let deliveryFee = 0;
+    if (order.orderType === 'delivery' || order.orderType === 'Delivery') {
+      if (order.deliveryDetails && order.deliveryDetails.deliveryFee) {
+        deliveryFee = order.deliveryDetails.deliveryFee;
+      } else if (order.delivery_fee) {
+        deliveryFee = order.delivery_fee;
+      } else if (finalTotal > productsSubtotal) {
+        deliveryFee = finalTotal - productsSubtotal;
+      }
+    }
+    if (deliveryFee < 1000 && deliveryFee > 0) deliveryFee = deliveryFee * 1000;
 
-    const clientWhatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(confirmationMessage)}`;
-    window.open(clientWhatsappUrl, '_blank');
+    let accountBreakdown = `• *Subtotal Productos:* ${this.formatCop(productsSubtotal)}\n`;
+    if (deliveryFee > 0) {
+      accountBreakdown += `• *Costo de Envío:* ${this.formatCop(deliveryFee)}\n`;
+    }
+    if (order.discount && order.discount > 0) {
+      accountBreakdown += `• *Descuento Cupón:* -${this.formatCop(order.discount)}\n`;
+    }
+    accountBreakdown += `━━━━━━━━━━━━━━━━━━━━\n` +
+      `💰 *TOTAL A PAGAR:* *${this.formatCop(finalTotal)}*`;
+
+    // 5. Modality & payment details
+    let modalLabel = '🚴 Envío a Domicilio';
+    let deliveryExtraLines = '';
+    let deliveryNotice = '';
+
+    if (order.orderType === 'mesa' || order.tableNumber) {
+      modalLabel = `🍽️ Consumo en Local (Mesa #${order.tableNumber || '1'})`;
+      deliveryNotice = `🍴 ¡Tu mesa será atendida en breve con tu orden recién preparada!`;
+    } else if (order.orderType === 'pickup') {
+      modalLabel = `🛍️ Para Llevar / Retiro en Restaurante`;
+      deliveryNotice = `📦 Te avisaremos en cuanto tu paquete esté listo para recoger.`;
+    } else {
+      const address = order.deliveryDetails?.address || 'Dirección acordada';
+      const securityCode = order.deliveryDetails?.code || 'N/A';
+      deliveryExtraLines = `• *Dirección de Entrega:* ${address}\n• *Código de Entrega:* *${securityCode}*`;
+      deliveryNotice = `🛵 Por favor, ten a mano tu código *${securityCode}* para entregárselo al repartidor al recibir tu pedido.`;
+    }
+
+    let payMethodText = '💵 Efectivo';
+    if (order.paymentMethod === 'Transferencia') {
+      payMethodText = '📲 Transferencia Bancaria / Pago Móvil';
+    } else if (order.paymentMethod === 'Efectivo') {
+      payMethodText = order.paymentNotes ? `💵 Efectivo (${order.paymentNotes})` : '💵 Efectivo contra entrega';
+    } else if (order.paymentMethod) {
+      payMethodText = order.paymentMethod;
+    }
+
+    // 6. Assemble the warm, friendly, comprehensive confirmation message
+    const confirmationMessage =
+      `👋 ¡Hola *${clientName}*! Nos alegra mucho saludarte.\n\n` +
+      `En *${storeName}* hemos recibido y confirmado tu pedido con éxito 🎉\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `📋 *RESUMEN DE TU PEDIDO:* (#${orderCode})\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `${itemsSummaryLines.join('\n\n')}\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `🛵 *DETALLES DEL SERVICIO:*\n` +
+      `• *Modalidad:* ${modalLabel}\n` +
+      (deliveryExtraLines ? `${deliveryExtraLines}\n` : '') +
+      `• *Forma de Pago:* ${payMethodText}\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `💵 *DESGLOSE DE LA CUENTA:*\n` +
+      `${accountBreakdown}\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `👨‍🍳 Ya estamos preparando tu orden con la mejor calidad y cariño.\n` +
+      (deliveryNotice ? `${deliveryNotice}\n\n` : '\n') +
+      `¡Muchas gracias por tu compra y que lo disfrutes! ✨🍽️`;
+
+    const clientWhatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(confirmationMessage)}`;
+
+    try {
+      this.showLocalToast(`💬 Abriendo WhatsApp para ${clientName}...`);
+    } catch(e) {}
+
+    let opened = false;
+    try {
+      const waLink = document.createElement('a');
+      waLink.href = clientWhatsappUrl;
+      waLink.target = '_blank';
+      waLink.rel = 'noopener noreferrer';
+      document.body.appendChild(waLink);
+      waLink.click();
+      setTimeout(() => waLink.remove(), 300);
+      opened = true;
+    } catch(e) {
+      opened = false;
+    }
+
+    if (!opened) {
+      try {
+        window.open(clientWhatsappUrl, '_blank');
+      } catch(e) {}
+    }
   }
 
   openDailyPromoModal() {

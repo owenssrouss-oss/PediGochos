@@ -2264,8 +2264,10 @@ class MarketplaceController {
       }
       if (specs.add_ons && specs.add_ons.length > 0) {
         specs.add_ons.forEach(add => {
-          const qtyText = add.quantity > 1 ? ` x${add.quantity}` : '';
-          specsParts.push(`+ ${add.name} (${this.formatPesos(add.price_per_unit)}${qtyText})`);
+          const qty = add.quantity || 1;
+          const price = (add.price_per_unit || 0) * qty;
+          const priceText = price > 0 ? ` (+${this.formatPesos(this.normalizeCopPrice(price))})` : '';
+          specsParts.push(`+ ${qty}x ${add.name}${priceText}`);
         });
       }
       if (specs.exclusions && specs.exclusions.length > 0) {
@@ -2746,8 +2748,10 @@ class MarketplaceController {
     }
     if (specs.add_ons && specs.add_ons.length > 0) {
       specs.add_ons.forEach(add => {
-        const qty = add.quantity > 1 ? ` (x${add.quantity})` : '';
-        parts.push(`+ ${add.name}${qty}`);
+        const qty = add.quantity || 1;
+        const price = (add.price_per_unit || 0) * qty;
+        const priceText = price > 0 ? ` (+${this.formatPesos(this.normalizeCopPrice(price))})` : '';
+        parts.push(`+ ${qty}x ${add.name}${priceText}`);
       });
     }
     if (specs.exclusions && specs.exclusions.length > 0) {
