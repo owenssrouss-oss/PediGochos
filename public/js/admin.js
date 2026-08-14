@@ -14,6 +14,14 @@ const DEFAULT_IMAGES = {
   ferreterias: '/images/pack_frutas.jpg'
 };
 
+function normalizeStoreName(name) {
+  if (!name) return '';
+  return name.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '')
+    .trim();
+}
+
 class AdminController {
   constructor() {
     this.establishments = [];
@@ -239,13 +247,12 @@ class AdminController {
     tbody.innerHTML = '';
 
     // Deduplicate establishments by ID and normalized name before rendering
-    const normNameFn = (n) => (n || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '').trim();
     const seenRenderIds = new Set();
     const seenNormNames = new Set();
     const uniqueEsts = (this.establishments || []).filter(e => {
       if (!e || !e.id || !e.name) return false;
       const sid = String(e.id).trim();
-      const nName = normNameFn(e.name);
+      const nName = normalizeStoreName(e.name);
       if (seenRenderIds.has(sid) || seenNormNames.has(nName)) return false;
       seenRenderIds.add(sid);
       seenNormNames.add(nName);
@@ -2857,7 +2864,7 @@ class AdminController {
     (targetEsts || []).forEach(est => {
       if (!est || !est.id || !est.name) return;
       const sId = String(est.id).trim();
-      const nName = normNameFn(est.name);
+      const nName = normalizeStoreName(est.name);
       if (!seenEstIds.has(sId) && !seenNormNames.has(nName)) {
         seenEstIds.add(sId);
         seenNormNames.add(nName);
