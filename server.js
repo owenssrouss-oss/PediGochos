@@ -626,9 +626,13 @@ function readDB() {
           est.longitude = null;
           est.location_lat = null;
           est.location_lng = null;
-        } else if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
-          est.latitude = parseFloat(storeGpsMap[est.id].latitude);
-          est.longitude = parseFloat(storeGpsMap[est.id].longitude);
+        } else {
+          if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
+            est.latitude = parseFloat(storeGpsMap[est.id].latitude);
+            est.longitude = parseFloat(storeGpsMap[est.id].longitude);
+          } else if (est.latitude && est.longitude) {
+            storeGpsMap[est.id] = { latitude: parseFloat(est.latitude), longitude: parseFloat(est.longitude) };
+          }
           est.location_lat = est.latitude;
           est.location_lng = est.longitude;
         }

@@ -2131,8 +2131,12 @@ class AdminController {
         this.updateSaveButtonState();
         await this.loadOrders();
         this.renderTable();
-        if (this.globalMap) {
-          this.initAdminGlobalStoresMap(this.currentGlobalMapFilter || 'all');
+        try {
+          if (this.globalMap) {
+            this.initAdminGlobalStoresMap(this.currentGlobalMapFilter || 'all');
+          }
+        } catch(mErr) {
+          console.warn('Map refresh warning on cloud reload:', mErr);
         }
         this.showToast('✅ Última versión cargada exitosamente.');
       } else {
@@ -2140,7 +2144,7 @@ class AdminController {
       }
     } catch (err) {
       console.error('Error loading latest version:', err);
-      alert('Error de conexión al cargar la última versión.');
+      alert('Error al sincronizar la última versión: ' + (err.message || err));
     }
   }
 
@@ -2966,8 +2970,15 @@ class AdminController {
       this.globalMapMarkers.push({ estId: est.id, marker });
     });
 
-    if (targetEsts.length > 0) {
-      map.fitBounds(bounds, { padding: [40, 40] });
+    try {
+      if (bounds && typeof bounds.isValid === 'function' && bounds.isValid()) {
+        map.fitBounds(bounds, { padding: [40, 40] });
+      } else {
+        map.setView([centerLat, centerLng], 14);
+      }
+    } catch(e) {
+      console.warn('Map fitBounds warning:', e);
+      map.setView([centerLat, centerLng], 14);
     }
   }
 
