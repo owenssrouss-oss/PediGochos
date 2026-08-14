@@ -113,8 +113,7 @@ class KitchenController {
         console.log('👑 Sesión detectada como Dueño de la Plataforma. Acceso a cocina concedido.');
         this.showToast('👑 Sesión detectada como Dueño. Puedes ingresar la clave de cualquier comercio.');
       } else {
-        alert('Tu cuenta de Google (' + user.email + ') no tiene permisos de Cocina (merchant).');
-        await SupabaseApp.logout();
+        console.log('Cuenta de Google (' + user.email + ') sin rol de comercio asignado en Supabase.');
       }
     }
   }
@@ -555,29 +554,34 @@ class KitchenController {
     this.showLocalToast(message, isError);
   }
 
-  async updateOrderStatus(orderId, nextStatus) {
-    // 1. Optimistic local update
+  async updateOrderStatus(orderId, nextStatus, driver = null) {
+    // 1. Local update
     const ord = (this.orders || []).find(o => String(o.id) === String(orderId));
     if (ord) {
       ord.status = nextStatus;
+      if (driver) ord.driver = driver;
       this.renderOrders();
     }
 
     // 2. WebSocket broadcast
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({
+      const payload = {
         type: 'UPDATE_STATUS',
         orderId: orderId,
         status: nextStatus
-      }));
+      };
+      if (driver) payload.driver = driver;
+      this.ws.send(JSON.stringify(payload));
     }
 
     // 3. HTTP API fallback update to server
     try {
+      const bodyData = { status: nextStatus };
+      if (driver) bodyData.driver = driver;
       await fetch(`/api/orders/${orderId}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: nextStatus })
+        body: JSON.stringify(bodyData)
       });
     } catch(e) {
       console.warn('HTTP status update fallback error:', e);
@@ -685,6 +689,12 @@ class KitchenController {
       const isLate = elapsedMins >= 15 ? 'late' : '';
 
       const paymentBadge = order.paymentStatus === 'Pagado' ? '<span class="payment-badge paid" style="background-color: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 6px;">💳 Pagado</span>' : '<span class="payment-badge pending" style="background-color: #f59e0b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 6px;">💳 Pendiente</span>';
+      
+      const payMethodBadge = order.paymentMethod === 'Transferencia' 
+        ? '<span style="background-color: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 4px;">📲 Transferencia</span>'
+        : '<span style="background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 4px;">💵 Efectivo</span>';
+
+      const payNotesHTML = order.paymentNotes ? `<div style="font-size: 11px; color: #f59e0b; font-weight: 700; margin-top: 4px; background: rgba(245,158,11,0.08); padding: 4px 8px; border-radius: 6px;">💬 Nota de Pago: ${order.paymentNotes}</div>` : '';
 
       let actionBtnHTML = '';
       if (order.status === 'Pendiente') {
@@ -706,7 +716,7 @@ class KitchenController {
         <div class="order-card-header">
           <div>
             <span class="order-id-label">#${order.id.split('-')[2] || 'ORD'}</span>
-            <h4 class="customer-name">${order.customerName} ${paymentBadge}</h4>
+            <h4 class="customer-name">${order.customerName} ${paymentBadge} ${payMethodBadge}</h4>
           </div>
           <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
             ${typeBadge}
@@ -719,6 +729,7 @@ class KitchenController {
         </ul>
 
         ${detailsHTML}
+        ${payNotesHTML}
         
         <div class="order-total-price">Total: $${Math.round(order.total).toLocaleString('de-DE')}</div>
 
@@ -976,103 +987,133 @@ class KitchenController {
   }
 
   async callDelivery(orderId) {
-    const order = (this.orders || []).find(o => String(o.id) === String(orderId));
-    if (!order) return;
-
-    if (typeof Sound !== 'undefined' && Sound.playBell) {
-      Sound.playBell();
-    }
-
-    // Open blank window IMMEDIATELY on click event turn to bypass browser popup blocker
-    let popupWin = null;
     try {
-      popupWin = window.open('about:blank', '_blank');
-    } catch(e) {}
-    
-    // Auto-generate code if missing
-    if (order.orderType === 'delivery') {
-      if (!order.deliveryDetails) order.deliveryDetails = {};
-      order.deliveryDetails.code = order.deliveryDetails.code || Math.floor(1000 + Math.random() * 9000).toString();
-    }
-
-    // Fetch next rotated driver equitably
-    let driverPhone = '573227949751';
-    let driverName = 'Central Gocho';
-    try {
-      const driverRes = await fetch('/api/drivers/next-available');
-      if (driverRes.ok) {
-        const driverData = await driverRes.json();
-        if (driverData && driverData.driver) {
-          driverName = driverData.driver.name || 'Repartidor';
-          driverPhone = driverData.driver.phone || '573227949751';
-        }
+      const order = (this.orders || []).find(o => String(o.id) === String(orderId));
+      if (!order) {
+        alert('No se encontró el pedido seleccionado.');
+        return;
       }
-    } catch(e) {
-      console.warn('Error fetching rotated driver, using fallback:', e);
+
+      if (typeof Sound !== 'undefined' && Sound.playBell) {
+        Sound.playBell();
+      }
+      
+      // Auto-generate code if missing
+      if (order.orderType === 'delivery') {
+        if (!order.deliveryDetails) order.deliveryDetails = {};
+        order.deliveryDetails.code = order.deliveryDetails.code || Math.floor(1000 + Math.random() * 9000).toString();
+      }
+
+      // Fetch next rotated driver equitably
+      let assignedDriver = {
+        id: 'default-central',
+        name: 'Central Gocho',
+        phone: '573227949751',
+        totalDeliveries: 0
+      };
+
+      try {
+        const driverRes = await fetch('/api/drivers/next-available');
+        if (driverRes.ok) {
+          const driverData = await driverRes.json();
+          if (driverData && driverData.driver) {
+            assignedDriver = driverData.driver;
+          }
+        }
+      } catch(e) {
+        console.warn('Error fetching rotated driver, using fallback:', e);
+      }
+
+      const driverName = assignedDriver.name || 'Repartidor';
+      const driverPhone = assignedDriver.phone || '573227949751';
+
+      let cleanDriverPhone = String(driverPhone).replace(/\D/g, '');
+      if (cleanDriverPhone.startsWith('04')) {
+        cleanDriverPhone = '58' + cleanDriverPhone.slice(1);
+      } else if (cleanDriverPhone.startsWith('4') && cleanDriverPhone.length === 10) {
+        cleanDriverPhone = '58' + cleanDriverPhone;
+      } else if (cleanDriverPhone.startsWith('3') && cleanDriverPhone.length === 10) {
+        cleanDriverPhone = '57' + cleanDriverPhone;
+      }
+
+      // Build driver notification message
+      const storeName = (this.establishments || []).find(e => String(e.id) === String(this.selectedId))?.name || order.establishmentName || 'El Local';
+      const clientName = order.customerName || 'Cliente';
+      const clientPhone = order.deliveryDetails?.phone || 'N/A';
+      const clientAddress = order.deliveryDetails?.address || 'N/A';
+      const housePhotoUrl = order.deliveryDetails?.housePhotoUrl || null;
+      const clientLat = order.deliveryDetails?.latitude;
+      const clientLng = order.deliveryDetails?.longitude;
+
+      // Itemized order text with full COP prices
+      const itemsSummary = (order.items || []).map(item => {
+        let line = `• ${item.quantity}x ${item.name}`;
+        if (item.specifications) line += ` (${item.specifications})`;
+        const rawSub = item.subtotal_combined || (item.price * item.quantity);
+        const subCop = rawSub < 1000 ? rawSub * 1000 : rawSub;
+        line += ` - $${Math.round(subCop).toLocaleString('de-DE')} COP`;
+        return line;
+      }).join('\n');
+
+      const rawTotal = order.total || 0;
+      const totalCop = Math.round(rawTotal < 1000 ? rawTotal * 1000 : rawTotal);
+      const formattedTotal = `$${totalCop.toLocaleString('de-DE')} COP`;
+      const payMethodText = order.paymentMethod === 'Transferencia' ? '📲 Transferencia / Pago Móvil (Verificado)' : `💵 Efectivo contra entrega${order.paymentNotes ? ` (${order.paymentNotes})` : ''}`;
+
+      let messageText = `🚴 *Rapi Gochos - SOLICITUD DE DOMICILIO*\n` +
+        `👤 *Asignado a:* ${driverName}\n\n` +
+        `🏬 *Establecimiento:* ${storeName}\n` +
+        `👤 *Cliente:* ${clientName}\n` +
+        `📞 *Teléfono:* ${clientPhone}\n` +
+        `📍 *Dirección de Entrega:* ${clientAddress}\n` +
+        `💳 *Forma de Pago:* ${payMethodText}\n`;
+
+      if (clientLat && clientLng) {
+        messageText += `🗺️ *Ubicación GPS:* https://maps.google.com/?q=${clientLat},${clientLng}\n`;
+      }
+
+      messageText += `\n📝 *DETALLE DE LA ORDEN:*\n${itemsSummary}\n\n` +
+        `💰 *TOTAL A COBRAR EN DESTINO:* ${formattedTotal}`;
+
+      if (housePhotoUrl) {
+        messageText += `\n\n🏡 *FOTO FACHADA/CASA:* ${housePhotoUrl}`;
+      }
+
+      const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanDriverPhone}&text=${encodeURIComponent(messageText)}`;
+      
+      try {
+        this.showLocalToast(`✨ Pedido asignado a ${driverName} (${driverPhone})`);
+      } catch(e) {
+        console.log('Toast error suppressed');
+      }
+
+      // Open WhatsApp safely in a new tab without blocking navigation or leaving dashboard
+      let opened = false;
+      try {
+        const waLink = document.createElement('a');
+        waLink.href = whatsappUrl;
+        waLink.target = '_blank';
+        waLink.rel = 'noopener noreferrer';
+        document.body.appendChild(waLink);
+        waLink.click();
+        setTimeout(() => waLink.remove(), 300);
+        opened = true;
+      } catch(e) {
+        opened = false;
+      }
+
+      if (!opened) {
+        try {
+          window.open(whatsappUrl, '_blank');
+        } catch(e) {}
+      }
+
+      // Persist status and driver to server
+      await this.updateOrderStatus(orderId, 'En Camino', assignedDriver);
+    } catch(outerErr) {
+      console.error('Error in callDelivery:', outerErr);
+      alert('Se produjo un error al procesar el despacho a domicilio.');
     }
-
-    let cleanDriverPhone = driverPhone.replace(/\D/g, '');
-    if (cleanDriverPhone.startsWith('04')) {
-      cleanDriverPhone = '58' + cleanDriverPhone.slice(1);
-    } else if (cleanDriverPhone.startsWith('4') && cleanDriverPhone.length === 10) {
-      cleanDriverPhone = '58' + cleanDriverPhone;
-    } else if (cleanDriverPhone.startsWith('3') && cleanDriverPhone.length === 10) {
-      cleanDriverPhone = '57' + cleanDriverPhone;
-    }
-
-    // Build driver notification message
-    const storeName = (this.establishments || []).find(e => String(e.id) === String(this.selectedId))?.name || order.establishmentName || 'El Local';
-    const clientName = order.customerName || 'Cliente';
-    const clientPhone = order.deliveryDetails?.phone || 'N/A';
-    const clientAddress = order.deliveryDetails?.address || 'N/A';
-    const housePhotoUrl = order.deliveryDetails?.housePhotoUrl || null;
-    const clientLat = order.deliveryDetails?.latitude;
-    const clientLng = order.deliveryDetails?.longitude;
-
-    // Itemized order text with full COP prices
-    const itemsSummary = (order.items || []).map(item => {
-      let line = `• ${item.quantity}x ${item.name}`;
-      if (item.specifications) line += ` (${item.specifications})`;
-      const rawSub = item.subtotal_combined || (item.price * item.quantity);
-      const subCop = rawSub < 1000 ? rawSub * 1000 : rawSub;
-      line += ` - $${Math.round(subCop).toLocaleString('de-DE')} COP`;
-      return line;
-    }).join('\n');
-
-    const rawTotal = order.total || 0;
-    const totalCop = Math.round(rawTotal < 1000 ? rawTotal * 1000 : rawTotal);
-    const formattedTotal = `$${totalCop.toLocaleString('de-DE')} COP`;
-
-    let messageText = `🚴 *Rapi Gochos - SOLICITUD DE DOMICILIO*\n` +
-      `👤 *Asignado a:* ${driverName}\n\n` +
-      `🏬 *Establecimiento:* ${storeName}\n` +
-      `👤 *Cliente:* ${clientName}\n` +
-      `📞 *Teléfono:* ${clientPhone}\n` +
-      `📍 *Dirección de Entrega:* ${clientAddress}\n`;
-
-    if (clientLat && clientLng) {
-      messageText += `🗺️ *Ubicación GPS:* https://maps.google.com/?q=${clientLat},${clientLng}\n`;
-    }
-
-    messageText += `\n📝 *DETALLE DE LA ORDEN:*\n${itemsSummary}\n\n` +
-      `💰 *TOTAL A COBRAR EN DESTINO:* ${formattedTotal}`;
-
-    if (housePhotoUrl) {
-      messageText += `\n\n🏡 *FOTO FACHADA/CASA:* ${housePhotoUrl}`;
-    }
-
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanDriverPhone}&text=${encodeURIComponent(messageText)}`;
-    
-    this.showLocalToast(`✨ Pedido asignado equitativamente a ${driverName} (${driverPhone})`);
-
-    // Redirect popup window or current location
-    if (popupWin && !popupWin.closed) {
-      popupWin.location.href = whatsappUrl;
-    } else {
-      window.location.href = whatsappUrl;
-    }
-
-    await this.updateOrderStatus(orderId, 'En Camino');
   }
 
   cancelOrderPrompt(orderId) {

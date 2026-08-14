@@ -456,6 +456,20 @@
           <input type="text" id="edit-shop-name" required placeholder="Ej. Parrilla Don Julio" style="width: 100%;">
         </div>
 
+        <!-- Clave de Vinculación (Link Key) -->
+        <div class="form-group" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); padding: 12px; border-radius: 12px; margin-bottom: 14px;">
+          <label for="edit-shop-link-key" style="color: #F59E0B; font-weight: 800; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+            🔑 Clave de Vinculación (Acceso Cocina / KDS) *
+          </label>
+          <div style="display: flex; gap: 8px; margin-top: 6px;">
+            <input type="text" id="edit-shop-link-key" required placeholder="Ej. MIRESTAURANTE, 6MAP9F" style="flex: 1; padding: 10px 12px; border-radius: 8px; background: rgba(18, 18, 22, 0.9); color: #FFF; border: 1px solid rgba(255,255,255,0.15); font-family: monospace; font-size: 14px; font-weight: 800; text-transform: uppercase;">
+            <button type="button" onclick="AdminApp.generateRandomLinkKeyForEdit()" style="background: #F59E0B; color: #1e293b; border: none; font-size: 11px; font-weight: 800; padding: 8px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap;">
+              🎲 Generar Clave
+            </button>
+          </div>
+          <p style="font-size: 11px; color: #94A3B8; margin: 6px 0 0 0;">Esta es la clave secreta con la que el dueño o personal del comercio ingresa a gestionar su cocina en <code>/kitchen.html</code>.</p>
+        </div>
+
         <div class="form-group">
           <label for="edit-shop-description">Descripción *</label>
           <input type="text" id="edit-shop-description" required placeholder="Ej. Carnes a la parrilla..." style="width: 100%;">
@@ -927,7 +941,7 @@
   </div>
 
   <script src="/js/sound.js?v=81"></script>
-  <script src="/js/admin.js?v=159"></script>
+  <script src="/js/admin.js?v=160"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>

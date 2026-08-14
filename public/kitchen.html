@@ -10,7 +10,20 @@
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#FF5E3A">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/supabase-helper.js?v=81"></script>
+  <script src="/js/supabase-helper.js?v=83"></script>
+  <script>
+    // Invalidate and delete any stale Service Worker caches
+    if ('caches' in window) {
+      caches.keys().then(keys => {
+        keys.forEach(k => {
+          if (!k.includes('v165')) {
+            caches.delete(k);
+            console.log('Purged stale cache:', k);
+          }
+        });
+      });
+    }
+  </script>
 </head>
 <body>
 
@@ -654,9 +667,16 @@
     </div>
   </div>
 
-  <script src="/js/sound.js?v=81"></script>
-  <script src="/js/menu-builder.js?v=81"></script>
-  <script src="/js/kitchen.js?v=158"></script>
+  <script src="/js/sound.js?v=83"></script>
+  <script src="/js/menu-builder.js?v=83"></script>
+  <script src="/js/kitchen.js?v=165"></script>
+  <script>
+    if (typeof KitchenApp !== 'undefined') {
+      if (!KitchenApp.showToast && typeof KitchenApp.showLocalToast === 'function') {
+        KitchenApp.showToast = function(msg, isErr) { return this.showLocalToast(msg, isErr); };
+      }
+    }
+  </script>
   <script>
     let activeCategoryId = 'all';
     let categoriesList = [];
@@ -923,8 +943,9 @@
     // Register Service Worker for PWA installability
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then((reg) => {
+        navigator.serviceWorker.register('/sw.js?v=165').then((reg) => {
           console.log('ServiceWorker registered successfully', reg.scope);
+          reg.update();
         }).catch((err) => {
           console.warn('ServiceWorker registration failed', err);
         });

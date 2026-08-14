@@ -23,53 +23,81 @@
 
 /* Address Area */
 .delivery-address-area {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   cursor: pointer;
-  background: rgba(255, 94, 58, 0.1);
-  border: 1.5px solid var(--primary);
-  border-radius: 30px;
-  padding: 6px 14px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(255, 94, 58, 0.1);
+  background: rgba(255, 94, 58, 0.08);
+  border: 1px solid rgba(255, 94, 58, 0.35);
+  border-radius: 24px;
+  padding: 5px 12px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(255, 94, 58, 0.08);
   position: relative;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .delivery-address-area:hover {
-  background: rgba(255, 94, 58, 0.18);
+  background: rgba(255, 94, 58, 0.15);
+  border-color: var(--primary);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(255, 94, 58, 0.2), 0 0 10px rgba(255, 94, 58, 0.1);
+  box-shadow: 0 4px 14px rgba(255, 94, 58, 0.18);
 }
 
 .delivery-address-area:active {
   transform: translateY(0);
+  background: rgba(255, 94, 58, 0.22);
 }
 
 .location-icon {
-  font-size: 18px;
+  font-size: 15px;
+  line-height: 1;
   color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .address-text-container {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  justify-content: center;
 }
 
 .delivery-label {
-  font-size: 9px;
-  color: var(--text-muted);
+  font-size: 8px;
+  color: #94A3B8;
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.5px;
-  line-height: 1.1;
+  line-height: 1;
+  margin-bottom: 1px;
+}
+
+.delivery-address-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .delivery-address {
   font-size: 12px;
   font-weight: 800;
-  color: var(--secondary);
-  line-height: 1.2;
+  color: #1E293B;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.location-chevron {
+  font-size: 8px;
+  color: var(--primary);
+  font-weight: 900;
+  margin-left: 2px;
+  opacity: 0.85;
+  display: inline-block;
 }
 
 @keyframes pulse-border {
@@ -1008,15 +1036,18 @@
   right: 0 !important;
   bottom: 0 !important;
   background-color: rgba(0, 0, 0, 0.75) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
   z-index: 999999 !important;
   display: none;
   align-items: center;
   justify-content: center;
+  opacity: 0;
+  transition: opacity 0.35s ease, backdrop-filter 0.35s ease;
 }
 
-.modal-overlay.open {
+.modal-overlay.open,
+.modal-overlay.active {
   display: flex !important;
   opacity: 1 !important;
   visibility: visible !important;
@@ -1032,10 +1063,27 @@
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-lg);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 }
 
-.modal-overlay.open .modal-content {
-  /* No transform to avoid issues */
+.modal-overlay.open .modal-content,
+.modal-overlay.active .modal-content {
+  animation: smoothModalEntrance 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes smoothModalEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.smooth-modal-entry {
+  animation: smoothModalEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .modal-header {
@@ -1467,7 +1515,11 @@ body {
   }
 
   .delivery-address-area {
-    max-width: 30%;
+    max-width: none;
+    flex-shrink: 0;
+    padding: 4px 10px;
+    gap: 5px;
+    border-radius: 20px;
   }
 
   .delivery-label {
@@ -1475,12 +1527,14 @@ body {
   }
 
   .delivery-address {
-    font-size: 11px !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    max-width: 100%;
+    font-size: 11.5px !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+    display: inline-block;
+  }
+
+  .location-icon {
+    font-size: 13px !important;
   }
 
   .logo-area {
@@ -2377,4 +2431,79 @@ body {
   font-weight: 700;
   opacity: 0.95;
 }
+
+/* Minimized Real-Time Tracking Floating Pill / Banner */
+.active-order-minimized-pill {
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+  border: 1px solid rgba(255, 94, 58, 0.4);
+  border-radius: 16px;
+  padding: 12px 18px;
+  color: #FFFFFF;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 94, 58, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: smoothModalEntrance 0.35s ease forwards;
+}
+
+.active-order-minimized-pill:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 94, 58, 0.35);
+}
+
+.active-order-minimized-pill.hidden {
+  display: none !important;
+}
+
+/* Payment Method Toggle Buttons */
+.payment-method-toggle .btn-toggle {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  padding: 12px 10px;
+  border-radius: 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.payment-method-toggle .btn-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.payment-method-toggle .btn-toggle.active {
+  background: linear-gradient(135deg, #FF5E3A, #FF2A00);
+  color: #FFFFFF;
+  border-color: #FF5E3A;
+  box-shadow: 0 4px 14px rgba(255, 94, 58, 0.35);
+}
+
+/* New Order Highlight in History */
+.new-order-highlight {
+  animation: newOrderGlow 2s ease-in-out 3;
+  border-color: var(--primary) !important;
+}
+
+@keyframes newOrderGlow {
+  0%, 100% {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 94, 58, 0.6), 0 4px 14px rgba(0,0,0,0.3);
+  }
+}
+
 

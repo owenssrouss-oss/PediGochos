@@ -43,6 +43,8 @@ class MarketplaceController {
     this.activeCoupon = null;
     this.gochoPoints = parseInt(localStorage.getItem('gocho_points') || '0', 10);
     this.currentCategory = null; // Default to no category selected on home entry
+    this.paymentMethod = 'Efectivo'; // Default payment method: 'Efectivo' or 'Transferencia'
+    this.isTrackingMinimized = false; // Whether active order tracking is minimized
   }
 
   async init() {
@@ -2421,6 +2423,26 @@ class MarketplaceController {
     this.renderCartItems();
   }
 
+  setPaymentMethod(method) {
+    this.paymentMethod = method;
+    const cashBtn = document.getElementById('pay-cash-btn');
+    const transferBtn = document.getElementById('pay-transfer-btn');
+    const cashDetails = document.getElementById('payment-cash-details');
+    const transferDetails = document.getElementById('payment-transfer-details');
+
+    if (method === 'Efectivo') {
+      if (cashBtn) cashBtn.classList.add('active');
+      if (transferBtn) transferBtn.classList.remove('active');
+      if (cashDetails) cashDetails.classList.remove('hidden');
+      if (transferDetails) transferDetails.classList.add('hidden');
+    } else {
+      if (cashBtn) cashBtn.classList.remove('active');
+      if (transferBtn) transferBtn.classList.add('active');
+      if (cashDetails) cashDetails.classList.add('hidden');
+      if (transferDetails) transferDetails.classList.remove('hidden');
+    }
+  }
+
   detectPhoneCountry() {
     const phoneInput = document.getElementById('order-phone');
     const countrySelect = document.getElementById('order-phone-country');
@@ -2531,6 +2553,13 @@ class MarketplaceController {
       }
     }
 
+    const paymentMethod = this.paymentMethod || 'Efectivo';
+    let paymentNotes = '';
+    const cashAmtInpEl = document.getElementById('order-cash-amount');
+    if (paymentMethod === 'Efectivo' && cashAmtInpEl && cashAmtInpEl.value.trim()) {
+      paymentNotes = `Paga con: ${cashAmtInpEl.value.trim()}`;
+    }
+
     // Group items by restaurant_id
     const groupedItems = {};
     this.cart.items.forEach(item => {
@@ -2570,6 +2599,7 @@ class MarketplaceController {
     }
 
     const shopIds = Object.keys(groupedItems);
+    let lastCreatedOrderId = null;
     
     try {
       const promises = shopIds.map(async (shopId) => {
@@ -2605,6 +2635,8 @@ class MarketplaceController {
           })),
           total: shopSubtotal + shopDeliveryCost,
           orderType: this.orderType,
+          paymentMethod,
+          paymentNotes,
           customerName,
           tableNumber: tableNumber ? parseInt(tableNumber, 10) : null,
           deliveryDetails: this.orderType === 'delivery' ? { 
@@ -2629,6 +2661,7 @@ class MarketplaceController {
         }
         const createdOrder = await response.json();
         if (createdOrder && createdOrder.id) {
+          lastCreatedOrderId = createdOrder.id;
           localStorage.setItem('active_order_id', createdOrder.id);
           this.saveUserOrderToHistory(createdOrder);
         }
@@ -2649,6 +2682,8 @@ class MarketplaceController {
             items: shop.items,
             total: shop.items.reduce((sum, item) => sum + this.normalizeCopPrice(item.subtotal_combined), 0),
             orderType: this.orderType,
+            paymentMethod,
+            paymentNotes,
             customerName,
             tableNumber,
             deliveryDetails: { phone, address, code: randomCode }
@@ -2672,7 +2707,7 @@ class MarketplaceController {
       this.addGochoPoints(earnedPts);
 
       this.sendPushNotification('¡Pedido Enviado! 🚀', `Tu pedido en ${shopIds.length} comercio(s) fue recibido. ¡Ganaste +${earnedPts} GochoPoints! ⭐`);
-      this.showToast(`🔔 ¡Pedido enviado en tiempo real! ⭐ Ganaste +${earnedPts} GochoPoints`);
+      this.showToast(`🔔 ¡Pedido enviado con éxito! ⭐ Ganaste +${earnedPts} GochoPoints`);
       this.clearCart();
       this.closeCartModal();
       
@@ -2685,6 +2720,8 @@ class MarketplaceController {
       if (phoneInp) phoneInp.value = '';
       const addrInp = document.getElementById('order-address');
       if (addrInp) addrInp.value = '';
+      const cashAmtInp = document.getElementById('order-cash-amount');
+      if (cashAmtInp) cashAmtInp.value = '';
       const termsInp = document.getElementById('checkout-accept-terms');
       if (termsInp) termsInp.checked = false;
       
@@ -2703,8 +2740,16 @@ class MarketplaceController {
       const distSpan = document.getElementById('map-calc-distance');
       if (distSpan) distSpan.innerText = 'Esperando marcador...';
 
-      // Redirect cleanly to Home view
+      // Activate real-time tracking map immediately without refreshing the page
+      this.isTrackingMinimized = false;
       this.goHome();
+      this.checkActiveOrderTracking();
+
+      // Smooth unhurried transition to Order History modal so user sees status in vivo
+      setTimeout(() => {
+        this.openUserOrdersModal({ highlightFirst: true });
+      }, 400);
+
     } catch (e) {
       console.error(e);
       alert('Error de conexión o problema al enviar el pedido: ' + e.message);
@@ -3185,26 +3230,138 @@ class MarketplaceController {
 
   dismissActiveOrderTracking() {
     localStorage.removeItem('active_order_id');
+    this.isTrackingMinimized = false;
     if (this.trackingTimer) {
       clearTimeout(this.trackingTimer);
       this.trackingTimer = null;
     }
     const card = document.getElementById('active-order-tracking-card');
     if (card) card.classList.add('hidden');
+    const pill = document.getElementById('active-order-minimized-pill');
+    if (pill) pill.classList.add('hidden');
+  }
+
+  minimizeActiveOrderTracking() {
+    this.isTrackingMinimized = true;
+    const card = document.getElementById('active-order-tracking-card');
+    if (card) card.classList.add('hidden');
+    const pill = document.getElementById('active-order-minimized-pill');
+    if (pill) pill.classList.remove('hidden');
+    this.showToast('ℹ️ Mapa minimizado. Toca la barra flotante para volver a verlo.');
+  }
+
+  expandActiveOrderTracking() {
+    this.isTrackingMinimized = false;
+    const pill = document.getElementById('active-order-minimized-pill');
+    if (pill) pill.classList.add('hidden');
+    const card = document.getElementById('active-order-tracking-card');
+    if (card) {
+      card.classList.remove('hidden');
+      if (this.trackingMap) {
+        setTimeout(() => this.trackingMap.invalidateSize(), 150);
+      }
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }
 
   checkActiveOrderTracking() {
     const activeOrderId = localStorage.getItem('active_order_id');
     const card = document.getElementById('active-order-tracking-card');
-    if (!card) return;
+    const pill = document.getElementById('active-order-minimized-pill');
 
     if (!activeOrderId) {
-      card.classList.add('hidden');
+      if (card) card.classList.add('hidden');
+      if (pill) pill.classList.add('hidden');
       return;
     }
 
-    card.classList.remove('hidden');
+    if (this.isTrackingMinimized) {
+      if (card) card.classList.add('hidden');
+      if (pill) pill.classList.remove('hidden');
+    } else {
+      if (card) card.classList.remove('hidden');
+      if (pill) pill.classList.add('hidden');
+    }
     this.pollActiveOrder(activeOrderId);
+  }
+
+  trackActiveOrder(orderId) {
+    localStorage.setItem('active_order_id', orderId);
+    this.isTrackingMinimized = false;
+    this.goHome();
+    this.checkActiveOrderTracking();
+    const card = document.getElementById('active-order-tracking-card');
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  cancelActiveOrder() {
+    const activeOrderId = localStorage.getItem('active_order_id');
+    if (!activeOrderId) return;
+    this.cancelUserOrder(activeOrderId);
+  }
+
+  async cancelUserOrder(orderId) {
+    if (!confirm('¿Estás seguro de que deseas cancelar este pedido?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'Cancelado',
+          reason: 'Cancelado por el cliente'
+        })
+      });
+
+      if (res.ok) {
+        this.showToast('❌ Pedido cancelado exitosamente');
+        
+        // Update local orders history
+        let userOrders = this.getUserOrdersHistory();
+        const target = userOrders.find(o => String(o.id) === String(orderId));
+        if (target) {
+          target.status = 'Cancelado';
+          target.cancelReason = 'Cancelado por el cliente';
+          localStorage.setItem('user_orders_history', JSON.stringify(userOrders));
+        }
+
+        // If it was the active order in tracking card
+        if (String(localStorage.getItem('active_order_id')) === String(orderId)) {
+          const badge = document.getElementById('active-order-status-badge');
+          const text = document.getElementById('active-order-info-text');
+          const pillStatus = document.getElementById('minimized-pill-status');
+          const cancelBtn = document.getElementById('active-order-cancel-btn');
+          
+          if (badge) {
+            badge.innerText = '❌ Cancelado';
+            badge.style.background = 'rgba(239, 68, 68, 0.2)';
+            badge.style.color = '#ef4444';
+          }
+          if (pillStatus) {
+            pillStatus.innerText = '❌ Cancelado';
+            pillStatus.style.color = '#ef4444';
+          }
+          if (text) text.innerText = '❌ Tu pedido ha sido cancelado.';
+          if (cancelBtn) cancelBtn.style.display = 'none';
+
+          setTimeout(() => {
+            this.dismissActiveOrderTracking();
+          }, 4000);
+        }
+
+        const activeFilter = document.querySelector('.active-order-filter')?.id?.replace('user-order-filter-', '') || 'all';
+        this.renderUserOrdersList(activeFilter);
+      } else {
+        alert('No se pudo cancelar el pedido. El pedido puede estar ya completado o cancelado.');
+      }
+    } catch(err) {
+      console.error('Error cancelling order:', err);
+      alert('Error de conexión al cancelar el pedido.');
+    }
   }
 
   async pollActiveOrder(orderId) {
@@ -3217,9 +3374,13 @@ class MarketplaceController {
       const badge = document.getElementById('active-order-status-badge');
       const text = document.getElementById('active-order-info-text');
       const card = document.getElementById('active-order-tracking-card');
+      const pill = document.getElementById('active-order-minimized-pill');
+      const pillStatus = document.getElementById('minimized-pill-status');
+      const cancelBtn = document.getElementById('active-order-cancel-btn');
 
       if (!order) {
         if (card) card.classList.add('hidden');
+        if (pill) pill.classList.add('hidden');
         return;
       }
 
@@ -3231,35 +3392,52 @@ class MarketplaceController {
           badge.style.background = 'rgba(234, 179, 8, 0.2)';
           badge.style.color = '#eab308';
           if (text) text.innerText = `👨‍🍳 El restaurante (${order.establishmentName}) está recibiendo tu pedido...`;
+          if (cancelBtn) cancelBtn.style.display = 'inline-flex';
         } else if (status === 'En Cocina' || status === 'En Preparacion' || status === 'En preparación' || status === 'Preparando') {
           badge.innerText = '👨‍🍳 Cocinando en Tienda';
           badge.style.background = 'rgba(59, 130, 246, 0.2)';
           badge.style.color = '#3b82f6';
           if (text) text.innerText = `🔥 ¡Tu pedido se está preparando en la cocina de ${order.establishmentName}!`;
+          if (cancelBtn) cancelBtn.style.display = 'inline-flex';
         } else if (status === 'En Camino' || status === 'En camino' || status === 'Listo') {
           badge.innerText = '🚴 En Camino';
           badge.style.background = 'rgba(16, 185, 129, 0.2)';
           badge.style.color = '#10b981';
           if (text) text.innerText = `🛵 ¡El repartidor lleva tu pedido de ${order.establishmentName} en camino hacia tu dirección!`;
+          if (cancelBtn) cancelBtn.style.display = 'none'; // Dispatched, hide cancel
         } else if (status === 'Entregado') {
           badge.innerText = '✅ Entregado';
           badge.style.background = 'rgba(16, 185, 129, 0.3)';
           badge.style.color = '#10b981';
           if (text) text.innerText = `🎉 ¡Pedido entregado con éxito! Buen provecho.`;
+          if (cancelBtn) cancelBtn.style.display = 'none';
           setTimeout(() => {
-            localStorage.removeItem('active_order_id');
-            if (card) card.classList.add('hidden');
+            this.dismissActiveOrderTracking();
           }, 15000);
+        } else if (status === 'Cancelado') {
+          badge.innerText = '❌ Cancelado';
+          badge.style.background = 'rgba(239, 68, 68, 0.2)';
+          badge.style.color = '#ef4444';
+          if (text) text.innerText = `❌ Este pedido fue cancelado. ${order.cancelReason ? `(${order.cancelReason})` : ''}`;
+          if (cancelBtn) cancelBtn.style.display = 'none';
+          setTimeout(() => {
+            this.dismissActiveOrderTracking();
+          }, 8000);
         }
+      }
+
+      if (pillStatus && badge) {
+        pillStatus.innerText = badge.innerText;
+        pillStatus.style.color = badge.style.color;
       }
 
       // Render Tracking Map for Active Order
       this.renderTrackingMap(order);
 
-      // Continue polling if not delivered yet
-      if (status !== 'Entregado') {
+      // Continue polling if not finished yet
+      if (status !== 'Entregado' && status !== 'Cancelado') {
         if (this.trackingTimer) clearTimeout(this.trackingTimer);
-        this.trackingTimer = setTimeout(() => this.pollActiveOrder(orderId), 5000);
+        this.trackingTimer = setTimeout(() => this.pollActiveOrder(orderId), 4000);
       }
     } catch (e) {
       console.warn('Error polling active order:', e);
@@ -3693,9 +3871,17 @@ class MarketplaceController {
     }
   }
 
-  async openUserOrdersModal() {
+  async openUserOrdersModal(options = {}) {
     const modal = document.getElementById('user-orders-modal');
-    if (modal) modal.classList.add('active');
+    if (modal) {
+      modal.classList.add('active');
+      const content = modal.querySelector('.modal-content');
+      if (content) {
+        content.classList.remove('smooth-modal-entry');
+        void content.offsetWidth; // trigger reflow
+        content.classList.add('smooth-modal-entry');
+      }
+    }
     document.body.classList.add('modal-open');
 
     // Fetch live status from server
@@ -3707,7 +3893,7 @@ class MarketplaceController {
         
         if (Array.isArray(liveOrders) && userOrders.length > 0) {
           userOrders.forEach(localOrd => {
-            const serverOrd = liveOrders.find(o => o.id === localOrd.id);
+            const serverOrd = liveOrders.find(o => String(o.id) === String(localOrd.id));
             if (serverOrd) {
               this.saveUserOrderToHistory(serverOrd);
             }
@@ -3718,7 +3904,7 @@ class MarketplaceController {
       console.error('Error syncing live orders history:', e);
     }
 
-    this.renderUserOrdersList('all');
+    this.renderUserOrdersList('all', options.highlightFirst);
   }
 
   closeUserOrdersModal() {
@@ -3743,19 +3929,21 @@ class MarketplaceController {
       activeBtn.classList.add('active-order-filter');
     }
 
-    this.renderUserOrdersList(filterType);
+    this.renderUserOrdersList(filterType, false);
   }
 
-  renderUserOrdersList(filterType = 'all') {
+  renderUserOrdersList(filterType = 'all', highlightFirst = false) {
     const container = document.getElementById('user-orders-list-container');
     if (!container) return;
 
     let orders = this.getUserOrdersHistory();
 
+    const isFinished = (s) => s === 'Entregado' || s === 'completed' || s === 'Cancelado' || s === 'cancelled';
+
     if (filterType === 'active') {
-      orders = orders.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+      orders = orders.filter(o => !isFinished(o.status));
     } else if (filterType === 'completed') {
-      orders = orders.filter(o => o.status === 'completed' || o.status === 'cancelled');
+      orders = orders.filter(o => isFinished(o.status));
     }
 
     if (orders.length === 0) {
@@ -3771,7 +3959,7 @@ class MarketplaceController {
 
     container.innerHTML = '';
 
-    orders.forEach(ord => {
+    orders.forEach((ord, index) => {
       const est = this.establishments.find(e => e.id === ord.establishmentId || e.id === ord.establishment_id);
       const estName = est ? est.name : (ord.establishmentName || 'Restaurante');
       const estLogo = est ? (est.logo || '🏪') : '🏪';
@@ -3782,8 +3970,19 @@ class MarketplaceController {
       const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
       const statusMap = {
+        'Pendiente': { label: '⏳ Pendiente', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.15)' },
+        'Preparando': { label: '👨‍🍳 En Cocina', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)' },
+        'En Cocina': { label: '👨‍🍳 En Cocina', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)' },
+        'En Preparacion': { label: '👨‍🍳 En Cocina', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)' },
+        'En preparación': { label: '👨‍🍳 En Cocina', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)' },
+        'Listo': { label: '📦 Listo para Despacho', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.15)' },
+        'En Camino': { label: '🛵 En Camino', color: '#06B6D4', bg: 'rgba(6, 182, 212, 0.15)' },
+        'En camino': { label: '🛵 En Camino', color: '#06B6D4', bg: 'rgba(6, 182, 212, 0.15)' },
+        'Entregado': { label: '✅ Entregado', color: '#10B981', bg: 'rgba(16, 185, 129, 0.15)' },
+        'Cancelado': { label: '❌ Cancelado', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)' },
+        // Fallbacks
         'pending': { label: '⏳ Pendiente', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.15)' },
-        'preparing': { label: '👨‍🍳 En Preparación', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)' },
+        'preparing': { label: '👨‍🍳 En Cocina', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)' },
         'ready': { label: '📦 Listo', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.15)' },
         'on_the_way': { label: '🛵 En Camino', color: '#06B6D4', bg: 'rgba(6, 182, 212, 0.15)' },
         'completed': { label: '✅ Entregado', color: '#10B981', bg: 'rgba(16, 185, 129, 0.15)' },
@@ -3792,6 +3991,9 @@ class MarketplaceController {
 
       const statusObj = statusMap[ord.status] || { label: ord.status || 'Enviado', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)' };
       const codeStr = ord.deliveryDetails?.code || ord.orderCode || (ord.id ? ord.id.slice(-4) : '---');
+
+      const payMethodLabel = ord.paymentMethod === 'Transferencia' ? '📲 Transferencia' : '💵 Efectivo';
+      const payNotes = ord.paymentNotes ? ` (${ord.paymentNotes})` : '';
 
       // Build items breakdown
       let itemsHTML = '';
@@ -3832,12 +4034,18 @@ class MarketplaceController {
       }
 
       const card = document.createElement('div');
-      card.style.cssText = 'background: rgba(22, 22, 28, 0.9); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.3);';
+      const isCardActive = !isFinished(ord.status);
+      const isHighlighted = highlightFirst && index === 0;
 
-      const isLiveActive = ord.status !== 'completed' && ord.status !== 'cancelled';
-      const liveBtnHTML = isLiveActive ? `
+      card.className = isHighlighted ? 'new-order-highlight' : '';
+      card.style.cssText = 'background: rgba(22, 22, 28, 0.95); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.3); transition: all 0.3s ease;';
+
+      const liveBtnHTML = isCardActive ? `
         <button type="button" onclick="MarketplaceApp.closeUserOrdersModal(); MarketplaceApp.trackActiveOrder('${ord.id}')" style="background: var(--primary); color: #FFF; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
           🛵 Rastreo en Vivo
+        </button>
+        <button type="button" onclick="MarketplaceApp.cancelUserOrder('${ord.id}')" style="background: rgba(239, 68, 68, 0.15); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          ❌ Cancelar Pedido
         </button>
       ` : '';
 
@@ -3861,10 +4069,11 @@ class MarketplaceController {
           ${itemsHTML}
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; background: rgba(255,255,255,0.02); padding: 8px 10px; border-radius: 8px;">
-          <span style="color: var(--text-muted);">
-            ${ord.orderType === 'delivery' ? `🚚 Domicilio: ${ord.deliveryDetails?.address || 'Dirección provista'}` : `🍽️ En Mesa #${ord.tableNumber || 1}`}
-          </span>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; background: rgba(255,255,255,0.02); padding: 8px 10px; border-radius: 8px; flex-wrap: wrap; gap: 6px;">
+          <div style="color: var(--text-muted); display: flex; flex-direction: column; gap: 2px;">
+            <span>${ord.orderType === 'delivery' ? `🚚 Domicilio: ${ord.deliveryDetails?.address || 'Dirección provista'}` : `🍽️ En Mesa #${ord.tableNumber || 1}`}</span>
+            <span style="font-size: 11px; color: #94A3B8;">💳 Pago: <strong>${payMethodLabel}</strong>${payNotes}</span>
+          </div>
           <span style="font-size: 14px; font-weight: 900; color: var(--primary);">Total: ${this.formatPesos(ord.total || 0)}</span>
         </div>
 

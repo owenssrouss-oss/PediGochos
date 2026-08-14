@@ -904,7 +904,7 @@ wss.on('connection', (ws) => {
       }
 
       if (message.type === 'UPDATE_STATUS') {
-        const { orderId, status, reason, paymentStatus } = message;
+        const { orderId, status, reason, paymentStatus, driver } = message;
         const db = readDB();
         const order = db.orders.find(o => o.id === orderId);
         
@@ -912,9 +912,10 @@ wss.on('connection', (ws) => {
           if (status) order.status = status;
           if (reason) order.cancelReason = reason;
           if (paymentStatus) order.paymentStatus = paymentStatus;
+          if (driver) order.driver = driver;
           order.updatedAt = new Date().toISOString();
           writeDB(db);
-          console.log(`Order ${orderId} updated: status=${status || 'unchanged'}, reason=${reason || 'none'}, paymentStatus=${paymentStatus || 'unchanged'}`);
+          console.log(`Order ${orderId} updated: status=${status || 'unchanged'}, reason=${reason || 'none'}, paymentStatus=${paymentStatus || 'unchanged'}, driver=${driver ? driver.name : 'unchanged'}`);
 
           // Broadcast status update to all connected clients for this establishment
           const estId = order.establishmentId;
@@ -955,10 +956,12 @@ function broadcastToMerchant(establishmentId, data) {
       }
     });
   }
+}
+
 // HTTP endpoint to update order status (fallback for WebSocket)
 app.put('/api/orders/:id/status', (req, res) => {
   const orderId = req.params.id;
-  const { status, reason, paymentStatus } = req.body;
+  const { status, reason, paymentStatus, driver } = req.body;
   const db = readDB();
   const order = db.orders.find(o => o.id === orderId);
 
@@ -969,6 +972,7 @@ app.put('/api/orders/:id/status', (req, res) => {
   if (status) order.status = status;
   if (reason) order.cancelReason = reason;
   if (paymentStatus) order.paymentStatus = paymentStatus;
+  if (driver) order.driver = driver;
   order.updatedAt = new Date().toISOString();
   writeDB(db);
 
@@ -1007,10 +1011,12 @@ app.post('/api/orders', (req, res) => {
     items: orderDetails.items,
     total: orderDetails.total,
     orderType: orderDetails.orderType, // 'mesa' or 'delivery'
+    paymentMethod: orderDetails.paymentMethod || 'Efectivo', // 'Efectivo' or 'Transferencia'
+    paymentNotes: orderDetails.paymentNotes || '',
     customerName: orderDetails.customerName,
     tableNumber: orderDetails.tableNumber || null,
     deliveryDetails: orderDetails.deliveryDetails || null,
-    status: 'Pendiente', // 'Pendiente', 'Preparando', 'Listo', 'Entregado'
+    status: 'Pendiente', // 'Pendiente', 'Preparando', 'Listo', 'En Camino', 'Entregado', 'Cancelado'
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };

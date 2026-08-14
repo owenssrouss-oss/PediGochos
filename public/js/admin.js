@@ -322,7 +322,12 @@ class AdminController {
         <td style="font-weight: 600;">${ordersCount}</td>
         <td>${lastOrderHTML}</td>
         <td style="font-weight: 700; color: var(--primary);">${this.formatPesos(totalRevenue)}</td>
-        <td class="shop-key-cell" style="font-family: monospace; font-size: 13px; font-weight: 700;">${est.linkKey}</td>
+        <td class="shop-key-cell" style="font-family: monospace; font-size: 13px; font-weight: 700; white-space: nowrap;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="color: #F59E0B;">${est.linkKey}</span>
+            <button type="button" onclick="event.stopPropagation(); AdminApp.promptChangeLinkKey('${est.id}', '${est.name.replace(/'/g, "\\'")}', '${est.linkKey}')" title="Cambiar clave de vinculación" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 6px; padding: 2px 6px; font-size: 11px; cursor: pointer;">✏️</button>
+          </div>
+        </td>
         <td style="text-align: center; white-space: nowrap;">
           <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.openStoreMapSingle('${est.id}')" style="background-color: #E0E7FF; color: #3730A3; border: 1px solid #A5B4FC; font-size: 12px; padding: 6px 10px; border-radius: var(--radius-sm); font-weight: 700; margin: 0 2px; width: auto; display: inline-block; cursor: pointer;">
             🗺️ Ubicación GPS
@@ -552,6 +557,8 @@ class AdminController {
       if (idInp) idInp.value = est.id;
       const nameInp = document.getElementById('edit-shop-name');
       if (nameInp) nameInp.value = est.name;
+      const keyInp = document.getElementById('edit-shop-link-key');
+      if (keyInp) keyInp.value = est.linkKey || '';
       const descInp = document.getElementById('edit-shop-description');
       if (descInp) descInp.value = est.description || '';
       const locInp = document.getElementById('edit-shop-location');
@@ -724,6 +731,11 @@ class AdminController {
         working_days: Array.from(document.querySelectorAll('input[name="edit-working-day"]:checked')).map(c => c.value)
       };
 
+      const newLinkKey = document.getElementById('edit-shop-link-key')?.value.trim().toUpperCase();
+      if (newLinkKey) {
+        payload.newLinkKey = newLinkKey;
+      }
+
       const res = await fetch(`/api/establishments/${this.activeShopId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -749,6 +761,51 @@ class AdminController {
     } finally {
       submitBtn.disabled = false;
       submitBtn.innerHTML = `<span>Guardar Cambios</span>`;
+    }
+  }
+
+  generateRandomLinkKeyForEdit() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    const inp = document.getElementById('edit-shop-link-key');
+    if (inp) {
+      inp.value = result;
+      this.showToast(`🔑 Nueva clave generada: ${result}`);
+    }
+  }
+
+  async promptChangeLinkKey(estId, estName, currentKey) {
+    const newKey = prompt(`🔑 Cambiar clave de vinculación para "${estName}":\n\nClave actual: ${currentKey || 'N/A'}\n\nIngresa la nueva clave (letras o números, ej. MIRESTAURANTE o 6MAP9F):`, currentKey || '');
+    if (newKey === null) return;
+    
+    const cleanKey = newKey.trim().toUpperCase();
+    if (!cleanKey) {
+      alert('La clave de vinculación no puede estar vacía.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/establishments/${estId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          newLinkKey: cleanKey
+        })
+      });
+
+      if (res.ok) {
+        this.showToast(`✅ Clave de vinculación de ${estName} actualizada a: ${cleanKey}`);
+        await this.reloadData();
+      } else {
+        alert('Error al actualizar la clave de vinculación.');
+      }
+    } catch(err) {
+      console.error(err);
+      alert('Error de conexión al actualizar la clave.');
     }
   }
 
