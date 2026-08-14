@@ -2303,20 +2303,9 @@ class MarketplaceController {
         const shopItems = this.cart.items.filter(item => item.restaurant_id === id);
         const shopSubtotal = shopItems.reduce((sum, item) => sum + this.normalizeCopPrice(item.subtotal_combined), 0);
 
-        // Calculate delivery fee using $4.500 COP minimum per establishment + $2.200 COP per km rate
-        if (this.calculatedDistanceKm !== null && this.calculatedDistanceKm !== undefined) {
-          const calculatedFee = this.calculatedDistanceKm * 2200;
-          let finalFee = Math.max(5000, Math.round(calculatedFee));
-
-          // Sync fee to the uniqueShops details
-          uniqueShops[id].delivery_fee = finalFee;
-          totalDeliveryFee += finalFee;
-        } else {
-          let baseFee = uniqueShops[id].delivery_fee || 5000;
-          if (baseFee < 5000) baseFee = 5000;
-          uniqueShops[id].delivery_fee = baseFee;
-          totalDeliveryFee += baseFee;
-        }
+        const fee = this.calculateShopDeliveryFee(this.calculatedDistanceKm, uniqueShops[id].delivery_fee);
+        uniqueShops[id].delivery_fee = fee;
+        totalDeliveryFee += fee;
       });
     }
 
@@ -2607,15 +2596,7 @@ class MarketplaceController {
         const shopSubtotal = shop.items.reduce((sum, item) => sum + this.normalizeCopPrice(item.subtotal_combined), 0);
         let shopDeliveryCost = 0;
         if (this.orderType === 'delivery') {
-          if (this.calculatedDistanceKm !== null && this.calculatedDistanceKm !== undefined) {
-            const calculatedFee = this.calculatedDistanceKm * 2200;
-            let finalFee = Math.max(5000, Math.round(calculatedFee));
-            shopDeliveryCost = finalFee;
-          } else {
-            let baseFee = shop.delivery_fee || 5000;
-            if (baseFee < 5000) baseFee = 5000;
-            shopDeliveryCost = baseFee;
-          }
+          shopDeliveryCost = this.calculateShopDeliveryFee(this.calculatedDistanceKm, shop.delivery_fee);
         }
         // Generate random 4-digit security code for delivery
         const randomCode = this.orderType === 'delivery' ? Math.floor(1000 + Math.random() * 9000).toString() : null;
@@ -3036,15 +3017,40 @@ class MarketplaceController {
     });
   }
 
+  calculateShopDeliveryFee(distanceKm, baseStoreFee = 5000) {
+    const minFee = Math.max(5000, parseInt(baseStoreFee, 10) || 5000);
+    if (distanceKm === null || distanceKm === undefined || isNaN(distanceKm)) {
+      return minFee;
+    }
+    const dist = parseFloat(distanceKm);
+    // Standard town base rate covers up to 2.5 km for the base delivery fee
+    if (dist <= 2.5) {
+      return minFee;
+    }
+    // Beyond 2.5 km up to 10 km: base fee + $1.500 COP per extra km
+    if (dist <= 10.0) {
+      const extraKm = dist - 2.5;
+      const extraFee = Math.round(extraKm * 1500);
+      return minFee + extraFee;
+    }
+    // Glitch / Out-of-city IP protection: fallback to base fee
+    return minFee;
+  }
+
   getActiveShopCenter() {
     // Determine distance directly from the specific Restaurant's own registered GPS coordinates
-    if (this.selectedEstablishment) {
-      const lat = (this.selectedEstablishment.location_lat !== undefined && this.selectedEstablishment.location_lat !== null) 
-        ? this.selectedEstablishment.location_lat 
-        : this.selectedEstablishment.latitude;
-      const lng = (this.selectedEstablishment.location_lng !== undefined && this.selectedEstablishment.location_lng !== null) 
-        ? this.selectedEstablishment.location_lng 
-        : this.selectedEstablishment.longitude;
+    let est = this.selectedEstablishment;
+    if (!est && this.cart && this.cart.items && this.cart.items.length > 0) {
+      const shopId = this.cart.items[0].restaurant_id;
+      est = this.establishments.find(e => e.id === shopId);
+    }
+    if (est) {
+      const lat = (est.location_lat !== undefined && est.location_lat !== null) 
+        ? est.location_lat 
+        : est.latitude;
+      const lng = (est.location_lng !== undefined && est.location_lng !== null) 
+        ? est.location_lng 
+        : est.longitude;
       if (lat !== undefined && lat !== null && lng !== undefined && lng !== null && !isNaN(parseFloat(lat)) && !isNaN(parseFloat(lng))) {
         return [parseFloat(lat), parseFloat(lng)];
       }
@@ -3082,15 +3088,24 @@ class MarketplaceController {
     const storeName = this.selectedEstablishment ? this.selectedEstablishment.name : 'Restaurante';
     this.sedeMarker.bindPopup(`<b>🏪 Restaurante: ${storeName}</b><br><small>Origen del Domicilio</small>`);
 
-    // 2. Create User Destination Location Marker (Fixed by GPS)
+    // 2. Create User Destination Location Marker (Interactive / Draggable)
     const userIcon = L.divIcon({
       className: 'custom-user-marker',
-      html: `<div style="background-color: #FF5E3A; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(255, 94, 58, 0.4); border: 2px solid white;">📍</div>`,
+      html: `<div style="background-color: #FF5E3A; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(255, 94, 58, 0.4); border: 2px solid white; cursor: grab;">📍</div>`,
       iconSize: [34, 34],
       iconAnchor: [17, 17]
     });
 
-    this.leafMarker = L.marker(shopCenter, { icon: userIcon, draggable: false }).addTo(this.leafMap);
+    this.leafMarker = L.marker(shopCenter, { icon: userIcon, draggable: true }).addTo(this.leafMap);
+
+    this.leafMarker.on('dragend', (e) => {
+      const pos = e.target.getLatLng();
+      this.setUserLocationOnMap([pos.lat, pos.lng], shopCenter, true);
+    });
+
+    this.leafMap.on('click', (e) => {
+      this.setUserLocationOnMap([e.latlng.lat, e.latlng.lng], shopCenter, true);
+    });
 
     // Fetch real GPS position automatically
     this.fetchUserGPSLocation(shopCenter);
