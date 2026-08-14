@@ -758,7 +758,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-07-18T22:32:02.444972+00:00",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.8135,
+      "longitude": -72.4432,
+      "location_lat": 7.8135,
+      "location_lng": -72.4432
     },
     {
       "id": "boby-burgers-1784410785941",
@@ -1408,7 +1412,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-07-18T21:39:46.549824+00:00",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.8142,
+      "longitude": -72.4445,
+      "location_lat": 7.8142,
+      "location_lng": -72.4445
     },
     {
       "id": "carritos-de-manuel-1784411690116",
@@ -3159,7 +3167,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-07-18T21:54:50.715682+00:00",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.8128,
+      "longitude": -72.4451,
+      "location_lat": 7.8128,
+      "location_lng": -72.4451
     },
     {
       "id": "shawarma-dunes-1784412375653",
@@ -3569,7 +3581,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-07-18T22:06:16.169331+00:00",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.815,
+      "longitude": -72.4438,
+      "location_lat": 7.815,
+      "location_lng": -72.4438
     },
     {
       "id": "mak-pizza-1784350135697",
@@ -6184,7 +6200,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-07-18T04:48:55.94933+00:00",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.8138,
+      "longitude": -72.442,
+      "location_lat": 7.8138,
+      "location_lng": -72.442
     },
     {
       "id": "m-ster-cachapa-1784291108772",
@@ -7371,7 +7391,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-07-17T12:25:09.043063+00:00",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.8148,
+      "longitude": -72.4455,
+      "location_lat": 7.8148,
+      "location_lng": -72.4455
     },
     {
       "id": "gema-1784920874883",
@@ -7489,7 +7513,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-08-05T03:57:18.658Z",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.8122,
+      "longitude": -72.4435,
+      "location_lat": 7.8122,
+      "location_lng": -72.4435
     },
     {
       "id": "boki-arepas-1784927442087",
@@ -7557,7 +7585,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-08-05T03:57:18.659Z",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.8155,
+      "longitude": -72.444,
+      "location_lat": 7.8155,
+      "location_lng": -72.444
     },
     {
       "id": "burger-grill-puente-sucre--1784935634396",
@@ -7627,7 +7659,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-08-05T03:57:18.659Z",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.8172,
+      "longitude": -72.4425,
+      "location_lat": 7.8172,
+      "location_lng": -72.4425
     },
     {
       "id": "frutyheladosgourmet-1785013456147",
@@ -7682,7 +7718,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-08-05T03:57:18.659Z",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.813,
+      "longitude": -72.4425,
+      "location_lat": 7.813,
+      "location_lng": -72.4425
     },
     {
       "id": "la-casa-de-los-batidos-1784613906898",
@@ -7734,7 +7774,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-08-05T03:57:18.659Z",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.814,
+      "longitude": -72.443,
+      "location_lat": 7.814,
+      "location_lng": -72.443
     },
     {
       "id": "latinos-burguer-1785037895471",
@@ -7791,7 +7835,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-08-05T03:57:18.659Z",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.816,
+      "longitude": -72.445,
+      "location_lat": 7.816,
+      "location_lng": -72.445
     },
     {
       "id": "muchos-burguer-1784912818841",
@@ -7846,7 +7894,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-08-05T03:57:18.659Z",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.8125,
+      "longitude": -72.444,
+      "location_lat": 7.8125,
+      "location_lng": -72.444
     },
     {
       "id": "patac-n-fire-1784739591782",
@@ -7902,7 +7954,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-08-05T03:57:18.659Z",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.8152,
+      "longitude": -72.4428,
+      "location_lat": 7.8152,
+      "location_lng": -72.4428
     },
     {
       "id": "thanos-resto-bar-1784933679966",
@@ -7958,7 +8014,11 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-08-05T03:57:18.659Z",
-      "location": "San Antonio"
+      "location": "San Antonio",
+      "latitude": 7.8145,
+      "longitude": -72.4435,
+      "location_lat": 7.8145,
+      "location_lng": -72.4435
     }
   ],
   "orders": [
