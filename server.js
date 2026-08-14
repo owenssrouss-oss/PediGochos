@@ -1291,25 +1291,47 @@ app.post('/api/reviews', (req, res) => {
 // GET all drivers (admin view)
 app.get('/api/drivers', (req, res) => {
   const db = readDB();
+  if (!db.drivers || db.drivers.length === 0) {
+    db.drivers = [
+      {
+        id: 'drv-central-1',
+        name: 'Central Gocho',
+        phone: '+573227949751',
+        linkKey: 'GOCHO-8821',
+        vehicleType: 'Moto 🛵',
+        status: 'Disponible',
+        totalDeliveries: 0,
+        latitude: 7.8131,
+        longitude: -72.4439,
+        lastActive: new Date().toISOString()
+      }
+    ];
+    writeDB(db);
+  }
   res.json(db.drivers || []);
 });
 
 // GET next available driver with fair round-robin rotation
 app.get('/api/drivers/next-available', (req, res) => {
   const db = readDB();
-  const drivers = db.drivers || [];
-
-  if (drivers.length === 0) {
-    return res.json({
-      success: true,
-      driver: {
-        id: 'default-central',
+  if (!db.drivers || db.drivers.length === 0) {
+    db.drivers = [
+      {
+        id: 'drv-central-1',
         name: 'Central Gocho',
-        phone: '573227949751',
-        totalDeliveries: 0
+        phone: '+573227949751',
+        linkKey: 'GOCHO-8821',
+        vehicleType: 'Moto 🛵',
+        status: 'Disponible',
+        totalDeliveries: 0,
+        latitude: 7.8131,
+        longitude: -72.4439,
+        lastActive: new Date().toISOString()
       }
-    });
+    ];
+    writeDB(db);
   }
+  const drivers = db.drivers || [];
 
   // Prefer drivers with status 'Disponible', otherwise all registered drivers
   let available = drivers.filter(d => d.status === 'Disponible');
@@ -1336,20 +1358,27 @@ app.get('/api/drivers/next-available', (req, res) => {
 // POST register or update driver (admin view)
 app.post('/api/drivers/register', (req, res) => {
   const { name, phone, linkKey, vehicleType } = req.body;
-  if (!name || !phone) {
-    return res.status(400).json({ error: 'Nombre y teléfono son obligatorios' });
+  if (!phone) {
+    return res.status(400).json({ error: 'Teléfono es obligatorio' });
   }
 
   const db = readDB();
   if (!db.drivers) db.drivers = [];
 
-  const existingIndex = db.drivers.findIndex(d => d.phone === phone || d.linkKey === linkKey);
+  const cleanPhone = String(phone).replace(/\D/g, '');
+  const cleanKey = String(linkKey || '').trim().toUpperCase();
+
+  const existingIndex = db.drivers.findIndex(d => {
+    const dPhoneClean = String(d.phone || '').replace(/\D/g, '');
+    return (dPhoneClean && (dPhoneClean === cleanPhone || dPhoneClean.endsWith(cleanPhone) || cleanPhone.endsWith(dPhoneClean))) || (d.linkKey && d.linkKey.toUpperCase() === cleanKey);
+  });
+
   const driverData = {
     id: existingIndex !== -1 ? db.drivers[existingIndex].id : 'drv-' + Date.now(),
-    name,
-    phone,
-    linkKey: linkKey || 'GOCHO-' + Math.floor(1000 + Math.random() * 9000),
-    vehicleType: vehicleType || 'Moto 🛵',
+    name: name || (existingIndex !== -1 ? db.drivers[existingIndex].name : 'Repartidor ' + cleanPhone.slice(-4)),
+    phone: phone,
+    linkKey: cleanKey || (existingIndex !== -1 ? db.drivers[existingIndex].linkKey : 'GOCHO-' + Math.floor(1000 + Math.random() * 9000)),
+    vehicleType: vehicleType || (existingIndex !== -1 ? db.drivers[existingIndex].vehicleType : 'Moto 🛵'),
     status: 'Disponible', // 'Disponible', 'En Camino', 'Fuera de Servicio'
     totalDeliveries: existingIndex !== -1 ? db.drivers[existingIndex].totalDeliveries || 0 : 0,
     latitude: existingIndex !== -1 ? db.drivers[existingIndex].latitude : null,

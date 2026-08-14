@@ -30,6 +30,14 @@ class DriverController {
     }
   }
 
+  quickLoginDefaultDriver() {
+    const phoneInput = document.getElementById('driver-input-phone');
+    const keyInput = document.getElementById('driver-input-key');
+    if (phoneInput) phoneInput.value = '+573227949751';
+    if (keyInput) keyInput.value = 'GOCHO-8821';
+    this.loginDriver();
+  }
+
   async loginDriver() {
     const phone = document.getElementById('driver-input-phone').value.trim();
     const key = document.getElementById('driver-input-key').value.trim().toUpperCase();
