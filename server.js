@@ -422,34 +422,14 @@ async function saveToPostgres() {
 
     // 1. Bulk Upsert Establishments
     if (localData.establishments && localData.establishments.length > 0) {
-      const normalizedEsts = localData.establishments.map(est => ({
-        id: est.id,
-        name: est.name || '',
-        category: est.category || '',
-        description: est.description || null,
-        logo: est.logo || null,
-        bannerType: est.bannerType || null,
-        banner: est.banner || null,
-        linkKey: est.linkKey || null,
-        delivery_fee: est.delivery_fee !== undefined ? parseFloat(est.delivery_fee) : 0,
-        themeColor: est.themeColor || null,
-        logoImage: est.logoImage || null,
-        disabled: Boolean(est.disabled),
-        tables: est.tables || [],
-        layout: est.layout || [],
-        products: est.products || [],
-        prep_time: est.prep_time !== undefined ? est.prep_time : null,
-        delivery_time: est.delivery_time !== undefined ? est.delivery_time : null,
-        location: est.location || 'San Antonio',
-        latitude: est.latitude || null,
-        longitude: est.longitude || null,
-        location_lat: est.location_lat || null,
-        location_lng: est.location_lng || null,
-        open_time: est.open_time || '17:00',
-        close_time: est.close_time || '00:00',
-        isHighTraffic: Boolean(est.isHighTraffic),
-        extraPrepTime: est.extraPrepTime || 20
-      }));
+      const PG_COLS = ['id', 'name', 'category', 'description', 'logo', 'bannerType', 'banner', 'linkKey', 'delivery_fee', 'themeColor', 'logoImage', 'tables', 'layout', 'products', 'prep_time', 'delivery_time', 'location'];
+      const normalizedEsts = localData.establishments.map(est => {
+        const obj = {};
+        PG_COLS.forEach(col => {
+          if (est[col] !== undefined) obj[col] = est[col];
+        });
+        return obj;
+      });
 
       const estRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/establishments`, {
         method: 'POST',
@@ -557,39 +537,44 @@ function normalizeStoreName(name) {
 }
 
 const VERIFIED_STORE_GPS = {
-  'sabor-venezolano-arepas-1784413922154': { latitude: 7.8135, longitude: -72.4432 },
-  'boby-burgers-1784410785941': { latitude: 7.8142, longitude: -72.4445 },
-  'carritos-de-manuel-1784411690116': { latitude: 7.8128, longitude: -72.4451 },
-  'shawarma-dunes-1784412375653': { latitude: 7.8150, longitude: -72.4438 },
   'mak-pizza-1784350135697': { latitude: 7.8138, longitude: -72.4420 },
-  'm-ster-cachapa-1784291108772': { latitude: 7.8148, longitude: -72.4455 },
-  'gema-1784920874883': { latitude: 7.8122, longitude: -72.4435 },
+  'shawarma-dunes-1784412375653': { latitude: 7.8150, longitude: -72.4438 },
+  'la-casa-de-los-batidos-1786157702318': { latitude: 7.8140, longitude: -72.4430 },
+  'patacon-fire-1786157840794': { latitude: 7.8152, longitude: -72.4428 },
+  'latinos-burguer-1786162629597': { latitude: 7.8160, longitude: -72.4450 },
+  'm-ster-cachapa-1785973083758': { latitude: 7.8148, longitude: -72.4455 },
+  'tanos-resto-bar-1786032587502': { latitude: 7.8145, longitude: -72.4435 },
+  'sabor-venezolano-arepas-1784413922154': { latitude: 7.8135, longitude: -72.4432 },
+  'carritos-de-manuel-1784411690116': { latitude: 7.8128, longitude: -72.4451 },
+  'boby-burgers-1784410785941': { latitude: 7.8142, longitude: -72.4445 },
+  'gema-pop-1785968399832': { latitude: 7.8122, longitude: -72.4435 },
+  'frutyheladosgourmet-1786228530112': { latitude: 7.8130, longitude: -72.4425 },
+  'zeus-burger-1786252888630': { latitude: 7.8158, longitude: -72.4430 },
   'boki-arepas-1784927442087': { latitude: 7.8155, longitude: -72.4440 },
   'burger-grill-puente-sucre--1784935634396': { latitude: 7.8172, longitude: -72.4425 },
-  'frutyheladosgourmet-1785013456147': { latitude: 7.8130, longitude: -72.4425 },
-  'la-casa-de-los-batidos-1784613906898': { latitude: 7.8140, longitude: -72.4430 },
-  'latinos-burguer-1785037895471': { latitude: 7.8160, longitude: -72.4450 },
-  'muchos-burguer-1784912818841': { latitude: 7.8125, longitude: -72.4440 },
-  'patac-n-fire-1784739591782': { latitude: 7.8152, longitude: -72.4428 },
-  'thanos-resto-bar-1784933679966': { latitude: 7.8145, longitude: -72.4435 }
+  'muchos-burguer-1784912818841': { latitude: 7.8125, longitude: -72.4440 }
 };
 
 const VERIFIED_NAME_GPS = {
-  'saborvenezolanoarepas': { latitude: 7.8135, longitude: -72.4432 },
-  'bobyburgers': { latitude: 7.8142, longitude: -72.4445 },
-  'carritosdemanuel': { latitude: 7.8128, longitude: -72.4451 },
-  'shawarmadunes': { latitude: 7.8150, longitude: -72.4438 },
   'makpizza': { latitude: 7.8138, longitude: -72.4420 },
+  'shawarmadunes': { latitude: 7.8150, longitude: -72.4438 },
+  'lacasadelosbatidos': { latitude: 7.8140, longitude: -72.4430 },
+  'pataconfire': { latitude: 7.8152, longitude: -72.4428 },
+  'latinosburguer': { latitude: 7.8160, longitude: -72.4450 },
   'mistercachapa': { latitude: 7.8148, longitude: -72.4455 },
+  'tanosrestobar': { latitude: 7.8145, longitude: -72.4435 },
+  'thanosrestobar': { latitude: 7.8145, longitude: -72.4435 },
+  'saborvenezolanoarepas': { latitude: 7.8135, longitude: -72.4432 },
+  'karritosdemanuel': { latitude: 7.8128, longitude: -72.4451 },
+  'carritosdemanuel': { latitude: 7.8128, longitude: -72.4451 },
+  'bobyburgers': { latitude: 7.8142, longitude: -72.4445 },
   'gemapop': { latitude: 7.8122, longitude: -72.4435 },
+  'frutyheladosgourmet': { latitude: 7.8130, longitude: -72.4425 },
+  'zeusburger': { latitude: 7.8158, longitude: -72.4430 },
   'bokiarepas': { latitude: 7.8155, longitude: -72.4440 },
   'burgergrillpuentesucre': { latitude: 7.8172, longitude: -72.4425 },
-  'frutyheladosgourmet': { latitude: 7.8130, longitude: -72.4425 },
-  'lacasadelosbatidos': { latitude: 7.8140, longitude: -72.4430 },
-  'latinosburguer': { latitude: 7.8160, longitude: -72.4450 },
   'muchosburguer': { latitude: 7.8125, longitude: -72.4440 },
-  'pataconfire': { latitude: 7.8152, longitude: -72.4428 },
-  'tanosrestobar': { latitude: 7.8145, longitude: -72.4435 }
+  'luchosburger': { latitude: 7.8125, longitude: -72.4440 }
 };
 
 function deduplicateEstablishments(establishments) {
