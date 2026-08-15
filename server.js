@@ -567,6 +567,7 @@ const VERIFIED_STORE_GPS = {
   'frutyheladosgourmet-1785013456147': { latitude: 7.8130, longitude: -72.4425 },
   'la-casa-de-los-batidos-1784613906898': { latitude: 7.8140, longitude: -72.4430 },
   'latinos-burguer-1785037895471': { latitude: 7.8160, longitude: -72.4450 },
+  'luchos-burguer-1784912818841': { latitude: 7.8125, longitude: -72.4440 },
   'muchos-burguer-1784912818841': { latitude: 7.8125, longitude: -72.4440 },
   'patac-n-fire-1784739591782': { latitude: 7.8152, longitude: -72.4428 },
   'thanos-resto-bar-1784933679966': { latitude: 7.8145, longitude: -72.4435 }
@@ -585,6 +586,8 @@ const VERIFIED_NAME_GPS = {
   'frutyheladosgourmet': { latitude: 7.8130, longitude: -72.4425 },
   'lacasadelosbatidos': { latitude: 7.8140, longitude: -72.4430 },
   'latinosburguer': { latitude: 7.8160, longitude: -72.4450 },
+  'luchosburguer': { latitude: 7.8125, longitude: -72.4440 },
+  'luchosburger': { latitude: 7.8125, longitude: -72.4440 },
   'muchosburguer': { latitude: 7.8125, longitude: -72.4440 },
   'pataconfire': { latitude: 7.8152, longitude: -72.4428 },
   'tanosrestobar': { latitude: 7.8145, longitude: -72.4435 }
