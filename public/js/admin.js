@@ -246,22 +246,16 @@ class AdminController {
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    // Deduplicate establishments by ID and normalized name before rendering
+    // Deduplicate establishments strictly by ID before rendering
     const seenRenderIds = new Set();
-    const seenNormNames = new Set();
     const uniqueEsts = (this.establishments || []).filter(e => {
-      if (!e || !e.id || !e.name) return false;
+      if (!e || !e.id) return false;
       const sid = String(e.id).trim();
-      const nName = normalizeStoreName(e.name);
-      if (seenRenderIds.has(sid) || seenNormNames.has(nName)) return false;
+      if (seenRenderIds.has(sid)) return false;
       seenRenderIds.add(sid);
-      seenNormNames.add(nName);
       return true;
     });
-    if (uniqueEsts.length !== (this.establishments || []).length) {
-      console.warn(`⚠️ renderTable: Deduplicated ${(this.establishments || []).length - uniqueEsts.length} duplicate establishment(s) from display.`);
-      this.establishments = uniqueEsts;
-    }
+    this.establishments = uniqueEsts;
 
     if (this.establishments.length === 0) {
       tbody.innerHTML = `
@@ -2856,18 +2850,15 @@ class AdminController {
       targetEsts = targetEsts.filter(e => (e.location || 'San Antonio').toLowerCase().includes(filterLoc.toLowerCase()));
     }
 
-    // Filter targetEsts strictly by unique ID and normalized name to ensure every store gets its own exact marker
+    // Filter targetEsts strictly by unique ID to ensure every store gets its own exact marker
     const seenEstIds = new Set();
-    const seenNormNames = new Set();
     const uniqueTargetEsts = [];
 
     (targetEsts || []).forEach(est => {
-      if (!est || !est.id || !est.name) return;
+      if (!est || !est.id) return;
       const sId = String(est.id).trim();
-      const nName = normalizeStoreName(est.name);
-      if (!seenEstIds.has(sId) && !seenNormNames.has(nName)) {
+      if (!seenEstIds.has(sId)) {
         seenEstIds.add(sId);
-        seenNormNames.add(nName);
         uniqueTargetEsts.push(est);
       }
     });

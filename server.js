@@ -311,15 +311,26 @@ async function syncFromPostgres() {
       const establishments = await estRes.json();
       const orders = await ordRes.json();
 
-      if (establishments && Array.isArray(establishments) && establishments.length > 0) {
+      if (establishments && Array.isArray(establishments)) {
         const localData = readDB();
         const localEsts = (localData && Array.isArray(localData.establishments)) ? localData.establishments : [];
 
+        // MERGE: Keep any local establishments that are not yet in Postgres
+        const pgEstIds = new Set(establishments.map(e => String(e.id).trim()));
+        localEsts.forEach(localEst => {
+          if (localEst && localEst.id && !pgEstIds.has(String(localEst.id).trim())) {
+            establishments.push(localEst);
+          }
+        });
+
         const disabledMap = readDisabledStores();
         const storeGpsMap = readStoreGps();
-        // Preserve local disabled state and exact GPS coordinates
+        // Preserve local disabled state, linkKeys and exact GPS coordinates
         establishments.forEach(est => {
-          const localMatch = localEsts.find(l => l.id === est.id);
+          const localMatch = localEsts.find(l => String(l.id).trim() === String(est.id).trim());
+          if (localMatch && localMatch.linkKey && !est.linkKey) {
+            est.linkKey = localMatch.linkKey;
+          }
           // Bulletproof Disabled State Preservation: Never un-disable a locally disabled store
           const isLocallyDisabled = disabledMap[est.id] === true || (localMatch && localMatch.disabled === true);
           if (isLocallyDisabled) {
@@ -362,7 +373,7 @@ async function syncFromPostgres() {
             }
           }
         });
-        establishments = deduplicateEstablishments(establishments);
+        const dedupedEsts = deduplicateEstablishments(establishments);
         writeDisabledStores(disabledMap);
         writeStoreGps(storeGpsMap);
 
@@ -373,22 +384,13 @@ async function syncFromPostgres() {
         const existingPromos = (localData && Array.isArray(localData.promotions)) ? localData.promotions : [];
 
         const dbState = {
-          establishments: establishments,
+          establishments: dedupedEsts,
           orders: orders || [],
           drivers: existingDrivers,
           reviews: existingReviews,
           promotions: existingPromos,
           lastUpdated: new Date().toISOString()
         };
-        // Deduplicate establishments before writing to disk
-        const seenPgIds = new Set();
-        dbState.establishments = establishments.filter(e => {
-          if (!e || !e.id) return false;
-          const sid = String(e.id).trim();
-          if (seenPgIds.has(sid)) return false;
-          seenPgIds.add(sid);
-          return true;
-        });
         fs.writeFileSync(DB_FILE, JSON.stringify(dbState, null, 2), 'utf8');
         writeDrivers(existingDrivers);
         console.log('🎉 Database synced successfully from Supabase PostgreSQL tables!');
@@ -567,7 +569,6 @@ const VERIFIED_STORE_GPS = {
   'frutyheladosgourmet-1785013456147': { latitude: 7.8130, longitude: -72.4425 },
   'la-casa-de-los-batidos-1784613906898': { latitude: 7.8140, longitude: -72.4430 },
   'latinos-burguer-1785037895471': { latitude: 7.8160, longitude: -72.4450 },
-  'luchos-burguer-1784912818841': { latitude: 7.8125, longitude: -72.4440 },
   'muchos-burguer-1784912818841': { latitude: 7.8125, longitude: -72.4440 },
   'patac-n-fire-1784739591782': { latitude: 7.8152, longitude: -72.4428 },
   'thanos-resto-bar-1784933679966': { latitude: 7.8145, longitude: -72.4435 }
@@ -586,8 +587,6 @@ const VERIFIED_NAME_GPS = {
   'frutyheladosgourmet': { latitude: 7.8130, longitude: -72.4425 },
   'lacasadelosbatidos': { latitude: 7.8140, longitude: -72.4430 },
   'latinosburguer': { latitude: 7.8160, longitude: -72.4450 },
-  'luchosburguer': { latitude: 7.8125, longitude: -72.4440 },
-  'luchosburger': { latitude: 7.8125, longitude: -72.4440 },
   'muchosburguer': { latitude: 7.8125, longitude: -72.4440 },
   'pataconfire': { latitude: 7.8152, longitude: -72.4428 },
   'tanosrestobar': { latitude: 7.8145, longitude: -72.4435 }
@@ -595,8 +594,7 @@ const VERIFIED_NAME_GPS = {
 
 function deduplicateEstablishments(establishments) {
   if (!Array.isArray(establishments)) return [];
-  const seenNormNames = new Map();
-  const seenIds = new Map();
+  const seenIds = new Set();
   const unique = [];
 
   const storeGpsMap = readStoreGps();
@@ -606,7 +604,6 @@ function deduplicateEstablishments(establishments) {
   establishments.forEach(est => {
     if (!est || !est.id || !est.name) return;
     const estIdStr = String(est.id).trim();
-    const normName = normalizeStoreName(est.name);
 
     if (disabledMap[est.id] !== undefined) {
       est.disabled = Boolean(disabledMap[est.id]);
@@ -626,39 +623,29 @@ function deduplicateEstablishments(establishments) {
       } else if (VERIFIED_STORE_GPS[est.id]) {
         est.latitude = VERIFIED_STORE_GPS[est.id].latitude;
         est.longitude = VERIFIED_STORE_GPS[est.id].longitude;
-      } else if (VERIFIED_NAME_GPS[normName]) {
-        est.latitude = VERIFIED_NAME_GPS[normName].latitude;
-        est.longitude = VERIFIED_NAME_GPS[normName].longitude;
       }
       est.location_lat = est.latitude;
       est.location_lng = est.longitude;
     }
 
-    if (!est.open_time || est.open_time === '11:00') est.open_time = '17:00';
-    if (!est.close_time || est.close_time === '23:00') est.close_time = '00:00';
+    if (!est.open_time) est.open_time = '17:00';
+    if (!est.close_time) est.close_time = '00:00';
     if (!est.location) est.location = 'San Antonio';
 
-    const hasNorm = seenNormNames.has(normName);
-    const hasId = seenIds.has(estIdStr);
-
-    if (!hasNorm && !hasId) {
-      const idx = unique.length;
-      seenNormNames.set(normName, idx);
-      seenIds.set(estIdStr, idx);
+    if (!seenIds.has(estIdStr)) {
+      seenIds.add(estIdStr);
       unique.push(est);
     } else {
-      const existingIdx = hasNorm ? seenNormNames.get(normName) : seenIds.get(estIdStr);
-      const existing = unique[existingIdx];
-      const existingProdCount = Array.isArray(existing.products) ? existing.products.length : 0;
-      const newProdCount = Array.isArray(est.products) ? est.products.length : 0;
-
-      if (newProdCount >= existingProdCount) {
-        est.linkKey = est.linkKey || existing.linkKey;
-        est.latitude = est.latitude || existing.latitude;
-        est.longitude = est.longitude || existing.longitude;
-        est.location_lat = est.latitude;
-        est.location_lng = est.longitude;
-        unique[existingIdx] = est;
+      // If exact duplicate ID exists, keep the one with most recent or most products
+      const existingIdx = unique.findIndex(u => String(u.id).trim() === estIdStr);
+      if (existingIdx !== -1) {
+        const existing = unique[existingIdx];
+        const existingProdCount = Array.isArray(existing.products) ? existing.products.length : 0;
+        const newProdCount = Array.isArray(est.products) ? est.products.length : 0;
+        if (newProdCount >= existingProdCount) {
+          est.linkKey = est.linkKey || existing.linkKey;
+          unique[existingIdx] = est;
+        }
       }
     }
   });
@@ -704,6 +691,21 @@ function readDB() {
     logAppError('readDB', err);
     return { establishments: [], orders: [], reviews: [], drivers: readDrivers() };
   }
+}
+
+let cloudSaveTimeout = null;
+function triggerAutoCloudSave() {
+  if (cloudSaveTimeout) clearTimeout(cloudSaveTimeout);
+  cloudSaveTimeout = setTimeout(async () => {
+    try {
+      console.log('☁️ Auto-syncing database changes to Supabase cloud...');
+      await uploadToSupabase();
+      await saveToPostgres();
+      console.log('🎉 Cloud auto-sync finished successfully!');
+    } catch(e) {
+      console.warn('Auto cloud sync notice:', e);
+    }
+  }, 2500);
 }
 
 function writeDB(data) {
@@ -762,8 +764,8 @@ function writeDB(data) {
       }
     }
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
-    // NOTE: Cloud backup (uploadToSupabase + saveToPostgres) is now MANUAL ONLY
-    // Triggered via POST /api/cloud/save endpoint, not automatically on every write
+    // Automatic debounced cloud backup to prevent data loss on Render restarts
+    triggerAutoCloudSave();
   } catch (err) {
     console.error('Error writing DB:', err);
     logAppError('writeDB', err);

@@ -7842,14 +7842,14 @@
       "location_lng": -72.445
     },
     {
-      "id": "luchos-burguer-1784912818841",
-      "name": "Luchos Burguer",
+      "id": "muchos-burguer-1784912818841",
+      "name": "Muchos Burguer",
       "category": "comidas",
       "description": "Hamburguesas rápidas, combos de papas fritas y bebidas.",
       "logo": "🍔",
       "bannerType": "gradient",
       "banner": "linear-gradient(135deg, #D32F2F, #7B1FA2)",
-      "linkKey": "LUCHOS",
+      "linkKey": "MUCHOS",
       "delivery_fee": 5000,
       "themeColor": "#D32F2F",
       "logoImage": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
@@ -7857,8 +7857,8 @@
       "layout": [],
       "products": [
         {
-          "id": "p-luch-1",
-          "name": "Luchos Burger Clásica",
+          "id": "p-much-1",
+          "name": "Muchos Burger Clásica",
           "price": 6,
           "category": "🍔 Hamburguesas",
           "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
@@ -7869,8 +7869,8 @@
           ]
         },
         {
-          "id": "p-luch-2",
-          "name": "Luchos Burger Bacon & Cheese",
+          "id": "p-much-2",
+          "name": "Muchos Burger Bacon & Cheese",
           "price": 7.5,
           "category": "🍔 Hamburguesas",
           "image": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=500",
@@ -7880,8 +7880,8 @@
           ]
         },
         {
-          "id": "p-luch-3",
-          "name": "Luchos Triple Smash Burger",
+          "id": "p-much-3",
+          "name": "Muchos Triple Smash Burger",
           "price": 9.5,
           "category": "🍔 Hamburguesas",
           "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
