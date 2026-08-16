@@ -189,7 +189,7 @@
   </div>
 
   <!-- Floating sound test button -->
-  <button class="sound-test-btn" onclick="if(window.Sound){ if(Sound.isPlayingAlarm){Sound.stopAlarm();}else{Sound.startPersistentOrderAlarm(10);} }" title="Probar Alarma Escandalosa">
+  <button class="sound-test-btn" onclick="KitchenApp.toggleSoundTest(event)" title="Probar Alarma Escandalosa">
     🚨
   </button>
 
@@ -683,9 +683,9 @@
     </div>
   </div>
 
-  <script src="/js/sound.js?v=174"></script>
+  <script src="/js/sound.js?v=175"></script>
   <script src="/js/menu-builder.js?v=83"></script>
-  <script src="/js/kitchen.js?v=174"></script>
+  <script src="/js/kitchen.js?v=175"></script>
   <script>
     if (typeof KitchenApp !== 'undefined') {
       if (!KitchenApp.showToast && typeof KitchenApp.showLocalToast === 'function') {

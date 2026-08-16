@@ -6,32 +6,36 @@ class SoundManager {
     this.isPlayingAlarm = false;
     this.alarmInterval = null;
     this.alarmTimeout = null;
+    this.lastStartedAt = 0;
     this.activeOscillators = [];
     this.onAlarmStartListeners = [];
     this.onAlarmStopListeners = [];
   }
 
   init() {
-    if (!this.ctx) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (AudioCtx) {
-        this.ctx = new AudioCtx();
-        // Create dynamic compressor to maximize loudness without clipping distortion
-        try {
-          this.compressor = this.ctx.createDynamicsCompressor();
-          this.compressor.threshold.setValueAtTime(-12, this.ctx.currentTime);
-          this.compressor.knee.setValueAtTime(30, this.ctx.currentTime);
-          this.compressor.ratio.setValueAtTime(12, this.ctx.currentTime);
-          this.compressor.attack.setValueAtTime(0.003, this.ctx.currentTime);
-          this.compressor.release.setValueAtTime(0.25, this.ctx.currentTime);
-          this.compressor.connect(this.ctx.destination);
-        } catch(e) {
-          this.compressor = null;
+    try {
+      if (!this.ctx || this.ctx.state === 'closed') {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          this.ctx = new AudioCtx();
+          try {
+            this.compressor = this.ctx.createDynamicsCompressor();
+            this.compressor.threshold.setValueAtTime(-12, this.ctx.currentTime);
+            this.compressor.knee.setValueAtTime(30, this.ctx.currentTime);
+            this.compressor.ratio.setValueAtTime(12, this.ctx.currentTime);
+            this.compressor.attack.setValueAtTime(0.003, this.ctx.currentTime);
+            this.compressor.release.setValueAtTime(0.25, this.ctx.currentTime);
+            this.compressor.connect(this.ctx.destination);
+          } catch(e) {
+            this.compressor = null;
+          }
         }
       }
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume().catch(() => {});
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+    } catch(e) {
+      console.warn('AudioContext init notice:', e);
     }
   }
 
@@ -48,7 +52,6 @@ class SoundManager {
   }
 
   // Synthesizes an ultra-loud, piercing, scandalous kitchen alert burst
-  // Combines square wave alarm harmonics + sawtooth sweep + chime strike
   playLoudAlarmBurst() {
     try {
       this.init();
@@ -78,11 +81,10 @@ class SoundManager {
         const gainSquare = this.ctx.createGain();
         oscSquare.type = 'square';
         oscSquare.frequency.setValueAtTime(p.freq, pulseStart);
-        // Slight pitch slide upwards for urgency
         oscSquare.frequency.exponentialRampToValueAtTime(p.freq * 1.15, pulseEnd);
 
         gainSquare.gain.setValueAtTime(0.001, pulseStart);
-        gainSquare.gain.linearRampToValueAtTime(0.55, pulseStart + 0.02);
+        gainSquare.gain.linearRampToValueAtTime(0.60, pulseStart + 0.02);
         gainSquare.gain.exponentialRampToValueAtTime(0.001, pulseEnd);
 
         oscSquare.connect(gainSquare);
@@ -99,7 +101,7 @@ class SoundManager {
         oscSaw.frequency.setValueAtTime(p.highFreq, pulseStart);
 
         gainSaw.gain.setValueAtTime(0.001, pulseStart);
-        gainSaw.gain.linearRampToValueAtTime(0.35, pulseStart + 0.02);
+        gainSaw.gain.linearRampToValueAtTime(0.40, pulseStart + 0.02);
         gainSaw.gain.exponentialRampToValueAtTime(0.001, pulseEnd);
 
         oscSaw.connect(gainSaw);
@@ -132,11 +134,16 @@ class SoundManager {
   startPersistentOrderAlarm(durationSeconds = 20) {
     try {
       this.init();
-      // If already playing, refresh timeout
-      if (this.isPlayingAlarm) {
-        if (this.alarmTimeout) clearTimeout(this.alarmTimeout);
-        this.alarmTimeout = setTimeout(() => this.stopAlarm(), durationSeconds * 1000);
-        return;
+      this.lastStartedAt = Date.now();
+
+      // Clear any prior interval/timeout cleanly
+      if (this.alarmInterval) {
+        clearInterval(this.alarmInterval);
+        this.alarmInterval = null;
+      }
+      if (this.alarmTimeout) {
+        clearTimeout(this.alarmTimeout);
+        this.alarmTimeout = null;
       }
 
       this.isPlayingAlarm = true;
@@ -144,18 +151,17 @@ class SoundManager {
       // Play first burst immediately
       this.playLoudAlarmBurst();
 
-      // Repeat burst every 1.15 seconds for continuous scandalous siren
-      if (this.alarmInterval) clearInterval(this.alarmInterval);
+      // Repeat burst every 1.15 seconds
       this.alarmInterval = setInterval(() => {
         if (this.isPlayingAlarm) {
           this.playLoudAlarmBurst();
         } else {
           clearInterval(this.alarmInterval);
+          this.alarmInterval = null;
         }
       }, 1150);
 
-      // Stop automatically after durationSeconds (default 20 seconds)
-      if (this.alarmTimeout) clearTimeout(this.alarmTimeout);
+      // Stop automatically after durationSeconds
       this.alarmTimeout = setTimeout(() => {
         this.stopAlarm();
       }, durationSeconds * 1000);
@@ -169,9 +175,17 @@ class SoundManager {
     }
   }
 
+  // Toggle alarm state cleanly for testing / manual controls
+  toggleAlarm(durationSeconds = 10) {
+    if (this.isPlayingAlarm) {
+      this.stopAlarm();
+    } else {
+      this.startPersistentOrderAlarm(durationSeconds);
+    }
+  }
+
   // Immediately silences the alarm
   stopAlarm() {
-    if (!this.isPlayingAlarm && !this.alarmInterval && !this.alarmTimeout) return;
     this.isPlayingAlarm = false;
 
     if (this.alarmInterval) {
@@ -183,9 +197,12 @@ class SoundManager {
       this.alarmTimeout = null;
     }
 
-    // Stop active oscillators
+    // Stop active oscillators safely
     this.activeOscillators.forEach(osc => {
-      try { osc.stop(); } catch(e) {}
+      try {
+        osc.stop();
+        osc.disconnect();
+      } catch(e) {}
     });
     this.activeOscillators = [];
 
@@ -212,7 +229,6 @@ class SoundManager {
       const dest = this.getDestination() || this.ctx.destination;
       const now = this.ctx.currentTime;
       
-      // Tone 1: High crisp ding
       const osc1 = this.ctx.createOscillator();
       const gain1 = this.ctx.createGain();
       osc1.type = 'sine';
@@ -222,7 +238,6 @@ class SoundManager {
       osc1.connect(gain1);
       gain1.connect(dest);
       
-      // Tone 2: Warm harmonic overtone
       const osc2 = this.ctx.createOscillator();
       const gain2 = this.ctx.createGain();
       osc2.type = 'sine';
@@ -248,5 +263,4 @@ class SoundManager {
 }
 
 const Sound = new SoundManager();
-// Export to window object if not running in module context
 window.Sound = Sound;

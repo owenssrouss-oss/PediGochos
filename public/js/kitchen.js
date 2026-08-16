@@ -18,26 +18,34 @@ class KitchenController {
 
     // Set up auto-stop listeners and audio unlock for persistent alarm
     if (typeof Sound !== 'undefined') {
-      const stopAlarmAndUnlock = () => {
+      const stopAlarmAndUnlock = (e) => {
         try {
           Sound.init();
+          // Do not silence if user clicked on the test button itself or banner silence button
+          if (e && e.target && (e.target.closest('.sound-test-btn') || e.target.closest('.alarm-btn-silence'))) {
+            return;
+          }
+          // Debounce: do not silence if alarm was triggered in the last 750ms
+          if (Date.now() - Sound.lastStartedAt < 750) {
+            return;
+          }
           if (Sound.isPlayingAlarm) {
             Sound.stopAlarm();
             this.hideAlarmBanner();
           }
-        } catch(e) {}
+        } catch(err) {}
       };
 
       // Stop alarm automatically when opening/focusing the app or tab
       window.addEventListener('focus', () => {
-        if (Sound.isPlayingAlarm) {
+        if (Sound.isPlayingAlarm && Date.now() - Sound.lastStartedAt > 750) {
           Sound.stopAlarm();
           this.hideAlarmBanner();
         }
       });
 
       document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && Sound.isPlayingAlarm) {
+        if (document.visibilityState === 'visible' && Sound.isPlayingAlarm && Date.now() - Sound.lastStartedAt > 750) {
           Sound.stopAlarm();
           this.hideAlarmBanner();
         }
@@ -54,6 +62,23 @@ class KitchenController {
 
     // Start 4-second REST polling fallback to guarantee live order updates & sound notifications
     this.startPollingFallback();
+  }
+
+  toggleSoundTest(e) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    if (typeof Sound !== 'undefined') {
+      Sound.init();
+      if (Sound.isPlayingAlarm) {
+        Sound.stopAlarm();
+        this.hideAlarmBanner();
+      } else {
+        Sound.startPersistentOrderAlarm(10);
+        this.showAlarmBanner('PRUEBA');
+      }
+    }
   }
 
   showAlarmBanner(orderCode) {
