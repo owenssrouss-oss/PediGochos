@@ -114,35 +114,15 @@ async function syncAndCleanAll() {
   // 4. Update Postgres: Clear old stubs & upsert clean establishments
   const validIds = finalEsts.map(e => e.id);
 
-  // Upsert all valid establishments to Postgres
-  const normalizedEsts = finalEsts.map(est => ({
-    id: est.id,
-    name: est.name || '',
-    category: est.category || '',
-    description: est.description || null,
-    logo: est.logo || null,
-    bannerType: est.bannerType || null,
-    banner: est.banner || null,
-    linkKey: est.linkKey || null,
-    delivery_fee: est.delivery_fee !== undefined ? parseFloat(est.delivery_fee) : 0,
-    themeColor: est.themeColor || null,
-    logoImage: est.logoImage || null,
-    disabled: Boolean(est.disabled),
-    tables: est.tables || [],
-    layout: est.layout || [],
-    products: est.products || [],
-    prep_time: est.prep_time !== undefined ? est.prep_time : null,
-    delivery_time: est.delivery_time !== undefined ? est.delivery_time : null,
-    location: est.location || 'San Antonio',
-    latitude: est.latitude || null,
-    longitude: est.longitude || null,
-    location_lat: est.location_lat || null,
-    location_lng: est.location_lng || null,
-    open_time: est.open_time || '17:00',
-    close_time: est.close_time || '00:00',
-    isHighTraffic: Boolean(est.isHighTraffic),
-    extraPrepTime: est.extraPrepTime || 20
-  }));
+  // Upsert all valid establishments to Postgres with only supported columns
+  const PG_COLS = ['id', 'name', 'category', 'description', 'logo', 'bannerType', 'banner', 'linkKey', 'delivery_fee', 'themeColor', 'logoImage', 'tables', 'layout', 'products', 'prep_time', 'delivery_time', 'location'];
+  const normalizedEsts = finalEsts.map(est => {
+    const obj = {};
+    PG_COLS.forEach(col => {
+      if (est[col] !== undefined) obj[col] = est[col];
+    });
+    return obj;
+  });
 
   const pgUpsertRes = await fetch(supabaseUrl + '/rest/v1/establishments', {
     method: 'POST',

@@ -325,17 +325,27 @@ async function syncFromPostgres() {
 
         const disabledMap = readDisabledStores();
         const storeGpsMap = readStoreGps();
-        // Preserve local disabled state, linkKeys and exact GPS coordinates
         establishments.forEach(est => {
           const localMatch = localEsts.find(l => String(l.id).trim() === String(est.id).trim());
-          if (localMatch && localMatch.linkKey && !est.linkKey) {
-            est.linkKey = localMatch.linkKey;
+          if (localMatch) {
+            if (localMatch.linkKey && !est.linkKey) est.linkKey = localMatch.linkKey;
+            if (localMatch.open_time && !est.open_time) est.open_time = localMatch.open_time;
+            if (localMatch.close_time && !est.close_time) est.close_time = localMatch.close_time;
+            if (localMatch.tables && (!est.tables || est.tables.length === 0)) est.tables = localMatch.tables;
+            if (localMatch.layout && (!est.layout || est.layout.length === 0)) est.layout = localMatch.layout;
+            if (localMatch.isHighTraffic !== undefined && est.isHighTraffic === undefined) est.isHighTraffic = localMatch.isHighTraffic;
+            if (localMatch.extraPrepTime !== undefined && est.extraPrepTime === undefined) est.extraPrepTime = localMatch.extraPrepTime;
+            if (localMatch.working_days && (!est.working_days || est.working_days.length === 0)) est.working_days = localMatch.working_days;
           }
-          // Bulletproof Disabled State Preservation: Never un-disable a locally disabled store
-          const isLocallyDisabled = disabledMap[est.id] === true || (localMatch && localMatch.disabled === true);
+
+          // Bulletproof Disabled State Preservation: Never un-disable a disabled store
+          const isLocallyDisabled = disabledMap[est.id] === true || (localMatch && localMatch.disabled === true) || est.disabled === true;
           if (isLocallyDisabled) {
             est.disabled = true;
             disabledMap[est.id] = true;
+          } else if (disabledMap[est.id] === false || (localMatch && localMatch.disabled === false)) {
+            est.disabled = false;
+            disabledMap[est.id] = false;
           } else if (est.disabled !== undefined) {
             est.disabled = Boolean(est.disabled);
             disabledMap[est.id] = est.disabled;
@@ -350,10 +360,17 @@ async function syncFromPostgres() {
             est.location_lng = null;
             delete storeGpsMap[est.id];
           } else {
-            // Bulletproof GPS Preservation: Never overwrite valid GPS with null or 0
+            // Bulletproof GPS Preservation: Keep valid GPS coordinates
+            const hasEstGps = est.latitude && est.longitude;
             const hasGpsMap = storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude;
             const hasLocalMatchGps = localMatch && localMatch.latitude && localMatch.longitude;
-            if (hasGpsMap) {
+            if (hasEstGps) {
+              est.latitude = parseFloat(est.latitude);
+              est.longitude = parseFloat(est.longitude);
+              est.location_lat = est.latitude;
+              est.location_lng = est.longitude;
+              storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
+            } else if (hasGpsMap) {
               est.latitude = parseFloat(storeGpsMap[est.id].latitude);
               est.longitude = parseFloat(storeGpsMap[est.id].longitude);
               est.location_lat = est.latitude;
@@ -361,12 +378,6 @@ async function syncFromPostgres() {
             } else if (hasLocalMatchGps) {
               est.latitude = parseFloat(localMatch.latitude);
               est.longitude = parseFloat(localMatch.longitude);
-              est.location_lat = est.latitude;
-              est.location_lng = est.longitude;
-              storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
-            } else if (est.latitude && est.longitude) {
-              est.latitude = parseFloat(est.latitude);
-              est.longitude = parseFloat(est.longitude);
               est.location_lat = est.latitude;
               est.location_lng = est.longitude;
               storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
@@ -594,6 +605,7 @@ function deduplicateEstablishments(establishments) {
       est.disabled = Boolean(disabledMap[est.id]);
     } else {
       est.disabled = Boolean(est.disabled);
+      disabledMap[est.id] = est.disabled;
     }
 
     if (gpsDeletedMap[est.id]) {
@@ -602,7 +614,10 @@ function deduplicateEstablishments(establishments) {
       est.location_lat = null;
       est.location_lng = null;
     } else {
-      if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
+      if (est.latitude && est.longitude) {
+        est.latitude = parseFloat(est.latitude);
+        est.longitude = parseFloat(est.longitude);
+      } else if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
         est.latitude = parseFloat(storeGpsMap[est.id].latitude);
         est.longitude = parseFloat(storeGpsMap[est.id].longitude);
       } else if (VERIFIED_STORE_GPS[est.id]) {
@@ -611,6 +626,9 @@ function deduplicateEstablishments(establishments) {
       }
       est.location_lat = est.latitude;
       est.location_lng = est.longitude;
+      if (est.latitude && est.longitude) {
+        storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
+      }
     }
 
     if (!est.open_time) est.open_time = '17:00';

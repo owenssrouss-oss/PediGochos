@@ -34,6 +34,49 @@ class AdminController {
     this.populateLogoSelect('comidas');
     this.generateRandomLinkKey();
 
+    // Set up auto-stop listeners and audio unlock for persistent alarm in admin
+    if (typeof Sound !== 'undefined') {
+      const stopAlarmAndUnlock = (e) => {
+        try {
+          Sound.init();
+          if (e && e.target && (e.target.closest('.sound-test-btn') || e.target.closest('.alarm-btn-silence'))) {
+            return;
+          }
+          if (Date.now() - Sound.lastStartedAt < 750) {
+            return;
+          }
+          if (Sound.isPlayingAlarm) {
+            Sound.stopAlarm();
+            this.hideAlarmBanner();
+          }
+        } catch(err) {}
+      };
+
+      window.addEventListener('focus', () => {
+        if (Sound.isPlayingAlarm && Date.now() - Sound.lastStartedAt > 750) {
+          Sound.stopAlarm();
+          this.hideAlarmBanner();
+        }
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && Sound.isPlayingAlarm && Date.now() - Sound.lastStartedAt > 750) {
+          Sound.stopAlarm();
+          this.hideAlarmBanner();
+        }
+      });
+
+      document.addEventListener('click', stopAlarmAndUnlock, { passive: true });
+      document.addEventListener('touchstart', stopAlarmAndUnlock, { passive: true });
+      document.addEventListener('keydown', stopAlarmAndUnlock, { passive: true });
+
+      Sound.onAlarmStart(() => this.showAlarmBanner());
+      Sound.onAlarmStop(() => this.hideAlarmBanner());
+    }
+
+    // Start 4-second REST polling fallback for live order detection across all stores
+    this.startOrdersPolling();
+
     // Check if Google OAuth session is active
     await this.checkSupabaseSession();
 
@@ -206,6 +249,68 @@ class AdminController {
     } catch (err) {
       console.error(err);
       alert('Error de conexión al servidor.');
+    }
+  }
+
+  startOrdersPolling() {
+    if (this.ordersPollTimer) clearInterval(this.ordersPollTimer);
+    this.ordersPollTimer = setInterval(() => {
+      if (this.isAuthenticated) this.pollOrdersFallback();
+    }, 4000);
+  }
+
+  async pollOrdersFallback() {
+    try {
+      const res = await fetch('/api/orders');
+      if (!res.ok) return;
+      const allOrders = await res.json();
+      if (!Array.isArray(allOrders)) return;
+
+      const brandNew = allOrders.filter(ao => !this.orders.some(o => o.id === ao.id));
+      if (brandNew.length > 0) {
+        console.log('🚨 [Admin Polling] Nuevos pedidos detectados en tiempo real:', brandNew);
+        this.orders = allOrders;
+        this.renderTable();
+        this.playOrderNotification(brandNew[0]);
+      }
+    } catch(e) {
+      console.warn('Admin orders polling error:', e);
+    }
+  }
+
+  showAlarmBanner(orderCode) {
+    let banner = document.getElementById('admin-alarm-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'admin-alarm-banner';
+      banner.className = 'kitchen-alarm-banner';
+      banner.innerHTML = `
+        <div class="alarm-banner-inner" onclick="if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner();">
+          <div class="alarm-banner-left">
+            <span class="alarm-siren-icon">🚨</span>
+            <div class="alarm-banner-text">
+              <div class="alarm-title">¡NUEVO PEDIDO ENTRANTE EN LA PLATAFORMA! <span class="alarm-order-code"></span></div>
+              <div class="alarm-subtitle">Toca la pantalla o abre la app para apagar la alarma sonora</div>
+            </div>
+          </div>
+          <button class="alarm-btn-silence" onclick="event.stopPropagation(); if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner();">
+            🔕 Silenciar Alarma
+          </button>
+        </div>
+      `;
+      document.body.appendChild(banner);
+    }
+    if (orderCode) {
+      const codeEl = banner.querySelector('.alarm-order-code');
+      if (codeEl) codeEl.textContent = `#${orderCode}`;
+    }
+    banner.classList.remove('hidden');
+  }
+
+  hideAlarmBanner() {
+    const banner = document.getElementById('admin-alarm-banner');
+    if (banner) {
+      banner.classList.add('hidden');
     }
   }
 
@@ -3129,11 +3234,9 @@ class AdminController {
   }
 
   playOrderNotification(order) {
-    // 1. Play loud multi-tone audio alarm
-    if (typeof Sound !== 'undefined' && Sound.playOrderAlarm) {
-      Sound.playOrderAlarm();
-    } else if (typeof Sound !== 'undefined' && Sound.playBell) {
-      Sound.playBell();
+    // 1. Play persistent scandalous audio alarm for 20 seconds
+    if (typeof Sound !== 'undefined') {
+      Sound.startPersistentOrderAlarm(20);
     }
 
     const est = this.establishments.find(e => e.id === order.establishmentId || e.id === order.establishment_id);
@@ -3142,6 +3245,9 @@ class AdminController {
     const orderCode = order.deliveryDetails?.code || (order.id ? order.id.slice(-4) : '####');
     const orderTotal = order.total !== undefined ? `$${parseFloat(order.total).toFixed(2)}` : '';
     const orderType = order.orderType === 'mesa' ? '🍽️ Mesa ' + (order.mesaNumber || order.deliveryDetails?.mesa || '') : '🚴 Delivery';
+
+    // Show top flashing persistent alarm banner
+    this.showAlarmBanner(orderCode);
 
     // 2. Native OS Push Notification
     if ('Notification' in window && Notification.permission === 'granted') {
@@ -3207,7 +3313,7 @@ class AdminController {
             <span style="font-size: 14px; font-weight: 700;">Total del Pedido:</span>
             <span style="font-size: 20px; font-weight: 800; color: #FFD700;">$${total}</span>
           </div>
-          <button type="button" onclick="document.getElementById('admin-new-order-modal').style.display='none'" class="btn-primary" style="width: 100%; padding: 12px; font-size: 14px; font-weight: 800; border-radius: 14px; cursor: pointer; background: linear-gradient(135deg, #FF5E3A 0%, #FF2A00 100%); border: none; color: #FFF;">
+          <button type="button" onclick="if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner(); document.getElementById('admin-new-order-modal').style.display='none';" class="btn-primary" style="width: 100%; padding: 12px; font-size: 14px; font-weight: 800; border-radius: 14px; cursor: pointer; background: linear-gradient(135deg, #FF5E3A 0%, #FF2A00 100%); border: none; color: #FFF;">
             ✅ Entendido / Cerrar Alerta
           </button>
         </div>

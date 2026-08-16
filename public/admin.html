@@ -6,6 +6,7 @@
   <title>Dueño Rapi Gochos - Panel de Administración Central</title>
   <link rel="stylesheet" href="/css/common.css?v=80">
   <link rel="stylesheet" href="/css/admin.css?v=126">
+  <link rel="stylesheet" href="/css/kitchen.css?v=82">
   <link rel="stylesheet" href="/css/menu-builder.css?v=80">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -13,6 +14,22 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 <body>
+
+  <!-- Top Flashing Persistent Alarm Banner for incoming platform orders -->
+  <div id="admin-alarm-banner" class="kitchen-alarm-banner hidden" onclick="if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner();">
+    <div class="alarm-banner-inner">
+      <div class="alarm-banner-left">
+        <span class="alarm-siren-icon">🚨</span>
+        <div class="alarm-banner-text">
+          <div class="alarm-title">¡NUEVO PEDIDO ENTRANTE EN LA PLATAFORMA! <span class="alarm-order-code"></span></div>
+          <div class="alarm-subtitle">Toca la pantalla o abre la app para apagar la alarma sonora</div>
+        </div>
+      </div>
+      <button class="alarm-btn-silence" onclick="event.stopPropagation(); if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner();">
+        🔕 Silenciar Alarma
+      </button>
+    </div>
+  </div>
 
   <!-- Login Gate Screen -->
   <div id="login-gate" class="login-gate-overlay flex-center">
@@ -940,8 +957,8 @@
     </div>
   </div>
 
-  <script src="/js/sound.js?v=175"></script>
-  <script src="/js/admin.js?v=173"></script>
+  <script src="/js/sound.js?v=176"></script>
+  <script src="/js/admin.js?v=176"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
@@ -1828,5 +1845,10 @@
       </form>
     </div>
   </div>
+
+  <!-- Floating sound test button for Platform Owner -->
+  <button class="sound-test-btn" onclick="if(window.Sound){ if(Sound.isPlayingAlarm){Sound.stopAlarm();}else{Sound.startPersistentOrderAlarm(10);} }" title="Probar Alarma Escandalosa">
+    🚨
+  </button>
 </body>
 </html>
