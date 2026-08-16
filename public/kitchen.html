@@ -172,9 +172,25 @@
     </section>
   </main>
 
+  <!-- Top Flashing Alarm Banner for incoming orders -->
+  <div id="kitchen-alarm-banner" class="kitchen-alarm-banner hidden" onclick="if(window.Sound) Sound.stopAlarm(); KitchenApp.hideAlarmBanner();">
+    <div class="alarm-banner-inner">
+      <div class="alarm-banner-left">
+        <span class="alarm-siren-icon">🚨</span>
+        <div class="alarm-banner-text">
+          <div class="alarm-title">¡NUEVO PEDIDO ENTRANTE! <span class="alarm-order-code"></span></div>
+          <div class="alarm-subtitle">Toca la pantalla o abre la app para apagar la alarma sonora</div>
+        </div>
+      </div>
+      <button class="alarm-btn-silence" onclick="event.stopPropagation(); if(window.Sound) Sound.stopAlarm(); KitchenApp.hideAlarmBanner();">
+        🔕 Silenciar Alarma
+      </button>
+    </div>
+  </div>
+
   <!-- Floating sound test button -->
-  <button class="sound-test-btn" onclick="Sound.playBell()" title="Probar Timbre">
-    🔔
+  <button class="sound-test-btn" onclick="if(window.Sound){ if(Sound.isPlayingAlarm){Sound.stopAlarm();}else{Sound.startPersistentOrderAlarm(10);} }" title="Probar Alarma Escandalosa">
+    🚨
   </button>
 
   <!-- Toast Notification Center -->
@@ -667,9 +683,9 @@
     </div>
   </div>
 
-  <script src="/js/sound.js?v=83"></script>
+  <script src="/js/sound.js?v=174"></script>
   <script src="/js/menu-builder.js?v=83"></script>
-  <script src="/js/kitchen.js?v=172"></script>
+  <script src="/js/kitchen.js?v=174"></script>
   <script>
     if (typeof KitchenApp !== 'undefined') {
       if (!KitchenApp.showToast && typeof KitchenApp.showLocalToast === 'function') {

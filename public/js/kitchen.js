@@ -16,17 +16,84 @@ class KitchenController {
     await this.checkSupabaseSession();
     this.checkLocalSession();
 
-    // Unlock Web Audio Context on click/touch anywhere
+    // Set up auto-stop listeners and audio unlock for persistent alarm
     if (typeof Sound !== 'undefined') {
-      const unlockAudio = () => {
-        try { Sound.init(); } catch(e) {}
+      const stopAlarmAndUnlock = () => {
+        try {
+          Sound.init();
+          if (Sound.isPlayingAlarm) {
+            Sound.stopAlarm();
+            this.hideAlarmBanner();
+          }
+        } catch(e) {}
       };
-      document.addEventListener('click', unlockAudio, { passive: true });
-      document.addEventListener('touchstart', unlockAudio, { passive: true });
+
+      // Stop alarm automatically when opening/focusing the app or tab
+      window.addEventListener('focus', () => {
+        if (Sound.isPlayingAlarm) {
+          Sound.stopAlarm();
+          this.hideAlarmBanner();
+        }
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && Sound.isPlayingAlarm) {
+          Sound.stopAlarm();
+          this.hideAlarmBanner();
+        }
+      });
+
+      document.addEventListener('click', stopAlarmAndUnlock, { passive: true });
+      document.addEventListener('touchstart', stopAlarmAndUnlock, { passive: true });
+      document.addEventListener('keydown', stopAlarmAndUnlock, { passive: true });
+
+      // Link SoundManager callbacks to UI banner
+      Sound.onAlarmStart(() => this.showAlarmBanner());
+      Sound.onAlarmStop(() => this.hideAlarmBanner());
     }
 
     // Start 4-second REST polling fallback to guarantee live order updates & sound notifications
     this.startPollingFallback();
+  }
+
+  showAlarmBanner(orderCode) {
+    let banner = document.getElementById('kitchen-alarm-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'kitchen-alarm-banner';
+      banner.className = 'kitchen-alarm-banner';
+      banner.innerHTML = `
+        <div class="alarm-banner-inner" onclick="if(window.Sound) Sound.stopAlarm(); KitchenApp.hideAlarmBanner();">
+          <div class="alarm-banner-left">
+            <span class="alarm-siren-icon">🚨</span>
+            <div class="alarm-banner-text">
+              <div class="alarm-title">¡NUEVO PEDIDO ENTRANTE! <span class="alarm-order-code"></span></div>
+              <div class="alarm-subtitle">Toca la pantalla o abre la app para apagar la alarma sonora</div>
+            </div>
+          </div>
+          <button class="alarm-btn-silence" onclick="event.stopPropagation(); if(window.Sound) Sound.stopAlarm(); KitchenApp.hideAlarmBanner();">
+            🔕 Silenciar Alarma
+          </button>
+        </div>
+      `;
+      document.body.appendChild(banner);
+    }
+    if (orderCode) {
+      const codeEl = banner.querySelector('.alarm-order-code');
+      if (codeEl) codeEl.textContent = `#${orderCode}`;
+    }
+    banner.classList.remove('hidden');
+    const testBtn = document.querySelector('.sound-test-btn');
+    if (testBtn) testBtn.classList.add('alarm-ringing');
+  }
+
+  hideAlarmBanner() {
+    const banner = document.getElementById('kitchen-alarm-banner');
+    if (banner) {
+      banner.classList.add('hidden');
+    }
+    const testBtn = document.querySelector('.sound-test-btn');
+    if (testBtn) testBtn.classList.remove('alarm-ringing');
   }
 
   startPollingFallback() {
@@ -48,15 +115,16 @@ class KitchenController {
       const brandNew = shopOrders.filter(so => !this.orders.some(o => o.id === so.id));
 
       if (brandNew.length > 0) {
-        console.log('🔔 [REST Polling] ¡Nuevos pedidos detectados en tiempo real!', brandNew);
+        console.log('🚨 [REST Polling] ¡Nuevos pedidos detectados en tiempo real!', brandNew);
         this.orders = shopOrders;
         this.renderOrders();
 
+        const orderCode = brandNew[0].deliveryDetails?.code || brandNew[0].id.slice(-4);
         if (typeof Sound !== 'undefined') {
-          Sound.playBell();
-          setTimeout(() => Sound.playBell(), 400);
+          Sound.startPersistentOrderAlarm(20);
         }
-        this.showToast(`🔔 ¡NUEVO PEDIDO RECIBIDO! #${brandNew[0].deliveryDetails?.code || brandNew[0].id.slice(-4)}`);
+        this.showAlarmBanner(orderCode);
+        this.showToast(`🚨 ¡NUEVO PEDIDO RECIBIDO! #${orderCode}`);
       } else {
         let needsReRender = false;
         shopOrders.forEach(so => {
@@ -391,11 +459,12 @@ class KitchenController {
           if (!exists) {
             this.orders.push(data.order);
             this.renderOrders();
+            const orderCode = data.order.deliveryDetails?.code || data.order.id.slice(-4);
             if (typeof Sound !== 'undefined') {
-              Sound.playBell();
-              setTimeout(() => Sound.playBell(), 400);
+              Sound.startPersistentOrderAlarm(20);
             }
-            this.showToast(`🔔 ¡NUEVO PEDIDO RECIBIDO! #${data.order.deliveryDetails?.code || data.order.id.slice(-4)}`);
+            this.showAlarmBanner(orderCode);
+            this.showToast(`🚨 ¡NUEVO PEDIDO RECIBIDO! #${orderCode}`);
           }
         }
 
