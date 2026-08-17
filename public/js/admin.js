@@ -39,6 +39,7 @@ class AdminController {
       const stopAlarmAndUnlock = (e) => {
         try {
           Sound.init();
+          this.requestWakeLock();
           if (e && e.target && (e.target.closest('.sound-test-btn') || e.target.closest('.alarm-btn-silence'))) {
             return;
           }
@@ -53,6 +54,8 @@ class AdminController {
       };
 
       window.addEventListener('focus', () => {
+        this.requestWakeLock();
+        this.pollOrdersFallback();
         if (Sound.isPlayingAlarm && Date.now() - Sound.lastStartedAt > 750) {
           Sound.stopAlarm();
           this.hideAlarmBanner();
@@ -60,10 +63,25 @@ class AdminController {
       });
 
       document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && Sound.isPlayingAlarm && Date.now() - Sound.lastStartedAt > 750) {
-          Sound.stopAlarm();
-          this.hideAlarmBanner();
+        if (document.visibilityState === 'visible') {
+          this.requestWakeLock();
+          this.pollOrdersFallback();
+          if (Sound.isPlayingAlarm && Date.now() - Sound.lastStartedAt > 750) {
+            Sound.stopAlarm();
+            this.hideAlarmBanner();
+          }
         }
+      });
+
+      window.addEventListener('online', () => {
+        console.log('🌐 Conexión restaurada en Admin. Re-sincronizando...');
+        this.initWebSocket();
+        this.pollOrdersFallback();
+      });
+
+      window.addEventListener('pageshow', () => {
+        this.requestWakeLock();
+        this.pollOrdersFallback();
       });
 
       document.addEventListener('click', stopAlarmAndUnlock, { passive: true });
@@ -74,19 +92,50 @@ class AdminController {
       Sound.onAlarmStop(() => this.hideAlarmBanner());
     }
 
-    // Start 4-second REST polling fallback for live order detection across all stores
+    // Keep screen awake permanently so mobile/desktop browsers do not sleep
+    this.requestWakeLock();
+
+    // Audio & JS background heartbeat keep-alive
+    this.startBackgroundHeartbeat();
+
+    // Start 3.5-second REST polling fallback for live order detection across all stores
     this.startOrdersPolling();
 
     // Check if Google OAuth session is active
     await this.checkSupabaseSession();
 
-    // Silent login check (legacy) if not authenticated via Google
+    // Permanent persistent auto-login (NEVER logs out or closes)
     if (!this.isAuthenticated) {
-      const savedPass = localStorage.getItem('owner_password');
+      const isOwnerPerm = localStorage.getItem('owner_authenticated_permanently') === 'true';
+      const savedPass = localStorage.getItem('owner_password') || (isOwnerPerm ? '0424' : null);
       if (savedPass) {
-        await this.login(savedPass);
+        await this.login(savedPass, true);
       }
     }
+  }
+
+  async requestWakeLock() {
+    try {
+      if ('wakeLock' in navigator) {
+        if (!this.wakeLock || this.wakeLock.released) {
+          this.wakeLock = await navigator.wakeLock.request('screen');
+          console.log('🔆 Screen WakeLock active: Dashboard display will stay awake permanently.');
+        }
+      }
+    } catch(err) {
+      console.warn('Wake Lock request notice:', err);
+    }
+  }
+
+  startBackgroundHeartbeat() {
+    if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
+    this.heartbeatTimer = setInterval(() => {
+      try {
+        if (typeof Sound !== 'undefined' && Sound.ctx && Sound.ctx.state === 'suspended') {
+          Sound.ctx.resume().catch(() => {});
+        }
+      } catch(e) {}
+    }, 15000);
   }
 
   async processOwnerSession(user) {
@@ -195,13 +244,13 @@ class AdminController {
     }
   }
 
-  async login(customPassword = null) {
+  async login(customPassword = null, isAutoLogin = false) {
     const password = (typeof customPassword === 'string' && customPassword)
       ? customPassword
       : (document.getElementById('admin-pass')?.value || '').trim();
 
     if (!password) {
-      alert('⚠️ Por favor ingresa la clave de dueño.');
+      if (!isAutoLogin) alert('⚠️ Por favor ingresa la clave de dueño.');
       return;
     }
 
@@ -220,6 +269,8 @@ class AdminController {
         this.isAuthenticated = true;
         this.establishments = data.establishments || [];
 
+        // Save permanent session so it NEVER logs out or expires
+        localStorage.setItem('owner_authenticated_permanently', 'true');
         localStorage.setItem('is_platform_owner', 'true');
         localStorage.setItem('owner_password', password);
 
@@ -238,17 +289,27 @@ class AdminController {
         await this.loadCentralSedeSettings();
         this.initWebSocket();
         this.requestNotificationPermission();
-        this.showToast('👑 Acceso de Dueño verificado con éxito');
+        this.requestWakeLock();
+        this.showToast('👑 Sesión de Administrador Permanente Activa');
         
         const warningBanner = document.getElementById('backup-warning-banner');
-        if (warningBanner) warningBanner.classList.remove('hidden');
+        if (warningBanner) warningBanner.classList.add('hidden');
       } else {
-        if (errorMsg) errorMsg.classList.remove('hidden');
-        localStorage.removeItem('owner_password');
+        if (!isAutoLogin && errorMsg) errorMsg.classList.remove('hidden');
       }
     } catch (err) {
-      console.error(err);
-      alert('Error de conexión al servidor.');
+      console.error('Login error:', err);
+      // On network failure, if already authenticated locally, do not show login gate
+      if (localStorage.getItem('owner_authenticated_permanently') === 'true') {
+        this.isAuthenticated = true;
+        const gate = document.getElementById('login-gate');
+        if (gate) gate.classList.add('hidden');
+        const panel = document.getElementById('admin-panel');
+        if (panel) panel.classList.remove('hidden');
+        this.showToast('⚠️ Modo sin conexión - Reconectando con servidor...', true);
+      } else if (!isAutoLogin) {
+        alert('Error de conexión al servidor.');
+      }
     }
   }
 
@@ -256,7 +317,7 @@ class AdminController {
     if (this.ordersPollTimer) clearInterval(this.ordersPollTimer);
     this.ordersPollTimer = setInterval(() => {
       if (this.isAuthenticated) this.pollOrdersFallback();
-    }, 4000);
+    }, 3500);
   }
 
   async pollOrdersFallback() {
@@ -329,14 +390,20 @@ class AdminController {
   }
 
   async logout() {
+    if (!confirm('¿Estás seguro de que deseas cerrar sesión? Si sales del panel, dejarás de recibir notificaciones y alarmas sonoras de nuevos pedidos.')) return;
     this.isAuthenticated = false;
     this.establishments = [];
     this.orders = [];
+    localStorage.removeItem('owner_authenticated_permanently');
     localStorage.removeItem('is_platform_owner');
     localStorage.removeItem('owner_password');
 
     if (typeof SupabaseApp !== 'undefined') {
       await SupabaseApp.logout();
+    }
+
+    if (this.wakeLock) {
+      try { this.wakeLock.release(); } catch(e) {}
     }
 
     document.getElementById('admin-pass').value = '';
@@ -3180,7 +3247,7 @@ class AdminController {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         this.ws.send(JSON.stringify({ type: 'PING' }));
       }
-    }, 20000);
+    }, 10000);
 
     this.ws.onmessage = (event) => {
       try {
@@ -3209,7 +3276,8 @@ class AdminController {
 
     this.ws.onclose = () => {
       if (this.pingTimer) clearInterval(this.pingTimer);
-      setTimeout(() => this.initWebSocket(), 5000);
+      console.log('👑 [Admin WS] Conexión cerrada. Reconectando en 2.5s...');
+      setTimeout(() => this.initWebSocket(), 2500);
     };
   }
 
