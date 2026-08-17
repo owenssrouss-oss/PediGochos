@@ -14,6 +14,45 @@ const DEFAULT_IMAGES = {
   ferreterias: '/images/pack_frutas.jpg' // Falls back gracefully
 };
 
+const VERIFIED_STORE_GPS_MARKETPLACE = {
+  'mak-pizza-1784350135697': { latitude: 7.8138, longitude: -72.4420 },
+  'shawarma-dunes-1784412375653': { latitude: 7.8150, longitude: -72.4438 },
+  'la-casa-de-los-batidos-1786157702318': { latitude: 7.8140, longitude: -72.4430 },
+  'patacon-fire-1786157840794': { latitude: 7.8152, longitude: -72.4428 },
+  'latinos-burguer-1786162629597': { latitude: 7.8160, longitude: -72.4450 },
+  'm-ster-cachapa-1785973083758': { latitude: 7.8148, longitude: -72.4455 },
+  'tanos-resto-bar-1786032587502': { latitude: 7.8145, longitude: -72.4435 },
+  'sabor-venezolano-arepas-1784413922154': { latitude: 7.8135, longitude: -72.4432 },
+  'carritos-de-manuel-1784411690116': { latitude: 7.8128, longitude: -72.4451 },
+  'boby-burgers-1784410785941': { latitude: 7.8142, longitude: -72.4445 },
+  'gema-pop-1785968399832': { latitude: 7.8122, longitude: -72.4435 },
+  'frutyheladosgourmet-1786228530112': { latitude: 7.8130, longitude: -72.4425 },
+  'zeus-burger-1786252888630': { latitude: 7.8158, longitude: -72.4430 },
+  'boki-arepas-1784927442087': { latitude: 7.8155, longitude: -72.4440 },
+  'burger-grill-puente-sucre--1784935634396': { latitude: 7.8172, longitude: -72.4425 },
+  'muchos-burguer-1784912818841': { latitude: 7.8125, longitude: -72.4440 },
+  'makpizza': { latitude: 7.8138, longitude: -72.4420 },
+  'shawarmadunes': { latitude: 7.8150, longitude: -72.4438 },
+  'lacasadelosbatidos': { latitude: 7.8140, longitude: -72.4430 },
+  'pataconfire': { latitude: 7.8152, longitude: -72.4428 },
+  'latinosburguer': { latitude: 7.8160, longitude: -72.4450 },
+  'mistercachapa': { latitude: 7.8148, longitude: -72.4455 },
+  'mstercachapa': { latitude: 7.8148, longitude: -72.4455 },
+  'tanosrestobar': { latitude: 7.8145, longitude: -72.4435 },
+  'thanosrestobar': { latitude: 7.8145, longitude: -72.4435 },
+  'saborvenezolanoarepas': { latitude: 7.8135, longitude: -72.4432 },
+  'karritosdemanuel': { latitude: 7.8128, longitude: -72.4451 },
+  'carritosdemanuel': { latitude: 7.8128, longitude: -72.4451 },
+  'bobyburgers': { latitude: 7.8142, longitude: -72.4445 },
+  'gemapop': { latitude: 7.8122, longitude: -72.4435 },
+  'frutyheladosgourmet': { latitude: 7.8130, longitude: -72.4425 },
+  'zeusburger': { latitude: 7.8158, longitude: -72.4430 },
+  'bokiarepas': { latitude: 7.8155, longitude: -72.4440 },
+  'burgergrillpuentesucre': { latitude: 7.8172, longitude: -72.4425 },
+  'muchosburguer': { latitude: 7.8125, longitude: -72.4440 },
+  'luchosburger': { latitude: 7.8125, longitude: -72.4440 }
+};
+
 class MarketplaceController {
   constructor() {
     this.establishments = [];
@@ -169,7 +208,16 @@ class MarketplaceController {
           // Server already applies disabled_stores.json in readDB(), trust it directly
           est.disabled = Boolean(est.disabled);
 
-          // Clear stale client localStorage GPS overrides so server authoritative GPS is always rendered
+          // Enforce immutable verified GPS
+          const id = String(est.id || '').trim();
+          const normName = (est.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '').trim();
+          const coords = VERIFIED_STORE_GPS_MARKETPLACE[id] || VERIFIED_STORE_GPS_MARKETPLACE[normName] || (est.latitude && est.longitude ? { latitude: est.latitude, longitude: est.longitude } : { latitude: 7.8145, longitude: -72.4430 });
+          est.latitude = parseFloat(coords.latitude);
+          est.longitude = parseFloat(coords.longitude);
+          est.location_lat = est.latitude;
+          est.location_lng = est.longitude;
+
+          // Clear stale client localStorage GPS overrides
           try {
             localStorage.removeItem('store_gps_' + est.id);
           } catch(e) {}

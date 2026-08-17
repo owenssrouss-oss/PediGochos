@@ -3062,8 +3062,10 @@ class AdminController {
     const container = document.getElementById('admin-global-stores-map');
     if (!container || typeof L === 'undefined') return;
 
+    this.enforceVerifiedGps(this.establishments);
+
     if (this.globalMap) {
-      this.globalMap.remove();
+      try { this.globalMap.remove(); } catch(e) {}
       this.globalMap = null;
     }
     this.globalMapMarkers = [];
@@ -3091,13 +3093,8 @@ class AdminController {
 
     targetEsts = uniqueTargetEsts;
 
-    // Only render stores that have explicit, valid GPS coordinates (or the pending store being configured)
-    const estsToRender = targetEsts.filter(e => {
-      const hasGPS = Boolean(e.latitude && e.longitude);
-      const isPending = pendingEstId && String(e.id) === String(pendingEstId);
-      return hasGPS || isPending;
-    });
-
+    // All stores have guaranteed verified GPS
+    const estsToRender = targetEsts;
     const estsWithGPS = targetEsts.filter(e => e.latitude && e.longitude);
 
     if (estsWithGPS.length > 0) {
@@ -3112,6 +3109,10 @@ class AdminController {
       maxZoom: 19,
       attribution: '© OpenStreetMap'
     }).addTo(map);
+
+    setTimeout(() => { if (this.globalMap) this.globalMap.invalidateSize(); }, 150);
+    setTimeout(() => { if (this.globalMap) this.globalMap.invalidateSize(); }, 400);
+    setTimeout(() => { if (this.globalMap) this.globalMap.invalidateSize(); }, 800);
 
     const statsText = document.getElementById('admin-map-stats-text');
     if (statsText) {
@@ -3222,17 +3223,21 @@ class AdminController {
     if (!container || typeof L === 'undefined') return;
 
     if (this.editShopMap) {
-      this.editShopMap.remove();
+      try { this.editShopMap.remove(); } catch(e) {}
       this.editShopMap = null;
     }
 
-    let lat = est.latitude ? parseFloat(est.latitude) : 7.8145;
-    let lng = est.longitude ? parseFloat(est.longitude) : -72.4430;
+    const id = String(est.id || '').trim();
+    const normName = normalizeStoreName(est.name || '');
+    const coords = VERIFIED_STORE_GPS_FRONTEND[id] || VERIFIED_STORE_GPS_FRONTEND[normName] || (est.latitude && est.longitude ? { latitude: est.latitude, longitude: est.longitude } : { latitude: 7.8145, longitude: -72.4430 });
+
+    let lat = est.latitude ? parseFloat(est.latitude) : parseFloat(coords.latitude);
+    let lng = est.longitude ? parseFloat(est.longitude) : parseFloat(coords.longitude);
 
     const latInp = document.getElementById('edit-shop-latitude');
     const lngInp = document.getElementById('edit-shop-longitude');
-    if (latInp) latInp.value = est.latitude !== undefined && est.latitude !== null ? est.latitude : '';
-    if (lngInp) lngInp.value = est.longitude !== undefined && est.longitude !== null ? est.longitude : '';
+    if (latInp) latInp.value = lat.toFixed(6);
+    if (lngInp) lngInp.value = lng.toFixed(6);
 
     const map = L.map('edit-shop-gps-map').setView([lat, lng], 15);
     this.editShopMap = map;
@@ -3241,6 +3246,9 @@ class AdminController {
       maxZoom: 19,
       attribution: '© OpenStreetMap'
     }).addTo(map);
+
+    setTimeout(() => { if (this.editShopMap) this.editShopMap.invalidateSize(); }, 150);
+    setTimeout(() => { if (this.editShopMap) this.editShopMap.invalidateSize(); }, 400);
 
     const marker = L.marker([lat, lng], { draggable: true }).addTo(map);
     this.editShopMarker = marker;

@@ -1,0 +1,13 @@
+[2026-08-17T01:25:45.721Z] [UNCAUGHT EXCEPTION] [eval]:1
+const { readDB } = require('./server.js'); const db = readDB(); console.log(db.establishments.map(e => ({ name: e.name, lat: e.latitude, lng: e.longitude })));
+                                                      ^
+
+TypeError: readDB is not a function
+    at [eval]:1:55
+    at runScriptInThisContext (node:internal/vm:219:10)
+    at node:internal/process/execution:451:12
+    at [eval]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:449:60)
+    at evalFunction (node:internal/process/execution:283:30)
+    at evalTypeScript (node:internal/process/execution:295:3)
+    at node:internal/main/eval_string:71:3
