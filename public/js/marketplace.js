@@ -2270,6 +2270,12 @@ class MarketplaceController {
     this.renderCartItems();
     this.setActiveMobileTab('cart');
     window.history.pushState({ view: 'modal', modalId: 'cart-modal' }, '');
+
+    if (this.orderType === 'delivery') {
+      setTimeout(() => {
+        this.initLeafletMap();
+      }, 250);
+    }
   }
 
   closeCartModal() {
@@ -2478,6 +2484,9 @@ class MarketplaceController {
       tableBtn.classList.remove('active');
       groupDelivery.classList.remove('hidden');
       groupMesa.classList.add('hidden');
+      setTimeout(() => {
+        this.initLeafletMap();
+      }, 200);
     } else {
       delBtn.classList.remove('active');
       tableBtn.classList.add('active');
