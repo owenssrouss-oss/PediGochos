@@ -77,10 +77,11 @@ class AdminController {
       const id = String(est.id || '').trim();
       const normName = normalizeStoreName(est.name || '');
 
-      // 1. If est already has valid custom GPS (e.g. from dragging/saving), PRESERVE IT!
-      if (est.latitude && est.longitude && !isNaN(parseFloat(est.latitude)) && !isNaN(parseFloat(est.longitude))) {
-        est.latitude = parseFloat(est.latitude);
-        est.longitude = parseFloat(est.longitude);
+      // 1. Check Master Inmutable Registry first
+      const masterCoords = VERIFIED_STORE_GPS_FRONTEND[id] || VERIFIED_STORE_GPS_FRONTEND[normName];
+      if (masterCoords && masterCoords.latitude && masterCoords.longitude) {
+        est.latitude = parseFloat(masterCoords.latitude);
+        est.longitude = parseFloat(masterCoords.longitude);
       } else {
         // 2. Check localStorage custom saved GPS
         let localSaved = null;
@@ -92,11 +93,12 @@ class AdminController {
         if (localSaved && localSaved.latitude && localSaved.longitude) {
           est.latitude = parseFloat(localSaved.latitude);
           est.longitude = parseFloat(localSaved.longitude);
+        } else if (est.latitude && est.longitude && !isNaN(parseFloat(est.latitude)) && !isNaN(parseFloat(est.longitude))) {
+          est.latitude = parseFloat(est.latitude);
+          est.longitude = parseFloat(est.longitude);
         } else {
-          // 3. Fallback to default initial registry
-          const coords = VERIFIED_STORE_GPS_FRONTEND[id] || VERIFIED_STORE_GPS_FRONTEND[normName] || { latitude: 7.8145, longitude: -72.4430 };
-          est.latitude = parseFloat(coords.latitude);
-          est.longitude = parseFloat(coords.longitude);
+          est.latitude = 7.8145;
+          est.longitude = -72.4430;
         }
       }
       est.location_lat = est.latitude;
@@ -3021,6 +3023,10 @@ class AdminController {
     est.location_lat = newLat;
     est.location_lng = newLng;
 
+    VERIFIED_STORE_GPS_FRONTEND[est.id] = { latitude: newLat, longitude: newLng };
+    const normName = normalizeStoreName(est.name || '');
+    if (normName) VERIFIED_STORE_GPS_FRONTEND[normName] = { latitude: newLat, longitude: newLng };
+
     try {
       localStorage.setItem('store_gps_' + est.id, JSON.stringify({ latitude: newLat, longitude: newLng }));
     } catch(e) {}
@@ -3162,22 +3168,10 @@ class AdminController {
     }
 
     const bounds = L.latLngBounds();
-    const usedCoords = new Set();
 
     estsToRender.forEach((est) => {
       let lat = est.latitude ? parseFloat(est.latitude) : centerLat;
       let lng = est.longitude ? parseFloat(est.longitude) : centerLng;
-
-      // Slightly offset if two different stores have identical lat/lng coordinates
-      let coordKey = `${lat.toFixed(5)},${lng.toFixed(5)}`;
-      let jitterCount = 0;
-      while (usedCoords.has(coordKey) && jitterCount < 10) {
-        jitterCount++;
-        lat += 0.00018;
-        lng += 0.00018;
-        coordKey = `${lat.toFixed(5)},${lng.toFixed(5)}`;
-      }
-      usedCoords.add(coordKey);
 
       bounds.extend([lat, lng]);
 

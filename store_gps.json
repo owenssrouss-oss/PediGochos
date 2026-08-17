@@ -3,13 +3,13 @@
     "latitude": 7.815,
     "longitude": -72.4438
   },
-  "burger-grill-puente-sucre--1784935634396": {
-    "latitude": 7.8172,
-    "longitude": -72.4425
-  },
   "patacon-fire-1786157840794": {
     "latitude": 7.8152,
     "longitude": -72.4428
+  },
+  "burger-grill-puente-sucre--1784935634396": {
+    "latitude": 7.8172,
+    "longitude": -72.4425
   },
   "latinos-burguer-1786162629597": {
     "latitude": 7.816,
@@ -55,12 +55,12 @@
     "latitude": 7.813,
     "longitude": -72.4425
   },
-  "zeus-burger-1786252888630": {
-    "latitude": 7.815445,
-    "longitude": -72.43914
-  },
   "boki-arepas-1784927442087": {
     "latitude": 7.810803,
     "longitude": -72.442685
+  },
+  "zeus-burger-1786252888630": {
+    "latitude": 7.815445,
+    "longitude": -72.43914
   }
 }
