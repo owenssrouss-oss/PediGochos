@@ -22,47 +22,6 @@ function normalizeStoreName(name) {
     .trim();
 }
 
-const VERIFIED_STORE_GPS_FRONTEND = {
-  'mak-pizza-1784350135697': { latitude: 7.813800, longitude: -72.442000 },
-  'shawarma-dunes-1784412375653': { latitude: 7.815000, longitude: -72.443800 },
-  'la-casa-de-los-batidos-1786157702318': { latitude: 7.814000, longitude: -72.443000 },
-  'patacon-fire-1786157840794': { latitude: 7.815200, longitude: -72.442800 },
-  'latinos-burguer-1786162629597': { latitude: 7.816000, longitude: -72.445000 },
-  'm-ster-cachapa-1785973083758': { latitude: 7.814800, longitude: -72.445500 },
-  'tanos-resto-bar-1786032587502': { latitude: 7.814500, longitude: -72.443500 },
-  'sabor-venezolano-arepas-1784413922154': { latitude: 7.814025, longitude: -72.441775 },
-  'carritos-de-manuel-1784411690116': { latitude: 7.812800, longitude: -72.445100 },
-  'boby-burgers-1784410785941': { latitude: 7.814200, longitude: -72.444500 },
-  'gema-pop-1785968399832': { latitude: 7.812200, longitude: -72.443500 },
-  'frutyheladosgourmet-1786228530112': { latitude: 7.813000, longitude: -72.442500 },
-  'zeus-burger-1786252888630': { latitude: 7.815445, longitude: -72.439140 },
-  'boki-arepas-1784927442087': { latitude: 7.810803, longitude: -72.442685 },
-  'burger-grill-puente-sucre--1784935634396': { latitude: 7.817200, longitude: -72.442500 },
-  'muchos-burguer-1784912818841': { latitude: 7.812500, longitude: -72.444000 },
-  'luchos-burguer-1784912818841': { latitude: 7.812500, longitude: -72.444000 },
-  'makpizza': { latitude: 7.813800, longitude: -72.442000 },
-  'shawarmadunes': { latitude: 7.815000, longitude: -72.443800 },
-  'lacasadelosbatidos': { latitude: 7.814000, longitude: -72.443000 },
-  'pataconfire': { latitude: 7.815200, longitude: -72.442800 },
-  'latinosburguer': { latitude: 7.816000, longitude: -72.445000 },
-  'mistercachapa': { latitude: 7.814800, longitude: -72.445500 },
-  'mstercachapa': { latitude: 7.814800, longitude: -72.445500 },
-  'tanosrestobar': { latitude: 7.814500, longitude: -72.443500 },
-  'thanosrestobar': { latitude: 7.814500, longitude: -72.443500 },
-  'saborvenezolanoarepas': { latitude: 7.814025, longitude: -72.441775 },
-  'karritosdemanuel': { latitude: 7.812800, longitude: -72.445100 },
-  'carritosdemanuel': { latitude: 7.812800, longitude: -72.445100 },
-  'bobyburgers': { latitude: 7.814200, longitude: -72.444500 },
-  'gemapop': { latitude: 7.812200, longitude: -72.443500 },
-  'frutyheladosgourmet': { latitude: 7.813000, longitude: -72.442500 },
-  'zeusburger': { latitude: 7.815445, longitude: -72.439140 },
-  'bokiarepas': { latitude: 7.810803, longitude: -72.442685 },
-  'burgergrillpuentesucre': { latitude: 7.817200, longitude: -72.442500 },
-  'muchosburguer': { latitude: 7.812500, longitude: -72.444000 },
-  'luchosburger': { latitude: 7.812500, longitude: -72.444000 },
-  'luchosburguer': { latitude: 7.812500, longitude: -72.444000 }
-};
-
 class AdminController {
   constructor() {
     this.establishments = [];
@@ -74,31 +33,21 @@ class AdminController {
     if (!Array.isArray(establishments)) return establishments;
     establishments.forEach(est => {
       if (!est) return;
-      const id = String(est.id || '').trim();
-      const normName = normalizeStoreName(est.name || '');
-
-      // 1. Check Master Inmutable Registry first
-      const masterCoords = VERIFIED_STORE_GPS_FRONTEND[id] || VERIFIED_STORE_GPS_FRONTEND[normName];
-      if (masterCoords && masterCoords.latitude && masterCoords.longitude) {
-        est.latitude = parseFloat(masterCoords.latitude);
-        est.longitude = parseFloat(masterCoords.longitude);
+      if (est.latitude !== undefined && est.latitude !== null && !isNaN(parseFloat(est.latitude)) && est.longitude !== undefined && est.longitude !== null && !isNaN(parseFloat(est.longitude))) {
+        est.latitude = parseFloat(est.latitude);
+        est.longitude = parseFloat(est.longitude);
       } else {
-        // 2. Check localStorage custom saved GPS
         let localSaved = null;
         try {
           const raw = localStorage.getItem('store_gps_' + est.id);
           if (raw) localSaved = JSON.parse(raw);
         } catch(e) {}
-
         if (localSaved && localSaved.latitude && localSaved.longitude) {
           est.latitude = parseFloat(localSaved.latitude);
           est.longitude = parseFloat(localSaved.longitude);
-        } else if (est.latitude && est.longitude && !isNaN(parseFloat(est.latitude)) && !isNaN(parseFloat(est.longitude))) {
-          est.latitude = parseFloat(est.latitude);
-          est.longitude = parseFloat(est.longitude);
         } else {
-          est.latitude = 7.8145;
-          est.longitude = -72.4430;
+          est.latitude = null;
+          est.longitude = null;
         }
       }
       est.location_lat = est.latitude;
@@ -3169,16 +3118,17 @@ class AdminController {
 
     const bounds = L.latLngBounds();
 
-    estsToRender.forEach((est) => {
-      let lat = est.latitude ? parseFloat(est.latitude) : centerLat;
-      let lng = est.longitude ? parseFloat(est.longitude) : centerLng;
+    targetEsts.forEach((est) => {
+      const hasSavedGPS = Boolean(est.latitude && est.longitude);
+      let lat = hasSavedGPS ? parseFloat(est.latitude) : centerLat;
+      let lng = hasSavedGPS ? parseFloat(est.longitude) : centerLng;
 
       bounds.extend([lat, lng]);
 
       const emojiIcon = L.divIcon({
         className: 'custom-admin-store-pin',
         html: `
-          <div style="background: ${est.disabled ? '#EF4444' : '#10B981'}; color: #FFF; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); border: 2px solid #FFFFFF;">
+          <div style="background: ${hasSavedGPS ? (est.disabled ? '#EF4444' : '#10B981') : '#F59E0B'}; color: #FFF; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); border: 2px solid #FFFFFF;">
             ${est.logo || '🏪'}
           </div>
         `,
@@ -3188,7 +3138,7 @@ class AdminController {
 
       const buildPopupHTML = (e, currentLat, currentLng) => {
         const gmapsLink = `https://www.google.com/maps/search/?api=1&query=${currentLat},${currentLng}`;
-        const hasSavedGPS = Boolean(e.latitude && e.longitude);
+        const isSet = Boolean(e.latitude && e.longitude);
         return `
           <div style="min-width: 220px; padding: 4px; font-family: system-ui, -apple-system, sans-serif;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
@@ -3202,7 +3152,7 @@ class AdminController {
               <span style="background: ${e.disabled ? '#FEE2E2' : '#D1FAE5'}; color: ${e.disabled ? '#991B1B' : '#065F46'}; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">
                 ${e.disabled ? '🚫 DESHABILITADO' : '🟢 HABILITADO'}
               </span>
-              ${hasSavedGPS ? '<span style="background: #DBEAFE; color: #1E40AF; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">📡 GPS FIJO</span>' : '<span style="background: #FEF3C7; color: #92400E; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">⚠️ SIN GPS REGISTRADO</span>'}
+              ${isSet ? '<span style="background: #DBEAFE; color: #1E40AF; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">📡 GPS FIJADO</span>' : '<span style="background: #FEF3C7; color: #92400E; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">⚠️ ARRASTRA Y GUARDA</span>'}
             </div>
             <p style="font-size: 10.5px; color: #475569; margin: 4px 0 8px 0; line-height: 1.3; background: #F1F5F9; padding: 6px; border-radius: 6px;">
               📌 Arrastra este pin a la ubicación deseada y presiona el botón verde para guardar.
@@ -3210,7 +3160,7 @@ class AdminController {
             <button onclick="AdminApp.saveStoreGPS('${e.id}')" style="display: block; width: 100%; text-align: center; background: #10B981; color: #FFFFFF; font-weight: 800; font-size: 11px; padding: 7px 10px; border-radius: 8px; border: none; cursor: pointer; margin-bottom: 6px; box-shadow: 0 2px 6px rgba(16,185,129,0.3); box-sizing: border-box;">
               💾 Guardar Ubicación GPS
             </button>
-            ${hasSavedGPS ? `
+            ${isSet ? `
             <button onclick="AdminApp.removeStoreGPS('${e.id}')" style="display: block; width: 100%; text-align: center; background: rgba(239, 68, 68, 0.1); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 800; font-size: 11px; padding: 6px 10px; border-radius: 8px; cursor: pointer; margin-bottom: 6px; box-sizing: border-box;">
               🗑️ Quitar Marcador del Mapa
             </button>
@@ -3225,7 +3175,6 @@ class AdminController {
       const marker = L.marker([lat, lng], { icon: emojiIcon, draggable: true }).addTo(map);
       marker.bindPopup(buildPopupHTML(est, lat, lng));
 
-      // Permanent visible store name tag above the pin
       marker.bindTooltip(`<b>${est.name}</b>`, {
         permanent: true,
         direction: 'top',
@@ -3246,11 +3195,10 @@ class AdminController {
       this.globalMapMarkers.push({ estId: est.id, marker });
     });
 
-    // Populate dropdown list with registered stores
     const selectEl = document.getElementById('admin-map-store-select');
     if (selectEl) {
       selectEl.innerHTML = '<option value="">🔍 Centrar Restaurante...</option>';
-      estsToRender.forEach(e => {
+      targetEsts.forEach(e => {
         const opt = document.createElement('option');
         opt.value = e.id;
         opt.textContent = `${e.logo || '🏪'} ${e.name}`;
@@ -3280,45 +3228,38 @@ class AdminController {
     }
   }
 
-  async restoreAllMasterGPS() {
-    if (!confirm('¿Restablecer las ubicaciones GPS de los 16 comercios a sus coordenadas maestras oficiales de San Antonio del Táchira?')) return;
+  async clearAllStoreGPS() {
+    if (!confirm('⚠️ ¿Estás seguro de BORRAR todas las ubicaciones guardadas de todos los restaurantes?\n\nPodrás volver a colocar y guardar cada pin en el mapa libremente desde cero.')) return;
 
-    this.showToast('⏳ Restableciendo ubicaciones maestras...');
+    this.showToast('🗑️ Borrando todas las ubicaciones GPS...');
 
     try {
       for (const est of this.establishments) {
-        const id = String(est.id || '').trim();
-        const normName = normalizeStoreName(est.name || '');
-        const masterCoords = VERIFIED_STORE_GPS_FRONTEND[id] || VERIFIED_STORE_GPS_FRONTEND[normName];
-        if (masterCoords) {
-          est.latitude = masterCoords.latitude;
-          est.longitude = masterCoords.longitude;
-          est.location_lat = masterCoords.latitude;
-          est.location_lng = masterCoords.longitude;
-          try {
-            localStorage.setItem('store_gps_' + est.id, JSON.stringify(masterCoords));
-          } catch(e) {}
-          await fetch(`/api/establishments/${est.id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              isOwner: true,
-              latitude: masterCoords.latitude,
-              longitude: masterCoords.longitude,
-              location_lat: masterCoords.latitude,
-              location_lng: masterCoords.longitude
-            })
-          });
-        }
+        est.latitude = null;
+        est.longitude = null;
+        est.location_lat = null;
+        est.location_lng = null;
+        try { localStorage.removeItem('store_gps_' + est.id); } catch(e) {}
+        await fetch(`/api/establishments/${est.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isOwner: true,
+            latitude: null,
+            longitude: null,
+            location_lat: null,
+            location_lng: null
+          })
+        });
       }
 
-      this.showToast('✅ ¡Todas las 16 ubicaciones han sido restablecidas a sus posiciones maestras!');
+      this.showToast('✅ ¡Todas las ubicaciones han sido borradas! Ahora puedes posicionar los pines libremente.');
       this.renderTable();
       this.initAdminGlobalStoresMap(this.currentGlobalMapFilter || 'all');
       this.triggerCloudBackup();
     } catch(err) {
       console.error(err);
-      this.showToast('⚠️ Error al restablecer ubicaciones maestras.');
+      this.showToast('⚠️ Error al borrar ubicaciones.');
     }
   }
 
@@ -3335,12 +3276,8 @@ class AdminController {
       this.editShopMap = null;
     }
 
-    const id = String(est.id || '').trim();
-    const normName = normalizeStoreName(est.name || '');
-    const coords = VERIFIED_STORE_GPS_FRONTEND[id] || VERIFIED_STORE_GPS_FRONTEND[normName] || (est.latitude && est.longitude ? { latitude: est.latitude, longitude: est.longitude } : { latitude: 7.8145, longitude: -72.4430 });
-
-    let lat = est.latitude ? parseFloat(est.latitude) : parseFloat(coords.latitude);
-    let lng = est.longitude ? parseFloat(est.longitude) : parseFloat(coords.longitude);
+    let lat = (est.latitude && !isNaN(parseFloat(est.latitude))) ? parseFloat(est.latitude) : 7.8145;
+    let lng = (est.longitude && !isNaN(parseFloat(est.longitude))) ? parseFloat(est.longitude) : -72.4430;
 
     const latInp = document.getElementById('edit-shop-latitude');
     const lngInp = document.getElementById('edit-shop-longitude');

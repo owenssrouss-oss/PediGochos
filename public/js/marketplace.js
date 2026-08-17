@@ -14,47 +14,6 @@ const DEFAULT_IMAGES = {
   ferreterias: '/images/pack_frutas.jpg' // Falls back gracefully
 };
 
-const VERIFIED_STORE_GPS_MARKETPLACE = {
-  'mak-pizza-1784350135697': { latitude: 7.813800, longitude: -72.442000 },
-  'shawarma-dunes-1784412375653': { latitude: 7.815000, longitude: -72.443800 },
-  'la-casa-de-los-batidos-1786157702318': { latitude: 7.814000, longitude: -72.443000 },
-  'patacon-fire-1786157840794': { latitude: 7.815200, longitude: -72.442800 },
-  'latinos-burguer-1786162629597': { latitude: 7.816000, longitude: -72.445000 },
-  'm-ster-cachapa-1785973083758': { latitude: 7.814800, longitude: -72.445500 },
-  'tanos-resto-bar-1786032587502': { latitude: 7.814500, longitude: -72.443500 },
-  'sabor-venezolano-arepas-1784413922154': { latitude: 7.814025, longitude: -72.441775 },
-  'carritos-de-manuel-1784411690116': { latitude: 7.812800, longitude: -72.445100 },
-  'boby-burgers-1784410785941': { latitude: 7.814200, longitude: -72.444500 },
-  'gema-pop-1785968399832': { latitude: 7.812200, longitude: -72.443500 },
-  'frutyheladosgourmet-1786228530112': { latitude: 7.813000, longitude: -72.442500 },
-  'zeus-burger-1786252888630': { latitude: 7.815445, longitude: -72.439140 },
-  'boki-arepas-1784927442087': { latitude: 7.810803, longitude: -72.442685 },
-  'burger-grill-puente-sucre--1784935634396': { latitude: 7.817200, longitude: -72.442500 },
-  'muchos-burguer-1784912818841': { latitude: 7.812500, longitude: -72.444000 },
-  'luchos-burguer-1784912818841': { latitude: 7.812500, longitude: -72.444000 },
-  'makpizza': { latitude: 7.813800, longitude: -72.442000 },
-  'shawarmadunes': { latitude: 7.815000, longitude: -72.443800 },
-  'lacasadelosbatidos': { latitude: 7.814000, longitude: -72.443000 },
-  'pataconfire': { latitude: 7.815200, longitude: -72.442800 },
-  'latinosburguer': { latitude: 7.816000, longitude: -72.445000 },
-  'mistercachapa': { latitude: 7.814800, longitude: -72.445500 },
-  'mstercachapa': { latitude: 7.814800, longitude: -72.445500 },
-  'tanosrestobar': { latitude: 7.814500, longitude: -72.443500 },
-  'thanosrestobar': { latitude: 7.814500, longitude: -72.443500 },
-  'saborvenezolanoarepas': { latitude: 7.814025, longitude: -72.441775 },
-  'karritosdemanuel': { latitude: 7.812800, longitude: -72.445100 },
-  'carritosdemanuel': { latitude: 7.812800, longitude: -72.445100 },
-  'bobyburgers': { latitude: 7.814200, longitude: -72.444500 },
-  'gemapop': { latitude: 7.812200, longitude: -72.443500 },
-  'frutyheladosgourmet': { latitude: 7.813000, longitude: -72.442500 },
-  'zeusburger': { latitude: 7.815445, longitude: -72.439140 },
-  'bokiarepas': { latitude: 7.810803, longitude: -72.442685 },
-  'burgergrillpuentesucre': { latitude: 7.817200, longitude: -72.442500 },
-  'muchosburguer': { latitude: 7.812500, longitude: -72.444000 },
-  'luchosburger': { latitude: 7.8125, longitude: -72.4440 },
-  'luchosburguer': { latitude: 7.8125, longitude: -72.4440 }
-};
-
 class MarketplaceController {
   constructor() {
     this.establishments = [];
@@ -235,16 +194,13 @@ class MarketplaceController {
           // Server already applies disabled_stores.json in readDB(), trust it directly
           est.disabled = Boolean(est.disabled);
 
-          // Preserve custom GPS from server or fallback to initial registry
-          if (est.latitude && est.longitude && !isNaN(parseFloat(est.latitude)) && !isNaN(parseFloat(est.longitude))) {
+          // Preserve custom GPS from server
+          if (est.latitude !== undefined && est.latitude !== null && !isNaN(parseFloat(est.latitude)) && est.longitude !== undefined && est.longitude !== null && !isNaN(parseFloat(est.longitude))) {
             est.latitude = parseFloat(est.latitude);
             est.longitude = parseFloat(est.longitude);
           } else {
-            const id = String(est.id || '').trim();
-            const normName = (est.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '').trim();
-            const coords = VERIFIED_STORE_GPS_MARKETPLACE[id] || VERIFIED_STORE_GPS_MARKETPLACE[normName] || { latitude: 7.8145, longitude: -72.4430 };
-            est.latitude = parseFloat(coords.latitude);
-            est.longitude = parseFloat(coords.longitude);
+            est.latitude = null;
+            est.longitude = null;
           }
           est.location_lat = est.latitude;
           est.location_lng = est.longitude;
@@ -3129,12 +3085,6 @@ class MarketplaceController {
       est = this.establishments.find(e => e.id === shopId);
     }
     if (est) {
-      const id = String(est.id || '').trim();
-      const normName = (est.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '').trim();
-      const coords = VERIFIED_STORE_GPS_MARKETPLACE[id] || VERIFIED_STORE_GPS_MARKETPLACE[normName];
-      if (coords && coords.latitude && coords.longitude) {
-        return [parseFloat(coords.latitude), parseFloat(coords.longitude)];
-      }
       const lat = (est.location_lat !== undefined && est.location_lat !== null) 
         ? est.location_lat 
         : est.latitude;

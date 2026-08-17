@@ -527,87 +527,6 @@ function normalizeStoreName(name) {
     .trim();
 }
 
-const VERIFIED_STORE_GPS = {
-  'mak-pizza-1784350135697': { latitude: 7.813800, longitude: -72.442000 },
-  'shawarma-dunes-1784412375653': { latitude: 7.815000, longitude: -72.443800 },
-  'la-casa-de-los-batidos-1786157702318': { latitude: 7.814000, longitude: -72.443000 },
-  'patacon-fire-1786157840794': { latitude: 7.815200, longitude: -72.442800 },
-  'latinos-burguer-1786162629597': { latitude: 7.816000, longitude: -72.445000 },
-  'm-ster-cachapa-1785973083758': { latitude: 7.814800, longitude: -72.445500 },
-  'tanos-resto-bar-1786032587502': { latitude: 7.814500, longitude: -72.443500 },
-  'sabor-venezolano-arepas-1784413922154': { latitude: 7.814025, longitude: -72.441775 },
-  'carritos-de-manuel-1784411690116': { latitude: 7.812800, longitude: -72.445100 },
-  'boby-burgers-1784410785941': { latitude: 7.814200, longitude: -72.444500 },
-  'gema-pop-1785968399832': { latitude: 7.812200, longitude: -72.443500 },
-  'frutyheladosgourmet-1786228530112': { latitude: 7.813000, longitude: -72.442500 },
-  'zeus-burger-1786252888630': { latitude: 7.815445, longitude: -72.439140 },
-  'boki-arepas-1784927442087': { latitude: 7.810803, longitude: -72.442685 },
-  'burger-grill-puente-sucre--1784935634396': { latitude: 7.817200, longitude: -72.442500 },
-  'muchos-burguer-1784912818841': { latitude: 7.812500, longitude: -72.444000 },
-  'luchos-burguer-1784912818841': { latitude: 7.812500, longitude: -72.444000 }
-};
-
-const VERIFIED_NAME_GPS = {
-  'makpizza': { latitude: 7.813800, longitude: -72.442000 },
-  'shawarmadunes': { latitude: 7.815000, longitude: -72.443800 },
-  'lacasadelosbatidos': { latitude: 7.814000, longitude: -72.443000 },
-  'pataconfire': { latitude: 7.815200, longitude: -72.442800 },
-  'latinosburguer': { latitude: 7.816000, longitude: -72.445000 },
-  'mistercachapa': { latitude: 7.814800, longitude: -72.445500 },
-  'tanosrestobar': { latitude: 7.814500, longitude: -72.443500 },
-  'thanosrestobar': { latitude: 7.814500, longitude: -72.443500 },
-  'saborvenezolanoarepas': { latitude: 7.814025, longitude: -72.441775 },
-  'karritosdemanuel': { latitude: 7.812800, longitude: -72.445100 },
-  'carritosdemanuel': { latitude: 7.812800, longitude: -72.445100 },
-  'bobyburgers': { latitude: 7.814200, longitude: -72.444500 },
-  'gemapop': { latitude: 7.812200, longitude: -72.443500 },
-  'frutyheladosgourmet': { latitude: 7.813000, longitude: -72.442500 },
-  'zeusburger': { latitude: 7.815445, longitude: -72.439140 },
-  'bokiarepas': { latitude: 7.810803, longitude: -72.442685 },
-  'burgergrillpuentesucre': { latitude: 7.817200, longitude: -72.442500 },
-  'muchosburguer': { latitude: 7.812500, longitude: -72.444000 },
-  'luchosburger': { latitude: 7.812500, longitude: -72.444000 },
-  'luchosburguer': { latitude: 7.812500, longitude: -72.444000 }
-};
-
-function getImmutableStoreGps(est) {
-  if (!est) return { latitude: 7.8145, longitude: -72.4430 };
-  const id = String(est.id || '').trim();
-  const normName = normalizeStoreName(est.name || '');
-
-  // 1. Check store_gps.json first (user custom dragged & saved coordinates)
-  const storeGpsMap = readStoreGps();
-  if (storeGpsMap[id] && storeGpsMap[id].latitude && storeGpsMap[id].longitude && !isNaN(parseFloat(storeGpsMap[id].latitude)) && !isNaN(parseFloat(storeGpsMap[id].longitude))) {
-    return {
-      latitude: parseFloat(storeGpsMap[id].latitude),
-      longitude: parseFloat(storeGpsMap[id].longitude)
-    };
-  }
-
-  // 2. Check existing valid GPS on establishment object
-  if (est.latitude && est.longitude && !isNaN(parseFloat(est.latitude)) && !isNaN(parseFloat(est.longitude))) {
-    return {
-      latitude: parseFloat(est.latitude),
-      longitude: parseFloat(est.longitude)
-    };
-  }
-
-  // 3. Fallback to default verified registry by ID
-  if (VERIFIED_STORE_GPS[id]) return VERIFIED_STORE_GPS[id];
-  // 4. Fallback to default verified registry by name
-  if (VERIFIED_NAME_GPS[normName]) return VERIFIED_NAME_GPS[normName];
-
-  // 5. Substring match against verified names/slugs
-  for (const [key, coords] of Object.entries(VERIFIED_NAME_GPS)) {
-    if (normName.includes(key) || key.includes(normName)) {
-      return coords;
-    }
-  }
-
-  // 6. Default San Antonio center
-  return { latitude: 7.8145, longitude: -72.4430 };
-}
-
 function deduplicateEstablishments(establishments) {
   if (!Array.isArray(establishments)) return [];
   const seenIds = new Set();
@@ -627,13 +546,20 @@ function deduplicateEstablishments(establishments) {
       disabledMap[est.id] = est.disabled;
     }
 
-    // Always enforce immutable verified GPS coordinates
-    const immutableCoords = getImmutableStoreGps(est);
-    est.latitude = parseFloat(immutableCoords.latitude);
-    est.longitude = parseFloat(immutableCoords.longitude);
+    // Preserve user-saved GPS from store_gps.json or directly from establishment record
+    if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
+      est.latitude = parseFloat(storeGpsMap[est.id].latitude);
+      est.longitude = parseFloat(storeGpsMap[est.id].longitude);
+    } else if (est.latitude !== undefined && est.latitude !== null && !isNaN(parseFloat(est.latitude)) && est.longitude !== undefined && est.longitude !== null && !isNaN(parseFloat(est.longitude))) {
+      est.latitude = parseFloat(est.latitude);
+      est.longitude = parseFloat(est.longitude);
+      storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
+    } else {
+      est.latitude = null;
+      est.longitude = null;
+    }
     est.location_lat = est.latitude;
     est.location_lng = est.longitude;
-    storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
 
     if (!est.open_time) est.open_time = '17:00';
     if (!est.close_time) est.close_time = '00:00';
