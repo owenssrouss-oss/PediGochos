@@ -1,0 +1,429 @@
+/* Driver App Styling (driver.css) - Rich 3D tactile aesthetics & micro-animations */
+
+body.driver-body {
+  background-color: #0B0F19;
+  color: #F8FAFC;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Driver Login Gate */
+.driver-gate-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(11, 15, 25, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.driver-gate-card {
+  background: #161F33;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gate-icon-pulse {
+  font-size: 54px;
+  margin-bottom: 12px;
+  display: inline-block;
+  animation: bounce 2s infinite ease-in-out;
+}
+
+.driver-gate-card h2 {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0 0 4px 0;
+}
+
+.driver-gate-card h2 span {
+  color: #10B981;
+}
+
+.gate-subtitle {
+  font-size: 12px;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.input-3d {
+  width: 100%;
+  padding: 12px 14px;
+  background: #0D1322;
+  border: 1px solid #2A364F;
+  border-radius: 12px;
+  color: #FFF;
+  font-size: 14px;
+  font-weight: 600;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.input-3d:focus {
+  border-color: #10B981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+  outline: none;
+}
+
+/* 3D Tactile Buttons */
+.btn-3d {
+  border: none;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease-in-out;
+  box-sizing: border-box;
+  text-decoration: none;
+  user-select: none;
+  position: relative;
+  top: 0;
+}
+
+.btn-3d-emerald {
+  background: linear-gradient(180deg, #10B981 0%, #059669 100%);
+  color: #FFFFFF;
+  box-shadow: 0 5px 0 #047857, 0 8px 18px rgba(16, 185, 129, 0.4);
+}
+
+.btn-3d-emerald:active {
+  top: 4px;
+  box-shadow: 0 1px 0 #047857, 0 4px 10px rgba(16, 185, 129, 0.4);
+}
+
+.btn-3d-orange {
+  background: linear-gradient(180deg, #FF5E3A 0%, #E04823 100%);
+  color: #FFFFFF;
+  box-shadow: 0 5px 0 #B93315, 0 8px 18px rgba(255, 94, 58, 0.4);
+}
+
+.btn-3d-orange:active {
+  top: 4px;
+  box-shadow: 0 1px 0 #B93315, 0 4px 10px rgba(255, 94, 58, 0.4);
+}
+
+.btn-3d-blue {
+  background: linear-gradient(180deg, #3B82F6 0%, #1D4ED8 100%);
+  color: #FFFFFF;
+  box-shadow: 0 5px 0 #1E40AF, 0 8px 18px rgba(59, 130, 246, 0.4);
+}
+
+.btn-3d-blue:active {
+  top: 4px;
+  box-shadow: 0 1px 0 #1E40AF, 0 4px 10px rgba(59, 130, 246, 0.4);
+}
+
+.btn-3d-icon {
+  background: #1E293B;
+  color: #FFF;
+  border: 1px solid #334155;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.btn-3d-icon:hover {
+  transform: rotate(180deg);
+}
+
+/* App Header & Switch */
+.driver-header {
+  background: #111827;
+  border-bottom: 1px solid #1F2937;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  sticky: top;
+  top: 0;
+  z-index: 100;
+}
+
+.driver-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-emoji {
+  font-size: 32px;
+}
+
+.driver-brand h2 {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.driver-sub-info {
+  font-size: 11px;
+  color: #9CA3AF;
+  display: block;
+}
+
+/* Switch 3D Toggle */
+.switch-3d {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+}
+
+.switch-3d input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider-3d {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #374151;
+  transition: .3s;
+  border-radius: 34px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.slider-3d:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+input:checked + .slider-3d {
+  background-color: #10B981;
+}
+
+input:checked + .slider-3d:before {
+  transform: translateX(22px);
+}
+
+.duty-badge {
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 12px;
+  margin-left: 6px;
+}
+
+.badge-offline {
+  background: rgba(239, 68, 68, 0.2);
+  color: #EF4444;
+  border: 1px solid #EF4444;
+}
+
+.badge-online {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10B981;
+  border: 1px solid #10B981;
+}
+
+/* Nav Tabs */
+.driver-nav-tabs {
+  display: flex;
+  background: #111827;
+  padding: 6px;
+  gap: 6px;
+  border-bottom: 1px solid #1F2937;
+}
+
+.tab-btn-3d {
+  flex: 1;
+  background: transparent;
+  color: #9CA3AF;
+  border: none;
+  padding: 10px 6px;
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.tab-btn-3d.active {
+  background: #1F2937;
+  color: #FFF;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.count-pill {
+  background: #10B981;
+  color: #FFF;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+/* Tab Views & Cards */
+.tab-content {
+  padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.tab-content.hidden {
+  display: none !important;
+}
+
+.section-title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.section-title-bar h3 {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.orders-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.order-card-3d {
+  background: #1E293B;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.order-card-3d:hover {
+  transform: translateY(-2px);
+}
+
+.card-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.card-shop-name {
+  font-weight: 800;
+  font-size: 15px;
+  color: #FFF;
+}
+
+.card-fee-badge {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+  border: 1px solid #10B981;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.order-info-line {
+  font-size: 13px;
+  color: #CBD5E1;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.empty-state-card {
+  text-align: center;
+  padding: 40px 20px;
+  background: #1E293B;
+  border-radius: 20px;
+  border: 1px solid #334155;
+  margin-top: 20px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.earnings-summary-card {
+  background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  color: #FFF;
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+  margin-bottom: 20px;
+}
+
+.summary-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 800;
+  opacity: 0.9;
+}
+
+.summary-amount {
+  font-size: 36px;
+  font-weight: 900;
+  margin: 6px 0;
+}
+
+.summary-sub {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

@@ -5,9 +5,15 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "kitchen:build": "node scripts/build-kitchen-app.js && npx cap sync android",
+    "kitchen:open": "npx cap open android"
   },
   "dependencies": {
+    "@capacitor-community/keep-awake": "^8.0.1",
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/local-notifications": "^8.3.0",
     "@supabase/supabase-js": "^2.110.5",
     "dotenv": "^17.4.2",
     "express": "^4.21.2",
@@ -15,5 +21,8 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.0"
+  }
 }

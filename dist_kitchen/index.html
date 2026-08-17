@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Cocina Rapi Gochos - KDS Panel</title>
+  <link rel="stylesheet" href="/css/common.css?v=81">
+  <link rel="stylesheet" href="/css/kitchen.css?v=81">
+  <link rel="stylesheet" href="/css/menu-builder.css?v=81">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#FF5E3A">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-helper.js?v=83"></script>
+  <script>
+    // Invalidate and delete any stale Service Worker caches
+    if ('caches' in window) {
+      caches.keys().then(keys => {
+        keys.forEach(k => {
+          if (!k.includes('v165')) {
+            caches.delete(k);
+            console.log('Purged stale cache:', k);
+          }
+        });
+      });
+    }
+  </script>
+</head>
+<body>
+
+  <!-- KDS Header -->
+  <header class="merchant-header">
+    <div class="header-container-merchant">
+      <div class="brand-area" style="display: flex; align-items: center; gap: 10px;">
+        <span class="portal-icon">🍳</span>
+        <h2>Cocina <span>Rapi Gochos</span></h2>
+        <div class="live-active-light-badge" title="Servidor de Cocina Activo en Vivo">
+          <span class="green-pulse-dot"></span>
+          <span class="live-label">EN VIVO</span>
+        </div>
+      </div>
+
+      <!-- Select active establishment -->
+      <div class="shop-select-area">
+        <div id="active-shop-info" class="hidden" style="display: flex; align-items: center; gap: 8px;">
+          <span id="active-shop-logo" style="font-size: 20px;"></span>
+          <span id="active-shop-name" style="font-weight: 800; font-size: 16px; color: #fff;"></span>
+          <button onclick="KitchenApp.logoutMerchant()" style="margin-left: 12px; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444; border-radius: var(--radius-sm); padding: 6px 12px; cursor: pointer; font-weight: 700; font-size: 12px; transition: all 0.2s; outline: none; border-style: solid;">🚪 Salir</button>
+        </div>
+        <select id="merchant-shop-select" style="display: none;">
+          <option value="">-- Selecciona tu negocio --</option>
+          <!-- Filled dynamically -->
+        </select>
+        <button id="btn-manage-prices" class="btn-manage-prices hidden" onclick="KitchenApp.openMenuTablesModal()" style="margin-left:12px; background-color:#10b981; border:1px solid #10b981; color:#121216; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🍔 Taller de Local</button>
+        <button id="btn-customize-shop" class="btn-manage-prices hidden" onclick="KitchenApp.openCustomizeShopModal()" style="margin-left:8px; background-color:#3b82f6; border:1px solid #3b82f6; color:#ffffff; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🏪 Sede Comercial</button>
+        <button id="btn-daily-promo" class="btn-manage-prices hidden" onclick="KitchenApp.openDailyPromoModal()" style="margin-left:8px; background-color:#ff5e3a; border:1px solid #ff5e3a; color:#ffffff; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🔥 Promociones del Día</button>
+        <button id="btn-panic-high-traffic" class="btn-panic-toggle hidden" onclick="KitchenApp.toggleHighTrafficPanicMode()" style="margin-left:8px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: var(--radius-sm); padding: 8px 12px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px;" title="Activar/Desactivar tiempo extra por alto tráfico de personas en cocina">
+          <span id="panic-icon">🚨</span>
+          <span id="panic-text">Modo Tráfico Alto (+20 min)</span>
+        </button>
+      </div>
+
+      <!-- Connection Status Badge -->
+      <div class="status-badge-container">
+        <span id="connection-status" class="status-badge offline">Desconectado</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Dashboard Main Grid -->
+  <main class="merchant-dashboard-content">
+    <div id="no-shop-overlay" class="no-shop-overlay flex-center">
+      <div class="overlay-card">
+        <span class="overlay-icon">🔒</span>
+        <h3>Acceso a Cocina</h3>
+        <p style="margin-bottom: 16px; color: #94a3b8; font-size: 14px;">Ingresa la clave de vinculación de tu establecimiento para gestionar tus pedidos en tiempo real.</p>
+        
+        <!-- Removed Google Sign-in block as per request -->
+
+        <form onsubmit="event.preventDefault(); KitchenApp.verifyAndLinkKeyDirect()">
+          <input type="text" id="auth-link-key" placeholder="CLAVE DE VINCULACIÓN" style="width: 100%; text-align: center; text-transform: uppercase; padding: 12px; font-size: 16px; font-weight: 700; border-radius: 8px; border: 1px solid #475569; background-color: #0F172A; color: #FFFFFF; margin-bottom: 12px; outline: none; letter-spacing: 2px;">
+          <button type="submit" class="btn-card-action ready" style="width: 100%; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer;">🔑 Ingresar a Cocina</button>
+        </form>
+        <p id="auth-error-msg" style="color: #EF4444; font-size: 13px; margin-top: 12px; font-weight: bold;" class="hidden">Clave incorrecta. Inténtalo de nuevo.</p>
+      </div>
+    </div>
+
+    <!-- Kitchen Terms and Requirements Modal Dialog -->
+    <div id="kitchen-terms-modal" class="auth-overlay hidden" style="z-index: 10000; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);">
+      <div class="overlay-card" style="max-width: 520px; width: 92%; padding: 24px; border-radius: 16px; border: 1px solid rgba(255, 94, 58, 0.3); background: #0f172a; text-align: left;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+          <span style="font-size: 28px;">📋</span>
+          <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #fff;">Requisitos del Servicio y Términos de Protección</h3>
+        </div>
+        
+        <div style="max-height: 280px; overflow-y: auto; padding-right: 6px; font-size: 12.5px; color: #cbd5e1; line-height: 1.5; margin-bottom: 16px; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); padding-top: 12px; padding-bottom: 12px;" class="premium-scroll">
+          <p style="margin-top: 0; font-weight: 700; color: var(--accent);">⚠️ 1. Requisitos para Servicio de Mesas en la App:</p>
+          <ul style="padding-left: 18px; margin-bottom: 12px;">
+            <li>El establecimiento debe contar con instalaciones físicas aptas y presentables para atención al cliente.</li>
+            <li>Sillas y mesas en buen estado, limpias y numeradas acordes al mapa del local.</li>
+            <li>Disponer de todos los servicios básicos para comodidad de los clientes en mesa.</li>
+          </ul>
+
+          <p style="margin-top: 0; font-weight: 700; color: var(--accent);">🛡️ 2. Protección de la Tienda y Verificación de Pedidos:</p>
+          <ul style="padding-left: 18px; margin-bottom: 0;">
+            <li><strong>Verificación Obligatoria:</strong> La plataforma no se hace responsable de pedidos falsos o bromas por falta de verificación del establecimiento. La tienda debe verificar telefónicamente el pedido o corroborar el código de seguridad de 4 dígitos.</li>
+            <li><strong>Uso Responsable:</strong> El establecimiento es responsable de la exactitud de los precios y productos ofrecidos.</li>
+          </ul>
+        </div>
+
+        <label style="display: flex; align-items: center; gap: 10px; font-size: 12px; color: #f8fafc; font-weight: 600; margin-bottom: 16px; cursor: pointer;">
+          <input type="checkbox" id="chk-accept-kitchen-terms" onchange="KitchenApp.toggleTermsButton(this.checked)" style="width: 18px; height: 18px; accent-color: var(--primary);">
+          <span>Acepto y confirmo cumplir los requisitos y términos de servicio.</span>
+        </label>
+
+        <button type="button" id="btn-confirm-kitchen-terms" onclick="KitchenApp.acceptTermsAndProceed()" disabled class="btn-card-action ready" style="width: 100%; padding: 12px; font-size: 14px; font-weight: 700; opacity: 0.5;">
+          🚀 Continuar a Cocina
+        </button>
+      </div>
+    </div>
+
+    <div class="stats-ribbon">
+      <div class="stat-card">
+        <span class="stat-num" id="stat-pending">0</span>
+        <span class="stat-label">Pendientes</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" id="stat-preparing">0</span>
+        <span class="stat-label">En Cocina</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" id="stat-completed">0</span>
+        <span class="stat-label">Terminados</span>
+      </div>
+    </div>
+
+    <!-- Kanban Board -->
+    <section class="kanban-board">
+      
+      <!-- Pending Column -->
+      <div class="kanban-column" id="col-pending">
+        <div class="column-header pending">
+          <h3>Nuevos Pedidos</h3>
+          <span class="column-count" id="count-pending">0</span>
+        </div>
+        <div class="column-cards premium-scroll" id="cards-pending">
+          <!-- Cards -->
+        </div>
+      </div>
+
+      <!-- Preparing Column -->
+      <div class="kanban-column" id="col-preparing">
+        <div class="column-header preparing">
+          <h3>En Preparación</h3>
+          <span class="column-count" id="count-preparing">0</span>
+        </div>
+        <div class="column-cards premium-scroll" id="cards-preparing">
+          <!-- Cards -->
+        </div>
+      </div>
+
+      <!-- Ready Column -->
+      <div class="kanban-column" id="col-ready">
+        <div class="column-header ready">
+          <h3>Listos / Despachados</h3>
+          <span class="column-count" id="count-ready">0</span>
+        </div>
+        <div class="column-cards premium-scroll" id="cards-ready">
+          <!-- Cards -->
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Top Flashing Alarm Banner for incoming orders -->
+  <div id="kitchen-alarm-banner" class="kitchen-alarm-banner hidden" onclick="if(window.Sound) Sound.stopAlarm(); KitchenApp.hideAlarmBanner();">
+    <div class="alarm-banner-inner">
+      <div class="alarm-banner-left">
+        <span class="alarm-siren-icon">🚨</span>
+        <div class="alarm-banner-text">
+          <div class="alarm-title">¡NUEVO PEDIDO ENTRANTE! <span class="alarm-order-code"></span></div>
+          <div class="alarm-subtitle">Toca la pantalla o abre la app para apagar la alarma sonora</div>
+        </div>
+      </div>
+      <button class="alarm-btn-silence" onclick="event.stopPropagation(); if(window.Sound) Sound.stopAlarm(); KitchenApp.hideAlarmBanner();">
+        🔕 Silenciar Alarma
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating sound test button -->
+  <button class="sound-test-btn" onclick="KitchenApp.toggleSoundTest(event)" title="Probar Alarma Escandalosa">
+    🚨
+  </button>
+
+  <!-- Toast Notification Center -->
+  <div class="toast-container" id="toast-center"></div>
+
+  <!-- Glassmorphic Modal: Create Product -->
+  <div class="modal-overlay" id="product-modal" style="z-index: 1200; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+    <div class="modal-content" style="background: #16161c; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin: auto; max-width: 500px; width: 90%;">
+      <div class="modal-header">
+        <h3 style="color: #ffffff;">🍔 Agregar Producto al Menú</h3>
+        <button class="modal-close" onclick="closeMenuModal()">✕</button>
+      </div>
+      
+      <form id="product-form" onsubmit="handleProductSubmit(event)">
+        <!-- Fast Add -->
+        <div class="form-group" style="background: rgba(46, 213, 115, 0.05); padding: 12px; border-radius: 12px; border: 1px dashed rgba(46, 213, 115, 0.3);">
+          <label for="form-fast-add" style="color: #2ed573; margin-bottom: 8px;">⚡ Auto-completado Mágico (Pega el texto aquí)</label>
+          <textarea id="form-fast-add" rows="2" placeholder="Ej: Pizza - 15 - Tamaños: Pequeña 10, Grande 20 - Adicionales: Tocineta 2" style="width: 100%; font-family: inherit; resize: none; background: rgba(0,0,0,0.2);"></textarea>
+          <button type="button" class="btn-neumorphic" onclick="handleFastAdd()" style="margin-top: 8px; width: 100%; background: transparent; border: 1px solid #2ed573; color: #2ed573; box-shadow: none;">✨ Extraer y Rellenar Información</button>
+        </div>
+
+        <!-- Category Selector -->
+        <div class="form-group">
+          <label for="form-category">Categoría *</label>
+          <select id="form-category" required style="width: 100%;" onchange="window.handleCategoryChange(this)">
+            <option value="">-- Selecciona una categoría --</option>
+          </select>
+        </div>
+        
+        <!-- New Category Input (Hidden by default) -->
+        <div class="form-group" id="form-new-category-container" style="display: none;">
+          <label for="form-new-category-name">Nombre de la Nueva Categoría *</label>
+          <input type="text" id="form-new-category-name" placeholder="Ej. Promociones" style="width: 100%;">
+        </div>
+
+        <!-- Product Name -->
+        <div class="form-group">
+          <label for="form-name">Nombre del Producto *</label>
+          <input type="text" id="form-name" required placeholder="Ej. Pepito Mixto Especial" style="width: 100%;">
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="form-desc">Descripción / Ingredientes (Opcional)</label>
+          <textarea id="form-desc" rows="3" placeholder="Ej. Carne de res, pollo, aguacate, queso cheddar en pan baguette." style="width: 100%; font-family: inherit; resize: none;"></textarea>
+        </div>
+
+        <!-- Base Price -->
+        <div class="form-group" id="base-price-container">
+          <label for="form-price">Precio Base ($ USD) *</label>
+          <input type="number" id="form-price" step="0.01" min="0" required placeholder="Ej. 12.50" style="width: 100%;">
+        </div>
+
+        <!-- Pizza Sizes -->
+        <div id="pizza-sizes-container" style="display: none; background: rgba(255, 193, 7, 0.05); padding: 12px; border-radius: 12px; border: 1px dashed rgba(255, 193, 7, 0.3); margin-bottom: 16px;">
+          <label style="color: #ffc107; margin-bottom: 8px; display: block;">🍕 Precios de la Pizza</label>
+          <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+              <label for="form-pizza-small" style="font-size: 11px;">Pequeña ($)</label>
+              <input type="number" id="form-pizza-small" step="0.01" min="0" placeholder="Ej. 10" style="width: 100%;">
+            </div>
+            <div style="flex: 1;">
+              <label for="form-pizza-medium" style="font-size: 11px;">Mediana ($)</label>
+              <input type="number" id="form-pizza-medium" step="0.01" min="0" placeholder="Ej. 15" style="width: 100%;">
+            </div>
+            <div style="flex: 1;">
+              <label for="form-pizza-large" style="font-size: 11px;">Grande ($)</label>
+              <input type="number" id="form-pizza-large" step="0.01" min="0" placeholder="Ej. 20" style="width: 100%;">
+            </div>
+          </div>
+          <p style="font-size: 10px; color: var(--text-muted); margin-top: 6px;">Nota: El Precio Base se ajustará automáticamente si llenas estos tamaños.</p>
+        </div>
+
+        <!-- Drink/Liquid Dynamic Sizes -->
+        <div id="drink-sizes-container" style="display: none; background: rgba(0, 184, 148, 0.06); padding: 14px; border-radius: 12px; border: 1px dashed rgba(0, 184, 148, 0.35); margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <label style="color: #00b894; margin: 0; font-weight: 800; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+              <span>🥤</span> Tamaños y Capacidad del Batido / Bebida
+            </label>
+            <button type="button" onclick="addDrinkSizeRow()" style="background: rgba(0, 184, 148, 0.2); color: #00b894; border: 1px solid #00b894; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 14px; cursor: pointer;">
+              ➕ Agregar Tamaño
+            </button>
+          </div>
+          
+          <div id="drink-sizes-rows-list" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Rows rendered dynamically -->
+          </div>
+
+          <p style="font-size: 10.5px; color: var(--text-muted); margin-top: 10px; margin-bottom: 0; line-height: 1.3;">
+            💡 Puedes <strong>eliminar tamaños con el botón 🗑️</strong> (ej. dejar solo Pequeño y Grande) y personalizar la capacidad/onzas (12 oz, 16 oz, 1 Litro, etc.).
+          </p>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="form-group">
+          <label for="form-image">Imagen del Producto (Opcional)</label>
+          <input type="file" id="form-image" accept="image/*" style="width: 100%;">
+        </div>
+
+        <!-- Adicionales -->
+        <div class="form-group">
+          <label for="form-adicionales">Adicionales</label>
+          <input type="text" id="form-adicionales" placeholder="Ej. Tocineta 2, Huevo 1" style="width: 100%;">
+        </div>
+
+        <!-- Submit Button -->
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" class="btn-neumorphic" onclick="closeMenuModal()" style="box-shadow: none; margin: 0;">Cancelar</button>
+          <button type="submit" id="btn-submit-form" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0;">
+            <span>Guardar Producto</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- Glassmorphic Modal: Personalizar Establecimiento (Sede Comercial) -->
+  <div class="modal-overlay" id="customize-shop-modal" style="z-index: 1200; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+    <div class="modal-content" style="background: #16161c; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin: auto; max-width: 500px; width: 90%;">
+      <div class="modal-header">
+        <h3 style="color: #ffffff;">🏪 Personalizar Sede Comercial</h3>
+        <button class="modal-close" onclick="KitchenApp.closeCustomizeShopModal()">✕</button>
+      </div>
+      
+      <form id="customize-shop-form" onsubmit="KitchenApp.handleCustomizeShopSubmit(event)">
+        <div class="form-group" style="background: rgba(255, 94, 58, 0.08); padding: 12px; border-radius: 8px; border: 1px dashed rgba(255, 94, 58, 0.3); margin-bottom: 12px;">
+          <label for="custom-shop-link-key" style="color: #FF5E3A; font-weight: 700;">🔑 Clave de Vinculación (Acceso al Negocio)</label>
+          <input type="text" id="custom-shop-link-key" placeholder="CLAVE ACTUAL" style="width: 100%; text-transform: uppercase; font-weight: bold; font-size: 14px; background: #0F172A; color: #FFF; border: 1px solid #475569; padding: 10px; border-radius: 6px;">
+          <small style="color: #cbd5e1; font-size: 11px; display: block; margin-top: 4px;">* Requiere ingresar el Código Maestro 0424 para modificarla.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="custom-shop-name">Nombre del Comercio *</label>
+          <input type="text" id="custom-shop-name" required placeholder="Ej. Mack Pizza" style="width: 100%;">
+        </div>
+
+        <div class="form-group">
+          <label for="custom-shop-desc">Descripción *</label>
+          <input type="text" id="custom-shop-desc" required placeholder="Ej. El auténtico sabor a leña..." style="width: 100%;">
+        </div>
+
+        <div class="form-group">
+          <label for="custom-shop-location">Pueblo / Ciudad *</label>
+          <select id="custom-shop-location" required style="width: 100%;">
+            <option value="San Antonio">San Antonio</option>
+            <option value="Ureña">Ureña</option>
+            <option value="San Cristóbal">San Cristóbal</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="background: rgba(59, 130, 246, 0.08); padding: 12px; border-radius: 8px; border: 1px dashed rgba(59, 130, 246, 0.4); margin-bottom: 12px;">
+          <label style="color: #60A5FA; font-weight: 700; display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 4px;">
+            <span>📍 Coordenadas de Sede Comercial (Ubicación de Tienda)</span>
+            <button type="button" class="btn-neumorphic" onclick="KitchenApp.getCurrentLocationForSede()" style="margin: 0; padding: 4px 8px; font-size: 11px; background: #3B82F6; color: #fff; border: none; height: auto;">📡 Usar mi GPS Actual</button>
+          </label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+            <div>
+              <label for="custom-shop-lat" style="font-size: 11px; color: #cbd5e1;">Latitud Tienda</label>
+              <input type="number" step="any" id="custom-shop-lat" placeholder="Ej. 7.8131" style="width: 100%; font-size: 13px; padding: 8px; background: #0F172A; color: #FFF; border: 1px solid #475569; border-radius: 6px;">
+            </div>
+            <div>
+              <label for="custom-shop-lng" style="font-size: 11px; color: #cbd5e1;">Longitud Tienda</label>
+              <input type="number" step="any" id="custom-shop-lng" placeholder="Ej. -72.4439" style="width: 100%; font-size: 13px; padding: 8px; background: #0F172A; color: #FFF; border: 1px solid #475569; border-radius: 6px;">
+            </div>
+          </div>
+          <small style="color: #cbd5e1; font-size: 11px; display: block; margin-top: 6px;">* Ubicación física del establecimiento comercial en el mapa del cliente.</small>
+        </div>
+
+        <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div class="form-group">
+             <label for="custom-shop-logo">Logo (Emoji Fallback) *</label>
+             <select id="custom-shop-logo" required style="width: 100%;">
+               <option value="🍔">🍔 Comida / Hamburguesas</option>
+               <option value="🍕">🍕 Pizzería</option>
+               <option value="🌭">🌭 Perros Calientes</option>
+               <option value="🥤">🥤 Batidos / Bebidas</option>
+               <option value="🍲">🍲 Caldos / Sopas</option>
+               <option value="🍣">🍣 Sushi</option>
+               <option value="🌮">🌮 Comida Mexicana</option>
+               <option value="🍦">🍦 Heladería</option>
+               <option value="💊">💊 Farmacia</option>
+               <option value="🛒">🛒 Supermercado</option>
+               <option value="🏪">🏪 Tienda / Conveniencia</option>
+             </select>
+          </div>
+          <div class="form-group">
+            <label for="custom-shop-delivery">Tasa Domicilio ($ Cop/Mxn) *</label>
+            <input type="number" id="custom-shop-delivery" required min="0" placeholder="Ej. 3000" style="width: 100%;">
+          </div>
+        </div>
+
+        <div class="form-group" style="background: rgba(139, 92, 246, 0.08); padding: 12px; border-radius: 8px; border: 1px dashed rgba(139, 92, 246, 0.3); margin-bottom: 12px;">
+          <label for="custom-shop-logo-file" style="color: #c4b5fd; font-weight: 700;">📸 Foto de Logotipo / Puntero de Mapa Personalizado</label>
+          <input type="file" id="custom-shop-logo-file" accept="image/*" style="width: 100%; margin-top: 6px;">
+          <small style="color: #cbd5e1; font-size: 11px; display: block; margin-top: 4px;">* Sube una foto o logo para personalizar el puntero de tu tienda en el mapa del cliente.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="custom-shop-banner-file">Foto de Portada / Banner (Opcional)</label>
+          <input type="file" id="custom-shop-banner-file" accept="image/*" style="width: 100%;">
+        </div>
+
+        <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div class="form-group">
+            <label for="custom-shop-prep-time">Preparación Aprox (min)</label>
+            <input type="number" id="custom-shop-prep-time" min="0" placeholder="Ej. 25" style="width: 100%;">
+          </div>
+          <div class="form-group">
+            <label for="custom-shop-delivery-time">Envío Aprox (min)</label>
+            <input type="number" id="custom-shop-delivery-time" min="0" placeholder="Ej. 15" style="width: 100%;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="custom-shop-theme">Color de Acento / Marca *</label>
+          <input type="color" id="custom-shop-theme" value="#FF5E3A" style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: none; cursor: pointer; padding: 0;">
+        </div>
+
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" class="btn-neumorphic" onclick="KitchenApp.closeCustomizeShopModal()" style="box-shadow: none; margin: 0;">Cancelar</button>
+          <button type="submit" id="btn-submit-customize-shop" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0;">
+            <span>Guardar Sede Comercial</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- Glassmorphic Modal: Immersive Menu and Floor Layout Designer -->
+  <div class="modal-overlay" id="menu-tables-modal" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 40px 0;">
+    <div class="modal-content" style="background: rgba(22, 22, 28, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); max-width: 1200px; width: 95%; height: auto; min-height: 90vh; display: flex; flex-direction: column; padding: 24px; border-radius: 24px; margin: auto;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <h2 id="designer-modal-shop-name" style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 800;">🍔 Taller de Menú y Distribución de Mesas</h2>
+          <span style="font-size: 12.5px; color: var(--accent); font-weight: 600;" id="designer-modal-shop-subtext">Diseñador interactivo en tiempo real</span>
+        </div>
+        <button class="modal-close" onclick="closeMenuTablesModal()" style="font-size: 20px; color: #ffffff; opacity: 0.6; cursor: pointer; transition: all 0.2s;">✕</button>
+      </div>
+
+      <!-- Vertical Layout Workspace -->
+      <div class="designer-workspace" style="display: flex; flex-direction: column; gap: 24px; flex: 1;">
+        
+        <!-- SECTION 1 (TOP): Tabla de Catálogo Maestro de Productos Disponibles para Importar -->
+        <div class="import-catalog-section" style="background: rgba(255, 94, 58, 0.04); border: 1px solid rgba(255, 94, 58, 0.2); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 24px;">⚡</span>
+              <div>
+                <h3 style="color: #ffffff; font-size: 16px; margin: 0; font-weight: 800;">Catálogo Maestro de Platos Disponibles (Taller de Menú)</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">Haz clic en "➕ Agregar a mi Menú" para asociar cualquier plato global con su foto e ingredientes a la carta de tu restaurante.</p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; width: 100%; max-width: 320px;">
+              <input type="text" id="modal-import-search" oninput="KitchenApp.filterImportCatalogTable()" placeholder="🔍 Buscar plato en catálogo..." style="width: 100%; background: rgba(18,18,22,0.9); border: 1px solid rgba(255,255,255,0.12); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 13px;">
+            </div>
+          </div>
+
+          <!-- Tabla de Productos Maestros Disponibles -->
+          <div style="overflow-x: auto; max-height: 280px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(15, 23, 42, 0.6);" class="premium-scroll">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; color: #fff;">
+              <thead>
+                <tr style="background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 11px; text-transform: uppercase;">
+                  <th style="padding: 10px 14px; width: 60px;">Foto</th>
+                  <th style="padding: 10px 14px;">Producto y Categoría</th>
+                  <th style="padding: 10px 14px;">Descripción / Ingredientes</th>
+                  <th style="padding: 10px 14px; width: 120px;">Precio Sugerido</th>
+                  <th style="padding: 10px 14px; text-align: center; width: 140px;">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="modal-import-catalog-tbody">
+                <tr>
+                  <td colspan="5" style="padding: 20px; text-align: center; color: var(--text-muted);">Cargando catálogo maestro...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECTION 2 (MIDDLE): Distribución de Mesas y Paredes OR Product Specs Editor -->
+        <div class="floor-plan-section" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+          
+          <!-- State A: Floor Grid Canvas -->
+          <div id="floor-plan-grid-container" style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">🧱</span>
+                <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">Distribución de Mesas y Paredes</h3>
+              </div>
+              <!-- Tool Selector -->
+              <div class="floor-tools" style="display: flex; gap: 8px;">
+                <button class="btn-floor-tool active" onclick="setFloorTool('table')" id="tool-table" style="background: var(--accent); color: #121216; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                  🪑 Colocar Mesa
+                </button>
+                <button class="btn-floor-tool" onclick="setFloorTool('wall')" id="tool-wall" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                  🧱 Colocar Pared
+                </button>
+                <button class="btn-floor-tool" onclick="setFloorTool('eraser')" id="tool-eraser" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                  🧹 Borrador
+                </button>
+              </div>
+            </div>
+            <p style="font-size: 11.5px; color: var(--text-muted); margin: 0;">Selecciona una herramienta y haz clic en las celdas del plano para estructurar tu establecimiento. El plano se actualiza automáticamente.</p>
+            
+            <!-- Visual Grid Area centered -->
+            <div style="display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px;">
+              <div id="floor-grid-canvas" style="display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 6px; width: 100%; max-width: 400px; aspect-ratio: 1/1;">
+                <!-- Celdas renderizadas dinámicamente -->
+              </div>
+            </div>
+          </div>
+
+          <!-- State B: Product Specs Editor (Shown instead of grid when a product is clicked) -->
+          <div id="floor-specs-editor-container" style="display: none; width: 100%;">
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+              <h3 style="color: #ffffff; margin: 0; font-size: 16px; font-weight: 800;" id="specs-modal-title">⚙️ Especificaciones del Producto</h3>
+              <button type="button" class="btn-neumorphic" onclick="closeProductSpecsModal()" style="margin:0; padding: 4px 10px; font-size: 11px; height: auto;">✕ Cerrar Editor</button>
+            </div>
+
+            <form id="product-specs-form" onsubmit="handleSpecsSubmit(event)">
+              <input type="hidden" id="specs-product-id">
+
+              <!-- Edit Name, Category, Price & Description Section -->
+              <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px; display: flex; flex-direction: column; gap: 12px;">
+                <h4 style="color: var(--accent); margin: 0 0 4px 0; font-size: 13px; font-weight: 700;">✏️ Información General del Plato</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <div>
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Nombre del Plato *</label>
+                    <input type="text" id="specs-product-name" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
+                  </div>
+                  <div>
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Categoría *</label>
+                    <input type="text" id="specs-product-category" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;" placeholder="Ej. Pizzas, Arepas, Bebidas">
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <div>
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Precio Base *</label>
+                    <input type="number" step="any" id="specs-product-price" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
+                  </div>
+                  <div>
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Descripción</label>
+                    <input type="text" id="specs-product-description" style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Edit Product Image Section -->
+              <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px; display: flex; align-items: center; gap: 16px;">
+                <div style="width: 70px; height: 70px; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <img id="specs-product-image-preview" src="" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/burger_royale.jpg'">
+                </div>
+                <div style="flex-grow: 1;">
+                  <h4 style="color: var(--accent); margin: 0 0 4px 0; font-size: 13px; font-weight: 700;">📸 Foto del Producto</h4>
+                  <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 8px 0; line-height: 1.3;">Sube una nueva foto para este plato.</p>
+                  <input type="file" id="specs-product-image-file" accept="image/*" style="font-size: 12px; color: #fff; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 4px; width: 100%;">
+                </div>
+              </div>
+
+              <!-- Ingredients / Exclusions Section -->
+              <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px;">
+                <h4 style="color: var(--accent); margin: 0 0 8px 0; font-size: 13px; font-weight: 700;">📝 Ingredientes / Exclusiones</h4>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">Agrega ingredientes que el cliente puede optar por excluir (quitar) de su plato.</p>
+                <div id="specs-ingredients-list" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                  <!-- Rendered dynamically -->
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="new-ingredient-input" placeholder="Ej. Cebolla, Pepinillos" style="flex: 1; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
+                  <button type="button" class="btn-neumorphic" onclick="addIngredientOption()" style="margin: 0; padding: 8px 16px; font-size: 12px; height: 38px;">Agregar</button>
+                </div>
+              </div>
+
+              <!-- Modifier Groups Section -->
+              <div style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <h4 style="color: var(--accent); margin: 0; font-size: 13px; font-weight: 700;">🎛️ Opciones y Adicionales</h4>
+                  <button type="button" class="btn-neumorphic" onclick="addModifierGroup()" style="margin: 0; padding: 6px 12px; font-size: 11px; height: 32px; background: rgba(255,255,255,0.05); color:#fff; border-color: rgba(255,255,255,0.1);">➕ Nuevo Grupo</button>
+                </div>
+                
+                <div id="specs-groups-container" style="display: flex; flex-direction: column; gap: 16px; max-height: 280px; overflow-y: auto; padding-right: 4px;" class="premium-scroll">
+                  <!-- Loaded dynamically -->
+                </div>
+              </div>
+
+              <!-- Footer Actions -->
+              <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
+                <button type="button" class="btn-neumorphic" onclick="closeProductSpecsModal()" style="box-shadow: none; margin: 0; padding: 8px 16px; font-size: 13px;">Cancelar</button>
+                <button type="submit" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0; padding: 8px 16px; font-size: 13px; font-weight: 700;">
+                  Guardar Especificaciones
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+        <!-- SECTION 3 (BOTTOM): Modificación de Carta (Categories left, Products right) -->
+        <div class="menu-modification-section" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 20px;">🍔</span>
+              <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">Modificación del Menú del Restaurante</h3>
+            </div>
+            <button class="btn-neumorphic" onclick="openMenuModal()" style="margin: 0; padding: 8px 16px; font-size: 12px; height: 36px; font-weight: 700;">
+              <span>➕ Nuevo Producto</span>
+            </button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 200px 1fr; gap: 20px; min-height: 350px;">
+            <!-- Left Side: Categories -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; max-height: 400px; overflow-y: auto;">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; margin-bottom: 10px;">
+                <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">📂 CATEGORÍAS</span>
+                <button onclick="createNewCategory()" style="background: none; border: none; color: var(--accent); font-size: 11.5px; font-weight: 800; cursor: pointer;">➕ Nueva</button>
+              </div>
+              <ul class="category-list" id="modal-categories-sidebar" style="gap: 6px; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column;">
+                <li class="category-item active" onclick="filterCategoryModal('all')" style="font-size: 12px; padding: 8px 12px; cursor: pointer; border-radius: 8px;">Todos</li>
+              </ul>
+            </div>
+
+            <!-- Right Side: Products -->
+            <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 12px; max-height: 400px; overflow-y: auto;" class="premium-scroll">
+              <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">📦 PRODUCTOS AGREGADOS</span>
+              <div class="catalog-grid" id="modal-products-catalog-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px;">
+                <!-- Loaded dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal: Promociones del Día (Cocina) -->
+  <div class="modal-overlay" id="kitchen-promo-modal" style="z-index: 3900; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div class="modal-content" style="max-width: 500px; width: 94%; padding: 22px; border-radius: 20px; background: rgba(18, 18, 24, 0.96); border: 1px solid rgba(255, 255, 255, 0.1); margin: auto;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; color: #FFF; font-size: 17px; font-weight: 800;">🔥 Publicar Promoción del Día (24 Horas)</h3>
+        <button class="modal-close" onclick="KitchenApp.closeDailyPromoModal()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.1); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <form onsubmit="KitchenApp.handleCreatePromoSubmit(event)">
+        <p style="font-size: 12px; color: #94A3B8; margin-top: 0; margin-bottom: 14px; line-height: 1.4;">
+          ✨ Esta oferta aparecerá destacada en el inicio de la app en la sección <strong>🔥 PROMO DEL DÍA</strong> y expirará automáticamente a las 24 horas.
+        </p>
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="color: #94A3B8; font-size: 12px;">Seleccionar Producto de tu Menú (Opcional)</label>
+          <select id="promo-select-product" onchange="KitchenApp.handlePromoProductSelect(this.value)" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+            <option value="">-- Nuevo Plato en Promoción --</option>
+            <!-- Filled dynamically -->
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="color: #94A3B8; font-size: 12px;">Nombre de la Promoción / Plato *</label>
+          <input type="text" id="promo-title" required placeholder="Ej. Combo Burger + Papas 2x1" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="color: #94A3B8; font-size: 12px;">Descripción Corta</label>
+          <input type="text" id="promo-description" placeholder="Ej. Incluye bebida gratis solo por hoy" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+          <div class="form-group" style="flex: 1;">
+            <label style="color: #94A3B8; font-size: 12px;">Precio Regular (COP) *</label>
+            <input type="number" id="promo-original-price" required placeholder="Ej. 25000" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #94A3B8; font-size: 13px; text-decoration: line-through;">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label style="color: #10B981; font-size: 12px; font-weight: 800;">🔥 Precio Oferta (COP) *</label>
+            <input type="number" id="promo-price" required placeholder="Ej. 18000" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #10B981; color: #10B981; font-weight: 800; font-size: 14px;">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label style="color: #94A3B8; font-size: 12px;">URL de Imagen del Plato</label>
+          <input type="url" id="promo-image" placeholder="https://..." style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" onclick="KitchenApp.closeDailyPromoModal()" style="background: transparent; color: #94A3B8; border: 1px solid #475569; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer;">Cancelar</button>
+          <button type="submit" style="background: #FF5E3A; color: #FFF; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer;">🔥 Publicar Promo (24h)</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+    </div>
+  </div>
+
+  <script src="/js/sound.js?v=189"></script>
+  <script src="/js/menu-builder.js?v=83"></script>
+  <script src="/js/kitchen.js?v=189"></script>
+  <script>
+    if (typeof KitchenApp !== 'undefined') {
+      if (!KitchenApp.showToast && typeof KitchenApp.showLocalToast === 'function') {
+        KitchenApp.showToast = function(msg, isErr) { return this.showLocalToast(msg, isErr); };
+      }
+    }
+  </script>
+  <script>
+    let activeCategoryId = 'all';
+    let categoriesList = [];
+    let productsList = [];
+
+    function closeMenuModal() {
+      document.getElementById('product-modal').classList.remove('active');
+      document.getElementById('product-form').reset();
+    }
+
+    function openMenuModal() {
+      document.getElementById('product-modal').classList.add('active');
+    }
+
+    function closeMenuTablesModal() {
+      KitchenApp.closeMenuTablesModal();
+    }
+
+    function setFloorTool(tool) {
+      KitchenApp.setFloorTool(tool);
+    }
+
+    function importGlobalProductFromModal() {
+      KitchenApp.importGlobalProductFromModal();
+    }
+
+    function deleteProductFromModal(prodId) {
+      KitchenApp.deleteProductFromModal(prodId);
+    }
+
+    function handleFastAdd() {
+      const text = document.getElementById('form-fast-add').value;
+      if (!text) return;
+      
+      let parts = text.split(/\s+-\s+/).map(p => p.trim());
+      if (parts.length < 2) {
+        parts = text.split(/\n/).map(p => p.trim()).filter(p => p.length > 0);
+      }
+      if (parts.length < 2) {
+        parts = text.split(/-/).map(p => p.trim()).filter(p => p.length > 0);
+      }
+
+      let name = '';
+      let desc = '';
+      let price = '';
+
+      if (parts.length === 1) {
+        name = parts[0];
+      } else if (parts.length === 2) {
+        name = parts[0];
+        const numMatch = parts[1].replace(/\s/g, '').match(/^\$?[-+]?\d+(?:\.\d+)?$/);
+        if (numMatch) {
+          price = parts[1].replace(/[^\d.]/g, '');
+        } else {
+          desc = parts[1];
+        }
+      } else if (parts.length >= 3) {
+        name = parts[0];
+        desc = parts[1];
+        const numMatch = parts[2].match(/\d+(?:\.\d+)?/);
+        if (numMatch) price = numMatch[0];
+      }
+
+      if (name) {
+        document.getElementById('form-name').value = name;
+        
+        const catSelect = document.getElementById('form-category');
+        if (catSelect) {
+          const nameLower = name.toLowerCase();
+          
+          const categoryMapping = {
+            'perro': 'hot-dogs-perros-calientes',
+            'hot': 'hot-dogs-perros-calientes',
+            'dog': 'hot-dogs-perros-calientes',
+            'hamburguesa': 'hamburguesas',
+            'burguer': 'hamburguesas',
+            'burger': 'hamburguesas',
+            'pizza': 'pizzas',
+            'shawarma': 'shawarmas',
+            'arepa': 'arepas',
+            'cachapa': 'cachapas',
+            'pan': 'pan',
+            'sándwich': 'pan',
+            'sandwich': 'pan',
+            'baguette': 'baguettes',
+            'sushi': 'sushi',
+            'taco': 'tacos',
+            'ramen': 'ramen',
+            'postre': 'postres',
+            'dulce': 'postres',
+            'café': 'cafe',
+            'cafe': 'cafe',
+            'bebida': 'cafe',
+            'jugo': 'cafe',
+            'batido': 'cafe'
+          };
+
+          let matchedSlug = '';
+          for (const [keyword, slug] of Object.entries(categoryMapping)) {
+            if (nameLower.includes(keyword)) {
+              matchedSlug = slug;
+              break;
+            }
+          }
+
+          let foundCategory = false;
+          for (let i = 0; i < catSelect.options.length; i++) {
+            const optVal = catSelect.options[i].value;
+            const optText = catSelect.options[i].text.toLowerCase();
+            
+            if (optVal !== 'new') {
+              if (matchedSlug && (optVal === matchedSlug || optText.includes('perro') || optText.includes('hot dog') || optText.includes(matchedSlug.split('-')[0]))) {
+                catSelect.selectedIndex = i;
+                foundCategory = true;
+                break;
+              }
+              // fallback: check if name contains any part of the category name
+              const cleanOptText = optText.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim();
+              if (cleanOptText.length > 2 && nameLower.includes(cleanOptText.split('/')[0].trim().split(' ')[0].toLowerCase())) {
+                catSelect.selectedIndex = i;
+                foundCategory = true;
+                break;
+              }
+
+              const firstWord = name.split(' ')[0].toLowerCase();
+              if (optText.includes(firstWord)) {
+                catSelect.selectedIndex = i;
+                foundCategory = true;
+                break;
+              }
+            }
+          }
+          
+          if (!foundCategory) {
+            catSelect.value = 'new';
+            const newCatInput = document.getElementById('form-new-category-name');
+            if (newCatInput) newCatInput.value = name.split(' ')[0];
+            const container = document.getElementById('form-new-category-container');
+            if (container) container.style.display = 'block';
+          }
+          
+          if (typeof handleCategoryChange === 'function') handleCategoryChange(catSelect);
+        }
+      }
+      if (desc) document.getElementById('form-desc').value = desc;
+      if (price) document.getElementById('form-price').value = price;
+
+      let extrasText = [];
+      if (desc) {
+        const ingredients = desc.split(/,| y | e /i).map(i => i.trim().replace(/\.$/, '')).filter(i => i.length > 2);
+        extrasText.push(...ingredients);
+      }
+
+      const addMatch = text.match(/adicionales?:?\s*(.+)/i);
+      let addStr = '';
+      if (addMatch) {
+        addStr = addMatch[1];
+      } else if (parts.length >= 4) {
+        addStr = parts[parts.length - 1];
+      }
+
+      if (addStr) {
+        const addParts = addStr.split(',').map(s => s.trim());
+        const filteredAddParts = addParts.filter(s => {
+          const lower = s.toLowerCase();
+          if (lower.match(/^(pequeña|personal|mediana|grande)\s*\d+(?:\.\d+)?$/)) return false;
+          return true;
+        });
+        extrasText.push(...filteredAddParts);
+      }
+
+      const formAdicionales = document.getElementById('form-adicionales');
+      if (formAdicionales) {
+        formAdicionales.value = extrasText.join(', ');
+      }
+
+      const pizzaContainer = document.getElementById('pizza-sizes-container');
+      if (pizzaContainer && pizzaContainer.style.display === 'block') {
+        const sizesPart = parts.find(p => p.toLowerCase().includes('pequeña') || p.toLowerCase().includes('personal') || p.toLowerCase().includes('mediana'));
+        if (sizesPart) {
+          const sizesArr = sizesPart.split(',');
+          sizesArr.forEach(s => {
+            const sLower = s.toLowerCase();
+            const valMatch = s.match(/\d+(?:\.\d+)?$/);
+            if (valMatch) {
+              const pVal = valMatch[0];
+              if (sLower.includes('pequeña') || sLower.includes('personal')) {
+                const input = document.getElementById('form-pizza-small');
+                if (input) input.value = pVal;
+              } else if (sLower.includes('mediana')) {
+                const input = document.getElementById('form-pizza-medium');
+                if (input) input.value = pVal;
+              } else if (sLower.includes('grande')) {
+                const input = document.getElementById('form-pizza-large');
+                if (input) input.value = pVal;
+              }
+            }
+          });
+        }
+      }
+
+      alert('✨ Formulario autocompletado');
+    }
+
+    async function createNewCategory() {
+      const emoji = prompt("Ingresa el EMOJI para la categoría (Ej: 🍕, 🍔, 🥤):");
+      if (!emoji) return;
+      const nameText = prompt("Ingresa el NOMBRE de la categoría (Ej: Pizzas, Bebidas):");
+      if (!nameText) return;
+      
+      const fullName = `${emoji} ${nameText}`;
+      const slug = nameText.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      
+      try {
+        await MenuBuilder.createCategory(fullName, slug);
+        alert(`Categoría "${fullName}" creada con éxito.`);
+        if (typeof KitchenApp !== 'undefined') {
+          window.categoriesList = await MenuBuilder.getCategories();
+          KitchenApp.renderModalCategories();
+        }
+      } catch(err) {
+        console.error(err);
+        alert('Error creando categoría: ' + err.message);
+      }
+    }
+
+    function filterCategoryModal(catId) {
+      KitchenApp.filterCategoryModal(catId);
+    }
+
+    function closeProductSpecsModal() {
+      KitchenApp.closeProductSpecsModal();
+    }
+
+    function addIngredientOption() {
+      KitchenApp.addIngredientOption();
+    }
+
+    function addModifierGroup() {
+      KitchenApp.addModifierGroup();
+    }
+
+    function addOptionToGroup(groupId) {
+      KitchenApp.addOptionToGroup(groupId);
+    }
+
+    function deleteOptionFromGroup(groupId, optionId) {
+      KitchenApp.deleteOptionFromGroup(groupId, optionId);
+    }
+
+    function deleteModifierGroup(groupId) {
+      KitchenApp.deleteModifierGroup(groupId);
+    }
+
+    function handleSpecsSubmit(e) {
+      KitchenApp.handleSpecsSubmit(e);
+    }
+
+    function handleProductSubmit(e) {
+      KitchenApp.handleProductSubmit(e);
+    }
+  </script>
+  <script>
+    // Register Service Worker for PWA installability with immediate update check
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js?v=190').then((reg) => {
+          console.log('ServiceWorker registered successfully', reg.scope);
+          reg.update();
+        }).catch((err) => {
+          console.warn('ServiceWorker registration failed', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
