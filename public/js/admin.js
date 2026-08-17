@@ -535,7 +535,7 @@ class AdminController {
 
         lastOrderHTML = `
           <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span style="font-size: 11px; font-weight: 700; color: #FFF;">⏱️ ${timeAgoStr}</span>
+            <span style="font-size: 11px; font-weight: 700; color: #334155;">⏱️ ${timeAgoStr}</span>
             <span style="background: ${statusObj.bg}; color: ${statusObj.color}; border: 1px solid ${statusObj.color}; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; display: inline-block; width: fit-content;">
               ${statusObj.label} (#${codeStr})
             </span>
@@ -548,7 +548,7 @@ class AdminController {
       row.onclick = () => AdminApp.showEstablishmentActions(est.id);
 
       const disabledBadge = est.disabled 
-        ? `<span style="background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 1px solid #EF4444; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; margin-left: 6px;">🚫 DESHABILITADO</span>`
+        ? `<span style="background: rgba(239, 68, 68, 0.15); color: #DC2626; border: 1px solid #DC2626; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; margin-left: 6px;">🚫 DESHABILITADO</span>`
         : '';
 
       const latDisplay = est.latitude ? parseFloat(est.latitude).toFixed(4) : '7.8145';
@@ -559,12 +559,12 @@ class AdminController {
           <div style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 20px;">${est.logo || '🏪'}</span>
             <div>
-              <span style="font-size: 14px; font-weight: 800; color: #FFF;">${est.name}</span>
+              <span style="font-size: 14px; font-weight: 800; color: #0F172A;">${est.name}</span>
               ${disabledBadge}
             </div>
           </div>
           <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-            <span style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.35); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+            <span style="background: rgba(16, 185, 129, 0.15); color: #065F46; border: 1px solid rgba(16, 185, 129, 0.35); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
               📍 ${est.location || 'San Antonio'} (${latDisplay}, ${lngDisplay})
             </span>
             <button type="button" onclick="event.stopPropagation(); AdminApp.openStoreMapSingle('${est.id}')" style="background: #10B981; color: #FFFFFF; border: none; font-size: 10.5px; font-weight: 800; padding: 3px 10px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(16,185,129,0.3);">
@@ -573,13 +573,13 @@ class AdminController {
           </div>
         </td>
         <td><span class="shop-category-cell">${est.category}</span></td>
-        <td style="font-weight: 600;">${ordersCount}</td>
+        <td style="font-weight: 700; color: #0F172A;">${ordersCount}</td>
         <td>${lastOrderHTML}</td>
-        <td style="font-weight: 700; color: var(--primary);">${this.formatPesos(totalRevenue)}</td>
-        <td class="shop-key-cell" style="font-family: monospace; font-size: 13px; font-weight: 700; white-space: nowrap;">
+        <td style="font-weight: 800; color: var(--primary);">${this.formatPesos(totalRevenue)}</td>
+        <td class="shop-key-cell" style="font-family: monospace; font-size: 13px; font-weight: 800; white-space: nowrap;">
           <div style="display: flex; align-items: center; gap: 6px;">
-            <span style="color: #F59E0B;">${est.linkKey}</span>
-            <button type="button" onclick="event.stopPropagation(); AdminApp.promptChangeLinkKey('${est.id}', '${est.name.replace(/'/g, "\\'")}', '${est.linkKey}')" title="Cambiar clave de vinculación" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 6px; padding: 2px 6px; font-size: 11px; cursor: pointer;">✏️</button>
+            <span style="color: #D97706; font-weight: 800;">${est.linkKey}</span>
+            <button type="button" onclick="event.stopPropagation(); AdminApp.promptChangeLinkKey('${est.id}', '${est.name.replace(/'/g, "\\'")}', '${est.linkKey}')" title="Cambiar clave de vinculación" style="background: rgba(245, 158, 11, 0.15); color: #B45309; border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 6px; padding: 2px 6px; font-size: 11px; cursor: pointer;">✏️</button>
           </div>
         </td>
         <td style="text-align: center; white-space: nowrap;">
@@ -640,17 +640,17 @@ class AdminController {
 
         return `
           <tr>
-            <td style="font-weight: 800; color: #FFF;">🛵 ${d.name}</td>
+            <td style="font-weight: 800; color: #0F172A;">🛵 ${d.name}</td>
             <td>
               <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-size: 12px; font-weight: 700; color: #E2E8F0;">📱 ${d.phone}</span>
-                <a href="${waLink}" target="_blank" style="background: rgba(37,211,102,0.18); color: #25D366; border: 1px solid rgba(37,211,102,0.4); font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="Chat directo por WhatsApp">
+                <span style="font-size: 12px; font-weight: 700; color: #334155;">📱 ${d.phone}</span>
+                <a href="${waLink}" target="_blank" style="background: rgba(37,211,102,0.18); color: #15803d; border: 1px solid rgba(37,211,102,0.4); font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="Chat directo por WhatsApp">
                   💬 Chat
                 </a>
               </div>
             </td>
-            <td style="font-size: 12px;">${d.vehicleType || 'Moto 🛵'}</td>
-            <td style="font-family: monospace; font-size: 13px; font-weight: 800; color: #10B981;">${d.linkKey}</td>
+            <td style="font-size: 12px; font-weight: 600; color: #334155;">${d.vehicleType || 'Moto 🛵'}</td>
+            <td style="font-family: monospace; font-size: 13px; font-weight: 800; color: #047857;">${d.linkKey}</td>
             <td style="font-weight: 800; color: var(--primary); text-align: center;">${d.totalDeliveries || 0}</td>
             <td>${statusBadge}</td>
             <td style="text-align: center;">
