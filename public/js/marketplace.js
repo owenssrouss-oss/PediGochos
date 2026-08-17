@@ -3076,18 +3076,14 @@ class MarketplaceController {
       return minFee;
     }
     const dist = parseFloat(distanceKm);
-    // Standard town base rate covers up to 2.5 km for the base delivery fee
+    // Base rate covers the initial 2.5 km
     if (dist <= 2.5) {
       return minFee;
     }
-    // Beyond 2.5 km up to 10 km: base fee + $1.500 COP per extra km
-    if (dist <= 10.0) {
-      const extraKm = dist - 2.5;
-      const extraFee = Math.round(extraKm * 1500);
-      return minFee + extraFee;
-    }
-    // Glitch / Out-of-city IP protection: fallback to base fee
-    return minFee;
+    // Beyond 2.5 km: base fee + $1.500 COP per each extra km (rounded to nearest 100 COP)
+    const extraKm = dist - 2.5;
+    const extraFee = Math.round((extraKm * 1500) / 100) * 100;
+    return minFee + extraFee;
   }
 
   getActiveShopCenter() {
