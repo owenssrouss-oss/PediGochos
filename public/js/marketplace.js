@@ -3193,13 +3193,15 @@ class MarketplaceController {
   setDeliveryZone(zoneKey) {
     const zones = {
       'san_antonio': { name: 'San Antonio Centro', coords: [7.8145, -72.4430] },
-      'libertadores': { name: 'Barrio Libertadores / Sucre', coords: [7.8210, -72.4390] },
-      'llano_jorge': { name: 'Llano Jorge', coords: [7.8380, -72.4280] },
-      'palotal': { name: 'Palotal', coords: [7.8480, -72.4220] },
-      'tienditas': { name: 'Tienditas', coords: [7.8650, -72.4150] },
-      'peracal': { name: 'Peracal', coords: [7.7950, -72.3980] },
-      'urena': { name: 'Ureña', coords: [7.9180, -72.4460] },
-      'capacho': { name: 'Capacho / Rubio', coords: [7.7050, -72.3550] }
+      'libertadores': { name: 'Libertadores', coords: [7.8064, -72.4483] },
+      'sucre': { name: 'Barrio Sucre', coords: [7.8175, -72.4410] },
+      'llano_jorge': { name: 'Llano Jorge', coords: [7.7786, -72.4584] },
+      'peracal': { name: 'Peracal', coords: [7.7922, -72.4306] },
+      'palotal': { name: 'El Palotal', coords: [7.8562, -72.4406] },
+      'tienditas': { name: 'Tienditas', coords: [7.8837, -72.4421] },
+      'urena': { name: 'Ureña', coords: [7.9183, -72.4467] },
+      'capacho': { name: 'Capacho', coords: [7.8247, -72.3075] },
+      'rubio': { name: 'Rubio', coords: [7.7055, -72.3552] }
     };
     const zone = zones[zoneKey];
     if (!zone) return;
@@ -3226,13 +3228,15 @@ class MarketplaceController {
     const text = (val || '').toLowerCase().trim();
     if (!text) return;
     
-    if (text.includes('llano jorge')) this.setDeliveryZone('llano_jorge');
+    if (text.includes('llano jorge') || text.includes('llano de jorge')) this.setDeliveryZone('llano_jorge');
     else if (text.includes('palotal')) this.setDeliveryZone('palotal');
     else if (text.includes('tienditas')) this.setDeliveryZone('tienditas');
     else if (text.includes('ureña') || text.includes('urena')) this.setDeliveryZone('urena');
     else if (text.includes('peracal')) this.setDeliveryZone('peracal');
-    else if (text.includes('capacho') || text.includes('rubio')) this.setDeliveryZone('capacho');
-    else if (text.includes('libertadores') || text.includes('sucre')) this.setDeliveryZone('libertadores');
+    else if (text.includes('capacho')) this.setDeliveryZone('capacho');
+    else if (text.includes('rubio')) this.setDeliveryZone('rubio');
+    else if (text.includes('libertadores')) this.setDeliveryZone('libertadores');
+    else if (text.includes('sucre')) this.setDeliveryZone('sucre');
   }
 
   fetchUserGPSLocation(shopCenter) {
