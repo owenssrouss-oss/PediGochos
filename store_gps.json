@@ -31,7 +31,7 @@
     "latitude": 7.8135,
     "longitude": -72.4432
   },
-  "muchos-burguer-1784912818841": {
+  "luchos-burguer-1784912818841": {
     "latitude": 7.8125,
     "longitude": -72.444
   },
@@ -55,12 +55,12 @@
     "latitude": 7.813,
     "longitude": -72.4425
   },
-  "zeus-burger-1786252888630": {
-    "latitude": 7.8158,
-    "longitude": -72.443
-  },
   "boki-arepas-1784927442087": {
     "latitude": 7.8155,
     "longitude": -72.444
+  },
+  "zeus-burger-1786252888630": {
+    "latitude": 7.8158,
+    "longitude": -72.443
   }
 }

@@ -563,7 +563,8 @@ const VERIFIED_STORE_GPS = {
   'zeus-burger-1786252888630': { latitude: 7.8158, longitude: -72.4430 },
   'boki-arepas-1784927442087': { latitude: 7.8155, longitude: -72.4440 },
   'burger-grill-puente-sucre--1784935634396': { latitude: 7.8172, longitude: -72.4425 },
-  'muchos-burguer-1784912818841': { latitude: 7.8125, longitude: -72.4440 }
+  'muchos-burguer-1784912818841': { latitude: 7.8125, longitude: -72.4440 },
+  'luchos-burguer-1784912818841': { latitude: 7.8125, longitude: -72.4440 }
 };
 
 const VERIFIED_NAME_GPS = {

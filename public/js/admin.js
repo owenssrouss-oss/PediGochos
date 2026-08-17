@@ -39,6 +39,7 @@ const VERIFIED_STORE_GPS_FRONTEND = {
   'boki-arepas-1784927442087': { latitude: 7.8155, longitude: -72.4440 },
   'burger-grill-puente-sucre--1784935634396': { latitude: 7.8172, longitude: -72.4425 },
   'muchos-burguer-1784912818841': { latitude: 7.8125, longitude: -72.4440 },
+  'luchos-burguer-1784912818841': { latitude: 7.8125, longitude: -72.4440 },
   'makpizza': { latitude: 7.8138, longitude: -72.4420 },
   'shawarmadunes': { latitude: 7.8150, longitude: -72.4438 },
   'lacasadelosbatidos': { latitude: 7.8140, longitude: -72.4430 },

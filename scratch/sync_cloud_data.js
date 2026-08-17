@@ -66,6 +66,11 @@ async function syncAndCleanAll() {
   const storeGpsObj = {};
 
   byNormName.forEach((est, n) => {
+    if (n === 'muchosburguer' || n === 'luchosburger') {
+      est.name = 'Luchos Burguer';
+      est.linkKey = 'LUCHOS';
+      est.id = 'luchos-burguer-1784912818841';
+    }
     const coords = GPS_BY_NAME[n] || { lat: 7.8131, lng: -72.4439 };
     est.latitude = (est.latitude && !isNaN(est.latitude)) ? parseFloat(est.latitude) : coords.lat;
     est.longitude = (est.longitude && !isNaN(est.longitude)) ? parseFloat(est.longitude) : coords.lng;

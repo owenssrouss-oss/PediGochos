@@ -12383,14 +12383,14 @@
       "close_time": "00:00"
     },
     {
-      "id": "muchos-burguer-1784912818841",
-      "name": "Muchos Burguer",
+      "id": "luchos-burguer-1784912818841",
+      "name": "Luchos Burguer",
       "category": "comidas",
       "description": "Hamburguesas rápidas, combos de papas fritas y bebidas.",
       "logo": "🍔",
       "bannerType": "gradient",
       "banner": "linear-gradient(135deg, #D32F2F, #7B1FA2)",
-      "linkKey": "MUCHOS",
+      "linkKey": "LUCHOS",
       "delivery_fee": 5000,
       "themeColor": "#D32F2F",
       "logoImage": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
@@ -15666,6 +15666,80 @@
       "close_time": "00:00"
     },
     {
+      "id": "boki-arepas-1784927442087",
+      "name": "Boki Arepas",
+      "category": "comidas",
+      "description": "Arepas rellenas a la parrilla, contornos sabrosos y combos familiares.",
+      "logo": "🫓",
+      "bannerType": "gradient",
+      "banner": "linear-gradient(135deg, #FF8C00, #E65100)",
+      "linkKey": "BOKIAREPAS",
+      "delivery_fee": 5000,
+      "themeColor": "#FF8C00",
+      "logoImage": "https://images.unsplash.com/photo-1582234372722-50d7ccc30e5b?w=500",
+      "tables": [],
+      "layout": [],
+      "products": [
+        {
+          "id": "p-boki-1",
+          "name": "Arepa Especial Boki",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 6,
+          "category": "🫓 Arepas",
+          "exclusions": [
+            "Jamón",
+            "Queso de Mano",
+            "Aguacate"
+          ],
+          "description": "Arepa asada rellena de queso de mano, carne mechada, pernil y aguacate."
+        },
+        {
+          "id": "p-boki-2",
+          "name": "Arepa Reina Pepiada",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 4.5,
+          "category": "🫓 Arepas",
+          "exclusions": [
+            "Mayonesa",
+            "Aguacate"
+          ],
+          "description": "Relleno clásico de pollo desmenuzado, mayonesa y cremoso aguacate."
+        },
+        {
+          "id": "p-boki-3",
+          "name": "Arepa Pelúa",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 4.5,
+          "category": "🫓 Arepas",
+          "exclusions": [
+            "Queso Amarillo"
+          ],
+          "description": "Sabrosa combinación de carne desmechada guisada y queso amarillo rallado."
+        },
+        {
+          "id": "p-boki-4",
+          "name": "Tequeños Tradicionales (6 Uds)",
+          "image": "https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=500",
+          "price": 4,
+          "category": "🍟 Entradas",
+          "exclusions": [
+            "Guasacaca"
+          ],
+          "description": "Deditos de masa crujiente rellenos de abundante queso blanco derretido con guasacaca."
+        }
+      ],
+      "prep_time": null,
+      "delivery_time": null,
+      "created_at": "2026-08-15T02:41:52.53169+00:00",
+      "location": "San Antonio",
+      "latitude": 7.8155,
+      "longitude": -72.444,
+      "location_lat": 7.8155,
+      "location_lng": -72.444,
+      "open_time": "17:00",
+      "close_time": "00:00"
+    },
+    {
       "id": "zeus-burger-1786252888630",
       "name": "Zeus Burger",
       "category": "comidas",
@@ -16304,80 +16378,6 @@
       "location_lng": -72.443,
       "open_time": "17:00",
       "close_time": "00:00"
-    },
-    {
-      "id": "boki-arepas-1784927442087",
-      "name": "Boki Arepas",
-      "category": "comidas",
-      "description": "Arepas rellenas a la parrilla, contornos sabrosos y combos familiares.",
-      "logo": "🫓",
-      "bannerType": "gradient",
-      "banner": "linear-gradient(135deg, #FF8C00, #E65100)",
-      "linkKey": "BOKIAREPAS",
-      "delivery_fee": 5000,
-      "themeColor": "#FF8C00",
-      "logoImage": "https://images.unsplash.com/photo-1582234372722-50d7ccc30e5b?w=500",
-      "tables": [],
-      "layout": [],
-      "products": [
-        {
-          "id": "p-boki-1",
-          "name": "Arepa Especial Boki",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 6,
-          "category": "🫓 Arepas",
-          "exclusions": [
-            "Jamón",
-            "Queso de Mano",
-            "Aguacate"
-          ],
-          "description": "Arepa asada rellena de queso de mano, carne mechada, pernil y aguacate."
-        },
-        {
-          "id": "p-boki-2",
-          "name": "Arepa Reina Pepiada",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 4.5,
-          "category": "🫓 Arepas",
-          "exclusions": [
-            "Mayonesa",
-            "Aguacate"
-          ],
-          "description": "Relleno clásico de pollo desmenuzado, mayonesa y cremoso aguacate."
-        },
-        {
-          "id": "p-boki-3",
-          "name": "Arepa Pelúa",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 4.5,
-          "category": "🫓 Arepas",
-          "exclusions": [
-            "Queso Amarillo"
-          ],
-          "description": "Sabrosa combinación de carne desmechada guisada y queso amarillo rallado."
-        },
-        {
-          "id": "p-boki-4",
-          "name": "Tequeños Tradicionales (6 Uds)",
-          "image": "https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=500",
-          "price": 4,
-          "category": "🍟 Entradas",
-          "exclusions": [
-            "Guasacaca"
-          ],
-          "description": "Deditos de masa crujiente rellenos de abundante queso blanco derretido con guasacaca."
-        }
-      ],
-      "prep_time": null,
-      "delivery_time": null,
-      "created_at": "2026-08-15T02:41:52.53169+00:00",
-      "location": "San Antonio",
-      "latitude": 7.8155,
-      "longitude": -72.444,
-      "location_lat": 7.8155,
-      "location_lng": -72.444,
-      "open_time": "17:00",
-      "close_time": "00:00"
     }
   ],
   "orders": [
@@ -16778,5 +16778,5 @@
   ],
   "reviews": [],
   "promotions": [],
-  "lastUpdated": "2026-08-17T01:20:24.715Z"
+  "lastUpdated": "2026-08-17T01:32:17.033Z"
 }
