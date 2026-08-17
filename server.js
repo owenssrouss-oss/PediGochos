@@ -574,33 +574,33 @@ function getImmutableStoreGps(est) {
   const id = String(est.id || '').trim();
   const normName = normalizeStoreName(est.name || '');
 
-  // 1. Direct ID match in verified registry
-  if (VERIFIED_STORE_GPS[id]) return VERIFIED_STORE_GPS[id];
-  // 2. Direct normalized name match in verified registry
-  if (VERIFIED_NAME_GPS[normName]) return VERIFIED_NAME_GPS[normName];
-
-  // 3. Substring match against verified names/slugs
-  for (const [key, coords] of Object.entries(VERIFIED_NAME_GPS)) {
-    if (normName.includes(key) || key.includes(normName)) {
-      return coords;
-    }
-  }
-
-  // 4. store_gps.json
+  // 1. Check store_gps.json first (user custom dragged & saved coordinates)
   const storeGpsMap = readStoreGps();
-  if (storeGpsMap[id] && storeGpsMap[id].latitude && storeGpsMap[id].longitude) {
+  if (storeGpsMap[id] && storeGpsMap[id].latitude && storeGpsMap[id].longitude && !isNaN(parseFloat(storeGpsMap[id].latitude)) && !isNaN(parseFloat(storeGpsMap[id].longitude))) {
     return {
       latitude: parseFloat(storeGpsMap[id].latitude),
       longitude: parseFloat(storeGpsMap[id].longitude)
     };
   }
 
-  // 5. Existing valid GPS on object
+  // 2. Check existing valid GPS on establishment object
   if (est.latitude && est.longitude && !isNaN(parseFloat(est.latitude)) && !isNaN(parseFloat(est.longitude))) {
     return {
       latitude: parseFloat(est.latitude),
       longitude: parseFloat(est.longitude)
     };
+  }
+
+  // 3. Fallback to default verified registry by ID
+  if (VERIFIED_STORE_GPS[id]) return VERIFIED_STORE_GPS[id];
+  // 4. Fallback to default verified registry by name
+  if (VERIFIED_NAME_GPS[normName]) return VERIFIED_NAME_GPS[normName];
+
+  // 5. Substring match against verified names/slugs
+  for (const [key, coords] of Object.entries(VERIFIED_NAME_GPS)) {
+    if (normName.includes(key) || key.includes(normName)) {
+      return coords;
+    }
   }
 
   // 6. Default San Antonio center

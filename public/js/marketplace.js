@@ -209,19 +209,19 @@ class MarketplaceController {
           // Server already applies disabled_stores.json in readDB(), trust it directly
           est.disabled = Boolean(est.disabled);
 
-          // Enforce immutable verified GPS
-          const id = String(est.id || '').trim();
-          const normName = (est.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '').trim();
-          const coords = VERIFIED_STORE_GPS_MARKETPLACE[id] || VERIFIED_STORE_GPS_MARKETPLACE[normName] || (est.latitude && est.longitude ? { latitude: est.latitude, longitude: est.longitude } : { latitude: 7.8145, longitude: -72.4430 });
-          est.latitude = parseFloat(coords.latitude);
-          est.longitude = parseFloat(coords.longitude);
+          // Preserve custom GPS from server or fallback to initial registry
+          if (est.latitude && est.longitude && !isNaN(parseFloat(est.latitude)) && !isNaN(parseFloat(est.longitude))) {
+            est.latitude = parseFloat(est.latitude);
+            est.longitude = parseFloat(est.longitude);
+          } else {
+            const id = String(est.id || '').trim();
+            const normName = (est.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '').trim();
+            const coords = VERIFIED_STORE_GPS_MARKETPLACE[id] || VERIFIED_STORE_GPS_MARKETPLACE[normName] || { latitude: 7.8145, longitude: -72.4430 };
+            est.latitude = parseFloat(coords.latitude);
+            est.longitude = parseFloat(coords.longitude);
+          }
           est.location_lat = est.latitude;
           est.location_lng = est.longitude;
-
-          // Clear stale client localStorage GPS overrides
-          try {
-            localStorage.removeItem('store_gps_' + est.id);
-          } catch(e) {}
         });
       }
     } catch (e) {

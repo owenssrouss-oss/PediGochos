@@ -75,9 +75,29 @@ class AdminController {
       if (!est) return;
       const id = String(est.id || '').trim();
       const normName = normalizeStoreName(est.name || '');
-      const coords = VERIFIED_STORE_GPS_FRONTEND[id] || VERIFIED_STORE_GPS_FRONTEND[normName] || (est.latitude && est.longitude ? { latitude: est.latitude, longitude: est.longitude } : { latitude: 7.8145, longitude: -72.4430 });
-      est.latitude = parseFloat(coords.latitude);
-      est.longitude = parseFloat(coords.longitude);
+
+      // 1. If est already has valid custom GPS (e.g. from dragging/saving), PRESERVE IT!
+      if (est.latitude && est.longitude && !isNaN(parseFloat(est.latitude)) && !isNaN(parseFloat(est.longitude))) {
+        est.latitude = parseFloat(est.latitude);
+        est.longitude = parseFloat(est.longitude);
+      } else {
+        // 2. Check localStorage custom saved GPS
+        let localSaved = null;
+        try {
+          const raw = localStorage.getItem('store_gps_' + est.id);
+          if (raw) localSaved = JSON.parse(raw);
+        } catch(e) {}
+
+        if (localSaved && localSaved.latitude && localSaved.longitude) {
+          est.latitude = parseFloat(localSaved.latitude);
+          est.longitude = parseFloat(localSaved.longitude);
+        } else {
+          // 3. Fallback to default initial registry
+          const coords = VERIFIED_STORE_GPS_FRONTEND[id] || VERIFIED_STORE_GPS_FRONTEND[normName] || { latitude: 7.8145, longitude: -72.4430 };
+          est.latitude = parseFloat(coords.latitude);
+          est.longitude = parseFloat(coords.longitude);
+        }
+      }
       est.location_lat = est.latitude;
       est.location_lng = est.longitude;
     });
@@ -2997,6 +3017,10 @@ class AdminController {
     est.location_lat = newLat;
     est.location_lng = newLng;
 
+    try {
+      localStorage.setItem('store_gps_' + est.id, JSON.stringify({ latitude: newLat, longitude: newLng }));
+    } catch(e) {}
+
     this.showToast(`📡 Guardando nueva posición GPS de "${est.name}"...`);
 
     try {
@@ -3013,9 +3037,11 @@ class AdminController {
       });
 
       if (res.ok) {
-        this.showToast(`✅ ¡Ubicación de "${est.name}" fijada con éxito!`);
+        this.showToast(`✅ ¡Ubicación de "${est.name}" guardada (${newLat.toFixed(4)}, ${newLng.toFixed(4)})!`);
+        this.renderTable();
         this.markPendingChanges();
         this.initAdminGlobalStoresMap(this.currentGlobalMapFilter || 'all');
+        this.triggerCloudBackup();
       } else {
         this.showToast('⚠️ Error al guardar la ubicación en el servidor.');
       }
