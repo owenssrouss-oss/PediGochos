@@ -41,6 +41,7 @@ async function syncAndCleanAll() {
     'bokiarepas': { lat: 7.8155, lng: -72.4440 },
     'burgergrillpuentesucre': { lat: 7.8172, lng: -72.4425 },
     'muchosburguer': { lat: 7.8125, lng: -72.4440 },
+    'luchosburguer': { lat: 7.8125, lng: -72.4440 },
     'luchosburger': { lat: 7.8125, lng: -72.4440 }
   };
 

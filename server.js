@@ -328,6 +328,11 @@ async function syncFromPostgres() {
         establishments.forEach(est => {
           const localMatch = localEsts.find(l => String(l.id).trim() === String(est.id).trim());
           if (localMatch) {
+            const localProdCount = Array.isArray(localMatch.products) ? localMatch.products.length : 0;
+            const pgProdCount = Array.isArray(est.products) ? est.products.length : 0;
+            if (localProdCount >= pgProdCount) {
+              est.products = localMatch.products;
+            }
             if (localMatch.linkKey && !est.linkKey) est.linkKey = localMatch.linkKey;
             if (localMatch.open_time && !est.open_time) est.open_time = localMatch.open_time;
             if (localMatch.close_time && !est.close_time) est.close_time = localMatch.close_time;
@@ -351,38 +356,13 @@ async function syncFromPostgres() {
             disabledMap[est.id] = est.disabled;
           }
 
-          // GPS Deletion Blacklist: if GPS was explicitly deleted by admin, never restore it
-          const gpsDeletedMap = readGpsDeleted();
-          if (gpsDeletedMap[est.id]) {
-            est.latitude = null;
-            est.longitude = null;
-            est.location_lat = null;
-            est.location_lng = null;
-            delete storeGpsMap[est.id];
-          } else {
-            // Bulletproof GPS Preservation: Keep valid GPS coordinates
-            const hasEstGps = est.latitude && est.longitude;
-            const hasGpsMap = storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude;
-            const hasLocalMatchGps = localMatch && localMatch.latitude && localMatch.longitude;
-            if (hasEstGps) {
-              est.latitude = parseFloat(est.latitude);
-              est.longitude = parseFloat(est.longitude);
-              est.location_lat = est.latitude;
-              est.location_lng = est.longitude;
-              storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
-            } else if (hasGpsMap) {
-              est.latitude = parseFloat(storeGpsMap[est.id].latitude);
-              est.longitude = parseFloat(storeGpsMap[est.id].longitude);
-              est.location_lat = est.latitude;
-              est.location_lng = est.longitude;
-            } else if (hasLocalMatchGps) {
-              est.latitude = parseFloat(localMatch.latitude);
-              est.longitude = parseFloat(localMatch.longitude);
-              est.location_lat = est.latitude;
-              est.location_lng = est.longitude;
-              storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
-            }
-          }
+          // Enforce immutable verified GPS
+          const immutableCoords = getImmutableStoreGps(est);
+          est.latitude = parseFloat(immutableCoords.latitude);
+          est.longitude = parseFloat(immutableCoords.longitude);
+          est.location_lat = est.latitude;
+          est.location_lng = est.longitude;
+          storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
         });
         const dedupedEsts = deduplicateEstablishments(establishments);
         writeDisabledStores(disabledMap);
@@ -1585,8 +1565,7 @@ app.get('*', (req, res, next) => {
 
 server.listen(PORT, async () => {
   console.log(`Server running on http://localhost:${PORT}`);
-  const syncedFromPostgres = await syncFromPostgres();
-  if (!syncedFromPostgres) {
-    await syncFromSupabase();
-  }
+  // Always prioritize Supabase Storage (db_backup.json) as the authoritative master
+  await syncFromSupabase();
+  await syncFromPostgres();
 });
