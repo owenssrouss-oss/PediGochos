@@ -25,7 +25,7 @@ Este documento contiene el **respaldo maestro e inmutable** de las ubicaciones f
 | 11 | **Karritos De Manuel** | `carritos-de-manuel-1784411690116` | `karritosdemanuel` / `carritosdemanuel` | `7.812800` | `-72.445100` | `8R8I3J` |
 | 12 | **Boby Burgers** | `boby-burgers-1784410785941` | `bobyburgers` | `7.814200` | `-72.444500` | `6MAP9F` |
 | 13 | **GeMa Pop** | `gema-pop-1785968399832` | `gemapop` | `7.812200` | `-72.443500` | `I0NGPZ` |
-| 14 | **FrutyHeladosGourmet** | `frutyheladosgourmet-1786228530112` | `frutyheladosgourmet` | `7.813000` | `-72.442500` | `C7IMI6` |
+| 14 | **FrutyHeladosGourmet** | `frutyheladosgourmet-1786228530112` | `frutyheladosgourmet` | `7.813000` | `-72.442500` | `FRUTYHELADOS` |
 | 15 | **Boki Arepas** | `boki-arepas-1784927442087` | `bokiarepas` | `7.810803` | `-72.442685` | `BOKIAREPAS` |
 | 16 | **Zeus Burger** | `zeus-burger-1786252888630` | `zeusburger` | `7.815445` | `-72.439140` | `91Z7J8` |
 

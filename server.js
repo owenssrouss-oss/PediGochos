@@ -806,8 +806,21 @@ app.post('/api/establishments', (req, res) => {
     newEstablishment.products = [];
   }
 
-  // Save/generate the administration key
-  newEstablishment.linkKey = newEstablishment.linkKey || Math.random().toString(36).substring(2, 8).toUpperCase();
+  // Save/generate the unique administration key
+  if (newEstablishment.linkKey) {
+    const keyCand = newEstablishment.linkKey.trim().toUpperCase();
+    const conflict = db.establishments.find(e => e.linkKey === keyCand);
+    if (conflict) {
+      return res.status(400).json({ error: `La clave "${keyCand}" ya está en uso por "${conflict.name}". Debe ser única.` });
+    }
+    newEstablishment.linkKey = keyCand;
+  } else {
+    let genKey = '';
+    do {
+      genKey = Math.random().toString(36).substring(2, 8).toUpperCase();
+    } while (db.establishments.some(e => e.linkKey === genKey));
+    newEstablishment.linkKey = genKey;
+  }
   newEstablishment.location = newEstablishment.location || 'San Antonio';
   newEstablishment.open_time = newEstablishment.open_time || '17:00';
   newEstablishment.close_time = newEstablishment.close_time || '00:00';
@@ -1129,8 +1142,15 @@ app.put('/api/establishments/:id', (req, res) => {
   if (req.body.extraPrepTime !== undefined) {
     est.extraPrepTime = req.body.extraPrepTime ? parseInt(req.body.extraPrepTime) : 20;
   }
-  if (req.body.newLinkKey) {
-    est.linkKey = req.body.newLinkKey;
+  if (req.body.newLinkKey || req.body.linkKey) {
+    const candidateKey = String(req.body.newLinkKey || req.body.linkKey).trim().toUpperCase();
+    if (candidateKey) {
+      const conflict = db.establishments.find(e => e.id !== id && e.linkKey === candidateKey);
+      if (conflict) {
+        return res.status(400).json({ error: `La clave "${candidateKey}" ya está en uso por "${conflict.name}". Debe ser única.` });
+      }
+      est.linkKey = candidateKey;
+    }
   }
   
   writeDB(db);

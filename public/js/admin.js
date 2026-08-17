@@ -544,6 +544,9 @@ class AdminController {
           </div>
         </td>
         <td style="text-align: center; white-space: nowrap;">
+          <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.openStoreKitchen('${est.id}')" style="background-color: #F59E0B; color: #1E293B; border: none; font-size: 12px; padding: 6px 12px; border-radius: var(--radius-sm); font-weight: 800; margin: 0 2px; width: auto; display: inline-block; cursor: pointer; box-shadow: 0 2px 6px rgba(245,158,11,0.35);" title="Abrir cocina de este comercio en vivo">
+            🍳 Cocina (KDS)
+          </button>
           <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.openStoreQRModal('${est.id}')" style="background-color: #6366F1; color: #FFFFFF; border: none; font-size: 12px; padding: 6px 12px; border-radius: var(--radius-sm); font-weight: 800; margin: 0 2px; width: auto; display: inline-block; cursor: pointer; box-shadow: 0 2px 6px rgba(99,102,241,0.3);">
             📱 QR & Link
           </button>
@@ -747,6 +750,15 @@ class AdminController {
     const modal = document.getElementById('est-action-modal');
     if (modal) modal.classList.remove('active');
     this.checkModalOpenState();
+  }
+
+  openStoreKitchen(estId) {
+    const targetId = estId || this.activeShopId;
+    const est = this.establishments.find(e => e.id === targetId);
+    if (!est) return;
+    this.closeEstActionModal();
+    const url = '/kitchen.html?key=' + encodeURIComponent(est.linkKey || '');
+    window.open(url, '_blank') || (window.location.href = url);
   }
 
   viewShopMenu() {

@@ -13,8 +13,30 @@ class KitchenController {
   async init() {
     await this.loadEstablishments();
     this.setupTimer();
-    await this.checkSupabaseSession();
-    this.checkLocalSession();
+
+    // Check URL parameters for direct auto-login (?key=... or ?shop=... or ?store=...)
+    const urlParams = new URLSearchParams(window.location.search);
+    const directKey = urlParams.get('key') || urlParams.get('clave');
+    const directShop = urlParams.get('shop') || urlParams.get('store');
+
+    if (directKey) {
+      const keyInp = document.getElementById('auth-link-key');
+      if (keyInp) keyInp.value = directKey.trim().toUpperCase();
+      await this.verifyAndLinkKeyDirect();
+    } else if (directShop) {
+      const est = this.establishments.find(e => e.id === directShop.trim() || (e.linkKey && e.linkKey.toUpperCase() === directShop.trim().toUpperCase()));
+      if (est && est.linkKey) {
+        const keyInp = document.getElementById('auth-link-key');
+        if (keyInp) keyInp.value = est.linkKey;
+        await this.verifyAndLinkKeyDirect();
+      } else {
+        await this.checkSupabaseSession();
+        this.checkLocalSession();
+      }
+    } else {
+      await this.checkSupabaseSession();
+      this.checkLocalSession();
+    }
 
     // Set up auto-stop listeners and audio unlock for persistent alarm
     if (typeof Sound !== 'undefined') {

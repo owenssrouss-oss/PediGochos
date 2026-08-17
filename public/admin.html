@@ -459,6 +459,9 @@
       </div>
       <p id="action-modal-shop-name" style="color: var(--accent); font-weight: 700; margin-bottom: 24px; font-size: 16px;"></p>
       <div style="display: flex; flex-direction: column; gap: 14px;">
+        <button class="btn-neumorphic" onclick="AdminApp.openStoreKitchen(AdminApp.activeShopId);" style="width: 100%; justify-content: center; gap: 8px; font-weight: 800; background-color: #F59E0B; color: #1E293B; border-color: #F59E0B; cursor: pointer; box-shadow: 0 4px 12px rgba(245,158,11,0.35);">
+          🍳 Abrir Cocina de este Comercio (KDS)
+        </button>
         <button class="btn-neumorphic" onclick="AdminApp.closeEstActionModal(); AdminApp.openStoreQRModal(AdminApp.activeShopId);" style="width: 100%; justify-content: center; gap: 8px; font-weight: 800; background-color: #4F46E5; color: #FFF; border-color: #6366F1; cursor: pointer; box-shadow: 0 4px 12px rgba(99,102,241,0.35);">
           📱 Generar Link y Código QR para Mesas
         </button>
@@ -981,8 +984,8 @@
     </div>
   </div>
 
-  <script src="/js/sound.js?v=188"></script>
-  <script src="/js/admin.js?v=188"></script>
+  <script src="/js/sound.js?v=189"></script>
+  <script src="/js/admin.js?v=189"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
