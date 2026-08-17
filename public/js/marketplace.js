@@ -47,7 +47,46 @@ class MarketplaceController {
     this.isTrackingMinimized = false; // Whether active order tracking is minimized
   }
 
+  async forceCleanUpdate() {
+    try {
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      }
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (let reg of registrations) {
+          await reg.unregister();
+        }
+      }
+      const url = new URL(window.location.href);
+      url.searchParams.set('t_sync', Date.now());
+      window.location.href = url.toString();
+    } catch(e) {
+      window.location.reload(true);
+    }
+  }
+
   async init() {
+    // Auto-detect version update and clear stale caches
+    const APP_VER = '190';
+    try {
+      const cachedVer = localStorage.getItem('pedigochos_app_ver');
+      if (cachedVer && cachedVer !== APP_VER) {
+        localStorage.setItem('pedigochos_app_ver', APP_VER);
+        if ('caches' in window) {
+          caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
+            const url = new URL(window.location.href);
+            url.searchParams.set('v_flush', Date.now());
+            window.location.replace(url.toString());
+          });
+          return;
+        }
+      } else {
+        localStorage.setItem('pedigochos_app_ver', APP_VER);
+      }
+    } catch(e) {}
+
     // Clear any lingering redirect flag
     localStorage.removeItem('redirect_after_google_login');
 

@@ -74,6 +74,11 @@
         <button type="submit" class="btn-login" onclick="event.preventDefault(); if (typeof AdminApp !== 'undefined' && typeof AdminApp.login === 'function') { AdminApp.login(); } else { alert('⚠️ El panel de administración está cargando, por favor intenta de nuevo en un segundo.'); }" style="background-color: #334155; cursor: pointer;">Verificar e Ingresar</button>
       </form>
       <p id="login-error" class="login-error-msg hidden">Contraseña incorrecta. Inténtalo de nuevo.</p>
+      <div style="margin-top: 14px; text-align: center;">
+        <button type="button" onclick="if (typeof AdminApp !== 'undefined' && typeof AdminApp.forceCleanUpdate === 'function') { AdminApp.forceCleanUpdate(); } else { window.location.reload(true); }" style="background: none; border: none; color: #94A3B8; font-size: 11px; text-decoration: underline; cursor: pointer;">
+          🔄 ¿No ves los cambios más recientes? Toca aquí para forzar actualización y limpiar caché
+        </button>
+      </div>
     </div>
   </div>
 
@@ -98,6 +103,7 @@
             <span class="status-dot" style="width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; animation: pulse 2s infinite;"></span>
             <span id="online-owners-count">1 activo</span>
           </div>
+          <button class="btn-logout" onclick="AdminApp.forceCleanUpdate()" style="background-color: rgba(239, 68, 68, 0.15); color: #F87171; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer;" title="Limpiar caché y forzar descarga de la última versión">⚡ Forzar Actualización</button>
           <button class="btn-logout" onclick="AdminApp.requestNotificationPermission()" style="background-color: #3B82F6; color: #FFFFFF; font-weight: 800; border: 1px solid #3B82F6;">🔔 Notificaciones</button>
           <button id="btn-cloud-load" class="btn-logout" onclick="AdminApp.loadLatestVersionFromCloud()" style="background-color: #1E293B; color: #38BDF8; font-weight: 800; border: 1px solid #38BDF8; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer;" title="Cargar última versión guardada en la nube">📥 Cargar Última Versión</button>
           <button id="btn-cloud-save" class="btn-logout" onclick="AdminApp.saveChangesToCloud()" style="background-color: #374151; color: #9CA3AF; font-weight: 800; border: 1px solid #4B5563; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; transition: all 0.3s ease;" title="Guardar cambios pendientes en la nube">💾 Guardar Cambios</button>
@@ -984,8 +990,8 @@
     </div>
   </div>
 
-  <script src="/js/sound.js?v=189"></script>
-  <script src="/js/admin.js?v=189"></script>
+  <script src="/js/sound.js?v=190"></script>
+  <script src="/js/admin.js?v=190"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
@@ -1951,5 +1957,15 @@
   <button class="sound-test-btn" onclick="if(window.Sound){ if(Sound.isPlayingAlarm){Sound.stopAlarm();}else{Sound.startPersistentOrderAlarm(10);} }" title="Probar Alarma Escandalosa">
     🚨
   </button>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js?v=190').then((reg) => {
+          reg.update();
+        }).catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

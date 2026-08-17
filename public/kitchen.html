@@ -956,10 +956,10 @@
     }
   </script>
   <script>
-    // Register Service Worker for PWA installability
+    // Register Service Worker for PWA installability with immediate update check
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js?v=165').then((reg) => {
+        navigator.serviceWorker.register('/sw.js?v=190').then((reg) => {
           console.log('ServiceWorker registered successfully', reg.scope);
           reg.update();
         }).catch((err) => {
