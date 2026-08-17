@@ -540,13 +540,24 @@ class AdminController {
         ? `<span style="background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 1px solid #EF4444; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; margin-left: 6px;">🚫 DESHABILITADO</span>`
         : '';
 
+      const latDisplay = est.latitude ? parseFloat(est.latitude).toFixed(4) : '7.8145';
+      const lngDisplay = est.longitude ? parseFloat(est.longitude).toFixed(4) : '-72.4430';
+
       row.innerHTML = `
         <td class="shop-title-cell" style="font-weight: 700;">
-          ${est.logo || '🏪'} ${est.name} ${disabledBadge}
-          <div style="margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-            <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">📍 ${est.location || 'San Antonio'}</span>
-            <button type="button" onclick="event.stopPropagation(); AdminApp.openStoreMapSingle('${est.id}')" style="background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;">
-              🗺️ GPS
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 20px;">${est.logo || '🏪'}</span>
+            <div>
+              <span style="font-size: 14px; font-weight: 800; color: #FFF;">${est.name}</span>
+              ${disabledBadge}
+            </div>
+          </div>
+          <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <span style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.35); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+              📍 ${est.location || 'San Antonio'} (${latDisplay}, ${lngDisplay})
+            </span>
+            <button type="button" onclick="event.stopPropagation(); AdminApp.openStoreMapSingle('${est.id}')" style="background: #10B981; color: #FFFFFF; border: none; font-size: 10.5px; font-weight: 800; padding: 3px 10px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(16,185,129,0.3);">
+              🗺️ Ver en Mapa
             </button>
           </div>
         </td>
@@ -561,7 +572,7 @@ class AdminController {
           </div>
         </td>
         <td style="text-align: center; white-space: nowrap;">
-          <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.openStoreMapSingle('${est.id}')" style="background-color: #E0E7FF; color: #3730A3; border: 1px solid #A5B4FC; font-size: 12px; padding: 6px 10px; border-radius: var(--radius-sm); font-weight: 700; margin: 0 2px; width: auto; display: inline-block; cursor: pointer;">
+          <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.openStoreMapSingle('${est.id}')" style="background-color: #10B981; color: #FFFFFF; border: none; font-size: 12px; padding: 6px 12px; border-radius: var(--radius-sm); font-weight: 800; margin: 0 2px; width: auto; display: inline-block; cursor: pointer; box-shadow: 0 2px 6px rgba(16,185,129,0.25);">
             🗺️ Ubicación GPS
           </button>
           <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.toggleDisableEstablishment('${est.id}')" style="background-color: ${est.disabled ? '#FEF3C7' : '#F3F4F6'}; color: ${est.disabled ? '#D97706' : '#374151'}; border: 1px solid ${est.disabled ? '#FCD34D' : '#D1D5DB'}; font-size: 12px; padding: 6px 10px; border-radius: var(--radius-sm); font-weight: 700; margin: 0 2px; width: auto; display: inline-block; cursor: pointer;">
