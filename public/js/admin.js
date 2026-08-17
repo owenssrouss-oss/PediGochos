@@ -3225,6 +3225,14 @@ class AdminController {
       const marker = L.marker([lat, lng], { icon: emojiIcon, draggable: true }).addTo(map);
       marker.bindPopup(buildPopupHTML(est, lat, lng));
 
+      // Permanent visible store name tag above the pin
+      marker.bindTooltip(`<b>${est.name}</b>`, {
+        permanent: true,
+        direction: 'top',
+        className: 'admin-map-pin-label',
+        offset: [0, -20]
+      });
+
       marker.on('dragend', (e) => {
         const pos = e.target.getLatLng();
         const newLat = parseFloat(pos.lat.toFixed(6));
@@ -3238,15 +3246,79 @@ class AdminController {
       this.globalMapMarkers.push({ estId: est.id, marker });
     });
 
+    // Populate dropdown list with registered stores
+    const selectEl = document.getElementById('admin-map-store-select');
+    if (selectEl) {
+      selectEl.innerHTML = '<option value="">🔍 Centrar Restaurante...</option>';
+      estsToRender.forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e.id;
+        opt.textContent = `${e.logo || '🏪'} ${e.name}`;
+        selectEl.appendChild(opt);
+      });
+    }
+
     try {
       if (bounds && typeof bounds.isValid === 'function' && bounds.isValid()) {
-        map.fitBounds(bounds, { padding: [40, 40] });
+        map.fitBounds(bounds, { padding: [50, 50] });
       } else {
         map.setView([centerLat, centerLng], 14);
       }
     } catch(e) {
       console.warn('Map fitBounds warning:', e);
       map.setView([centerLat, centerLng], 14);
+    }
+  }
+
+  focusStoreOnMap(estId) {
+    if (!estId) return;
+    const item = (this.globalMapMarkers || []).find(m => String(m.estId) === String(estId));
+    if (item && item.marker && this.globalMap) {
+      const latLng = item.marker.getLatLng();
+      this.globalMap.setView(latLng, 16, { animate: true });
+      item.marker.openPopup();
+    }
+  }
+
+  async restoreAllMasterGPS() {
+    if (!confirm('¿Restablecer las ubicaciones GPS de los 16 comercios a sus coordenadas maestras oficiales de San Antonio del Táchira?')) return;
+
+    this.showToast('⏳ Restableciendo ubicaciones maestras...');
+
+    try {
+      for (const est of this.establishments) {
+        const id = String(est.id || '').trim();
+        const normName = normalizeStoreName(est.name || '');
+        const masterCoords = VERIFIED_STORE_GPS_FRONTEND[id] || VERIFIED_STORE_GPS_FRONTEND[normName];
+        if (masterCoords) {
+          est.latitude = masterCoords.latitude;
+          est.longitude = masterCoords.longitude;
+          est.location_lat = masterCoords.latitude;
+          est.location_lng = masterCoords.longitude;
+          try {
+            localStorage.setItem('store_gps_' + est.id, JSON.stringify(masterCoords));
+          } catch(e) {}
+          await fetch(`/api/establishments/${est.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              isOwner: true,
+              latitude: masterCoords.latitude,
+              longitude: masterCoords.longitude,
+              location_lat: masterCoords.latitude,
+              location_lng: masterCoords.longitude
+            })
+          });
+        }
+      }
+
+      this.showToast('✅ ¡Todas las 16 ubicaciones han sido restablecidas a sus posiciones maestras!');
+      this.renderTable();
+      this.initAdminGlobalStoresMap(this.currentGlobalMapFilter || 'all');
+      this.triggerCloudBackup();
+    } catch(err) {
+      console.error(err);
+      this.showToast('⚠️ Error al restablecer ubicaciones maestras.');
     }
   }
 

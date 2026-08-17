@@ -12,6 +12,23 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/supabase-helper.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <style>
+    .admin-map-pin-label {
+      background: rgba(15, 23, 42, 0.95) !important;
+      color: #FFFFFF !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      border-radius: 6px !important;
+      font-size: 11px !important;
+      font-weight: 800 !important;
+      padding: 2px 7px !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
+      white-space: nowrap !important;
+      pointer-events: none !important;
+    }
+    .admin-map-pin-label::before {
+      border-top-color: rgba(15, 23, 42, 0.95) !important;
+    }
+  </style>
 </head>
 <body>
 
@@ -964,8 +981,8 @@
     </div>
   </div>
 
-  <script src="/js/sound.js?v=185"></script>
-  <script src="/js/admin.js?v=185"></script>
+  <script src="/js/sound.js?v=186"></script>
+  <script src="/js/admin.js?v=186"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
@@ -1790,11 +1807,16 @@
         <div id="admin-map-stats-text" style="font-size: 12px; font-weight: 700; color: #10B981; display: flex; align-items: center; gap: 6px;">
           <span>📡</span> <span>Cargando ubicaciones...</span>
         </div>
-        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+          <select id="admin-map-store-select" onchange="AdminApp.focusStoreOnMap(this.value)" style="padding: 5px 10px; font-size: 11.5px; font-weight: 700; border-radius: 10px; background: #0F172A; color: #FFF; border: 1px solid #334155; max-width: 180px;">
+            <option value="">🔍 Centrar Restaurante...</option>
+          </select>
+          <button type="button" onclick="AdminApp.restoreAllMasterGPS()" style="padding: 5px 12px; font-size: 11px; font-weight: 800; border-radius: 10px; background: #4F46E5; color: #FFF; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(79,70,229,0.3);">
+            🔄 Restaurar Maestras
+          </button>
           <button type="button" onclick="AdminApp.filterGlobalMapLocation('all')" style="padding: 4px 10px; font-size: 11px; font-weight: 800; border-radius: 14px; background: var(--primary); color: #FFF; border: none; cursor: pointer;">Todos</button>
           <button type="button" onclick="AdminApp.filterGlobalMapLocation('San Antonio')" style="padding: 4px 10px; font-size: 11px; font-weight: 800; border-radius: 14px; background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">San Antonio</button>
           <button type="button" onclick="AdminApp.filterGlobalMapLocation('Ureña')" style="padding: 4px 10px; font-size: 11px; font-weight: 800; border-radius: 14px; background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">Ureña</button>
-          <button type="button" onclick="AdminApp.filterGlobalMapLocation('San Cristóbal')" style="padding: 4px 10px; font-size: 11px; font-weight: 800; border-radius: 14px; background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">San Cristóbal</button>
         </div>
       </div>
 
