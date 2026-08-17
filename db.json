@@ -417,6 +417,2816 @@
       "close_time": "00:00"
     },
     {
+      "id": "patacon-fire-1786157840794",
+      "name": "Patacon Fire",
+      "category": "comidas",
+      "description": "Patacon, hamburguesas, perros",
+      "logo": "🍔",
+      "bannerType": "gradient",
+      "banner": "linear-gradient(135deg, #FF8C00, #FF4500)",
+      "linkKey": "K8QAFC",
+      "delivery_fee": 0,
+      "themeColor": null,
+      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1786157840098_219.png",
+      "tables": [],
+      "layout": [],
+      "products": [
+        {
+          "id": "p-1786158242838-90",
+          "name": "Patacón Criollo Clásico",
+          "image": "",
+          "price": 26,
+          "category": "Patacon",
+          "modifiers": [],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "carne desmechada",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "vibrante pico de gallo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "culminado con queso amarillo rallado",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "huevo de codorniz",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "exquisita salsa de la casa",
+              "price": 500
+            }
+          ],
+          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
+          "description": "carne desmechada, vibrante pico de gallo, culminado con queso amarillo rallado, huevo de codorniz y exquisita salsa de la casa."
+        },
+        {
+          "id": "p-1786158275027-44",
+          "name": "Patacón Tentación Mixta",
+          "image": "",
+          "price": 26,
+          "category": "Patacon",
+          "modifiers": [],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "pechuga de pollo asada",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "jugosa carne de res",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "lomo de cerdo ahumado",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "culminado con queso amarillo rallado",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "exquisito chimichurri",
+              "price": 500
+            }
+          ],
+          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
+          "description": "pechuga de pollo asada, jugosa carne de res y lomo de cerdo ahumado, culminado con queso amarillo rallado y exquisito chimichurri."
+        },
+        {
+          "id": "p-1786158332672-84",
+          "name": "Patacón BBQ Ahumado",
+          "image": "",
+          "price": 26,
+          "category": "Patacon",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861583326720.13321444465328425",
+                  "name": "Cerdo desmenuzado en salsa BBQ",
+                  "option_id": "opt-17861583326720.6200470520893137",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861583326720.7307622996835182",
+                  "name": "maíz tierno",
+                  "price": 500,
+                  "option_id": "opt-17861583326720.9721924488570316",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861583326720.6833156823295917",
+                  "name": "ensalada coleslaw",
+                  "option_id": "opt-17861583326720.09934419543768569",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861583326720.8131281637463046",
+                  "name": "culminado con queso amarillo rallado (salsa de la casa).",
+                  "option_id": "opt-17861583326720.20297172262064433",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786158332672",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Cerdo desmenuzado en salsa BBQ",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "maíz tierno",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "ensalada coleslaw",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "culminado con queso amarillo rallado (salsa de la casa)",
+              "price": 500
+            }
+          ],
+          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
+          "description": "Cerdo desmenuzado en salsa BBQ, maíz tierno, ensalada coleslaw, culminado con queso amarillo rallado (salsa de la casa)."
+        },
+        {
+          "id": "p-1786158488257-83",
+          "name": "Patacón El Gran Ranchero",
+          "image": "",
+          "price": 28,
+          "category": "Patacon",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861584882570.8566790938332411",
+                  "name": "carne desmechada",
+                  "price": 500,
+                  "option_id": "opt-17861584882570.09160236395105337",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861584882570.3187052710192293",
+                  "name": "maíz tierno y chorizo argentino",
+                  "option_id": "opt-17861584882570.5583425970120249",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861584882570.887889076023552",
+                  "name": "con finas laminas de aguacate y queso amarillo rallado (salsa mayo-mostaza).",
+                  "option_id": "opt-17861584882570.38057845700497805",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786158488257",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "carne desmechada",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "maíz tierno",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "chorizo argentino",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "con finas laminas de aguacate",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "queso amarillo rallado (salsa mayo-mostaza)",
+              "price": 500
+            }
+          ],
+          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
+          "description": "carne desmechada, maíz tierno y chorizo argentino, con finas laminas de aguacate y queso amarillo rallado (salsa mayo-mostaza)."
+        },
+        {
+          "id": "p-1786158563594-57",
+          "name": "Patacón El Irresistible",
+          "image": "",
+          "price": 31,
+          "category": "Patacon",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861585635940.951165294766911",
+                  "name": "carne desmechada",
+                  "price": 500,
+                  "option_id": "opt-17861585635940.7189101036086378",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861585635940.9043775796524651",
+                  "name": "pechuga asada",
+                  "option_id": "opt-17861585635940.1976755759073464",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861585635940.2934587826859021",
+                  "name": "huevo cocido",
+                  "option_id": "opt-17861585635940.42730781882769797",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861585635940.31576406287717906",
+                  "name": "tocineta",
+                  "price": 500,
+                  "option_id": "opt-17861585635940.7326357697604474",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861585635940.3493717522686727",
+                  "name": "jamón",
+                  "option_id": "opt-17861585635940.3882331028911703",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861585635940.21424069690630543",
+                  "name": "queso paisa rallado",
+                  "option_id": "opt-17861585635940.13848087221505057",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861585635940.14994662020131655",
+                  "name": "lechuga",
+                  "option_id": "opt-17861585635940.7638508892343575",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861585635940.016078672695262752",
+                  "name": "tomate.",
+                  "option_id": "opt-17861585635940.41476865945043173",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786158563594",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "carne desmechada",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "pechuga asada",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "huevo cocido",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "tocineta",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "queso paisa rallado",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "lechuga",
+              "price": 500
+            },
+            {
+              "id": "ex-7",
+              "name": "tomate",
+              "price": 500
+            }
+          ],
+          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
+          "description": "carne desmechada, pechuga asada, huevo cocido, tocineta, jamón, queso paisa rallado, lechuga, tomate."
+        },
+        {
+          "id": "p-1786158628822-43",
+          "name": "Canasta De Patacón Pollo Y Champiñón",
+          "image": "",
+          "price": 21,
+          "category": "Patacon",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861586288220.8395384911801309",
+                  "name": "Pollo Y Champiñón - Canasta rellena de pechuga de pollo",
+                  "option_id": "opt-17861586288220.3697402078436829",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861586288220.23828242922201937",
+                  "name": "champiñón",
+                  "option_id": "opt-17861586288220.2265488056985997",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861586288220.6432397959023113",
+                  "name": "maíz tierno",
+                  "price": 500,
+                  "option_id": "opt-17861586288220.5389746556911105",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861586288220.3974935015171819",
+                  "name": "queso rallado.",
+                  "option_id": "opt-17861586288220.00005618492221393101",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786158628822",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Pollo",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "Champiñón - Canasta rellena de pechuga de pollo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "champiñón",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "maíz tierno",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "queso rallado",
+              "price": 500
+            }
+          ],
+          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
+          "description": "Pollo Y Champiñón - Canasta rellena de pechuga de pollo, champiñón, maíz tierno, queso rallado."
+        },
+        {
+          "id": "p-1786158676638-95",
+          "name": "Canasta De Patacón Criolla",
+          "image": "",
+          "price": 24,
+          "category": "Patacon",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861586766380.24712871506718626",
+                  "name": "carne desmechada",
+                  "price": 500,
+                  "option_id": "opt-17861586766380.2818297365779514",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861586766380.054978030270244393",
+                  "name": "pico de gallo",
+                  "price": 500,
+                  "option_id": "opt-17861586766380.48052405423544287",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861586766380.3200471729590846",
+                  "name": "chorizo",
+                  "price": 500,
+                  "option_id": "opt-17861586766380.7894850107461927",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861586766380.6511277226391026",
+                  "name": "aguacate y queso rallado.",
+                  "option_id": "opt-17861586766380.3258303239469752",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786158676638",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "carne desmechada",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "pico de gallo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "chorizo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "aguacate",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "queso rallado",
+              "price": 500
+            }
+          ],
+          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
+          "description": "carne desmechada, pico de gallo, chorizo, aguacate y queso rallado."
+        },
+        {
+          "id": "p-1786158738302-53",
+          "name": "Canasta De Patacón Ceviche De Chicharrón",
+          "image": "",
+          "price": 21,
+          "category": "Patacon",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861587383020.49295892967808663",
+                  "name": "Ceviche De Chicharrón - Chicharrones crocantes con chips de patacón",
+                  "option_id": "opt-17861587383020.4240685329043271",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861587383020.9003643313394198",
+                  "name": "cebolla morada en julianas",
+                  "option_id": "opt-17861587383020.03868673085904373",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861587383020.7053319659593128",
+                  "name": "pimentón",
+                  "option_id": "opt-17861587383020.5024277995675379",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861587383020.43452917786948897",
+                  "name": "y aguacate.",
+                  "option_id": "opt-17861587383020.28612378384841064",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786158738302",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Ceviche De Chicharrón - Chicharrones crocantes con chips de patacón",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "cebolla morada en julianas",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "pimentón",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "aguacate",
+              "price": 500
+            }
+          ],
+          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
+          "description": "Ceviche De Chicharrón - Chicharrones crocantes con chips de patacón, cebolla morada en julianas, pimentón, y aguacate."
+        },
+        {
+          "id": "p-1786158791645-89",
+          "name": "Cono Patacón Cono Desgranado",
+          "image": "",
+          "price": 20,
+          "category": "Patacon",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861587916450.02265819399326452",
+                  "name": "pollo",
+                  "price": 500,
+                  "option_id": "opt-17861587916450.6065400345275698",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861587916450.7824953628057386",
+                  "name": "maíz tierno",
+                  "price": 500,
+                  "option_id": "opt-17861587916450.6368541494236906",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861587916450.5857792827892664",
+                  "name": "queso rallado y tocineta.",
+                  "option_id": "opt-17861587916450.7610025715479797",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786158791645",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "pollo",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "maíz tierno",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "queso rallado",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "tocineta",
+              "price": 500
+            }
+          ],
+          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
+          "description": "pollo, maíz tierno, queso rallado y tocineta."
+        },
+        {
+          "id": "p-1786158849139-11",
+          "name": "Cono Patacón Cono Fire",
+          "image": "",
+          "price": 23,
+          "category": "Patacon",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861588491380.9353678017921161",
+                  "name": "carne desmechada",
+                  "price": 500,
+                  "option_id": "opt-17861588491380.45536829981456617",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861588491380.7540207813691636",
+                  "name": "chorizo y queso rallado.",
+                  "option_id": "opt-17861588491380.5894949795439112",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786158849138",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "carne desmechada",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "chorizo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "queso rallado",
+              "price": 500
+            }
+          ],
+          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
+          "description": "carne desmechada, chorizo y queso rallado."
+        },
+        {
+          "id": "p-1786158883531-29",
+          "name": "Cono Patacón Cono De Chicharrón",
+          "image": "",
+          "price": 21,
+          "category": "Patacon",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861588835310.2277881809743354",
+                  "name": "chicharrones crocantes",
+                  "option_id": "opt-17861588835310.6999165019133937",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861588835310.21495861810361105",
+                  "name": "aguacate y pico de gallo.",
+                  "option_id": "opt-17861588835310.6758799855783842",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786158883531",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "chicharrones crocantes",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "aguacate",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "pico de gallo",
+              "price": 500
+            }
+          ],
+          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
+          "description": "chicharrones crocantes, aguacate y pico de gallo."
+        },
+        {
+          "id": "p-1786158959788-87",
+          "name": "Hamburguesa Clásica",
+          "image": "",
+          "price": 16000,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861589597880.8703298057586294",
+                  "name": "Croqueta de carne",
+                  "option_id": "opt-17861589597880.8571287696958333",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861589597880.4484115911655716",
+                  "name": "huevo",
+                  "option_id": "opt-17861589597880.3428545659800152",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861589597880.9564264845582942",
+                  "name": "tocineta",
+                  "price": 500,
+                  "option_id": "opt-17861589597880.9225711784711942",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861589597880.06933230150698999",
+                  "name": "jamón",
+                  "option_id": "opt-17861589597880.9909708658844524",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861589597880.41082425459149574",
+                  "name": "queso amarillo",
+                  "option_id": "opt-17861589597880.6781286676769618",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861589597880.49020819818374695",
+                  "name": "lechuga",
+                  "option_id": "opt-17861589597880.22192554406538278",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861589597880.3983534060773952",
+                  "name": "tomate",
+                  "price": 500,
+                  "option_id": "opt-17861589597880.5948377743724468",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861589597880.500394775260899",
+                  "name": "cebolla caramelizada. Sale con papa fritas",
+                  "option_id": "opt-17861589597880.9923024811811115",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786158959788",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Croqueta de carne",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "tocineta",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "queso amarillo",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "lechuga",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "tomate",
+              "price": 500
+            },
+            {
+              "id": "ex-7",
+              "name": "cebolla caramelizada. Sale con papa fritas",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "Croqueta de carne, huevo, tocineta, jamón, queso amarillo, lechuga, tomate, cebolla caramelizada. Sale con papa fritas."
+        },
+        {
+          "id": "p-1786158991473-6",
+          "name": "Hamburguesa Chicken Boom",
+          "image": "",
+          "price": 19000,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861589914730.35250308295884014",
+                  "name": "Milanesa de pollo",
+                  "option_id": "opt-17861589914730.4460929659986336",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861589914730.7753887538814667",
+                  "name": "jamón ahumado",
+                  "option_id": "opt-17861589914730.24348126178670948",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861589914730.6479236564768969",
+                  "name": "huevo",
+                  "option_id": "opt-17861589914730.28127877336940077",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861589914730.19023901811142307",
+                  "name": "queso amarillo",
+                  "option_id": "opt-17861589914730.27747764456055224",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861589914730.03823853115153353",
+                  "name": "lechuga",
+                  "option_id": "opt-17861589914730.5737862914624849",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861589914730.3944240314005335",
+                  "name": "tomate",
+                  "price": 500,
+                  "option_id": "opt-17861589914730.5773041891505188",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861589914730.7522067740713345",
+                  "name": "cebolla. Sale con papa fritas",
+                  "option_id": "opt-17861589914730.6515098074331457",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786158991473",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Milanesa de pollo",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "jamón ahumado",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "queso amarillo",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "lechuga",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "tomate",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "cebolla. Sale con papa fritas",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "Milanesa de pollo, jamón ahumado, huevo, queso amarillo, lechuga, tomate, cebolla. Sale con papa fritas."
+        },
+        {
+          "id": "p-1786159006831-63",
+          "name": "Hamburguesa Cheese Lover",
+          "image": "",
+          "price": 20000,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861590068310.39186146059961047",
+                  "name": "Croqueta de carne rellena de queso amarillo",
+                  "option_id": "opt-17861590068310.9386613946600365",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590068310.7369302392944477",
+                  "name": "tocineta",
+                  "price": 500,
+                  "option_id": "opt-17861590068310.34548766675930676",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861590068310.9762608817472233",
+                  "name": "jamón",
+                  "option_id": "opt-17861590068310.9782373454118553",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590068310.09676365242634188",
+                  "name": "huevo",
+                  "option_id": "opt-17861590068310.7480756045122329",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590068310.8141149619463848",
+                  "name": "lechuga",
+                  "option_id": "opt-17861590068310.06615743407503327",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590068310.9693361754761965",
+                  "name": "tomate",
+                  "price": 500,
+                  "option_id": "opt-17861590068310.18294505570773",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861590068310.6423240201387309",
+                  "name": "cebolla caramelizada. Sale con papa fritas",
+                  "option_id": "opt-17861590068310.8149155376960773",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786159006831",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Croqueta de carne rellena de queso amarillo",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "tocineta",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "lechuga",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "tomate",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "cebolla caramelizada. Sale con papa fritas",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "Croqueta de carne rellena de queso amarillo, tocineta, jamón, huevo, lechuga, tomate, cebolla caramelizada. Sale con papa fritas."
+        },
+        {
+          "id": "p-1786159047936-58",
+          "name": "Hamburguesa La Bestia Fire",
+          "image": "",
+          "price": 23000,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861590479360.8181476214666036",
+                  "name": "Carne de res",
+                  "option_id": "opt-17861590479360.48000930503974926",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590479360.9538514462685446",
+                  "name": "pollo",
+                  "price": 500,
+                  "option_id": "opt-17861590479360.6053422073786269",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861590479360.5287563260899466",
+                  "name": "lomo cerdo",
+                  "option_id": "opt-17861590479360.37546496120631",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590479360.5505970379903248",
+                  "name": "jamón ahumado",
+                  "option_id": "opt-17861590479360.80662886094783",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590479360.1611961919089987",
+                  "name": "huevo",
+                  "option_id": "opt-17861590479360.15589709899663884",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590479360.6431029270787045",
+                  "name": "queso amarillo",
+                  "option_id": "opt-17861590479360.13628504340313918",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590479360.3481292942896296",
+                  "name": "lechuga",
+                  "option_id": "opt-17861590479360.1408560716402717",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590479360.5783739101164695",
+                  "name": "tomate",
+                  "price": 500,
+                  "option_id": "opt-17861590479360.03735006518737016",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861590479360.4651998740425344",
+                  "name": "cebolla caramelizada. Sale con papa fritas",
+                  "option_id": "opt-17861590479360.4366799960584724",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786159047936",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de res",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "pollo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "lomo cerdo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "jamón ahumado",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "queso amarillo",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "lechuga",
+              "price": 500
+            },
+            {
+              "id": "ex-7",
+              "name": "tomate",
+              "price": 500
+            },
+            {
+              "id": "ex-8",
+              "name": "cebolla caramelizada. Sale con papa fritas",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "Carne de res, pollo, lomo cerdo, jamón ahumado, huevo, queso amarillo, lechuga, tomate, cebolla caramelizada. Sale con papa fritas."
+        },
+        {
+          "id": "p-1786159074202-61",
+          "name": "Hamburguesa La Marranita BBQ",
+          "image": "",
+          "price": 23000,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861590742020.48053083317078005",
+                  "name": "Cerdo desmechado en salsa BBQ",
+                  "option_id": "opt-17861590742020.8682598836027581",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590742020.672767204878603",
+                  "name": "ensalada coleslaw",
+                  "option_id": "opt-17861590742020.4988413709094842",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590742020.4704361681411865",
+                  "name": "pepinillo. Sale con papa fritas",
+                  "option_id": "opt-17861590742020.3115841073022275",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786159074202",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Cerdo desmechado en salsa BBQ",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "ensalada coleslaw",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "pepinillo. Sale con papa fritas",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "Cerdo desmechado en salsa BBQ, ensalada coleslaw y pepinillo. Sale con papa fritas."
+        },
+        {
+          "id": "p-1786159092629-8",
+          "name": "Pepito Mixto",
+          "image": "",
+          "price": 20000,
+          "category": "Pepitos",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861590926290.35923718396963167",
+                  "name": "Carne de res",
+                  "option_id": "opt-17861590926290.6643596379895795",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590926290.6543031588839395",
+                  "name": "pollo",
+                  "price": 500,
+                  "option_id": "opt-17861590926290.5408270630784897",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861590926290.09951506737648863",
+                  "name": "chorizo",
+                  "price": 500,
+                  "option_id": "opt-17861590926290.7837318098667148",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861590926290.5696488550619229",
+                  "name": "queso amarillo rallado",
+                  "option_id": "opt-17861590926290.7473028631316726",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590926290.12334790587786848",
+                  "name": "ripio de papa",
+                  "option_id": "opt-17861590926290.6512286425087899",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861590926290.32425061963830204",
+                  "name": "vegetales",
+                  "price": 500,
+                  "option_id": "opt-17861590926290.7554546281394173",
+                  "extra_price": 500
+                }
+              ],
+              "group_id": "g-extras-1786159092629",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de res",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "pollo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "chorizo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "queso amarillo rallado",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "ripio de papa",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "vegetales",
+              "price": 500
+            }
+          ],
+          "category_id": "5c3677a2-4042-40ec-b02b-90e1eac52fca",
+          "description": "Carne de res, pollo, chorizo, queso amarillo rallado, ripio de papa, vegetales."
+        },
+        {
+          "id": "p-1786159105837-48",
+          "name": "Salchipapas Salchipapa Pollo",
+          "image": "",
+          "price": 20000,
+          "category": "Salchipapas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861591058360.6707692538974014",
+                  "name": "Pollo",
+                  "price": 500,
+                  "option_id": "opt-17861591058360.7425844320335264",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861591058360.7131827313710389",
+                  "name": "huevo de codorniz",
+                  "price": 500,
+                  "option_id": "opt-17861591058360.8106424317556907",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861591058360.21233669414275702",
+                  "name": "salchicha",
+                  "option_id": "opt-17861591058360.9888877946014678",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861591058360.505966567903735",
+                  "name": "queso rallado",
+                  "price": 500,
+                  "option_id": "opt-17861591058360.4562404025801855",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861591058360.5948956231200413",
+                  "name": "vegetales",
+                  "price": 500,
+                  "option_id": "opt-17861591058360.0624649194226643",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861591058360.6586324014366323",
+                  "name": "papas a la francesa",
+                  "price": 500,
+                  "option_id": "opt-17861591058360.3033104046746048",
+                  "extra_price": 500
+                }
+              ],
+              "group_id": "g-extras-1786159105836",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Pollo",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "huevo de codorniz",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "salchicha",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "queso rallado",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "vegetales",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "papas a la francesa",
+              "price": 500
+            }
+          ],
+          "category_id": "eb37b64c-05a1-4e5b-902e-2b9a16b336b6",
+          "description": "Pollo, huevo de codorniz, salchicha, queso rallado, vegetales y papas a la francesa."
+        },
+        {
+          "id": "p-1786159194076-18",
+          "name": "Club House",
+          "image": "",
+          "price": 20,
+          "category": "Club Hause",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861591940760.08529412533655834",
+                  "name": "Pollo desmechado",
+                  "option_id": "opt-17861591940760.7944357745190286",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861591940760.6986707691603103",
+                  "name": "tocineta",
+                  "price": 500,
+                  "option_id": "opt-17861591940760.08852654403445248",
+                  "extra_price": 500
+                },
+                {
+                  "id": "opt-17861591940760.09352163674813008",
+                  "name": "jamón",
+                  "option_id": "opt-17861591940760.48073051582436777",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861591940760.9902192713653681",
+                  "name": "queso",
+                  "option_id": "opt-17861591940760.6118462402941773",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861591940760.2966894461757714",
+                  "name": "huevo",
+                  "option_id": "opt-17861591940760.9509417493080949",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861591940760.11589774978957457",
+                  "name": "vegetales y papas a la francesa",
+                  "option_id": "opt-17861591940760.7287135137189631",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786159194076",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Pollo desmechado",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "tocineta",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "vegetales",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "papas a la francesa",
+              "price": 500
+            }
+          ],
+          "category_id": "73f017b7-499c-4ad6-82d9-9cbf89693a92",
+          "description": "Pollo desmechado, tocineta, jamón, queso, huevo, vegetales y papas a la francesa"
+        },
+        {
+          "id": "p-1786159393163-15",
+          "name": "Menú Infantil Salchipapas",
+          "image": "",
+          "price": 12000,
+          "category": "Menú infantil",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861593931630.32832291118734647",
+                  "name": "Salchichas",
+                  "option_id": "opt-17861593931630.631661112084594",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861593931630.33846788819603",
+                  "name": "papas",
+                  "option_id": "opt-17861593931630.057261371160110874",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786159393163",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Salchichas",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "papas",
+              "price": 500
+            }
+          ],
+          "category_id": "636ce4cf-d12f-480c-b574-c5a795c8ef70",
+          "description": "Salchichas, papas"
+        },
+        {
+          "id": "p-1786159451318-14",
+          "name": "Menu Infantil Nuggets De Pollo Artesanal",
+          "image": "",
+          "price": 15,
+          "category": "Menú infantil",
+          "modifiers": [],
+          "exclusions": [],
+          "category_id": "636ce4cf-d12f-480c-b574-c5a795c8ef70",
+          "description": ""
+        },
+        {
+          "id": "p-1786159533938-64",
+          "name": "Refresco Personal",
+          "image": "",
+          "price": 3.5,
+          "category": "Bebidas",
+          "modifiers": [],
+          "exclusions": [],
+          "category_id": "cea46c34-ed90-4288-835a-644151a3753f",
+          "description": ""
+        },
+        {
+          "id": "p-1786159573832-20",
+          "name": "Refresco 1.5 lts",
+          "image": "",
+          "price": 7.5,
+          "category": "Bebidas",
+          "modifiers": [],
+          "exclusions": [],
+          "category_id": "cea46c34-ed90-4288-835a-644151a3753f",
+          "description": ""
+        },
+        {
+          "id": "p-1786159591591-76",
+          "name": "Soda Frutos Rojos",
+          "image": "",
+          "price": 10000,
+          "category": "Bebidas",
+          "modifiers": [],
+          "exclusions": [],
+          "category_id": "328cbd52-8632-4d1a-acfa-5de83b0c944d",
+          "description": "."
+        },
+        {
+          "id": "p-1786159603777-24",
+          "name": "Soda Frutos Amarillos",
+          "image": "",
+          "price": 10000,
+          "category": "Bebidas",
+          "modifiers": [],
+          "exclusions": [],
+          "category_id": "328cbd52-8632-4d1a-acfa-5de83b0c944d",
+          "description": "."
+        },
+        {
+          "id": "p-1786159615306-67",
+          "name": "Soda Frutos Verdes",
+          "image": "",
+          "price": 10000,
+          "category": "Bebidas",
+          "modifiers": [],
+          "exclusions": [],
+          "category_id": "328cbd52-8632-4d1a-acfa-5de83b0c944d",
+          "description": "."
+        },
+        {
+          "id": "p-1786159629529-77",
+          "name": "Soda Green Blue",
+          "image": "",
+          "price": 10000,
+          "category": "Bebidas",
+          "modifiers": [],
+          "exclusions": [],
+          "category_id": "328cbd52-8632-4d1a-acfa-5de83b0c944d",
+          "description": "."
+        }
+      ],
+      "prep_time": null,
+      "delivery_time": null,
+      "created_at": "2026-08-08T02:57:21.371766+00:00",
+      "location": "San Antonio",
+      "latitude": 7.8152,
+      "longitude": -72.4428,
+      "location_lat": 7.8152,
+      "location_lng": -72.4428,
+      "open_time": "17:00",
+      "close_time": "00:00"
+    },
+    {
+      "id": "latinos-burguer-1786162629597",
+      "name": "Latinos Burguer",
+      "category": "comidas",
+      "description": "Perros, hamburguesas",
+      "logo": "🍔",
+      "bannerType": "gradient",
+      "banner": "linear-gradient(135deg, #FF8C00, #FF4500)",
+      "linkKey": "C7IMI6",
+      "delivery_fee": 0,
+      "themeColor": null,
+      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1786162628843_106.png",
+      "tables": [],
+      "layout": [],
+      "products": [
+        {
+          "id": "p-1786162685881-2",
+          "name": "Hamburguesa Normal",
+          "image": "",
+          "price": 9,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861626858800.1040320529056733",
+                  "name": "Carne de hamburguesa",
+                  "option_id": "opt-17861626858800.8532482635819673",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861626858810.3878168245381941",
+                  "name": "huevo",
+                  "option_id": "opt-17861626858810.3032177992064433",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861626858810.9745050248047156",
+                  "name": "jamón",
+                  "option_id": "opt-17861626858810.42698894526694",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861626858810.9123068367790215",
+                  "name": "queso",
+                  "option_id": "opt-17861626858810.24352819117066327",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861626858810.885686842833614",
+                  "name": "vegetales",
+                  "price": 500,
+                  "option_id": "opt-17861626858810.17393233345993186",
+                  "extra_price": 500
+                }
+              ],
+              "group_id": "g-extras-1786162685881",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de hamburguesa",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "vegetales",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "Carne de hamburguesa, huevo, jamón, queso, vegetales."
+        },
+        {
+          "id": "p-1786162695715-4",
+          "name": "Hamburguesa Toxi",
+          "image": "",
+          "price": 10,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861626957150.6383999814525243",
+                  "name": "Carne de hamburguesa",
+                  "option_id": "opt-17861626957150.09072813650770428",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861626957150.6357115717031533",
+                  "name": "huevo",
+                  "option_id": "opt-17861626957150.7498102611724748",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861626957150.4386259340832498",
+                  "name": "tocineta",
+                  "option_id": "opt-17861626957150.4582006648889412",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861626957150.007258498419768444",
+                  "name": "jamón",
+                  "option_id": "opt-17861626957150.8181748356253209",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861626957150.2265133608763008",
+                  "name": "queso",
+                  "option_id": "opt-17861626957150.3587480525482133",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861626957150.12253897659382629",
+                  "name": "vegetales",
+                  "price": 500,
+                  "option_id": "opt-17861626957150.7331003133598833",
+                  "extra_price": 500
+                }
+              ],
+              "group_id": "g-extras-1786162695715",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de hamburguesa",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "tocineta",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "vegetales",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "Carne de hamburguesa, huevo, tocineta, jamón, queso, vegetales."
+        },
+        {
+          "id": "p-1786162707336-17",
+          "name": "Hamburguesa Mechada",
+          "image": "",
+          "price": 12,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861627073350.21999306918491002",
+                  "name": "Carne de hamburguesa",
+                  "option_id": "opt-17861627073350.22048705360134857",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627073350.8842932227385079",
+                  "name": "huevo",
+                  "option_id": "opt-17861627073350.18741486574771138",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627073350.10070112816444843",
+                  "name": "jamón",
+                  "option_id": "opt-17861627073350.9974249638511747",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627073350.6073741712970764",
+                  "name": "queso",
+                  "option_id": "opt-17861627073350.3288517010425426",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627073350.7959044775710695",
+                  "name": "vegetales",
+                  "price": 500,
+                  "option_id": "opt-17861627073350.5506227667348322",
+                  "extra_price": 500
+                }
+              ],
+              "group_id": "g-extras-1786162707335",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de hamburguesa",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "vegetales",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "Carne de hamburguesa, huevo, jamón, queso, vegetales."
+        },
+        {
+          "id": "p-1786162718599-86",
+          "name": "Hamburguesa Pollo",
+          "image": "",
+          "price": 12,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861627185980.1677958584096928",
+                  "name": "Carne de hamburguesa",
+                  "option_id": "opt-17861627185980.5383260692678163",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627185980.8006537752841821",
+                  "name": "huevo",
+                  "option_id": "opt-17861627185980.38348548474025435",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627185980.8723503128871436",
+                  "name": "jamón",
+                  "option_id": "opt-17861627185980.08547260080739105",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627185980.27660060545846155",
+                  "name": "queso",
+                  "option_id": "opt-17861627185980.0840409724149832",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786162718598",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de hamburguesa",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "queso",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "Carne de hamburguesa, huevo, jamón, queso."
+        },
+        {
+          "id": "p-1786162732716-19",
+          "name": "Hamburguesa Chuleta",
+          "image": "",
+          "price": 13,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861627327160.0038862143579040387",
+                  "name": "Carne de hamburguesa",
+                  "option_id": "opt-17861627327160.1596836644433426",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627327160.16338543543472028",
+                  "name": "huevo",
+                  "option_id": "opt-17861627327160.22731287045080006",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627327160.6690764319864888",
+                  "name": "jamón",
+                  "option_id": "opt-17861627327160.9977678891158097",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627327160.4182273584948698",
+                  "name": "queso",
+                  "option_id": "opt-17861627327160.9736843652126655",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627327160.4225807977320347",
+                  "name": "vegetales",
+                  "price": 500,
+                  "option_id": "opt-17861627327160.7735471143176595",
+                  "extra_price": 500
+                }
+              ],
+              "group_id": "g-extras-1786162732716",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de hamburguesa",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "vegetales",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "Carne de hamburguesa, huevo, jamón, queso, vegetales."
+        },
+        {
+          "id": "p-1786162760376-12",
+          "name": "hamburguesa, huevo, jamón, queso, vegetales.",
+          "image": "",
+          "price": 13,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861627603760.9306628267365836",
+                  "name": "huevo",
+                  "option_id": "opt-17861627603760.8785148783390189",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627603760.5541804200459061",
+                  "name": "jamón",
+                  "option_id": "opt-17861627603760.612157236916073",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627603760.4878618078478659",
+                  "name": "queso",
+                  "option_id": "opt-17861627603760.7810821981935537",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627603760.7652624586674043",
+                  "name": "vegetales.",
+                  "option_id": "opt-17861627603760.10677709133998314",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786162760376",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "vegetales",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "huevo, jamón, queso, vegetales."
+        },
+        {
+          "id": "p-1786162793821-46",
+          "name": "Hamburguesa Tropi",
+          "image": "",
+          "price": 14,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861627938210.10403407982643598",
+                  "name": "Carne de hamburguesa",
+                  "option_id": "opt-17861627938210.9225330405586151",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627938210.6747498828081913",
+                  "name": "chuleta",
+                  "option_id": "opt-17861627938210.553596040668543",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627938210.0807771084896649",
+                  "name": "tocineta",
+                  "option_id": "opt-17861627938210.5698660778754896",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627938210.989652176356788",
+                  "name": "huevo",
+                  "option_id": "opt-17861627938210.2802948363758747",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627938210.06247874812992682",
+                  "name": "jamón",
+                  "option_id": "opt-17861627938210.2755391348427204",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627938210.439514764611031",
+                  "name": "queso",
+                  "option_id": "opt-17861627938210.3770329394925819",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861627938210.8708576711482654",
+                  "name": "vegetales",
+                  "price": 500,
+                  "option_id": "opt-17861627938210.9637546402417619",
+                  "extra_price": 500
+                }
+              ],
+              "group_id": "g-extras-1786162793821",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de hamburguesa",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "chuleta",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "tocineta",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "vegetales",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "Carne de hamburguesa, chuleta, tocineta, huevo, jamón, queso, vegetales."
+        },
+        {
+          "id": "p-1786162844114-69",
+          "name": "Hamburguesa Mixta",
+          "image": "",
+          "price": 15,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861628441140.625442763634944",
+                  "name": "Carne de hamburguesa",
+                  "option_id": "opt-17861628441140.9408299338793595",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861628441140.5186502613586464",
+                  "name": "mechada",
+                  "option_id": "opt-17861628441140.07608840252321025",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861628441140.3532685296473044",
+                  "name": "pollo",
+                  "option_id": "opt-17861628441140.07075076076467768",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861628441140.003695917666287296",
+                  "name": "huevo",
+                  "option_id": "opt-17861628441140.5357375732176576",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861628441140.8709016571843162",
+                  "name": "jamón",
+                  "option_id": "opt-17861628441140.8571116078780932",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861628441140.15768560939509446",
+                  "name": "queso",
+                  "option_id": "opt-17861628441140.6855472645332074",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861628441140.2634134436459803",
+                  "name": "vegetales",
+                  "price": 500,
+                  "option_id": "opt-17861628441140.841481535419696",
+                  "extra_price": 500
+                }
+              ],
+              "group_id": "g-extras-1786162844114",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de hamburguesa",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "mechada",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "pollo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "vegetales",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "Carne de hamburguesa, mechada, pollo, huevo, jamón, queso, vegetales."
+        },
+        {
+          "id": "p-1786162885356-66",
+          "name": "Hamburguesa King",
+          "image": "",
+          "price": 16,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861628853560.6017272894121015",
+                  "name": "Carne de hamburguesa",
+                  "option_id": "opt-17861628853560.606742473714431",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861628853560.3597133421766071",
+                  "name": "chuleta",
+                  "option_id": "opt-17861628853560.01460475807273831",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861628853560.43704252799322774",
+                  "name": "pollo",
+                  "option_id": "opt-17861628853560.08295030477677867",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861628853560.34170241791032296",
+                  "name": "huevo",
+                  "option_id": "opt-17861628853560.8481545508417981",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861628853560.8933833594658922",
+                  "name": "jamón",
+                  "option_id": "opt-17861628853560.2206589971399755",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861628853560.06225589516513941",
+                  "name": "queso",
+                  "option_id": "opt-17861628853560.8879148046718163",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861628853560.748696979971052",
+                  "name": "vegetales",
+                  "price": 500,
+                  "option_id": "opt-17861628853560.12875121371867637",
+                  "extra_price": 500
+                }
+              ],
+              "group_id": "g-extras-1786162885356",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de hamburguesa",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "chuleta",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "pollo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "vegetales",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "Carne de hamburguesa, chuleta, pollo, huevo, jamón, queso, vegetales."
+        },
+        {
+          "id": "p-1786162914359-80",
+          "name": "Hamburguesa Latinos",
+          "image": "",
+          "price": 20,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861629143590.2363730024920987",
+                  "name": "Carne de hamburguesa",
+                  "option_id": "opt-17861629143590.5278143847308443",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861629143590.7838392708654179",
+                  "name": "pollo",
+                  "option_id": "opt-17861629143590.231186955504187",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861629143590.576372505351282",
+                  "name": "mechada",
+                  "option_id": "opt-17861629143590.11891680722129827",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861629143590.5527653510305324",
+                  "name": "chuleta",
+                  "option_id": "opt-17861629143590.03944926027124618",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861629143590.7036493341389753",
+                  "name": "tocineta",
+                  "option_id": "opt-17861629143590.31598706774087204",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861629143590.053821150503451265",
+                  "name": "huevo",
+                  "option_id": "opt-17861629143590.3671646625756695",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861629143590.7962451503363197",
+                  "name": "jamón",
+                  "option_id": "opt-17861629143590.03456540911201045",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861629143590.9226358301840124",
+                  "name": "queso",
+                  "option_id": "opt-17861629143590.5722302516157511",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861629143590.45582337827353914",
+                  "name": "vegetales",
+                  "price": 500,
+                  "option_id": "opt-17861629143590.6502528209107",
+                  "extra_price": 500
+                }
+              ],
+              "group_id": "g-extras-1786162914359",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de hamburguesa",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "pollo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "mechada",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "chuleta",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "tocineta",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-7",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-8",
+              "name": "vegetales",
+              "price": 500
+            }
+          ],
+          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
+          "description": "Carne de hamburguesa, pollo, mechada, chuleta, tocineta, huevo, jamón, queso, vegetales."
+        },
+        {
+          "id": "p-1786162928008-54",
+          "name": "Perro Caliente Sencillo",
+          "image": "",
+          "price": 4.5,
+          "category": "Perros",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861629280080.9302184673508677",
+                  "name": "Cebolla",
+                  "option_id": "opt-17861629280080.577590973231612",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861629280080.7237338844232675",
+                  "name": "papas",
+                  "option_id": "opt-17861629280080.40488582989599875",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861629280080.5149344812781308",
+                  "name": "queso",
+                  "option_id": "opt-17861629280080.5670487231133714",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786162928008",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Cebolla",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "papas",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "queso",
+              "price": 500
+            }
+          ],
+          "category_id": "d17d8481-80a5-4eb8-a720-bd7085fb38fa",
+          "description": "Cebolla, papas, queso."
+        },
+        {
+          "id": "p-1786163003870-42",
+          "name": "Perro Caliente Normal",
+          "image": "",
+          "price": 5,
+          "category": "Perros",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861630038700.395496737187361",
+                  "name": "Cebolla",
+                  "option_id": "opt-17861630038700.09756492398731353",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861630038700.6710923784069919",
+                  "name": "papas",
+                  "option_id": "opt-17861630038700.6726705545029014",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861630038700.07425201697680328",
+                  "name": "queso",
+                  "option_id": "opt-17861630038700.8770742535774961",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861630038700.7355313256301235",
+                  "name": "jamón",
+                  "option_id": "opt-17861630038700.19582078874657338",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786163003870",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Cebolla",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "papas",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "jamón",
+              "price": 500
+            }
+          ],
+          "category_id": "d17d8481-80a5-4eb8-a720-bd7085fb38fa",
+          "description": "Cebolla, papas, queso, jamón."
+        },
+        {
+          "id": "p-1786163013819-72",
+          "name": "Perro Caliente Toxi",
+          "image": "",
+          "price": 5.5,
+          "category": "Perros",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861630138190.9824999547802276",
+                  "name": "Cebolla",
+                  "option_id": "opt-17861630138190.5573769756837399",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861630138190.5863990341595121",
+                  "name": "papas",
+                  "option_id": "opt-17861630138190.9937245678965341",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861630138190.7610764022632615",
+                  "name": "queso",
+                  "option_id": "opt-17861630138190.12593859654284567",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861630138190.7739674291775709",
+                  "name": "tocineta",
+                  "option_id": "opt-17861630138190.09820278072209365",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786163013819",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Cebolla",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "papas",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "tocineta",
+              "price": 500
+            }
+          ],
+          "category_id": "d17d8481-80a5-4eb8-a720-bd7085fb38fa",
+          "description": "Cebolla, papas, queso, tocineta."
+        },
+        {
+          "id": "p-1786163025636-35",
+          "name": "Perro Caliente Especial",
+          "image": "",
+          "price": 7.5,
+          "category": "Perros",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861630256360.795480496641169",
+                  "name": "Cebolla",
+                  "option_id": "opt-17861630256360.013386580995738084",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861630256360.18236972391504358",
+                  "name": "papas",
+                  "option_id": "opt-17861630256360.0160045576362855",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861630256360.7086131161316692",
+                  "name": "queso",
+                  "option_id": "opt-17861630256360.8720341576283295",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861630256360.7604765274253535",
+                  "name": "mechada o pollo",
+                  "option_id": "opt-17861630256360.6622662950164057",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786163025636",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Cebolla",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "papas",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "mechada o pollo",
+              "price": 500
+            }
+          ],
+          "category_id": "d17d8481-80a5-4eb8-a720-bd7085fb38fa",
+          "description": "Cebolla, papas, queso, mechada o pollo."
+        },
+        {
+          "id": "p-1786163038157-33",
+          "name": "Perro Caliente King",
+          "image": "",
+          "price": 8.5,
+          "category": "Perros",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17861630381570.8914669138144662",
+                  "name": "Cebolla",
+                  "option_id": "opt-17861630381570.980275737988525",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861630381570.790875460640266",
+                  "name": "papas",
+                  "option_id": "opt-17861630381570.4273535933285898",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861630381570.35320724366109235",
+                  "name": "queso",
+                  "option_id": "opt-17861630381570.15721056575385484",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861630381570.6325866086126037",
+                  "name": "mechada",
+                  "option_id": "opt-17861630381570.04081159496729814",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17861630381570.431908008443877",
+                  "name": "tocineta",
+                  "option_id": "opt-17861630381570.8006267425534422",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1786163038157",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Cebolla",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "papas",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "mechada",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "tocineta",
+              "price": 500
+            }
+          ],
+          "category_id": "d17d8481-80a5-4eb8-a720-bd7085fb38fa",
+          "description": "Cebolla, papas, queso, mechada, tocineta."
+        }
+      ],
+      "prep_time": null,
+      "delivery_time": null,
+      "created_at": "2026-08-08T04:17:10.13214+00:00",
+      "location": "San Antonio",
+      "latitude": 7.816,
+      "longitude": -72.445,
+      "location_lat": 7.816,
+      "location_lng": -72.445,
+      "open_time": "17:00",
+      "close_time": "00:00"
+    },
+    {
       "id": "la-casa-de-los-batidos-1786157702318",
       "name": "La casa de los batidos",
       "category": "comidas",
@@ -3723,2816 +6533,6 @@
       "longitude": -72.443,
       "location_lat": 7.814,
       "location_lng": -72.443,
-      "open_time": "17:00",
-      "close_time": "00:00"
-    },
-    {
-      "id": "patacon-fire-1786157840794",
-      "name": "Patacon Fire",
-      "category": "comidas",
-      "description": "Patacon, hamburguesas, perros",
-      "logo": "🍔",
-      "bannerType": "gradient",
-      "banner": "linear-gradient(135deg, #FF8C00, #FF4500)",
-      "linkKey": "K8QAFC",
-      "delivery_fee": 0,
-      "themeColor": null,
-      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1786157840098_219.png",
-      "tables": [],
-      "layout": [],
-      "products": [
-        {
-          "id": "p-1786158242838-90",
-          "name": "Patacón Criollo Clásico",
-          "image": "",
-          "price": 26,
-          "category": "Patacon",
-          "modifiers": [],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "carne desmechada",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "vibrante pico de gallo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "culminado con queso amarillo rallado",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "huevo de codorniz",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "exquisita salsa de la casa",
-              "price": 500
-            }
-          ],
-          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
-          "description": "carne desmechada, vibrante pico de gallo, culminado con queso amarillo rallado, huevo de codorniz y exquisita salsa de la casa."
-        },
-        {
-          "id": "p-1786158275027-44",
-          "name": "Patacón Tentación Mixta",
-          "image": "",
-          "price": 26,
-          "category": "Patacon",
-          "modifiers": [],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "pechuga de pollo asada",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "jugosa carne de res",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "lomo de cerdo ahumado",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "culminado con queso amarillo rallado",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "exquisito chimichurri",
-              "price": 500
-            }
-          ],
-          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
-          "description": "pechuga de pollo asada, jugosa carne de res y lomo de cerdo ahumado, culminado con queso amarillo rallado y exquisito chimichurri."
-        },
-        {
-          "id": "p-1786158332672-84",
-          "name": "Patacón BBQ Ahumado",
-          "image": "",
-          "price": 26,
-          "category": "Patacon",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861583326720.13321444465328425",
-                  "name": "Cerdo desmenuzado en salsa BBQ",
-                  "option_id": "opt-17861583326720.6200470520893137",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861583326720.7307622996835182",
-                  "name": "maíz tierno",
-                  "price": 500,
-                  "option_id": "opt-17861583326720.9721924488570316",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861583326720.6833156823295917",
-                  "name": "ensalada coleslaw",
-                  "option_id": "opt-17861583326720.09934419543768569",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861583326720.8131281637463046",
-                  "name": "culminado con queso amarillo rallado (salsa de la casa).",
-                  "option_id": "opt-17861583326720.20297172262064433",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786158332672",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cerdo desmenuzado en salsa BBQ",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "maíz tierno",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "ensalada coleslaw",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "culminado con queso amarillo rallado (salsa de la casa)",
-              "price": 500
-            }
-          ],
-          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
-          "description": "Cerdo desmenuzado en salsa BBQ, maíz tierno, ensalada coleslaw, culminado con queso amarillo rallado (salsa de la casa)."
-        },
-        {
-          "id": "p-1786158488257-83",
-          "name": "Patacón El Gran Ranchero",
-          "image": "",
-          "price": 28,
-          "category": "Patacon",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861584882570.8566790938332411",
-                  "name": "carne desmechada",
-                  "price": 500,
-                  "option_id": "opt-17861584882570.09160236395105337",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861584882570.3187052710192293",
-                  "name": "maíz tierno y chorizo argentino",
-                  "option_id": "opt-17861584882570.5583425970120249",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861584882570.887889076023552",
-                  "name": "con finas laminas de aguacate y queso amarillo rallado (salsa mayo-mostaza).",
-                  "option_id": "opt-17861584882570.38057845700497805",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786158488257",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "carne desmechada",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "maíz tierno",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "chorizo argentino",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "con finas laminas de aguacate",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "queso amarillo rallado (salsa mayo-mostaza)",
-              "price": 500
-            }
-          ],
-          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
-          "description": "carne desmechada, maíz tierno y chorizo argentino, con finas laminas de aguacate y queso amarillo rallado (salsa mayo-mostaza)."
-        },
-        {
-          "id": "p-1786158563594-57",
-          "name": "Patacón El Irresistible",
-          "image": "",
-          "price": 31,
-          "category": "Patacon",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861585635940.951165294766911",
-                  "name": "carne desmechada",
-                  "price": 500,
-                  "option_id": "opt-17861585635940.7189101036086378",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861585635940.9043775796524651",
-                  "name": "pechuga asada",
-                  "option_id": "opt-17861585635940.1976755759073464",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861585635940.2934587826859021",
-                  "name": "huevo cocido",
-                  "option_id": "opt-17861585635940.42730781882769797",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861585635940.31576406287717906",
-                  "name": "tocineta",
-                  "price": 500,
-                  "option_id": "opt-17861585635940.7326357697604474",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861585635940.3493717522686727",
-                  "name": "jamón",
-                  "option_id": "opt-17861585635940.3882331028911703",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861585635940.21424069690630543",
-                  "name": "queso paisa rallado",
-                  "option_id": "opt-17861585635940.13848087221505057",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861585635940.14994662020131655",
-                  "name": "lechuga",
-                  "option_id": "opt-17861585635940.7638508892343575",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861585635940.016078672695262752",
-                  "name": "tomate.",
-                  "option_id": "opt-17861585635940.41476865945043173",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786158563594",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "carne desmechada",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "pechuga asada",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "huevo cocido",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "tocineta",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "queso paisa rallado",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "lechuga",
-              "price": 500
-            },
-            {
-              "id": "ex-7",
-              "name": "tomate",
-              "price": 500
-            }
-          ],
-          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
-          "description": "carne desmechada, pechuga asada, huevo cocido, tocineta, jamón, queso paisa rallado, lechuga, tomate."
-        },
-        {
-          "id": "p-1786158628822-43",
-          "name": "Canasta De Patacón Pollo Y Champiñón",
-          "image": "",
-          "price": 21,
-          "category": "Patacon",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861586288220.8395384911801309",
-                  "name": "Pollo Y Champiñón - Canasta rellena de pechuga de pollo",
-                  "option_id": "opt-17861586288220.3697402078436829",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861586288220.23828242922201937",
-                  "name": "champiñón",
-                  "option_id": "opt-17861586288220.2265488056985997",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861586288220.6432397959023113",
-                  "name": "maíz tierno",
-                  "price": 500,
-                  "option_id": "opt-17861586288220.5389746556911105",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861586288220.3974935015171819",
-                  "name": "queso rallado.",
-                  "option_id": "opt-17861586288220.00005618492221393101",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786158628822",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Pollo",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "Champiñón - Canasta rellena de pechuga de pollo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "champiñón",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "maíz tierno",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "queso rallado",
-              "price": 500
-            }
-          ],
-          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
-          "description": "Pollo Y Champiñón - Canasta rellena de pechuga de pollo, champiñón, maíz tierno, queso rallado."
-        },
-        {
-          "id": "p-1786158676638-95",
-          "name": "Canasta De Patacón Criolla",
-          "image": "",
-          "price": 24,
-          "category": "Patacon",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861586766380.24712871506718626",
-                  "name": "carne desmechada",
-                  "price": 500,
-                  "option_id": "opt-17861586766380.2818297365779514",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861586766380.054978030270244393",
-                  "name": "pico de gallo",
-                  "price": 500,
-                  "option_id": "opt-17861586766380.48052405423544287",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861586766380.3200471729590846",
-                  "name": "chorizo",
-                  "price": 500,
-                  "option_id": "opt-17861586766380.7894850107461927",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861586766380.6511277226391026",
-                  "name": "aguacate y queso rallado.",
-                  "option_id": "opt-17861586766380.3258303239469752",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786158676638",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "carne desmechada",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "pico de gallo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "chorizo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "aguacate",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "queso rallado",
-              "price": 500
-            }
-          ],
-          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
-          "description": "carne desmechada, pico de gallo, chorizo, aguacate y queso rallado."
-        },
-        {
-          "id": "p-1786158738302-53",
-          "name": "Canasta De Patacón Ceviche De Chicharrón",
-          "image": "",
-          "price": 21,
-          "category": "Patacon",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861587383020.49295892967808663",
-                  "name": "Ceviche De Chicharrón - Chicharrones crocantes con chips de patacón",
-                  "option_id": "opt-17861587383020.4240685329043271",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861587383020.9003643313394198",
-                  "name": "cebolla morada en julianas",
-                  "option_id": "opt-17861587383020.03868673085904373",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861587383020.7053319659593128",
-                  "name": "pimentón",
-                  "option_id": "opt-17861587383020.5024277995675379",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861587383020.43452917786948897",
-                  "name": "y aguacate.",
-                  "option_id": "opt-17861587383020.28612378384841064",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786158738302",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Ceviche De Chicharrón - Chicharrones crocantes con chips de patacón",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "cebolla morada en julianas",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "pimentón",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "aguacate",
-              "price": 500
-            }
-          ],
-          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
-          "description": "Ceviche De Chicharrón - Chicharrones crocantes con chips de patacón, cebolla morada en julianas, pimentón, y aguacate."
-        },
-        {
-          "id": "p-1786158791645-89",
-          "name": "Cono Patacón Cono Desgranado",
-          "image": "",
-          "price": 20,
-          "category": "Patacon",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861587916450.02265819399326452",
-                  "name": "pollo",
-                  "price": 500,
-                  "option_id": "opt-17861587916450.6065400345275698",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861587916450.7824953628057386",
-                  "name": "maíz tierno",
-                  "price": 500,
-                  "option_id": "opt-17861587916450.6368541494236906",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861587916450.5857792827892664",
-                  "name": "queso rallado y tocineta.",
-                  "option_id": "opt-17861587916450.7610025715479797",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786158791645",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "pollo",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "maíz tierno",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "queso rallado",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "tocineta",
-              "price": 500
-            }
-          ],
-          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
-          "description": "pollo, maíz tierno, queso rallado y tocineta."
-        },
-        {
-          "id": "p-1786158849139-11",
-          "name": "Cono Patacón Cono Fire",
-          "image": "",
-          "price": 23,
-          "category": "Patacon",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861588491380.9353678017921161",
-                  "name": "carne desmechada",
-                  "price": 500,
-                  "option_id": "opt-17861588491380.45536829981456617",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861588491380.7540207813691636",
-                  "name": "chorizo y queso rallado.",
-                  "option_id": "opt-17861588491380.5894949795439112",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786158849138",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "carne desmechada",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "chorizo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "queso rallado",
-              "price": 500
-            }
-          ],
-          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
-          "description": "carne desmechada, chorizo y queso rallado."
-        },
-        {
-          "id": "p-1786158883531-29",
-          "name": "Cono Patacón Cono De Chicharrón",
-          "image": "",
-          "price": 21,
-          "category": "Patacon",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861588835310.2277881809743354",
-                  "name": "chicharrones crocantes",
-                  "option_id": "opt-17861588835310.6999165019133937",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861588835310.21495861810361105",
-                  "name": "aguacate y pico de gallo.",
-                  "option_id": "opt-17861588835310.6758799855783842",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786158883531",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "chicharrones crocantes",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "aguacate",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "pico de gallo",
-              "price": 500
-            }
-          ],
-          "category_id": "1e7b3eb1-529f-4cfe-b161-626531a73851",
-          "description": "chicharrones crocantes, aguacate y pico de gallo."
-        },
-        {
-          "id": "p-1786158959788-87",
-          "name": "Hamburguesa Clásica",
-          "image": "",
-          "price": 16000,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861589597880.8703298057586294",
-                  "name": "Croqueta de carne",
-                  "option_id": "opt-17861589597880.8571287696958333",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861589597880.4484115911655716",
-                  "name": "huevo",
-                  "option_id": "opt-17861589597880.3428545659800152",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861589597880.9564264845582942",
-                  "name": "tocineta",
-                  "price": 500,
-                  "option_id": "opt-17861589597880.9225711784711942",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861589597880.06933230150698999",
-                  "name": "jamón",
-                  "option_id": "opt-17861589597880.9909708658844524",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861589597880.41082425459149574",
-                  "name": "queso amarillo",
-                  "option_id": "opt-17861589597880.6781286676769618",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861589597880.49020819818374695",
-                  "name": "lechuga",
-                  "option_id": "opt-17861589597880.22192554406538278",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861589597880.3983534060773952",
-                  "name": "tomate",
-                  "price": 500,
-                  "option_id": "opt-17861589597880.5948377743724468",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861589597880.500394775260899",
-                  "name": "cebolla caramelizada. Sale con papa fritas",
-                  "option_id": "opt-17861589597880.9923024811811115",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786158959788",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Croqueta de carne",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "tocineta",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "queso amarillo",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "lechuga",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "tomate",
-              "price": 500
-            },
-            {
-              "id": "ex-7",
-              "name": "cebolla caramelizada. Sale con papa fritas",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "Croqueta de carne, huevo, tocineta, jamón, queso amarillo, lechuga, tomate, cebolla caramelizada. Sale con papa fritas."
-        },
-        {
-          "id": "p-1786158991473-6",
-          "name": "Hamburguesa Chicken Boom",
-          "image": "",
-          "price": 19000,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861589914730.35250308295884014",
-                  "name": "Milanesa de pollo",
-                  "option_id": "opt-17861589914730.4460929659986336",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861589914730.7753887538814667",
-                  "name": "jamón ahumado",
-                  "option_id": "opt-17861589914730.24348126178670948",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861589914730.6479236564768969",
-                  "name": "huevo",
-                  "option_id": "opt-17861589914730.28127877336940077",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861589914730.19023901811142307",
-                  "name": "queso amarillo",
-                  "option_id": "opt-17861589914730.27747764456055224",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861589914730.03823853115153353",
-                  "name": "lechuga",
-                  "option_id": "opt-17861589914730.5737862914624849",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861589914730.3944240314005335",
-                  "name": "tomate",
-                  "price": 500,
-                  "option_id": "opt-17861589914730.5773041891505188",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861589914730.7522067740713345",
-                  "name": "cebolla. Sale con papa fritas",
-                  "option_id": "opt-17861589914730.6515098074331457",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786158991473",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Milanesa de pollo",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "jamón ahumado",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "queso amarillo",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "lechuga",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "tomate",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "cebolla. Sale con papa fritas",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "Milanesa de pollo, jamón ahumado, huevo, queso amarillo, lechuga, tomate, cebolla. Sale con papa fritas."
-        },
-        {
-          "id": "p-1786159006831-63",
-          "name": "Hamburguesa Cheese Lover",
-          "image": "",
-          "price": 20000,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861590068310.39186146059961047",
-                  "name": "Croqueta de carne rellena de queso amarillo",
-                  "option_id": "opt-17861590068310.9386613946600365",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590068310.7369302392944477",
-                  "name": "tocineta",
-                  "price": 500,
-                  "option_id": "opt-17861590068310.34548766675930676",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861590068310.9762608817472233",
-                  "name": "jamón",
-                  "option_id": "opt-17861590068310.9782373454118553",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590068310.09676365242634188",
-                  "name": "huevo",
-                  "option_id": "opt-17861590068310.7480756045122329",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590068310.8141149619463848",
-                  "name": "lechuga",
-                  "option_id": "opt-17861590068310.06615743407503327",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590068310.9693361754761965",
-                  "name": "tomate",
-                  "price": 500,
-                  "option_id": "opt-17861590068310.18294505570773",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861590068310.6423240201387309",
-                  "name": "cebolla caramelizada. Sale con papa fritas",
-                  "option_id": "opt-17861590068310.8149155376960773",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786159006831",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Croqueta de carne rellena de queso amarillo",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "tocineta",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "lechuga",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "tomate",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "cebolla caramelizada. Sale con papa fritas",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "Croqueta de carne rellena de queso amarillo, tocineta, jamón, huevo, lechuga, tomate, cebolla caramelizada. Sale con papa fritas."
-        },
-        {
-          "id": "p-1786159047936-58",
-          "name": "Hamburguesa La Bestia Fire",
-          "image": "",
-          "price": 23000,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861590479360.8181476214666036",
-                  "name": "Carne de res",
-                  "option_id": "opt-17861590479360.48000930503974926",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590479360.9538514462685446",
-                  "name": "pollo",
-                  "price": 500,
-                  "option_id": "opt-17861590479360.6053422073786269",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861590479360.5287563260899466",
-                  "name": "lomo cerdo",
-                  "option_id": "opt-17861590479360.37546496120631",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590479360.5505970379903248",
-                  "name": "jamón ahumado",
-                  "option_id": "opt-17861590479360.80662886094783",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590479360.1611961919089987",
-                  "name": "huevo",
-                  "option_id": "opt-17861590479360.15589709899663884",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590479360.6431029270787045",
-                  "name": "queso amarillo",
-                  "option_id": "opt-17861590479360.13628504340313918",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590479360.3481292942896296",
-                  "name": "lechuga",
-                  "option_id": "opt-17861590479360.1408560716402717",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590479360.5783739101164695",
-                  "name": "tomate",
-                  "price": 500,
-                  "option_id": "opt-17861590479360.03735006518737016",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861590479360.4651998740425344",
-                  "name": "cebolla caramelizada. Sale con papa fritas",
-                  "option_id": "opt-17861590479360.4366799960584724",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786159047936",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de res",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "pollo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "lomo cerdo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "jamón ahumado",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "queso amarillo",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "lechuga",
-              "price": 500
-            },
-            {
-              "id": "ex-7",
-              "name": "tomate",
-              "price": 500
-            },
-            {
-              "id": "ex-8",
-              "name": "cebolla caramelizada. Sale con papa fritas",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "Carne de res, pollo, lomo cerdo, jamón ahumado, huevo, queso amarillo, lechuga, tomate, cebolla caramelizada. Sale con papa fritas."
-        },
-        {
-          "id": "p-1786159074202-61",
-          "name": "Hamburguesa La Marranita BBQ",
-          "image": "",
-          "price": 23000,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861590742020.48053083317078005",
-                  "name": "Cerdo desmechado en salsa BBQ",
-                  "option_id": "opt-17861590742020.8682598836027581",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590742020.672767204878603",
-                  "name": "ensalada coleslaw",
-                  "option_id": "opt-17861590742020.4988413709094842",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590742020.4704361681411865",
-                  "name": "pepinillo. Sale con papa fritas",
-                  "option_id": "opt-17861590742020.3115841073022275",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786159074202",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cerdo desmechado en salsa BBQ",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "ensalada coleslaw",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "pepinillo. Sale con papa fritas",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "Cerdo desmechado en salsa BBQ, ensalada coleslaw y pepinillo. Sale con papa fritas."
-        },
-        {
-          "id": "p-1786159092629-8",
-          "name": "Pepito Mixto",
-          "image": "",
-          "price": 20000,
-          "category": "Pepitos",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861590926290.35923718396963167",
-                  "name": "Carne de res",
-                  "option_id": "opt-17861590926290.6643596379895795",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590926290.6543031588839395",
-                  "name": "pollo",
-                  "price": 500,
-                  "option_id": "opt-17861590926290.5408270630784897",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861590926290.09951506737648863",
-                  "name": "chorizo",
-                  "price": 500,
-                  "option_id": "opt-17861590926290.7837318098667148",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861590926290.5696488550619229",
-                  "name": "queso amarillo rallado",
-                  "option_id": "opt-17861590926290.7473028631316726",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590926290.12334790587786848",
-                  "name": "ripio de papa",
-                  "option_id": "opt-17861590926290.6512286425087899",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861590926290.32425061963830204",
-                  "name": "vegetales",
-                  "price": 500,
-                  "option_id": "opt-17861590926290.7554546281394173",
-                  "extra_price": 500
-                }
-              ],
-              "group_id": "g-extras-1786159092629",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de res",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "pollo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "chorizo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "queso amarillo rallado",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "ripio de papa",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "vegetales",
-              "price": 500
-            }
-          ],
-          "category_id": "5c3677a2-4042-40ec-b02b-90e1eac52fca",
-          "description": "Carne de res, pollo, chorizo, queso amarillo rallado, ripio de papa, vegetales."
-        },
-        {
-          "id": "p-1786159105837-48",
-          "name": "Salchipapas Salchipapa Pollo",
-          "image": "",
-          "price": 20000,
-          "category": "Salchipapas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861591058360.6707692538974014",
-                  "name": "Pollo",
-                  "price": 500,
-                  "option_id": "opt-17861591058360.7425844320335264",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861591058360.7131827313710389",
-                  "name": "huevo de codorniz",
-                  "price": 500,
-                  "option_id": "opt-17861591058360.8106424317556907",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861591058360.21233669414275702",
-                  "name": "salchicha",
-                  "option_id": "opt-17861591058360.9888877946014678",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861591058360.505966567903735",
-                  "name": "queso rallado",
-                  "price": 500,
-                  "option_id": "opt-17861591058360.4562404025801855",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861591058360.5948956231200413",
-                  "name": "vegetales",
-                  "price": 500,
-                  "option_id": "opt-17861591058360.0624649194226643",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861591058360.6586324014366323",
-                  "name": "papas a la francesa",
-                  "price": 500,
-                  "option_id": "opt-17861591058360.3033104046746048",
-                  "extra_price": 500
-                }
-              ],
-              "group_id": "g-extras-1786159105836",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Pollo",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "huevo de codorniz",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "salchicha",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "queso rallado",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "vegetales",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "papas a la francesa",
-              "price": 500
-            }
-          ],
-          "category_id": "eb37b64c-05a1-4e5b-902e-2b9a16b336b6",
-          "description": "Pollo, huevo de codorniz, salchicha, queso rallado, vegetales y papas a la francesa."
-        },
-        {
-          "id": "p-1786159194076-18",
-          "name": "Club House",
-          "image": "",
-          "price": 20,
-          "category": "Club Hause",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861591940760.08529412533655834",
-                  "name": "Pollo desmechado",
-                  "option_id": "opt-17861591940760.7944357745190286",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861591940760.6986707691603103",
-                  "name": "tocineta",
-                  "price": 500,
-                  "option_id": "opt-17861591940760.08852654403445248",
-                  "extra_price": 500
-                },
-                {
-                  "id": "opt-17861591940760.09352163674813008",
-                  "name": "jamón",
-                  "option_id": "opt-17861591940760.48073051582436777",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861591940760.9902192713653681",
-                  "name": "queso",
-                  "option_id": "opt-17861591940760.6118462402941773",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861591940760.2966894461757714",
-                  "name": "huevo",
-                  "option_id": "opt-17861591940760.9509417493080949",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861591940760.11589774978957457",
-                  "name": "vegetales y papas a la francesa",
-                  "option_id": "opt-17861591940760.7287135137189631",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786159194076",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Pollo desmechado",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "tocineta",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "vegetales",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "papas a la francesa",
-              "price": 500
-            }
-          ],
-          "category_id": "73f017b7-499c-4ad6-82d9-9cbf89693a92",
-          "description": "Pollo desmechado, tocineta, jamón, queso, huevo, vegetales y papas a la francesa"
-        },
-        {
-          "id": "p-1786159393163-15",
-          "name": "Menú Infantil Salchipapas",
-          "image": "",
-          "price": 12000,
-          "category": "Menú infantil",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861593931630.32832291118734647",
-                  "name": "Salchichas",
-                  "option_id": "opt-17861593931630.631661112084594",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861593931630.33846788819603",
-                  "name": "papas",
-                  "option_id": "opt-17861593931630.057261371160110874",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786159393163",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Salchichas",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "papas",
-              "price": 500
-            }
-          ],
-          "category_id": "636ce4cf-d12f-480c-b574-c5a795c8ef70",
-          "description": "Salchichas, papas"
-        },
-        {
-          "id": "p-1786159451318-14",
-          "name": "Menu Infantil Nuggets De Pollo Artesanal",
-          "image": "",
-          "price": 15,
-          "category": "Menú infantil",
-          "modifiers": [],
-          "exclusions": [],
-          "category_id": "636ce4cf-d12f-480c-b574-c5a795c8ef70",
-          "description": ""
-        },
-        {
-          "id": "p-1786159533938-64",
-          "name": "Refresco Personal",
-          "image": "",
-          "price": 3.5,
-          "category": "Bebidas",
-          "modifiers": [],
-          "exclusions": [],
-          "category_id": "cea46c34-ed90-4288-835a-644151a3753f",
-          "description": ""
-        },
-        {
-          "id": "p-1786159573832-20",
-          "name": "Refresco 1.5 lts",
-          "image": "",
-          "price": 7.5,
-          "category": "Bebidas",
-          "modifiers": [],
-          "exclusions": [],
-          "category_id": "cea46c34-ed90-4288-835a-644151a3753f",
-          "description": ""
-        },
-        {
-          "id": "p-1786159591591-76",
-          "name": "Soda Frutos Rojos",
-          "image": "",
-          "price": 10000,
-          "category": "Bebidas",
-          "modifiers": [],
-          "exclusions": [],
-          "category_id": "328cbd52-8632-4d1a-acfa-5de83b0c944d",
-          "description": "."
-        },
-        {
-          "id": "p-1786159603777-24",
-          "name": "Soda Frutos Amarillos",
-          "image": "",
-          "price": 10000,
-          "category": "Bebidas",
-          "modifiers": [],
-          "exclusions": [],
-          "category_id": "328cbd52-8632-4d1a-acfa-5de83b0c944d",
-          "description": "."
-        },
-        {
-          "id": "p-1786159615306-67",
-          "name": "Soda Frutos Verdes",
-          "image": "",
-          "price": 10000,
-          "category": "Bebidas",
-          "modifiers": [],
-          "exclusions": [],
-          "category_id": "328cbd52-8632-4d1a-acfa-5de83b0c944d",
-          "description": "."
-        },
-        {
-          "id": "p-1786159629529-77",
-          "name": "Soda Green Blue",
-          "image": "",
-          "price": 10000,
-          "category": "Bebidas",
-          "modifiers": [],
-          "exclusions": [],
-          "category_id": "328cbd52-8632-4d1a-acfa-5de83b0c944d",
-          "description": "."
-        }
-      ],
-      "prep_time": null,
-      "delivery_time": null,
-      "created_at": "2026-08-08T02:57:21.371766+00:00",
-      "location": "San Antonio",
-      "latitude": 7.8152,
-      "longitude": -72.4428,
-      "location_lat": 7.8152,
-      "location_lng": -72.4428,
-      "open_time": "17:00",
-      "close_time": "00:00"
-    },
-    {
-      "id": "latinos-burguer-1786162629597",
-      "name": "Latinos Burguer",
-      "category": "comidas",
-      "description": "Perros, hamburguesas",
-      "logo": "🍔",
-      "bannerType": "gradient",
-      "banner": "linear-gradient(135deg, #FF8C00, #FF4500)",
-      "linkKey": "C7IMI6",
-      "delivery_fee": 0,
-      "themeColor": null,
-      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1786162628843_106.png",
-      "tables": [],
-      "layout": [],
-      "products": [
-        {
-          "id": "p-1786162685881-2",
-          "name": "Hamburguesa Normal",
-          "image": "",
-          "price": 9,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861626858800.1040320529056733",
-                  "name": "Carne de hamburguesa",
-                  "option_id": "opt-17861626858800.8532482635819673",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861626858810.3878168245381941",
-                  "name": "huevo",
-                  "option_id": "opt-17861626858810.3032177992064433",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861626858810.9745050248047156",
-                  "name": "jamón",
-                  "option_id": "opt-17861626858810.42698894526694",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861626858810.9123068367790215",
-                  "name": "queso",
-                  "option_id": "opt-17861626858810.24352819117066327",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861626858810.885686842833614",
-                  "name": "vegetales",
-                  "price": 500,
-                  "option_id": "opt-17861626858810.17393233345993186",
-                  "extra_price": 500
-                }
-              ],
-              "group_id": "g-extras-1786162685881",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de hamburguesa",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "vegetales",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "Carne de hamburguesa, huevo, jamón, queso, vegetales."
-        },
-        {
-          "id": "p-1786162695715-4",
-          "name": "Hamburguesa Toxi",
-          "image": "",
-          "price": 10,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861626957150.6383999814525243",
-                  "name": "Carne de hamburguesa",
-                  "option_id": "opt-17861626957150.09072813650770428",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861626957150.6357115717031533",
-                  "name": "huevo",
-                  "option_id": "opt-17861626957150.7498102611724748",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861626957150.4386259340832498",
-                  "name": "tocineta",
-                  "option_id": "opt-17861626957150.4582006648889412",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861626957150.007258498419768444",
-                  "name": "jamón",
-                  "option_id": "opt-17861626957150.8181748356253209",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861626957150.2265133608763008",
-                  "name": "queso",
-                  "option_id": "opt-17861626957150.3587480525482133",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861626957150.12253897659382629",
-                  "name": "vegetales",
-                  "price": 500,
-                  "option_id": "opt-17861626957150.7331003133598833",
-                  "extra_price": 500
-                }
-              ],
-              "group_id": "g-extras-1786162695715",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de hamburguesa",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "tocineta",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "vegetales",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "Carne de hamburguesa, huevo, tocineta, jamón, queso, vegetales."
-        },
-        {
-          "id": "p-1786162707336-17",
-          "name": "Hamburguesa Mechada",
-          "image": "",
-          "price": 12,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861627073350.21999306918491002",
-                  "name": "Carne de hamburguesa",
-                  "option_id": "opt-17861627073350.22048705360134857",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627073350.8842932227385079",
-                  "name": "huevo",
-                  "option_id": "opt-17861627073350.18741486574771138",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627073350.10070112816444843",
-                  "name": "jamón",
-                  "option_id": "opt-17861627073350.9974249638511747",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627073350.6073741712970764",
-                  "name": "queso",
-                  "option_id": "opt-17861627073350.3288517010425426",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627073350.7959044775710695",
-                  "name": "vegetales",
-                  "price": 500,
-                  "option_id": "opt-17861627073350.5506227667348322",
-                  "extra_price": 500
-                }
-              ],
-              "group_id": "g-extras-1786162707335",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de hamburguesa",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "vegetales",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "Carne de hamburguesa, huevo, jamón, queso, vegetales."
-        },
-        {
-          "id": "p-1786162718599-86",
-          "name": "Hamburguesa Pollo",
-          "image": "",
-          "price": 12,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861627185980.1677958584096928",
-                  "name": "Carne de hamburguesa",
-                  "option_id": "opt-17861627185980.5383260692678163",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627185980.8006537752841821",
-                  "name": "huevo",
-                  "option_id": "opt-17861627185980.38348548474025435",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627185980.8723503128871436",
-                  "name": "jamón",
-                  "option_id": "opt-17861627185980.08547260080739105",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627185980.27660060545846155",
-                  "name": "queso",
-                  "option_id": "opt-17861627185980.0840409724149832",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786162718598",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de hamburguesa",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "queso",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "Carne de hamburguesa, huevo, jamón, queso."
-        },
-        {
-          "id": "p-1786162732716-19",
-          "name": "Hamburguesa Chuleta",
-          "image": "",
-          "price": 13,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861627327160.0038862143579040387",
-                  "name": "Carne de hamburguesa",
-                  "option_id": "opt-17861627327160.1596836644433426",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627327160.16338543543472028",
-                  "name": "huevo",
-                  "option_id": "opt-17861627327160.22731287045080006",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627327160.6690764319864888",
-                  "name": "jamón",
-                  "option_id": "opt-17861627327160.9977678891158097",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627327160.4182273584948698",
-                  "name": "queso",
-                  "option_id": "opt-17861627327160.9736843652126655",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627327160.4225807977320347",
-                  "name": "vegetales",
-                  "price": 500,
-                  "option_id": "opt-17861627327160.7735471143176595",
-                  "extra_price": 500
-                }
-              ],
-              "group_id": "g-extras-1786162732716",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de hamburguesa",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "vegetales",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "Carne de hamburguesa, huevo, jamón, queso, vegetales."
-        },
-        {
-          "id": "p-1786162760376-12",
-          "name": "hamburguesa, huevo, jamón, queso, vegetales.",
-          "image": "",
-          "price": 13,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861627603760.9306628267365836",
-                  "name": "huevo",
-                  "option_id": "opt-17861627603760.8785148783390189",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627603760.5541804200459061",
-                  "name": "jamón",
-                  "option_id": "opt-17861627603760.612157236916073",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627603760.4878618078478659",
-                  "name": "queso",
-                  "option_id": "opt-17861627603760.7810821981935537",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627603760.7652624586674043",
-                  "name": "vegetales.",
-                  "option_id": "opt-17861627603760.10677709133998314",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786162760376",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "vegetales",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "huevo, jamón, queso, vegetales."
-        },
-        {
-          "id": "p-1786162793821-46",
-          "name": "Hamburguesa Tropi",
-          "image": "",
-          "price": 14,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861627938210.10403407982643598",
-                  "name": "Carne de hamburguesa",
-                  "option_id": "opt-17861627938210.9225330405586151",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627938210.6747498828081913",
-                  "name": "chuleta",
-                  "option_id": "opt-17861627938210.553596040668543",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627938210.0807771084896649",
-                  "name": "tocineta",
-                  "option_id": "opt-17861627938210.5698660778754896",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627938210.989652176356788",
-                  "name": "huevo",
-                  "option_id": "opt-17861627938210.2802948363758747",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627938210.06247874812992682",
-                  "name": "jamón",
-                  "option_id": "opt-17861627938210.2755391348427204",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627938210.439514764611031",
-                  "name": "queso",
-                  "option_id": "opt-17861627938210.3770329394925819",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861627938210.8708576711482654",
-                  "name": "vegetales",
-                  "price": 500,
-                  "option_id": "opt-17861627938210.9637546402417619",
-                  "extra_price": 500
-                }
-              ],
-              "group_id": "g-extras-1786162793821",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de hamburguesa",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "chuleta",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "tocineta",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "vegetales",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "Carne de hamburguesa, chuleta, tocineta, huevo, jamón, queso, vegetales."
-        },
-        {
-          "id": "p-1786162844114-69",
-          "name": "Hamburguesa Mixta",
-          "image": "",
-          "price": 15,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861628441140.625442763634944",
-                  "name": "Carne de hamburguesa",
-                  "option_id": "opt-17861628441140.9408299338793595",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861628441140.5186502613586464",
-                  "name": "mechada",
-                  "option_id": "opt-17861628441140.07608840252321025",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861628441140.3532685296473044",
-                  "name": "pollo",
-                  "option_id": "opt-17861628441140.07075076076467768",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861628441140.003695917666287296",
-                  "name": "huevo",
-                  "option_id": "opt-17861628441140.5357375732176576",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861628441140.8709016571843162",
-                  "name": "jamón",
-                  "option_id": "opt-17861628441140.8571116078780932",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861628441140.15768560939509446",
-                  "name": "queso",
-                  "option_id": "opt-17861628441140.6855472645332074",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861628441140.2634134436459803",
-                  "name": "vegetales",
-                  "price": 500,
-                  "option_id": "opt-17861628441140.841481535419696",
-                  "extra_price": 500
-                }
-              ],
-              "group_id": "g-extras-1786162844114",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de hamburguesa",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "mechada",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "pollo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "vegetales",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "Carne de hamburguesa, mechada, pollo, huevo, jamón, queso, vegetales."
-        },
-        {
-          "id": "p-1786162885356-66",
-          "name": "Hamburguesa King",
-          "image": "",
-          "price": 16,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861628853560.6017272894121015",
-                  "name": "Carne de hamburguesa",
-                  "option_id": "opt-17861628853560.606742473714431",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861628853560.3597133421766071",
-                  "name": "chuleta",
-                  "option_id": "opt-17861628853560.01460475807273831",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861628853560.43704252799322774",
-                  "name": "pollo",
-                  "option_id": "opt-17861628853560.08295030477677867",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861628853560.34170241791032296",
-                  "name": "huevo",
-                  "option_id": "opt-17861628853560.8481545508417981",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861628853560.8933833594658922",
-                  "name": "jamón",
-                  "option_id": "opt-17861628853560.2206589971399755",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861628853560.06225589516513941",
-                  "name": "queso",
-                  "option_id": "opt-17861628853560.8879148046718163",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861628853560.748696979971052",
-                  "name": "vegetales",
-                  "price": 500,
-                  "option_id": "opt-17861628853560.12875121371867637",
-                  "extra_price": 500
-                }
-              ],
-              "group_id": "g-extras-1786162885356",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de hamburguesa",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "chuleta",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "pollo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "vegetales",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "Carne de hamburguesa, chuleta, pollo, huevo, jamón, queso, vegetales."
-        },
-        {
-          "id": "p-1786162914359-80",
-          "name": "Hamburguesa Latinos",
-          "image": "",
-          "price": 20,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861629143590.2363730024920987",
-                  "name": "Carne de hamburguesa",
-                  "option_id": "opt-17861629143590.5278143847308443",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861629143590.7838392708654179",
-                  "name": "pollo",
-                  "option_id": "opt-17861629143590.231186955504187",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861629143590.576372505351282",
-                  "name": "mechada",
-                  "option_id": "opt-17861629143590.11891680722129827",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861629143590.5527653510305324",
-                  "name": "chuleta",
-                  "option_id": "opt-17861629143590.03944926027124618",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861629143590.7036493341389753",
-                  "name": "tocineta",
-                  "option_id": "opt-17861629143590.31598706774087204",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861629143590.053821150503451265",
-                  "name": "huevo",
-                  "option_id": "opt-17861629143590.3671646625756695",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861629143590.7962451503363197",
-                  "name": "jamón",
-                  "option_id": "opt-17861629143590.03456540911201045",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861629143590.9226358301840124",
-                  "name": "queso",
-                  "option_id": "opt-17861629143590.5722302516157511",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861629143590.45582337827353914",
-                  "name": "vegetales",
-                  "price": 500,
-                  "option_id": "opt-17861629143590.6502528209107",
-                  "extra_price": 500
-                }
-              ],
-              "group_id": "g-extras-1786162914359",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de hamburguesa",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "pollo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "mechada",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "chuleta",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "tocineta",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-7",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-8",
-              "name": "vegetales",
-              "price": 500
-            }
-          ],
-          "category_id": "abe9179f-4695-4a00-be9c-aa357b7f11f1",
-          "description": "Carne de hamburguesa, pollo, mechada, chuleta, tocineta, huevo, jamón, queso, vegetales."
-        },
-        {
-          "id": "p-1786162928008-54",
-          "name": "Perro Caliente Sencillo",
-          "image": "",
-          "price": 4.5,
-          "category": "Perros",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861629280080.9302184673508677",
-                  "name": "Cebolla",
-                  "option_id": "opt-17861629280080.577590973231612",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861629280080.7237338844232675",
-                  "name": "papas",
-                  "option_id": "opt-17861629280080.40488582989599875",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861629280080.5149344812781308",
-                  "name": "queso",
-                  "option_id": "opt-17861629280080.5670487231133714",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786162928008",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cebolla",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "papas",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "queso",
-              "price": 500
-            }
-          ],
-          "category_id": "d17d8481-80a5-4eb8-a720-bd7085fb38fa",
-          "description": "Cebolla, papas, queso."
-        },
-        {
-          "id": "p-1786163003870-42",
-          "name": "Perro Caliente Normal",
-          "image": "",
-          "price": 5,
-          "category": "Perros",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861630038700.395496737187361",
-                  "name": "Cebolla",
-                  "option_id": "opt-17861630038700.09756492398731353",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861630038700.6710923784069919",
-                  "name": "papas",
-                  "option_id": "opt-17861630038700.6726705545029014",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861630038700.07425201697680328",
-                  "name": "queso",
-                  "option_id": "opt-17861630038700.8770742535774961",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861630038700.7355313256301235",
-                  "name": "jamón",
-                  "option_id": "opt-17861630038700.19582078874657338",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786163003870",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cebolla",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "papas",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "jamón",
-              "price": 500
-            }
-          ],
-          "category_id": "d17d8481-80a5-4eb8-a720-bd7085fb38fa",
-          "description": "Cebolla, papas, queso, jamón."
-        },
-        {
-          "id": "p-1786163013819-72",
-          "name": "Perro Caliente Toxi",
-          "image": "",
-          "price": 5.5,
-          "category": "Perros",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861630138190.9824999547802276",
-                  "name": "Cebolla",
-                  "option_id": "opt-17861630138190.5573769756837399",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861630138190.5863990341595121",
-                  "name": "papas",
-                  "option_id": "opt-17861630138190.9937245678965341",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861630138190.7610764022632615",
-                  "name": "queso",
-                  "option_id": "opt-17861630138190.12593859654284567",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861630138190.7739674291775709",
-                  "name": "tocineta",
-                  "option_id": "opt-17861630138190.09820278072209365",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786163013819",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cebolla",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "papas",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "tocineta",
-              "price": 500
-            }
-          ],
-          "category_id": "d17d8481-80a5-4eb8-a720-bd7085fb38fa",
-          "description": "Cebolla, papas, queso, tocineta."
-        },
-        {
-          "id": "p-1786163025636-35",
-          "name": "Perro Caliente Especial",
-          "image": "",
-          "price": 7.5,
-          "category": "Perros",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861630256360.795480496641169",
-                  "name": "Cebolla",
-                  "option_id": "opt-17861630256360.013386580995738084",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861630256360.18236972391504358",
-                  "name": "papas",
-                  "option_id": "opt-17861630256360.0160045576362855",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861630256360.7086131161316692",
-                  "name": "queso",
-                  "option_id": "opt-17861630256360.8720341576283295",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861630256360.7604765274253535",
-                  "name": "mechada o pollo",
-                  "option_id": "opt-17861630256360.6622662950164057",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786163025636",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cebolla",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "papas",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "mechada o pollo",
-              "price": 500
-            }
-          ],
-          "category_id": "d17d8481-80a5-4eb8-a720-bd7085fb38fa",
-          "description": "Cebolla, papas, queso, mechada o pollo."
-        },
-        {
-          "id": "p-1786163038157-33",
-          "name": "Perro Caliente King",
-          "image": "",
-          "price": 8.5,
-          "category": "Perros",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861630381570.8914669138144662",
-                  "name": "Cebolla",
-                  "option_id": "opt-17861630381570.980275737988525",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861630381570.790875460640266",
-                  "name": "papas",
-                  "option_id": "opt-17861630381570.4273535933285898",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861630381570.35320724366109235",
-                  "name": "queso",
-                  "option_id": "opt-17861630381570.15721056575385484",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861630381570.6325866086126037",
-                  "name": "mechada",
-                  "option_id": "opt-17861630381570.04081159496729814",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17861630381570.431908008443877",
-                  "name": "tocineta",
-                  "option_id": "opt-17861630381570.8006267425534422",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786163038157",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cebolla",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "papas",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "mechada",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "tocineta",
-              "price": 500
-            }
-          ],
-          "category_id": "d17d8481-80a5-4eb8-a720-bd7085fb38fa",
-          "description": "Cebolla, papas, queso, mechada, tocineta."
-        }
-      ],
-      "prep_time": null,
-      "delivery_time": null,
-      "created_at": "2026-08-08T04:17:10.13214+00:00",
-      "location": "San Antonio",
-      "latitude": 7.816,
-      "longitude": -72.445,
-      "location_lat": 7.816,
-      "location_lng": -72.445,
       "open_time": "17:00",
       "close_time": "00:00"
     },
@@ -15666,80 +15666,6 @@
       "close_time": "00:00"
     },
     {
-      "id": "boki-arepas-1784927442087",
-      "name": "Boki Arepas",
-      "category": "comidas",
-      "description": "Arepas rellenas a la parrilla, contornos sabrosos y combos familiares.",
-      "logo": "🫓",
-      "bannerType": "gradient",
-      "banner": "linear-gradient(135deg, #FF8C00, #E65100)",
-      "linkKey": "BOKIAREPAS",
-      "delivery_fee": 5000,
-      "themeColor": "#FF8C00",
-      "logoImage": "https://images.unsplash.com/photo-1582234372722-50d7ccc30e5b?w=500",
-      "tables": [],
-      "layout": [],
-      "products": [
-        {
-          "id": "p-boki-1",
-          "name": "Arepa Especial Boki",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 6,
-          "category": "🫓 Arepas",
-          "exclusions": [
-            "Jamón",
-            "Queso de Mano",
-            "Aguacate"
-          ],
-          "description": "Arepa asada rellena de queso de mano, carne mechada, pernil y aguacate."
-        },
-        {
-          "id": "p-boki-2",
-          "name": "Arepa Reina Pepiada",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 4.5,
-          "category": "🫓 Arepas",
-          "exclusions": [
-            "Mayonesa",
-            "Aguacate"
-          ],
-          "description": "Relleno clásico de pollo desmenuzado, mayonesa y cremoso aguacate."
-        },
-        {
-          "id": "p-boki-3",
-          "name": "Arepa Pelúa",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 4.5,
-          "category": "🫓 Arepas",
-          "exclusions": [
-            "Queso Amarillo"
-          ],
-          "description": "Sabrosa combinación de carne desmechada guisada y queso amarillo rallado."
-        },
-        {
-          "id": "p-boki-4",
-          "name": "Tequeños Tradicionales (6 Uds)",
-          "image": "https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=500",
-          "price": 4,
-          "category": "🍟 Entradas",
-          "exclusions": [
-            "Guasacaca"
-          ],
-          "description": "Deditos de masa crujiente rellenos de abundante queso blanco derretido con guasacaca."
-        }
-      ],
-      "prep_time": null,
-      "delivery_time": null,
-      "created_at": "2026-08-15T02:41:52.53169+00:00",
-      "location": "San Antonio",
-      "latitude": 7.8155,
-      "longitude": -72.444,
-      "location_lat": 7.8155,
-      "location_lng": -72.444,
-      "open_time": "17:00",
-      "close_time": "00:00"
-    },
-    {
       "id": "zeus-burger-1786252888630",
       "name": "Zeus Burger",
       "category": "comidas",
@@ -16378,6 +16304,80 @@
       "location_lng": -72.443,
       "open_time": "17:00",
       "close_time": "00:00"
+    },
+    {
+      "id": "boki-arepas-1784927442087",
+      "name": "Boki Arepas",
+      "category": "comidas",
+      "description": "Arepas rellenas a la parrilla, contornos sabrosos y combos familiares.",
+      "logo": "🫓",
+      "bannerType": "gradient",
+      "banner": "linear-gradient(135deg, #FF8C00, #E65100)",
+      "linkKey": "BOKIAREPAS",
+      "delivery_fee": 5000,
+      "themeColor": "#FF8C00",
+      "logoImage": "https://images.unsplash.com/photo-1582234372722-50d7ccc30e5b?w=500",
+      "tables": [],
+      "layout": [],
+      "products": [
+        {
+          "id": "p-boki-1",
+          "name": "Arepa Especial Boki",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 6,
+          "category": "🫓 Arepas",
+          "exclusions": [
+            "Jamón",
+            "Queso de Mano",
+            "Aguacate"
+          ],
+          "description": "Arepa asada rellena de queso de mano, carne mechada, pernil y aguacate."
+        },
+        {
+          "id": "p-boki-2",
+          "name": "Arepa Reina Pepiada",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 4.5,
+          "category": "🫓 Arepas",
+          "exclusions": [
+            "Mayonesa",
+            "Aguacate"
+          ],
+          "description": "Relleno clásico de pollo desmenuzado, mayonesa y cremoso aguacate."
+        },
+        {
+          "id": "p-boki-3",
+          "name": "Arepa Pelúa",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 4.5,
+          "category": "🫓 Arepas",
+          "exclusions": [
+            "Queso Amarillo"
+          ],
+          "description": "Sabrosa combinación de carne desmechada guisada y queso amarillo rallado."
+        },
+        {
+          "id": "p-boki-4",
+          "name": "Tequeños Tradicionales (6 Uds)",
+          "image": "https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=500",
+          "price": 4,
+          "category": "🍟 Entradas",
+          "exclusions": [
+            "Guasacaca"
+          ],
+          "description": "Deditos de masa crujiente rellenos de abundante queso blanco derretido con guasacaca."
+        }
+      ],
+      "prep_time": null,
+      "delivery_time": null,
+      "created_at": "2026-08-15T02:41:52.53169+00:00",
+      "location": "San Antonio",
+      "latitude": 7.8155,
+      "longitude": -72.444,
+      "location_lat": 7.8155,
+      "location_lng": -72.444,
+      "open_time": "17:00",
+      "close_time": "00:00"
     }
   ],
   "orders": [
@@ -16778,5 +16778,5 @@
   ],
   "reviews": [],
   "promotions": [],
-  "lastUpdated": "2026-08-16T22:33:14.045Z"
+  "lastUpdated": "2026-08-17T01:20:24.715Z"
 }

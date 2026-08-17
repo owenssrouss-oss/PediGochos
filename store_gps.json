@@ -3,10 +3,6 @@
     "latitude": 7.815,
     "longitude": -72.4438
   },
-  "la-casa-de-los-batidos-1786157702318": {
-    "latitude": 7.814,
-    "longitude": -72.443
-  },
   "patacon-fire-1786157840794": {
     "latitude": 7.8152,
     "longitude": -72.4428
@@ -14,6 +10,10 @@
   "latinos-burguer-1786162629597": {
     "latitude": 7.816,
     "longitude": -72.445
+  },
+  "la-casa-de-los-batidos-1786157702318": {
+    "latitude": 7.814,
+    "longitude": -72.443
   },
   "mak-pizza-1784350135697": {
     "latitude": 7.8138,
@@ -55,12 +55,12 @@
     "latitude": 7.813,
     "longitude": -72.4425
   },
-  "boki-arepas-1784927442087": {
-    "latitude": 7.8155,
-    "longitude": -72.444
-  },
   "zeus-burger-1786252888630": {
     "latitude": 7.8158,
     "longitude": -72.443
+  },
+  "boki-arepas-1784927442087": {
+    "latitude": 7.8155,
+    "longitude": -72.444
   }
 }

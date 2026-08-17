@@ -588,6 +588,44 @@ const VERIFIED_NAME_GPS = {
   'luchosburger': { latitude: 7.8125, longitude: -72.4440 }
 };
 
+function getImmutableStoreGps(est) {
+  if (!est) return { latitude: 7.8145, longitude: -72.4430 };
+  const id = String(est.id || '').trim();
+  const normName = normalizeStoreName(est.name || '');
+
+  // 1. Direct ID match in verified registry
+  if (VERIFIED_STORE_GPS[id]) return VERIFIED_STORE_GPS[id];
+  // 2. Direct normalized name match in verified registry
+  if (VERIFIED_NAME_GPS[normName]) return VERIFIED_NAME_GPS[normName];
+
+  // 3. Substring match against verified names/slugs
+  for (const [key, coords] of Object.entries(VERIFIED_NAME_GPS)) {
+    if (normName.includes(key) || key.includes(normName)) {
+      return coords;
+    }
+  }
+
+  // 4. store_gps.json
+  const storeGpsMap = readStoreGps();
+  if (storeGpsMap[id] && storeGpsMap[id].latitude && storeGpsMap[id].longitude) {
+    return {
+      latitude: parseFloat(storeGpsMap[id].latitude),
+      longitude: parseFloat(storeGpsMap[id].longitude)
+    };
+  }
+
+  // 5. Existing valid GPS on object
+  if (est.latitude && est.longitude && !isNaN(parseFloat(est.latitude)) && !isNaN(parseFloat(est.longitude))) {
+    return {
+      latitude: parseFloat(est.latitude),
+      longitude: parseFloat(est.longitude)
+    };
+  }
+
+  // 6. Default San Antonio center
+  return { latitude: 7.8145, longitude: -72.4430 };
+}
+
 function deduplicateEstablishments(establishments) {
   if (!Array.isArray(establishments)) return [];
   const seenIds = new Set();
@@ -595,7 +633,6 @@ function deduplicateEstablishments(establishments) {
 
   const storeGpsMap = readStoreGps();
   const disabledMap = readDisabledStores();
-  const gpsDeletedMap = readGpsDeleted();
 
   establishments.forEach(est => {
     if (!est || !est.id || !est.name) return;
@@ -608,28 +645,13 @@ function deduplicateEstablishments(establishments) {
       disabledMap[est.id] = est.disabled;
     }
 
-    if (gpsDeletedMap[est.id]) {
-      est.latitude = null;
-      est.longitude = null;
-      est.location_lat = null;
-      est.location_lng = null;
-    } else {
-      if (est.latitude && est.longitude) {
-        est.latitude = parseFloat(est.latitude);
-        est.longitude = parseFloat(est.longitude);
-      } else if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
-        est.latitude = parseFloat(storeGpsMap[est.id].latitude);
-        est.longitude = parseFloat(storeGpsMap[est.id].longitude);
-      } else if (VERIFIED_STORE_GPS[est.id]) {
-        est.latitude = VERIFIED_STORE_GPS[est.id].latitude;
-        est.longitude = VERIFIED_STORE_GPS[est.id].longitude;
-      }
-      est.location_lat = est.latitude;
-      est.location_lng = est.longitude;
-      if (est.latitude && est.longitude) {
-        storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
-      }
-    }
+    // Always enforce immutable verified GPS coordinates
+    const immutableCoords = getImmutableStoreGps(est);
+    est.latitude = parseFloat(immutableCoords.latitude);
+    est.longitude = parseFloat(immutableCoords.longitude);
+    est.location_lat = est.latitude;
+    est.location_lng = est.longitude;
+    storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
 
     if (!est.open_time) est.open_time = '17:00';
     if (!est.close_time) est.close_time = '00:00';
@@ -731,20 +753,13 @@ function writeDB(data) {
             disabledMap[est.id] = Boolean(est.disabled);
           }
 
-          // If est has GPS explicitly cleared (null), remove from storeGpsMap too
-          if (est.latitude === null && est.longitude === null) {
-            delete storeGpsMap[est.id];
-          } else if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
-            est.latitude = parseFloat(storeGpsMap[est.id].latitude);
-            est.longitude = parseFloat(storeGpsMap[est.id].longitude);
-            est.location_lat = est.latitude;
-            est.location_lng = est.longitude;
-          } else if (est.latitude && est.longitude) {
-            storeGpsMap[est.id] = {
-              latitude: parseFloat(est.latitude),
-              longitude: parseFloat(est.longitude)
-            };
-          }
+          // Enforce immutable verified GPS coordinates
+          const immutableCoords = getImmutableStoreGps(est);
+          est.latitude = parseFloat(immutableCoords.latitude);
+          est.longitude = parseFloat(immutableCoords.longitude);
+          est.location_lat = est.latitude;
+          est.location_lng = est.longitude;
+          storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
         });
         writeDisabledStores(disabledMap);
         writeStoreGps(storeGpsMap);

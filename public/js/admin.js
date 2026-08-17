@@ -22,11 +22,65 @@ function normalizeStoreName(name) {
     .trim();
 }
 
+const VERIFIED_STORE_GPS_FRONTEND = {
+  'mak-pizza-1784350135697': { latitude: 7.8138, longitude: -72.4420 },
+  'shawarma-dunes-1784412375653': { latitude: 7.8150, longitude: -72.4438 },
+  'la-casa-de-los-batidos-1786157702318': { latitude: 7.8140, longitude: -72.4430 },
+  'patacon-fire-1786157840794': { latitude: 7.8152, longitude: -72.4428 },
+  'latinos-burguer-1786162629597': { latitude: 7.8160, longitude: -72.4450 },
+  'm-ster-cachapa-1785973083758': { latitude: 7.8148, longitude: -72.4455 },
+  'tanos-resto-bar-1786032587502': { latitude: 7.8145, longitude: -72.4435 },
+  'sabor-venezolano-arepas-1784413922154': { latitude: 7.8135, longitude: -72.4432 },
+  'carritos-de-manuel-1784411690116': { latitude: 7.8128, longitude: -72.4451 },
+  'boby-burgers-1784410785941': { latitude: 7.8142, longitude: -72.4445 },
+  'gema-pop-1785968399832': { latitude: 7.8122, longitude: -72.4435 },
+  'frutyheladosgourmet-1786228530112': { latitude: 7.8130, longitude: -72.4425 },
+  'zeus-burger-1786252888630': { latitude: 7.8158, longitude: -72.4430 },
+  'boki-arepas-1784927442087': { latitude: 7.8155, longitude: -72.4440 },
+  'burger-grill-puente-sucre--1784935634396': { latitude: 7.8172, longitude: -72.4425 },
+  'muchos-burguer-1784912818841': { latitude: 7.8125, longitude: -72.4440 },
+  'makpizza': { latitude: 7.8138, longitude: -72.4420 },
+  'shawarmadunes': { latitude: 7.8150, longitude: -72.4438 },
+  'lacasadelosbatidos': { latitude: 7.8140, longitude: -72.4430 },
+  'pataconfire': { latitude: 7.8152, longitude: -72.4428 },
+  'latinosburguer': { latitude: 7.8160, longitude: -72.4450 },
+  'mistercachapa': { latitude: 7.8148, longitude: -72.4455 },
+  'mstercachapa': { latitude: 7.8148, longitude: -72.4455 },
+  'tanosrestobar': { latitude: 7.8145, longitude: -72.4435 },
+  'thanosrestobar': { latitude: 7.8145, longitude: -72.4435 },
+  'saborvenezolanoarepas': { latitude: 7.8135, longitude: -72.4432 },
+  'karritosdemanuel': { latitude: 7.8128, longitude: -72.4451 },
+  'carritosdemanuel': { latitude: 7.8128, longitude: -72.4451 },
+  'bobyburgers': { latitude: 7.8142, longitude: -72.4445 },
+  'gemapop': { latitude: 7.8122, longitude: -72.4435 },
+  'frutyheladosgourmet': { latitude: 7.8130, longitude: -72.4425 },
+  'zeusburger': { latitude: 7.8158, longitude: -72.4430 },
+  'bokiarepas': { latitude: 7.8155, longitude: -72.4440 },
+  'burgergrillpuentesucre': { latitude: 7.8172, longitude: -72.4425 },
+  'muchosburguer': { latitude: 7.8125, longitude: -72.4440 },
+  'luchosburger': { latitude: 7.8125, longitude: -72.4440 }
+};
+
 class AdminController {
   constructor() {
     this.establishments = [];
     this.orders = [];
     this.isAuthenticated = false;
+  }
+
+  enforceVerifiedGps(establishments) {
+    if (!Array.isArray(establishments)) return establishments;
+    establishments.forEach(est => {
+      if (!est) return;
+      const id = String(est.id || '').trim();
+      const normName = normalizeStoreName(est.name || '');
+      const coords = VERIFIED_STORE_GPS_FRONTEND[id] || VERIFIED_STORE_GPS_FRONTEND[normName] || (est.latitude && est.longitude ? { latitude: est.latitude, longitude: est.longitude } : { latitude: 7.8145, longitude: -72.4430 });
+      est.latitude = parseFloat(coords.latitude);
+      est.longitude = parseFloat(coords.longitude);
+      est.location_lat = est.latitude;
+      est.location_lng = est.longitude;
+    });
+    return establishments;
   }
 
   async init() {
@@ -144,7 +198,7 @@ class AdminController {
 
     try {
       const res = await fetch('/api/owner/establishments');
-      this.establishments = await res.json();
+      this.establishments = this.enforceVerifiedGps(await res.json());
       await this.loadOrders();
       
       // UI transitions
@@ -267,7 +321,7 @@ class AdminController {
       if (response.ok) {
         const data = await response.json();
         this.isAuthenticated = true;
-        this.establishments = data.establishments || [];
+        this.establishments = this.enforceVerifiedGps(data.establishments || []);
 
         // Save permanent session so it NEVER logs out or expires
         localStorage.setItem('owner_authenticated_permanently', 'true');
@@ -1702,7 +1756,7 @@ class AdminController {
       } catch(e) {}
 
       const res = await fetch('/api/owner/establishments');
-      this.establishments = await res.json();
+      this.establishments = this.enforceVerifiedGps(await res.json());
       if (Array.isArray(this.establishments)) {
         this.establishments.forEach(est => {
           est.disabled = Boolean(est.disabled);
@@ -2303,7 +2357,7 @@ class AdminController {
       this.showToast('📥 Cargando la última versión desde la nube...');
       const res = await fetch('/api/owner/establishments');
       if (res.ok) {
-        this.establishments = await res.json();
+        this.establishments = this.enforceVerifiedGps(await res.json());
         this.hasPendingChanges = false;
         this.updateSaveButtonState();
         await this.loadOrders();
