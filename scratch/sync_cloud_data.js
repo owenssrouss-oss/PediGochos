@@ -32,17 +32,17 @@ async function syncAndCleanAll() {
     'gemapop': { lat: 7.8122, lng: -72.4435 },
     'frutyheladosgourmet': { lat: 7.8130, lng: -72.4425 },
     'makpizza': { lat: 7.8138, lng: -72.4420 },
-    'karritosdemanuel': { lat: 7.8128, lng: -72.4451 },
-    'carritosdemanuel': { lat: 7.8128, lng: -72.4451 },
-    'saborvenezolanoarepas': { lat: 7.8135, lng: -72.4432 },
-    'shawarmadunes': { lat: 7.8150, lng: -72.4438 },
-    'bobyburgers': { lat: 7.8142, lng: -72.4445 },
-    'zeusburger': { lat: 7.8158, lng: -72.4430 },
-    'bokiarepas': { lat: 7.8155, lng: -72.4440 },
-    'burgergrillpuentesucre': { lat: 7.8172, lng: -72.4425 },
-    'muchosburguer': { lat: 7.8125, lng: -72.4440 },
-    'luchosburguer': { lat: 7.8125, lng: -72.4440 },
-    'luchosburger': { lat: 7.8125, lng: -72.4440 }
+    'karritosdemanuel': { lat: 7.812800, lng: -72.445100 },
+    'carritosdemanuel': { lat: 7.812800, lng: -72.445100 },
+    'saborvenezolanoarepas': { lat: 7.814025, lng: -72.441775 },
+    'shawarmadunes': { lat: 7.815000, lng: -72.443800 },
+    'bobyburgers': { lat: 7.814200, lng: -72.444500 },
+    'zeusburger': { lat: 7.815445, lng: -72.439140 },
+    'bokiarepas': { lat: 7.810803, lng: -72.442685 },
+    'burgergrillpuentesucre': { lat: 7.817200, lng: -72.442500 },
+    'muchosburguer': { lat: 7.812500, lng: -72.444000 },
+    'luchosburguer': { lat: 7.812500, lng: -72.444000 },
+    'luchosburger': { lat: 7.812500, lng: -72.444000 }
   };
 
   function norm(n) {

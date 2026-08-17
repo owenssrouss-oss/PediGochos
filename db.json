@@ -417,63 +417,78 @@
       "close_time": "00:00"
     },
     {
-      "id": "luchos-burguer-1784912818841",
-      "name": "Luchos Burguer",
+      "id": "burger-grill-puente-sucre--1784935634396",
+      "name": "Burger Grill Puente Sucre",
       "category": "comidas",
-      "description": "Hamburguesas rápidas, combos de papas fritas y bebidas.",
+      "description": "Hamburguesas artesanales al carbón, perros calientes y papas cargadas.",
       "logo": "🍔",
       "bannerType": "gradient",
-      "banner": "linear-gradient(135deg, #D32F2F, #7B1FA2)",
-      "linkKey": "LUCHOS",
+      "banner": "linear-gradient(135deg, #E53935, #D81B60)",
+      "linkKey": "BURGERGRILL",
       "delivery_fee": 5000,
-      "themeColor": "#D32F2F",
-      "logoImage": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+      "themeColor": "#E53935",
+      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1784935633209_470.png",
       "tables": [],
       "layout": [],
       "products": [
         {
-          "id": "p-much-1",
-          "name": "Muchos Burger Clásica",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 6,
-          "category": "🍔 Hamburguesas",
-          "exclusions": [
-            "Lechuga",
-            "Tomate"
-          ],
-          "description": "Carne artesanal de 180g, queso blanco fundido, lechuga y tomate frescos."
-        },
-        {
-          "id": "p-much-2",
-          "name": "Muchos Burger Bacon & Cheese",
-          "image": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=500",
+          "id": "p-bg-1",
+          "name": "Burger Grill Especial",
+          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1784935633209_470.png",
           "price": 7.5,
           "category": "🍔 Hamburguesas",
           "exclusions": [
+            "Cebolla",
+            "Pepinillos",
             "Tocineta"
           ],
-          "description": "Torta de res con capas de tocineta ahumada y queso cheddar fundido."
+          "description": "Carne a la parrilla de 180g, queso cheddar fundido, tocineta crocante y vegetales frescos."
         },
         {
-          "id": "p-much-3",
-          "name": "Muchos Triple Smash Burger",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 9.5,
+          "id": "p-bg-2",
+          "name": "Burger Doble Carne & Cheddar",
+          "image": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=500",
+          "price": 9,
           "category": "🍔 Hamburguesas",
           "exclusions": [
-            "Cebolla Caramelizada"
+            "Salsa Grill",
+            "Cheddar"
           ],
-          "description": "Tres tortas smash delgadas con triple queso cheddar y cebolla caramelizada."
+          "description": "Doble torta de carne ahumada al carbón con queso cheddar derretido y salsa grill."
+        },
+        {
+          "id": "p-bg-3",
+          "name": "Perro Caliente Grill",
+          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
+          "price": 4,
+          "category": "🌭 Perros Calientes",
+          "exclusions": [
+            "Papas Ralladas",
+            "Cebolla"
+          ],
+          "description": "Salchicha de res a la parrilla, cebollita crujiente, papitas ralladas y trío de salsas."
+        },
+        {
+          "id": "p-bg-4",
+          "name": "Papas Rústicas con Tocineta",
+          "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500",
+          "price": 4.5,
+          "category": "🍟 Raciones",
+          "exclusions": [
+            "Tocineta",
+            "Salsa de Queso"
+          ],
+          "description": "Papas sazonadas acompañadas de salsa de queso cheddar caliente y tocineta picadita."
         }
       ],
       "prep_time": null,
       "delivery_time": null,
-      "created_at": "2026-08-17T01:32:19.623139+00:00",
+      "created_at": "2026-08-15T02:41:52.53169+00:00",
       "location": "San Antonio",
-      "latitude": 7.8125,
-      "longitude": -72.444,
-      "location_lat": 7.8125,
-      "location_lng": -72.444,
+      "latitude": 7.8172,
+      "longitude": -72.4425,
+      "location_lat": 7.8172,
+      "location_lng": -72.4425,
       "open_time": "17:00",
       "close_time": "00:00"
     },
@@ -6598,6 +6613,67 @@
       "close_time": "00:00"
     },
     {
+      "id": "luchos-burguer-1784912818841",
+      "name": "Luchos Burguer",
+      "category": "comidas",
+      "description": "Hamburguesas rápidas, combos de papas fritas y bebidas.",
+      "logo": "🍔",
+      "bannerType": "gradient",
+      "banner": "linear-gradient(135deg, #D32F2F, #7B1FA2)",
+      "linkKey": "LUCHOS",
+      "delivery_fee": 5000,
+      "themeColor": "#D32F2F",
+      "logoImage": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+      "tables": [],
+      "layout": [],
+      "products": [
+        {
+          "id": "p-much-1",
+          "name": "Muchos Burger Clásica",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 6,
+          "category": "🍔 Hamburguesas",
+          "exclusions": [
+            "Lechuga",
+            "Tomate"
+          ],
+          "description": "Carne artesanal de 180g, queso blanco fundido, lechuga y tomate frescos."
+        },
+        {
+          "id": "p-much-2",
+          "name": "Muchos Burger Bacon & Cheese",
+          "image": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=500",
+          "price": 7.5,
+          "category": "🍔 Hamburguesas",
+          "exclusions": [
+            "Tocineta"
+          ],
+          "description": "Torta de res con capas de tocineta ahumada y queso cheddar fundido."
+        },
+        {
+          "id": "p-much-3",
+          "name": "Muchos Triple Smash Burger",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 9.5,
+          "category": "🍔 Hamburguesas",
+          "exclusions": [
+            "Cebolla Caramelizada"
+          ],
+          "description": "Tres tortas smash delgadas con triple queso cheddar y cebolla caramelizada."
+        }
+      ],
+      "prep_time": null,
+      "delivery_time": null,
+      "created_at": "2026-08-17T01:32:19.623139+00:00",
+      "location": "San Antonio",
+      "latitude": 7.8125,
+      "longitude": -72.444,
+      "location_lat": 7.8125,
+      "location_lng": -72.444,
+      "open_time": "17:00",
+      "close_time": "00:00"
+    },
+    {
       "id": "sabor-venezolano-arepas-1784413922154",
       "name": "Sabor Venezolano arepas",
       "category": "comidas",
@@ -7356,10 +7432,10 @@
       "delivery_time": null,
       "created_at": "2026-08-05T15:22:37.769444+00:00",
       "location": "San Antonio",
-      "latitude": 7.8135,
-      "longitude": -72.4432,
-      "location_lat": 7.8135,
-      "location_lng": -72.4432,
+      "latitude": 7.814025,
+      "longitude": -72.441775,
+      "location_lat": 7.814025,
+      "location_lng": -72.441775,
       "open_time": "17:00",
       "close_time": "00:00"
     },
@@ -9819,2075 +9895,6 @@
       "longitude": -72.4435,
       "location_lat": 7.8145,
       "location_lng": -72.4435,
-      "open_time": "17:00",
-      "close_time": "00:00"
-    },
-    {
-      "id": "carritos-de-manuel-1784411690116",
-      "name": "Karritos De Manuel",
-      "category": "comidas",
-      "description": "Hamburguesas, perros calientes, salchipapas, pizza, pepitos, picadas",
-      "logo": "🍔",
-      "bannerType": "image",
-      "banner": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1784411688955_747.png",
-      "linkKey": "8R8I3J",
-      "delivery_fee": 0,
-      "themeColor": "#ff5e3a",
-      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1784411688116_222.jpg",
-      "tables": [
-        {
-          "id": "t-1",
-          "name": "Mesa 1",
-          "number": 1,
-          "status": "Disponible"
-        }
-      ],
-      "layout": [],
-      "products": [
-        {
-          "id": "p-1784413240577-70",
-          "name": "Salchipapa Salchi Papa",
-          "image": "https://images.unsplash.com/photo-1585109649139-366815a0d713?w=500",
-          "price": 17,
-          "category": "Sachipapas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844132405770.7703690715915965",
-                  "name": "Papas a la francesa",
-                  "option_id": "opt-17844132405770.10482969769329831",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132405770.4278585018686485",
-                  "name": "salchicha",
-                  "option_id": "opt-17844132405770.05497984440453885",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132405770.3748600628247084",
-                  "name": "huevo de codorniz",
-                  "option_id": "opt-17844132405770.7075190279020938",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413240577",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Papas a la francesa",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "salchicha",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "huevo de codorniz",
-              "price": 500
-            }
-          ],
-          "description": "Papas a la francesa, salchicha y huevo de codorniz."
-        },
-        {
-          "id": "p-1784413256597-14",
-          "name": "Salchipapa Salchi Pollo",
-          "image": "https://images.unsplash.com/photo-1585109649139-366815a0d713?w=500",
-          "price": 25,
-          "category": "Salchipapas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844132565970.764218247808738",
-                  "name": "Papas a la francesa",
-                  "option_id": "opt-17844132565970.37187537271968873",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132565970.2936330056548032",
-                  "name": "pollo mechado",
-                  "option_id": "opt-17844132565970.21080082890430152",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132565970.09600368087782674",
-                  "name": "salchicha",
-                  "option_id": "opt-17844132565970.40739968554800554",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132565970.5653375606437796",
-                  "name": "huevo de codorniz",
-                  "option_id": "opt-17844132565970.8966078132540792",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132565970.483758505897654",
-                  "name": "queso",
-                  "option_id": "opt-17844132565970.11299637920479944",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413256597",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Papas a la francesa",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "pollo mechado",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "salchicha",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "huevo de codorniz",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "queso",
-              "price": 500
-            }
-          ],
-          "description": "Papas a la francesa, pollo mechado, salchicha, huevo de codorniz y queso."
-        },
-        {
-          "id": "p-1784413274063-80",
-          "name": "Salchipapa Salchi Carne",
-          "image": "https://images.unsplash.com/photo-1585109649139-366815a0d713?w=500",
-          "price": 26,
-          "category": "Salchipapa",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844132740630.8302782791461677",
-                  "name": "Papas a la francesa",
-                  "option_id": "opt-17844132740630.7912304689579761",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132740630.9775317773784143",
-                  "name": "carne mechada",
-                  "option_id": "opt-17844132740630.9289293480057798",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132740630.3397975018975016",
-                  "name": "salchicha",
-                  "option_id": "opt-17844132740630.3209731624657176",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132740630.023550810619277773",
-                  "name": "huevo de codorniz",
-                  "option_id": "opt-17844132740630.7112539165034745",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132740630.1689584181326329",
-                  "name": "queso",
-                  "option_id": "opt-17844132740630.04065565332789911",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413274063",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Papas a la francesa",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "carne mechada",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "salchicha",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "huevo de codorniz",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "queso",
-              "price": 500
-            }
-          ],
-          "description": "Papas a la francesa, carne mechada, salchicha, huevo de codorniz y queso."
-        },
-        {
-          "id": "p-1784413291786-11",
-          "name": "Salchipapa Criolla Llanera",
-          "image": "https://images.unsplash.com/photo-1585109649139-366815a0d713?w=500",
-          "price": 45,
-          "category": "Salchipapa",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844132917860.04528674775285113",
-                  "name": "Papas criolla",
-                  "option_id": "opt-17844132917860.9284412307825589",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132917860.12626965649086141",
-                  "name": "carne",
-                  "option_id": "opt-17844132917860.6538183977570181",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132917860.18551190219577485",
-                  "name": "pollo",
-                  "option_id": "opt-17844132917860.7897800910962269",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132917860.9774130830629905",
-                  "name": "chorizo",
-                  "option_id": "opt-17844132917860.7859161947438954",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132917860.1572578664457216",
-                  "name": "maíz",
-                  "option_id": "opt-17844132917860.30528829954139136",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132917860.004385089182362911",
-                  "name": "salchicha",
-                  "option_id": "opt-17844132917860.8194375345399925",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132917860.6180248616456133",
-                  "name": "huevo de codorniz",
-                  "option_id": "opt-17844132917860.525067650725897",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132917860.5425553178518013",
-                  "name": "tajadas de maduro",
-                  "option_id": "opt-17844132917860.19710035263707948",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844132917860.2665033006721924",
-                  "name": "queso",
-                  "option_id": "opt-17844132917860.663909380926113",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413291786",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Papas criolla",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "carne",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "pollo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "chorizo",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "maíz",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "salchicha",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "huevo de codorniz",
-              "price": 500
-            },
-            {
-              "id": "ex-7",
-              "name": "tajadas de maduro",
-              "price": 500
-            },
-            {
-              "id": "ex-8",
-              "name": "queso",
-              "price": 500
-            }
-          ],
-          "description": "Papas criolla, carne, pollo, chorizo, maíz, salchicha, huevo de codorniz, tajadas de maduro y queso."
-        },
-        {
-          "id": "p-1784413305086-38",
-          "name": "Salchipapa Salchi Mixto",
-          "image": "https://images.unsplash.com/photo-1585109649139-366815a0d713?w=500",
-          "price": 50,
-          "category": "Salchipapas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844133050860.8674649963104304",
-                  "name": "Papas a la francesa",
-                  "option_id": "opt-17844133050860.234384158684116",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844133050860.5591502416120043",
-                  "name": "carne",
-                  "option_id": "opt-17844133050860.37016594072465425",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844133050860.12300899889772021",
-                  "name": "pollo",
-                  "option_id": "opt-17844133050860.7850581624119157",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844133050860.8351194142122633",
-                  "name": "chorizo",
-                  "option_id": "opt-17844133050860.22776445413604363",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844133050860.571752546885121",
-                  "name": "maíz",
-                  "option_id": "opt-17844133050860.5018294087740718",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844133050860.9493080901980895",
-                  "name": "salchicha",
-                  "option_id": "opt-17844133050860.2621517459231445",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844133050860.748902471442256",
-                  "name": "huevo de codorniz",
-                  "option_id": "opt-17844133050860.7595364944447083",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844133050860.2464626861748681",
-                  "name": "tajadas de maduro",
-                  "option_id": "opt-17844133050860.08895938840913509",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844133050860.7083549472918572",
-                  "name": "queso",
-                  "option_id": "opt-17844133050860.056684844822477154",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413305086",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Papas a la francesa",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "carne",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "pollo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "chorizo",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "maíz",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "salchicha",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "huevo de codorniz",
-              "price": 500
-            },
-            {
-              "id": "ex-7",
-              "name": "tajadas de maduro",
-              "price": 500
-            },
-            {
-              "id": "ex-8",
-              "name": "queso",
-              "price": 500
-            }
-          ],
-          "description": "Papas a la francesa, carne, pollo, chorizo, maíz, salchicha, huevo de codorniz, tajadas de maduro y queso."
-        },
-        {
-          "id": "p-1784413466809-47",
-          "name": "Hamburguesa Monstruosa",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 25,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844134668090.14567078793440869",
-                  "name": "Carne de res",
-                  "option_id": "opt-17844134668090.8446455746449749",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134668090.8731756766611952",
-                  "name": "carne mechada",
-                  "option_id": "opt-17844134668090.6541330376285045",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134668090.24857968026485366",
-                  "name": "pollo mechado",
-                  "option_id": "opt-17844134668090.460952341009244",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134668090.7022357447821639",
-                  "name": "tocineta",
-                  "option_id": "opt-17844134668090.745629852398277",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134668090.6645862842606687",
-                  "name": "huevo",
-                  "option_id": "opt-17844134668090.35859287540137463",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134668090.5313813189341644",
-                  "name": "jamón",
-                  "option_id": "opt-17844134668090.10972700343587605",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134668090.026625911181597628",
-                  "name": "queso",
-                  "option_id": "opt-17844134668090.7250500708030387",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134668090.7799700668637279",
-                  "name": "tomate",
-                  "option_id": "opt-17844134668090.6602600430671455",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134668090.02672670540623201",
-                  "name": "cebolla",
-                  "option_id": "opt-17844134668090.8108949957907464",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134668090.5564272933546354",
-                  "name": "salsas",
-                  "option_id": "opt-17844134668090.49326048207640083",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413466809",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de res",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "carne mechada",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "pollo mechado",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "tocineta",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-7",
-              "name": "tomate",
-              "price": 500
-            },
-            {
-              "id": "ex-8",
-              "name": "cebolla",
-              "price": 500
-            },
-            {
-              "id": "ex-9",
-              "name": "salsas",
-              "price": 500
-            }
-          ],
-          "description": "Carne de res, carne mechada, pollo mechado, tocineta, huevo, jamón, queso, tomate, cebolla, salsas."
-        },
-        {
-          "id": "p-1784413479783-42",
-          "name": "Hamburguesa Pollo",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 19,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844134797830.05766613970078771",
-                  "name": "Carne de res",
-                  "option_id": "opt-17844134797830.7174358497547736",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134797830.5815053538983673",
-                  "name": "pollo mechado",
-                  "option_id": "opt-17844134797830.7169874521959981",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134797830.6134581102206385",
-                  "name": "huevo",
-                  "option_id": "opt-17844134797830.2272418549416948",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134797830.47143799577213874",
-                  "name": "jamón",
-                  "option_id": "opt-17844134797830.33646110616238434",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134797830.5406790908197918",
-                  "name": "queso",
-                  "option_id": "opt-17844134797830.7517665365486771",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134797830.2671078058010218",
-                  "name": "tomate",
-                  "option_id": "opt-17844134797830.1730870671268787",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134797830.577033254761451",
-                  "name": "cebolla",
-                  "option_id": "opt-17844134797830.09967950078754562",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413479783",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de res",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "pollo mechado",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "tomate",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "cebolla",
-              "price": 500
-            }
-          ],
-          "description": "Carne de res, pollo mechado, huevo, jamón, queso, tomate y cebolla."
-        },
-        {
-          "id": "p-1784413494209-93",
-          "name": "Hamburguesa Mechada",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 19.5,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844134942090.08472367749268273",
-                  "name": "Carne de res",
-                  "option_id": "opt-17844134942090.07705486112188864",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134942090.39779119933254636",
-                  "name": "carne mechada",
-                  "option_id": "opt-17844134942090.37447565584023335",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134942090.5387186400250678",
-                  "name": "huevo",
-                  "option_id": "opt-17844134942090.6194302228861602",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134942090.630670480852843",
-                  "name": "jamón",
-                  "option_id": "opt-17844134942090.959459641413853",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134942090.7627536040772789",
-                  "name": "queso",
-                  "option_id": "opt-17844134942090.010649479557504615",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134942090.2919388471673662",
-                  "name": "tomate",
-                  "option_id": "opt-17844134942090.3369786444792926",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844134942090.7500846568095325",
-                  "name": "cebolla",
-                  "option_id": "opt-17844134942090.16052368278701135",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413494209",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de res",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "carne mechada",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "tomate",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "cebolla",
-              "price": 500
-            }
-          ],
-          "description": "Carne de res, carne mechada, huevo, jamón, queso, tomate y cebolla."
-        },
-        {
-          "id": "p-1784413511999-67",
-          "name": "Hamburguesa Parrillera",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 25,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844135119980.526182051237117",
-                  "name": "Carne de res",
-                  "option_id": "opt-17844135119980.8169883655062621",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135119980.18496870376705843",
-                  "name": "carne mechada",
-                  "option_id": "opt-17844135119980.22552267840368811",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135119980.6194860849054501",
-                  "name": "huevo",
-                  "option_id": "opt-17844135119980.5497252394950987",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135119980.8540495474674235",
-                  "name": "jamón",
-                  "option_id": "opt-17844135119980.7474463042738041",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135119980.5309240859334828",
-                  "name": "queso",
-                  "option_id": "opt-17844135119980.6728864646379529",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135119980.2302906100058556",
-                  "name": "tomate",
-                  "option_id": "opt-17844135119980.276928384088983",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135119980.823230178672327",
-                  "name": "cebolla",
-                  "option_id": "opt-17844135119980.26307954674646483",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413511998",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de res",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "carne mechada",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "tomate",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "cebolla",
-              "price": 500
-            }
-          ],
-          "description": "Carne de res, carne mechada, huevo, jamón, queso, tomate y cebolla."
-        },
-        {
-          "id": "p-1784413523047-36",
-          "name": "Hamburguesa Pollo Cryspi",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 21,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844135230470.8487816018433499",
-                  "name": "Carne de res",
-                  "option_id": "opt-17844135230470.02398375999362512",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135230470.024238444183137697",
-                  "name": "carne mechada",
-                  "option_id": "opt-17844135230470.7029093331357199",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135230470.9656435425058368",
-                  "name": "huevo",
-                  "option_id": "opt-17844135230470.09500300387135197",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135230470.023710783171912442",
-                  "name": "jamón",
-                  "option_id": "opt-17844135230470.032391662830210555",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135230470.6057979840021689",
-                  "name": "queso",
-                  "option_id": "opt-17844135230470.5197355297904571",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135230470.10417249299969777",
-                  "name": "tomate",
-                  "option_id": "opt-17844135230470.21070938468793832",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135230470.9289517420710154",
-                  "name": "cebolla",
-                  "option_id": "opt-17844135230470.39853061961347325",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413523047",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de res",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "carne mechada",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "tomate",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "cebolla",
-              "price": 500
-            }
-          ],
-          "description": "Carne de res, carne mechada, huevo, jamón, queso, tomate y cebolla."
-        },
-        {
-          "id": "p-1784413540103-41",
-          "name": "Hamburguesa Tocineta",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 19.5,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844135401030.5345456720502304",
-                  "name": "Carne de res",
-                  "option_id": "opt-17844135401030.17370526342464832",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135401030.41299177116082675",
-                  "name": "tocineta",
-                  "option_id": "opt-17844135401030.8043220509760067",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135401030.4405975372962959",
-                  "name": "huevo",
-                  "option_id": "opt-17844135401030.27772184434660685",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135401030.8106529372736971",
-                  "name": "jamón",
-                  "option_id": "opt-17844135401030.22605470241537406",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135401030.24740860542186538",
-                  "name": "queso",
-                  "option_id": "opt-17844135401030.24403249374997238",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135401030.6783131751176577",
-                  "name": "tomate",
-                  "option_id": "opt-17844135401030.6292176966063892",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135401030.6238512316367735",
-                  "name": "cebolla",
-                  "option_id": "opt-17844135401030.39493969020648345",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413540103",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de res",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "tocineta",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "tomate",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "cebolla",
-              "price": 500
-            }
-          ],
-          "description": "Carne de res, tocineta, huevo, jamón, queso, tomate y cebolla."
-        },
-        {
-          "id": "p-1784413556076-58",
-          "name": "Hamburguesa Choriburguer",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 19,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844135560760.6856924904841657",
-                  "name": "Croqueta de carne",
-                  "option_id": "opt-17844135560760.021814304524998107",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135560760.8405061419310565",
-                  "name": "chorizo",
-                  "option_id": "opt-17844135560760.8571034063663775",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135560760.43808287566279946",
-                  "name": "huevo",
-                  "option_id": "opt-17844135560760.09042403490912554",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135560760.1681549713352054",
-                  "name": "jamón queso papas a la francesa",
-                  "option_id": "opt-17844135560760.35760136372399065",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413556076",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Croqueta de carne",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "chorizo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "jamón queso papas a la francesa",
-              "price": 500
-            }
-          ],
-          "description": "Croqueta de carne, chorizo, huevo, jamón queso papas a la francesa."
-        },
-        {
-          "id": "p-1784413573182-33",
-          "name": "Hamburguesa Tradicional",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 15,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844135731820.6430537927356652",
-                  "name": "Carne de res",
-                  "option_id": "opt-17844135731820.6100957234669705",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135731820.7734247192457818",
-                  "name": "Huevo",
-                  "option_id": "opt-17844135731820.24979440596027858",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135731820.18953924007016099",
-                  "name": "jamón",
-                  "option_id": "opt-17844135731820.08344170921133875",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135731820.3422194439733611",
-                  "name": "queso",
-                  "option_id": "opt-17844135731820.03282307419124775",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135731820.4564414174007818",
-                  "name": "tomate",
-                  "option_id": "opt-17844135731820.5733710928413255",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135731820.9896875525274593",
-                  "name": "cebolla",
-                  "option_id": "opt-17844135731820.25279067768595687",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413573182",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de res",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "Huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "tomate",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "cebolla",
-              "price": 500
-            }
-          ],
-          "description": "Carne de res, Huevo, jamón, queso, tomate y cebolla."
-        },
-        {
-          "id": "p-1784413588661-36",
-          "name": "Hamburguesa Pernil",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 9,
-          "category": "Hamburguesas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844135886610.019774435564465787",
-                  "name": "Carne de res",
-                  "option_id": "opt-17844135886610.34722743068036976",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135886610.34689402806467695",
-                  "name": "Huevo",
-                  "option_id": "opt-17844135886610.8337411397683643",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135886610.06844676440702901",
-                  "name": "jamón",
-                  "option_id": "opt-17844135886610.8936844252004653",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135886610.781027675859975",
-                  "name": "queso",
-                  "option_id": "opt-17844135886610.06572953461446518",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135886610.2594879959469203",
-                  "name": "tomate",
-                  "option_id": "opt-17844135886610.49151747726226713",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844135886610.1524713716480589",
-                  "name": "cebolla",
-                  "option_id": "opt-17844135886610.9465872886727567",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413588661",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Carne de res",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "Huevo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "jamón",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "tomate",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "cebolla",
-              "price": 500
-            }
-          ],
-          "description": "Carne de res, Huevo, jamón, queso, tomate y cebolla."
-        },
-        {
-          "id": "p-1784413610247-58",
-          "name": "Perro Caliente Normal",
-          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
-          "price": 6,
-          "category": "Perros",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844136102470.9687751765969421",
-                  "name": "Salchicha",
-                  "option_id": "opt-17844136102470.016800373454657236",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136102470.2444895063095902",
-                  "name": "queso",
-                  "option_id": "opt-17844136102470.972964349263481",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136102470.3577473643429915",
-                  "name": "cebolla",
-                  "option_id": "opt-17844136102470.9117102131950048",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136102470.4611434954415776",
-                  "name": "papas cabello de angel",
-                  "option_id": "opt-17844136102470.13316409812796426",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136102470.6569820436501009",
-                  "name": "salsas",
-                  "option_id": "opt-17844136102470.41744747107926494",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413610247",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Salchicha",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "cebolla",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "papas cabello de angel",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "salsas",
-              "price": 500
-            }
-          ],
-          "description": "Salchicha, queso, cebolla, papas cabello de angel y salsas."
-        },
-        {
-          "id": "p-1784413627697-54",
-          "name": "Perro Caliente Carne",
-          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
-          "price": 15,
-          "category": "Perros",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844136276970.08047478324015833",
-                  "name": "Salchicha",
-                  "option_id": "opt-17844136276970.9165791423357514",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136276970.2934737814001501",
-                  "name": "queso",
-                  "option_id": "opt-17844136276970.7528065779925205",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136276970.9452257791791582",
-                  "name": "cebolla",
-                  "option_id": "opt-17844136276970.034818317359749607",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136276970.501774909174018",
-                  "name": "papas cabello de angel",
-                  "option_id": "opt-17844136276970.250803369544946",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136276970.2350146920452959",
-                  "name": "salsas",
-                  "option_id": "opt-17844136276970.6444634370193073",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136276970.5335481151028517",
-                  "name": "servicio de papas a la francesa",
-                  "option_id": "opt-17844136276970.06187665112078122",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413627697",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Salchicha",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "cebolla",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "papas cabello de angel",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "salsas",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "servicio de papas a la francesa",
-              "price": 500
-            }
-          ],
-          "description": "Salchicha, queso, cebolla, papas cabello de angel, salsas y servicio de papas a la francesa."
-        },
-        {
-          "id": "p-1784413644887-33",
-          "name": "Perro Caliente Tocineta",
-          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
-          "price": 7.5,
-          "category": "Perros",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844136448870.4473249509304368",
-                  "name": "Salchicha",
-                  "option_id": "opt-17844136448870.5025295889629551",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136448870.3733968481493859",
-                  "name": "tocineta",
-                  "option_id": "opt-17844136448870.6406886961783403",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136448870.47960817570412406",
-                  "name": "queso",
-                  "option_id": "opt-17844136448870.6416552491062371",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136448870.17293799498720197",
-                  "name": "cebolla",
-                  "option_id": "opt-17844136448870.9174562716147331",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136448870.7910466311680615",
-                  "name": "papas cabello de angel",
-                  "option_id": "opt-17844136448870.9163730871481603",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136448870.218152472084574",
-                  "name": "salsas",
-                  "option_id": "opt-17844136448870.1304208532477804",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136448870.48810016709552473",
-                  "name": "servicio de papas a la francesa",
-                  "option_id": "opt-17844136448870.9293820988893184",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413644887",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Salchicha",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "tocineta",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "queso",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "cebolla",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "papas cabello de angel",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "salsas",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "servicio de papas a la francesa",
-              "price": 500
-            }
-          ],
-          "description": "Salchicha, tocineta, queso, cebolla, papas cabello de angel, salsas y servicio de papas a la francesa."
-        },
-        {
-          "id": "p-1784413662157-15",
-          "name": "Perro Caliente Pollo",
-          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
-          "price": 15,
-          "category": "Perros",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844136621560.0442443708821042",
-                  "name": "Salchicha",
-                  "option_id": "opt-17844136621560.9624575286703291",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136621560.10187805950040796",
-                  "name": "queso amarillo",
-                  "option_id": "opt-17844136621560.10294188984599528",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136621560.14654141157186307",
-                  "name": "cebolla",
-                  "option_id": "opt-17844136621560.09385330598651531",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136621560.802161647702171",
-                  "name": "papas cabello de angel",
-                  "option_id": "opt-17844136621560.240909339607693",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136621560.303886291737016",
-                  "name": "salsas",
-                  "option_id": "opt-17844136621560.38871040552128755",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136621560.07254379679685041",
-                  "name": "servicio de papas a la francesa",
-                  "option_id": "opt-17844136621560.9007831521828741",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413662156",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Salchicha",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "queso amarillo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "cebolla",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "papas cabello de angel",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "salsas",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "servicio de papas a la francesa",
-              "price": 500
-            }
-          ],
-          "description": "Salchicha, queso amarillo, cebolla, papas cabello de angel, salsas y servicio de papas a la francesa."
-        },
-        {
-          "id": "p-1784413681413-50",
-          "name": "Perro Caliente Manuel",
-          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
-          "price": 18,
-          "category": "Perros",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844136814130.5117731450547528",
-                  "name": "Salchicha",
-                  "option_id": "opt-17844136814130.3583367806728488",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136814130.6453109936362529",
-                  "name": "carne",
-                  "option_id": "opt-17844136814130.025146742254961385",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136814130.4156356913485372",
-                  "name": "pollo",
-                  "option_id": "opt-17844136814130.3056355609158081",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136814130.268204937232425",
-                  "name": "queso amarillo",
-                  "option_id": "opt-17844136814130.5004189416289772",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136814130.15037823773304948",
-                  "name": "cebolla",
-                  "option_id": "opt-17844136814130.94898788193996",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136814130.7491113234188468",
-                  "name": "papas cabello de angel",
-                  "option_id": "opt-17844136814130.9589128721119391",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136814130.9185133284105401",
-                  "name": "salsas",
-                  "option_id": "opt-17844136814130.6414933320086901",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136814130.9621515638329535",
-                  "name": "servicio de papas a la francesa",
-                  "option_id": "opt-17844136814130.16767171273949366",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413681413",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Salchicha",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "carne",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "pollo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "queso amarillo",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "cebolla",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "papas cabello de angel",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "salsas",
-              "price": 500
-            },
-            {
-              "id": "ex-7",
-              "name": "servicio de papas a la francesa",
-              "price": 500
-            }
-          ],
-          "description": "Salchicha, carne, pollo, queso amarillo, cebolla, papas cabello de angel, salsas y servicio de papas a la francesa."
-        },
-        {
-          "id": "p-1784413694678-9",
-          "name": "Perro Caliente Pernil",
-          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
-          "price": 20,
-          "category": "Perros",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844136946780.055968650980260604",
-                  "name": "Salchicha",
-                  "option_id": "opt-17844136946780.054685028730579344",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136946780.1597411982747755",
-                  "name": "pernil",
-                  "option_id": "opt-17844136946780.24953705040285545",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136946780.29504110418713625",
-                  "name": "queso amarillo",
-                  "option_id": "opt-17844136946780.5818897054933438",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136946780.9559006329928391",
-                  "name": "cebolla",
-                  "option_id": "opt-17844136946780.5751118059284558",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136946780.41408653395977624",
-                  "name": "papas cabello de angel",
-                  "option_id": "opt-17844136946780.3428979165175151",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136946780.25509178885737505",
-                  "name": "salsas",
-                  "option_id": "opt-17844136946780.23686176899613487",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844136946780.43945011300468095",
-                  "name": "servicio de papas a la francesa",
-                  "option_id": "opt-17844136946780.7972963614108272",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413694678",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Salchicha",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "pernil",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "queso amarillo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "cebolla",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "papas cabello de angel",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "salsas",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "servicio de papas a la francesa",
-              "price": 500
-            }
-          ],
-          "description": "Salchicha, pernil, queso amarillo, cebolla, papas cabello de angel, salsas y servicio de papas a la francesa."
-        },
-        {
-          "id": "p-1784413714503-65",
-          "name": "Perro Caliente Parrillero",
-          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
-          "price": 20,
-          "category": "Perros",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844137145030.9315926917243109",
-                  "name": "Salchicha",
-                  "option_id": "opt-17844137145030.45296568328866105",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844137145030.6154670356667149",
-                  "name": "carne",
-                  "option_id": "opt-17844137145030.623321659899876",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844137145030.8087154953547302",
-                  "name": "pollo",
-                  "option_id": "opt-17844137145030.12330776391694609",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844137145030.08834357499479428",
-                  "name": "queso amarillo",
-                  "option_id": "opt-17844137145030.52194104100171",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844137145030.8682684850638361",
-                  "name": "cebolla",
-                  "option_id": "opt-17844137145030.6320387572165251",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844137145030.8096946668005808",
-                  "name": "papas cabello de angel",
-                  "option_id": "opt-17844137145030.30279434568835284",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844137145030.3413059468856754",
-                  "name": "salsas",
-                  "option_id": "opt-17844137145030.21889748002418552",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844137145030.5188063043138434",
-                  "name": "servicio de papas a la francesa",
-                  "option_id": "opt-17844137145030.9529699143721894",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413714503",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Salchicha",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "carne",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "pollo",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "queso amarillo",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "cebolla",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "papas cabello de angel",
-              "price": 500
-            },
-            {
-              "id": "ex-6",
-              "name": "salsas",
-              "price": 500
-            },
-            {
-              "id": "ex-7",
-              "name": "servicio de papas a la francesa",
-              "price": 500
-            }
-          ],
-          "description": "Salchicha, carne, pollo, queso amarillo, cebolla, papas cabello de angel, salsas y servicio de papas a la francesa."
-        },
-        {
-          "id": "p-1784413740532-97",
-          "name": "Perro Caliente Polaco Normal",
-          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
-          "price": 15,
-          "category": "Perros",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844137405320.7201017748995207",
-                  "name": "Salchicha",
-                  "option_id": "opt-17844137405320.6647926595306834",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844137405320.4544904074362289",
-                  "name": "queso amarillo",
-                  "option_id": "opt-17844137405320.8037300281347067",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844137405320.4655235921991636",
-                  "name": "cebolla",
-                  "option_id": "opt-17844137405320.5750825326862117",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844137405320.054860437881164126",
-                  "name": "papas cabello de angel",
-                  "option_id": "opt-17844137405320.529364501999423",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844137405320.8329584056300059",
-                  "name": "salsas",
-                  "option_id": "opt-17844137405320.6302501269783803",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844137405320.2174912518619473",
-                  "name": "servicio de papas a la francesa",
-                  "option_id": "opt-17844137405320.8320846573407905",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784413740532",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Salchicha",
-              "price": 500
-            },
-            {
-              "id": "ex-1",
-              "name": "queso amarillo",
-              "price": 500
-            },
-            {
-              "id": "ex-2",
-              "name": "cebolla",
-              "price": 500
-            },
-            {
-              "id": "ex-3",
-              "name": "papas cabello de angel",
-              "price": 500
-            },
-            {
-              "id": "ex-4",
-              "name": "salsas",
-              "price": 500
-            },
-            {
-              "id": "ex-5",
-              "name": "servicio de papas a la francesa",
-              "price": 500
-            }
-          ],
-          "description": "Salchicha, queso amarillo, cebolla, papas cabello de angel, salsas y servicio de papas a la francesa."
-        }
-      ],
-      "prep_time": null,
-      "delivery_time": null,
-      "created_at": "2026-07-18T21:54:50.715682+00:00",
-      "location": "San Antonio",
-      "latitude": 7.8128,
-      "longitude": -72.4451,
-      "location_lat": 7.8128,
-      "location_lng": -72.4451,
       "open_time": "17:00",
       "close_time": "00:00"
     },
@@ -14513,78 +12520,2071 @@
       "close_time": "00:00"
     },
     {
-      "id": "burger-grill-puente-sucre--1784935634396",
-      "name": "Burger Grill Puente Sucre",
+      "id": "carritos-de-manuel-1784411690116",
+      "name": "Karritos De Manuel",
       "category": "comidas",
-      "description": "Hamburguesas artesanales al carbón, perros calientes y papas cargadas.",
+      "description": "Hamburguesas, perros calientes, salchipapas, pizza, pepitos, picadas",
       "logo": "🍔",
-      "bannerType": "gradient",
-      "banner": "linear-gradient(135deg, #E53935, #D81B60)",
-      "linkKey": "BURGERGRILL",
-      "delivery_fee": 5000,
-      "themeColor": "#E53935",
-      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1784935633209_470.png",
-      "tables": [],
+      "bannerType": "image",
+      "banner": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1784411688955_747.png",
+      "linkKey": "8R8I3J",
+      "delivery_fee": 0,
+      "themeColor": "#ff5e3a",
+      "logoImage": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1784411688116_222.jpg",
+      "tables": [
+        {
+          "id": "t-1",
+          "name": "Mesa 1",
+          "number": 1,
+          "status": "Disponible"
+        }
+      ],
       "layout": [],
       "products": [
         {
-          "id": "p-bg-1",
-          "name": "Burger Grill Especial",
-          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1784935633209_470.png",
-          "price": 7.5,
-          "category": "🍔 Hamburguesas",
-          "exclusions": [
-            "Cebolla",
-            "Pepinillos",
-            "Tocineta"
+          "id": "p-1784413240577-70",
+          "name": "Salchipapa Salchi Papa",
+          "image": "https://images.unsplash.com/photo-1585109649139-366815a0d713?w=500",
+          "price": 17,
+          "category": "Sachipapas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844132405770.7703690715915965",
+                  "name": "Papas a la francesa",
+                  "option_id": "opt-17844132405770.10482969769329831",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132405770.4278585018686485",
+                  "name": "salchicha",
+                  "option_id": "opt-17844132405770.05497984440453885",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132405770.3748600628247084",
+                  "name": "huevo de codorniz",
+                  "option_id": "opt-17844132405770.7075190279020938",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413240577",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
           ],
-          "description": "Carne a la parrilla de 180g, queso cheddar fundido, tocineta crocante y vegetales frescos."
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Papas a la francesa",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "salchicha",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "huevo de codorniz",
+              "price": 500
+            }
+          ],
+          "description": "Papas a la francesa, salchicha y huevo de codorniz."
         },
         {
-          "id": "p-bg-2",
-          "name": "Burger Doble Carne & Cheddar",
-          "image": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=500",
+          "id": "p-1784413256597-14",
+          "name": "Salchipapa Salchi Pollo",
+          "image": "https://images.unsplash.com/photo-1585109649139-366815a0d713?w=500",
+          "price": 25,
+          "category": "Salchipapas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844132565970.764218247808738",
+                  "name": "Papas a la francesa",
+                  "option_id": "opt-17844132565970.37187537271968873",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132565970.2936330056548032",
+                  "name": "pollo mechado",
+                  "option_id": "opt-17844132565970.21080082890430152",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132565970.09600368087782674",
+                  "name": "salchicha",
+                  "option_id": "opt-17844132565970.40739968554800554",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132565970.5653375606437796",
+                  "name": "huevo de codorniz",
+                  "option_id": "opt-17844132565970.8966078132540792",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132565970.483758505897654",
+                  "name": "queso",
+                  "option_id": "opt-17844132565970.11299637920479944",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413256597",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Papas a la francesa",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "pollo mechado",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "salchicha",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "huevo de codorniz",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "queso",
+              "price": 500
+            }
+          ],
+          "description": "Papas a la francesa, pollo mechado, salchicha, huevo de codorniz y queso."
+        },
+        {
+          "id": "p-1784413274063-80",
+          "name": "Salchipapa Salchi Carne",
+          "image": "https://images.unsplash.com/photo-1585109649139-366815a0d713?w=500",
+          "price": 26,
+          "category": "Salchipapa",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844132740630.8302782791461677",
+                  "name": "Papas a la francesa",
+                  "option_id": "opt-17844132740630.7912304689579761",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132740630.9775317773784143",
+                  "name": "carne mechada",
+                  "option_id": "opt-17844132740630.9289293480057798",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132740630.3397975018975016",
+                  "name": "salchicha",
+                  "option_id": "opt-17844132740630.3209731624657176",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132740630.023550810619277773",
+                  "name": "huevo de codorniz",
+                  "option_id": "opt-17844132740630.7112539165034745",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132740630.1689584181326329",
+                  "name": "queso",
+                  "option_id": "opt-17844132740630.04065565332789911",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413274063",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Papas a la francesa",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "carne mechada",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "salchicha",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "huevo de codorniz",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "queso",
+              "price": 500
+            }
+          ],
+          "description": "Papas a la francesa, carne mechada, salchicha, huevo de codorniz y queso."
+        },
+        {
+          "id": "p-1784413291786-11",
+          "name": "Salchipapa Criolla Llanera",
+          "image": "https://images.unsplash.com/photo-1585109649139-366815a0d713?w=500",
+          "price": 45,
+          "category": "Salchipapa",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844132917860.04528674775285113",
+                  "name": "Papas criolla",
+                  "option_id": "opt-17844132917860.9284412307825589",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132917860.12626965649086141",
+                  "name": "carne",
+                  "option_id": "opt-17844132917860.6538183977570181",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132917860.18551190219577485",
+                  "name": "pollo",
+                  "option_id": "opt-17844132917860.7897800910962269",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132917860.9774130830629905",
+                  "name": "chorizo",
+                  "option_id": "opt-17844132917860.7859161947438954",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132917860.1572578664457216",
+                  "name": "maíz",
+                  "option_id": "opt-17844132917860.30528829954139136",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132917860.004385089182362911",
+                  "name": "salchicha",
+                  "option_id": "opt-17844132917860.8194375345399925",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132917860.6180248616456133",
+                  "name": "huevo de codorniz",
+                  "option_id": "opt-17844132917860.525067650725897",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132917860.5425553178518013",
+                  "name": "tajadas de maduro",
+                  "option_id": "opt-17844132917860.19710035263707948",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844132917860.2665033006721924",
+                  "name": "queso",
+                  "option_id": "opt-17844132917860.663909380926113",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413291786",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Papas criolla",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "carne",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "pollo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "chorizo",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "maíz",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "salchicha",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "huevo de codorniz",
+              "price": 500
+            },
+            {
+              "id": "ex-7",
+              "name": "tajadas de maduro",
+              "price": 500
+            },
+            {
+              "id": "ex-8",
+              "name": "queso",
+              "price": 500
+            }
+          ],
+          "description": "Papas criolla, carne, pollo, chorizo, maíz, salchicha, huevo de codorniz, tajadas de maduro y queso."
+        },
+        {
+          "id": "p-1784413305086-38",
+          "name": "Salchipapa Salchi Mixto",
+          "image": "https://images.unsplash.com/photo-1585109649139-366815a0d713?w=500",
+          "price": 50,
+          "category": "Salchipapas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844133050860.8674649963104304",
+                  "name": "Papas a la francesa",
+                  "option_id": "opt-17844133050860.234384158684116",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844133050860.5591502416120043",
+                  "name": "carne",
+                  "option_id": "opt-17844133050860.37016594072465425",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844133050860.12300899889772021",
+                  "name": "pollo",
+                  "option_id": "opt-17844133050860.7850581624119157",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844133050860.8351194142122633",
+                  "name": "chorizo",
+                  "option_id": "opt-17844133050860.22776445413604363",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844133050860.571752546885121",
+                  "name": "maíz",
+                  "option_id": "opt-17844133050860.5018294087740718",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844133050860.9493080901980895",
+                  "name": "salchicha",
+                  "option_id": "opt-17844133050860.2621517459231445",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844133050860.748902471442256",
+                  "name": "huevo de codorniz",
+                  "option_id": "opt-17844133050860.7595364944447083",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844133050860.2464626861748681",
+                  "name": "tajadas de maduro",
+                  "option_id": "opt-17844133050860.08895938840913509",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844133050860.7083549472918572",
+                  "name": "queso",
+                  "option_id": "opt-17844133050860.056684844822477154",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413305086",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Papas a la francesa",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "carne",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "pollo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "chorizo",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "maíz",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "salchicha",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "huevo de codorniz",
+              "price": 500
+            },
+            {
+              "id": "ex-7",
+              "name": "tajadas de maduro",
+              "price": 500
+            },
+            {
+              "id": "ex-8",
+              "name": "queso",
+              "price": 500
+            }
+          ],
+          "description": "Papas a la francesa, carne, pollo, chorizo, maíz, salchicha, huevo de codorniz, tajadas de maduro y queso."
+        },
+        {
+          "id": "p-1784413466809-47",
+          "name": "Hamburguesa Monstruosa",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 25,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844134668090.14567078793440869",
+                  "name": "Carne de res",
+                  "option_id": "opt-17844134668090.8446455746449749",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134668090.8731756766611952",
+                  "name": "carne mechada",
+                  "option_id": "opt-17844134668090.6541330376285045",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134668090.24857968026485366",
+                  "name": "pollo mechado",
+                  "option_id": "opt-17844134668090.460952341009244",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134668090.7022357447821639",
+                  "name": "tocineta",
+                  "option_id": "opt-17844134668090.745629852398277",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134668090.6645862842606687",
+                  "name": "huevo",
+                  "option_id": "opt-17844134668090.35859287540137463",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134668090.5313813189341644",
+                  "name": "jamón",
+                  "option_id": "opt-17844134668090.10972700343587605",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134668090.026625911181597628",
+                  "name": "queso",
+                  "option_id": "opt-17844134668090.7250500708030387",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134668090.7799700668637279",
+                  "name": "tomate",
+                  "option_id": "opt-17844134668090.6602600430671455",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134668090.02672670540623201",
+                  "name": "cebolla",
+                  "option_id": "opt-17844134668090.8108949957907464",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134668090.5564272933546354",
+                  "name": "salsas",
+                  "option_id": "opt-17844134668090.49326048207640083",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413466809",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de res",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "carne mechada",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "pollo mechado",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "tocineta",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-7",
+              "name": "tomate",
+              "price": 500
+            },
+            {
+              "id": "ex-8",
+              "name": "cebolla",
+              "price": 500
+            },
+            {
+              "id": "ex-9",
+              "name": "salsas",
+              "price": 500
+            }
+          ],
+          "description": "Carne de res, carne mechada, pollo mechado, tocineta, huevo, jamón, queso, tomate, cebolla, salsas."
+        },
+        {
+          "id": "p-1784413479783-42",
+          "name": "Hamburguesa Pollo",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 19,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844134797830.05766613970078771",
+                  "name": "Carne de res",
+                  "option_id": "opt-17844134797830.7174358497547736",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134797830.5815053538983673",
+                  "name": "pollo mechado",
+                  "option_id": "opt-17844134797830.7169874521959981",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134797830.6134581102206385",
+                  "name": "huevo",
+                  "option_id": "opt-17844134797830.2272418549416948",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134797830.47143799577213874",
+                  "name": "jamón",
+                  "option_id": "opt-17844134797830.33646110616238434",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134797830.5406790908197918",
+                  "name": "queso",
+                  "option_id": "opt-17844134797830.7517665365486771",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134797830.2671078058010218",
+                  "name": "tomate",
+                  "option_id": "opt-17844134797830.1730870671268787",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134797830.577033254761451",
+                  "name": "cebolla",
+                  "option_id": "opt-17844134797830.09967950078754562",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413479783",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de res",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "pollo mechado",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "tomate",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "cebolla",
+              "price": 500
+            }
+          ],
+          "description": "Carne de res, pollo mechado, huevo, jamón, queso, tomate y cebolla."
+        },
+        {
+          "id": "p-1784413494209-93",
+          "name": "Hamburguesa Mechada",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 19.5,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844134942090.08472367749268273",
+                  "name": "Carne de res",
+                  "option_id": "opt-17844134942090.07705486112188864",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134942090.39779119933254636",
+                  "name": "carne mechada",
+                  "option_id": "opt-17844134942090.37447565584023335",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134942090.5387186400250678",
+                  "name": "huevo",
+                  "option_id": "opt-17844134942090.6194302228861602",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134942090.630670480852843",
+                  "name": "jamón",
+                  "option_id": "opt-17844134942090.959459641413853",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134942090.7627536040772789",
+                  "name": "queso",
+                  "option_id": "opt-17844134942090.010649479557504615",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134942090.2919388471673662",
+                  "name": "tomate",
+                  "option_id": "opt-17844134942090.3369786444792926",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844134942090.7500846568095325",
+                  "name": "cebolla",
+                  "option_id": "opt-17844134942090.16052368278701135",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413494209",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de res",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "carne mechada",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "tomate",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "cebolla",
+              "price": 500
+            }
+          ],
+          "description": "Carne de res, carne mechada, huevo, jamón, queso, tomate y cebolla."
+        },
+        {
+          "id": "p-1784413511999-67",
+          "name": "Hamburguesa Parrillera",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 25,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844135119980.526182051237117",
+                  "name": "Carne de res",
+                  "option_id": "opt-17844135119980.8169883655062621",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135119980.18496870376705843",
+                  "name": "carne mechada",
+                  "option_id": "opt-17844135119980.22552267840368811",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135119980.6194860849054501",
+                  "name": "huevo",
+                  "option_id": "opt-17844135119980.5497252394950987",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135119980.8540495474674235",
+                  "name": "jamón",
+                  "option_id": "opt-17844135119980.7474463042738041",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135119980.5309240859334828",
+                  "name": "queso",
+                  "option_id": "opt-17844135119980.6728864646379529",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135119980.2302906100058556",
+                  "name": "tomate",
+                  "option_id": "opt-17844135119980.276928384088983",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135119980.823230178672327",
+                  "name": "cebolla",
+                  "option_id": "opt-17844135119980.26307954674646483",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413511998",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de res",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "carne mechada",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "tomate",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "cebolla",
+              "price": 500
+            }
+          ],
+          "description": "Carne de res, carne mechada, huevo, jamón, queso, tomate y cebolla."
+        },
+        {
+          "id": "p-1784413523047-36",
+          "name": "Hamburguesa Pollo Cryspi",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 21,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844135230470.8487816018433499",
+                  "name": "Carne de res",
+                  "option_id": "opt-17844135230470.02398375999362512",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135230470.024238444183137697",
+                  "name": "carne mechada",
+                  "option_id": "opt-17844135230470.7029093331357199",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135230470.9656435425058368",
+                  "name": "huevo",
+                  "option_id": "opt-17844135230470.09500300387135197",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135230470.023710783171912442",
+                  "name": "jamón",
+                  "option_id": "opt-17844135230470.032391662830210555",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135230470.6057979840021689",
+                  "name": "queso",
+                  "option_id": "opt-17844135230470.5197355297904571",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135230470.10417249299969777",
+                  "name": "tomate",
+                  "option_id": "opt-17844135230470.21070938468793832",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135230470.9289517420710154",
+                  "name": "cebolla",
+                  "option_id": "opt-17844135230470.39853061961347325",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413523047",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de res",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "carne mechada",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "tomate",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "cebolla",
+              "price": 500
+            }
+          ],
+          "description": "Carne de res, carne mechada, huevo, jamón, queso, tomate y cebolla."
+        },
+        {
+          "id": "p-1784413540103-41",
+          "name": "Hamburguesa Tocineta",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 19.5,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844135401030.5345456720502304",
+                  "name": "Carne de res",
+                  "option_id": "opt-17844135401030.17370526342464832",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135401030.41299177116082675",
+                  "name": "tocineta",
+                  "option_id": "opt-17844135401030.8043220509760067",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135401030.4405975372962959",
+                  "name": "huevo",
+                  "option_id": "opt-17844135401030.27772184434660685",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135401030.8106529372736971",
+                  "name": "jamón",
+                  "option_id": "opt-17844135401030.22605470241537406",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135401030.24740860542186538",
+                  "name": "queso",
+                  "option_id": "opt-17844135401030.24403249374997238",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135401030.6783131751176577",
+                  "name": "tomate",
+                  "option_id": "opt-17844135401030.6292176966063892",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135401030.6238512316367735",
+                  "name": "cebolla",
+                  "option_id": "opt-17844135401030.39493969020648345",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413540103",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de res",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "tocineta",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "tomate",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "cebolla",
+              "price": 500
+            }
+          ],
+          "description": "Carne de res, tocineta, huevo, jamón, queso, tomate y cebolla."
+        },
+        {
+          "id": "p-1784413556076-58",
+          "name": "Hamburguesa Choriburguer",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 19,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844135560760.6856924904841657",
+                  "name": "Croqueta de carne",
+                  "option_id": "opt-17844135560760.021814304524998107",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135560760.8405061419310565",
+                  "name": "chorizo",
+                  "option_id": "opt-17844135560760.8571034063663775",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135560760.43808287566279946",
+                  "name": "huevo",
+                  "option_id": "opt-17844135560760.09042403490912554",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135560760.1681549713352054",
+                  "name": "jamón queso papas a la francesa",
+                  "option_id": "opt-17844135560760.35760136372399065",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413556076",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Croqueta de carne",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "chorizo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "jamón queso papas a la francesa",
+              "price": 500
+            }
+          ],
+          "description": "Croqueta de carne, chorizo, huevo, jamón queso papas a la francesa."
+        },
+        {
+          "id": "p-1784413573182-33",
+          "name": "Hamburguesa Tradicional",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+          "price": 15,
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844135731820.6430537927356652",
+                  "name": "Carne de res",
+                  "option_id": "opt-17844135731820.6100957234669705",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135731820.7734247192457818",
+                  "name": "Huevo",
+                  "option_id": "opt-17844135731820.24979440596027858",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135731820.18953924007016099",
+                  "name": "jamón",
+                  "option_id": "opt-17844135731820.08344170921133875",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135731820.3422194439733611",
+                  "name": "queso",
+                  "option_id": "opt-17844135731820.03282307419124775",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135731820.4564414174007818",
+                  "name": "tomate",
+                  "option_id": "opt-17844135731820.5733710928413255",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135731820.9896875525274593",
+                  "name": "cebolla",
+                  "option_id": "opt-17844135731820.25279067768595687",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413573182",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de res",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "Huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "tomate",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "cebolla",
+              "price": 500
+            }
+          ],
+          "description": "Carne de res, Huevo, jamón, queso, tomate y cebolla."
+        },
+        {
+          "id": "p-1784413588661-36",
+          "name": "Hamburguesa Pernil",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
           "price": 9,
-          "category": "🍔 Hamburguesas",
-          "exclusions": [
-            "Salsa Grill",
-            "Cheddar"
+          "category": "Hamburguesas",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844135886610.019774435564465787",
+                  "name": "Carne de res",
+                  "option_id": "opt-17844135886610.34722743068036976",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135886610.34689402806467695",
+                  "name": "Huevo",
+                  "option_id": "opt-17844135886610.8337411397683643",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135886610.06844676440702901",
+                  "name": "jamón",
+                  "option_id": "opt-17844135886610.8936844252004653",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135886610.781027675859975",
+                  "name": "queso",
+                  "option_id": "opt-17844135886610.06572953461446518",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135886610.2594879959469203",
+                  "name": "tomate",
+                  "option_id": "opt-17844135886610.49151747726226713",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844135886610.1524713716480589",
+                  "name": "cebolla",
+                  "option_id": "opt-17844135886610.9465872886727567",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413588661",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
           ],
-          "description": "Doble torta de carne ahumada al carbón con queso cheddar derretido y salsa grill."
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Carne de res",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "Huevo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "jamón",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "tomate",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "cebolla",
+              "price": 500
+            }
+          ],
+          "description": "Carne de res, Huevo, jamón, queso, tomate y cebolla."
         },
         {
-          "id": "p-bg-3",
-          "name": "Perro Caliente Grill",
+          "id": "p-1784413610247-58",
+          "name": "Perro Caliente Normal",
           "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
-          "price": 4,
-          "category": "🌭 Perros Calientes",
-          "exclusions": [
-            "Papas Ralladas",
-            "Cebolla"
+          "price": 6,
+          "category": "Perros",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844136102470.9687751765969421",
+                  "name": "Salchicha",
+                  "option_id": "opt-17844136102470.016800373454657236",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136102470.2444895063095902",
+                  "name": "queso",
+                  "option_id": "opt-17844136102470.972964349263481",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136102470.3577473643429915",
+                  "name": "cebolla",
+                  "option_id": "opt-17844136102470.9117102131950048",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136102470.4611434954415776",
+                  "name": "papas cabello de angel",
+                  "option_id": "opt-17844136102470.13316409812796426",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136102470.6569820436501009",
+                  "name": "salsas",
+                  "option_id": "opt-17844136102470.41744747107926494",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413610247",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
           ],
-          "description": "Salchicha de res a la parrilla, cebollita crujiente, papitas ralladas y trío de salsas."
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Salchicha",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "cebolla",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "papas cabello de angel",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "salsas",
+              "price": 500
+            }
+          ],
+          "description": "Salchicha, queso, cebolla, papas cabello de angel y salsas."
         },
         {
-          "id": "p-bg-4",
-          "name": "Papas Rústicas con Tocineta",
-          "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500",
-          "price": 4.5,
-          "category": "🍟 Raciones",
-          "exclusions": [
-            "Tocineta",
-            "Salsa de Queso"
+          "id": "p-1784413627697-54",
+          "name": "Perro Caliente Carne",
+          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
+          "price": 15,
+          "category": "Perros",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844136276970.08047478324015833",
+                  "name": "Salchicha",
+                  "option_id": "opt-17844136276970.9165791423357514",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136276970.2934737814001501",
+                  "name": "queso",
+                  "option_id": "opt-17844136276970.7528065779925205",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136276970.9452257791791582",
+                  "name": "cebolla",
+                  "option_id": "opt-17844136276970.034818317359749607",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136276970.501774909174018",
+                  "name": "papas cabello de angel",
+                  "option_id": "opt-17844136276970.250803369544946",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136276970.2350146920452959",
+                  "name": "salsas",
+                  "option_id": "opt-17844136276970.6444634370193073",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136276970.5335481151028517",
+                  "name": "servicio de papas a la francesa",
+                  "option_id": "opt-17844136276970.06187665112078122",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413627697",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
           ],
-          "description": "Papas sazonadas acompañadas de salsa de queso cheddar caliente y tocineta picadita."
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Salchicha",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "cebolla",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "papas cabello de angel",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "salsas",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "servicio de papas a la francesa",
+              "price": 500
+            }
+          ],
+          "description": "Salchicha, queso, cebolla, papas cabello de angel, salsas y servicio de papas a la francesa."
+        },
+        {
+          "id": "p-1784413644887-33",
+          "name": "Perro Caliente Tocineta",
+          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
+          "price": 7.5,
+          "category": "Perros",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844136448870.4473249509304368",
+                  "name": "Salchicha",
+                  "option_id": "opt-17844136448870.5025295889629551",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136448870.3733968481493859",
+                  "name": "tocineta",
+                  "option_id": "opt-17844136448870.6406886961783403",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136448870.47960817570412406",
+                  "name": "queso",
+                  "option_id": "opt-17844136448870.6416552491062371",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136448870.17293799498720197",
+                  "name": "cebolla",
+                  "option_id": "opt-17844136448870.9174562716147331",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136448870.7910466311680615",
+                  "name": "papas cabello de angel",
+                  "option_id": "opt-17844136448870.9163730871481603",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136448870.218152472084574",
+                  "name": "salsas",
+                  "option_id": "opt-17844136448870.1304208532477804",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136448870.48810016709552473",
+                  "name": "servicio de papas a la francesa",
+                  "option_id": "opt-17844136448870.9293820988893184",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413644887",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Salchicha",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "tocineta",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "queso",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "cebolla",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "papas cabello de angel",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "salsas",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "servicio de papas a la francesa",
+              "price": 500
+            }
+          ],
+          "description": "Salchicha, tocineta, queso, cebolla, papas cabello de angel, salsas y servicio de papas a la francesa."
+        },
+        {
+          "id": "p-1784413662157-15",
+          "name": "Perro Caliente Pollo",
+          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
+          "price": 15,
+          "category": "Perros",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844136621560.0442443708821042",
+                  "name": "Salchicha",
+                  "option_id": "opt-17844136621560.9624575286703291",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136621560.10187805950040796",
+                  "name": "queso amarillo",
+                  "option_id": "opt-17844136621560.10294188984599528",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136621560.14654141157186307",
+                  "name": "cebolla",
+                  "option_id": "opt-17844136621560.09385330598651531",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136621560.802161647702171",
+                  "name": "papas cabello de angel",
+                  "option_id": "opt-17844136621560.240909339607693",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136621560.303886291737016",
+                  "name": "salsas",
+                  "option_id": "opt-17844136621560.38871040552128755",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136621560.07254379679685041",
+                  "name": "servicio de papas a la francesa",
+                  "option_id": "opt-17844136621560.9007831521828741",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413662156",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Salchicha",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "queso amarillo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "cebolla",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "papas cabello de angel",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "salsas",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "servicio de papas a la francesa",
+              "price": 500
+            }
+          ],
+          "description": "Salchicha, queso amarillo, cebolla, papas cabello de angel, salsas y servicio de papas a la francesa."
+        },
+        {
+          "id": "p-1784413681413-50",
+          "name": "Perro Caliente Manuel",
+          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
+          "price": 18,
+          "category": "Perros",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844136814130.5117731450547528",
+                  "name": "Salchicha",
+                  "option_id": "opt-17844136814130.3583367806728488",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136814130.6453109936362529",
+                  "name": "carne",
+                  "option_id": "opt-17844136814130.025146742254961385",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136814130.4156356913485372",
+                  "name": "pollo",
+                  "option_id": "opt-17844136814130.3056355609158081",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136814130.268204937232425",
+                  "name": "queso amarillo",
+                  "option_id": "opt-17844136814130.5004189416289772",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136814130.15037823773304948",
+                  "name": "cebolla",
+                  "option_id": "opt-17844136814130.94898788193996",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136814130.7491113234188468",
+                  "name": "papas cabello de angel",
+                  "option_id": "opt-17844136814130.9589128721119391",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136814130.9185133284105401",
+                  "name": "salsas",
+                  "option_id": "opt-17844136814130.6414933320086901",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136814130.9621515638329535",
+                  "name": "servicio de papas a la francesa",
+                  "option_id": "opt-17844136814130.16767171273949366",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413681413",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Salchicha",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "carne",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "pollo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "queso amarillo",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "cebolla",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "papas cabello de angel",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "salsas",
+              "price": 500
+            },
+            {
+              "id": "ex-7",
+              "name": "servicio de papas a la francesa",
+              "price": 500
+            }
+          ],
+          "description": "Salchicha, carne, pollo, queso amarillo, cebolla, papas cabello de angel, salsas y servicio de papas a la francesa."
+        },
+        {
+          "id": "p-1784413694678-9",
+          "name": "Perro Caliente Pernil",
+          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
+          "price": 20,
+          "category": "Perros",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844136946780.055968650980260604",
+                  "name": "Salchicha",
+                  "option_id": "opt-17844136946780.054685028730579344",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136946780.1597411982747755",
+                  "name": "pernil",
+                  "option_id": "opt-17844136946780.24953705040285545",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136946780.29504110418713625",
+                  "name": "queso amarillo",
+                  "option_id": "opt-17844136946780.5818897054933438",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136946780.9559006329928391",
+                  "name": "cebolla",
+                  "option_id": "opt-17844136946780.5751118059284558",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136946780.41408653395977624",
+                  "name": "papas cabello de angel",
+                  "option_id": "opt-17844136946780.3428979165175151",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136946780.25509178885737505",
+                  "name": "salsas",
+                  "option_id": "opt-17844136946780.23686176899613487",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844136946780.43945011300468095",
+                  "name": "servicio de papas a la francesa",
+                  "option_id": "opt-17844136946780.7972963614108272",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413694678",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Salchicha",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "pernil",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "queso amarillo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "cebolla",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "papas cabello de angel",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "salsas",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "servicio de papas a la francesa",
+              "price": 500
+            }
+          ],
+          "description": "Salchicha, pernil, queso amarillo, cebolla, papas cabello de angel, salsas y servicio de papas a la francesa."
+        },
+        {
+          "id": "p-1784413714503-65",
+          "name": "Perro Caliente Parrillero",
+          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
+          "price": 20,
+          "category": "Perros",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844137145030.9315926917243109",
+                  "name": "Salchicha",
+                  "option_id": "opt-17844137145030.45296568328866105",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844137145030.6154670356667149",
+                  "name": "carne",
+                  "option_id": "opt-17844137145030.623321659899876",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844137145030.8087154953547302",
+                  "name": "pollo",
+                  "option_id": "opt-17844137145030.12330776391694609",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844137145030.08834357499479428",
+                  "name": "queso amarillo",
+                  "option_id": "opt-17844137145030.52194104100171",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844137145030.8682684850638361",
+                  "name": "cebolla",
+                  "option_id": "opt-17844137145030.6320387572165251",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844137145030.8096946668005808",
+                  "name": "papas cabello de angel",
+                  "option_id": "opt-17844137145030.30279434568835284",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844137145030.3413059468856754",
+                  "name": "salsas",
+                  "option_id": "opt-17844137145030.21889748002418552",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844137145030.5188063043138434",
+                  "name": "servicio de papas a la francesa",
+                  "option_id": "opt-17844137145030.9529699143721894",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413714503",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Salchicha",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "carne",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "pollo",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "queso amarillo",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "cebolla",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "papas cabello de angel",
+              "price": 500
+            },
+            {
+              "id": "ex-6",
+              "name": "salsas",
+              "price": 500
+            },
+            {
+              "id": "ex-7",
+              "name": "servicio de papas a la francesa",
+              "price": 500
+            }
+          ],
+          "description": "Salchicha, carne, pollo, queso amarillo, cebolla, papas cabello de angel, salsas y servicio de papas a la francesa."
+        },
+        {
+          "id": "p-1784413740532-97",
+          "name": "Perro Caliente Polaco Normal",
+          "image": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=500",
+          "price": 15,
+          "category": "Perros",
+          "modifiers": [
+            {
+              "options": [
+                {
+                  "id": "opt-17844137405320.7201017748995207",
+                  "name": "Salchicha",
+                  "option_id": "opt-17844137405320.6647926595306834",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844137405320.4544904074362289",
+                  "name": "queso amarillo",
+                  "option_id": "opt-17844137405320.8037300281347067",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844137405320.4655235921991636",
+                  "name": "cebolla",
+                  "option_id": "opt-17844137405320.5750825326862117",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844137405320.054860437881164126",
+                  "name": "papas cabello de angel",
+                  "option_id": "opt-17844137405320.529364501999423",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844137405320.8329584056300059",
+                  "name": "salsas",
+                  "option_id": "opt-17844137405320.6302501269783803",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-17844137405320.2174912518619473",
+                  "name": "servicio de papas a la francesa",
+                  "option_id": "opt-17844137405320.8320846573407905",
+                  "extra_price": 0
+                }
+              ],
+              "group_id": "g-extras-1784413740532",
+              "required": false,
+              "group_name": "Adicionales",
+              "selection_type": "multiple"
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "ex-0",
+              "name": "Salchicha",
+              "price": 500
+            },
+            {
+              "id": "ex-1",
+              "name": "queso amarillo",
+              "price": 500
+            },
+            {
+              "id": "ex-2",
+              "name": "cebolla",
+              "price": 500
+            },
+            {
+              "id": "ex-3",
+              "name": "papas cabello de angel",
+              "price": 500
+            },
+            {
+              "id": "ex-4",
+              "name": "salsas",
+              "price": 500
+            },
+            {
+              "id": "ex-5",
+              "name": "servicio de papas a la francesa",
+              "price": 500
+            }
+          ],
+          "description": "Salchicha, queso amarillo, cebolla, papas cabello de angel, salsas y servicio de papas a la francesa."
         }
       ],
       "prep_time": null,
       "delivery_time": null,
-      "created_at": "2026-08-15T02:41:52.53169+00:00",
+      "created_at": "2026-07-18T21:54:50.715682+00:00",
       "location": "San Antonio",
-      "latitude": 7.8172,
-      "longitude": -72.4425,
-      "location_lat": 7.8172,
-      "location_lng": -72.4425,
+      "latitude": 7.8128,
+      "longitude": -72.4451,
+      "location_lat": 7.8128,
+      "location_lng": -72.4451,
       "open_time": "17:00",
       "close_time": "00:00"
     },
@@ -16298,10 +16298,10 @@
       "delivery_time": null,
       "created_at": "2026-08-09T05:21:28.927042+00:00",
       "location": "San Antonio",
-      "latitude": 7.8158,
-      "longitude": -72.443,
-      "location_lat": 7.8158,
-      "location_lng": -72.443,
+      "latitude": 7.815445,
+      "longitude": -72.43914,
+      "location_lat": 7.815445,
+      "location_lng": -72.43914,
       "open_time": "17:00",
       "close_time": "00:00"
     },
@@ -16372,10 +16372,10 @@
       "delivery_time": null,
       "created_at": "2026-08-15T02:41:52.53169+00:00",
       "location": "San Antonio",
-      "latitude": 7.8155,
-      "longitude": -72.444,
-      "location_lat": 7.8155,
-      "location_lng": -72.444,
+      "latitude": 7.810803,
+      "longitude": -72.442685,
+      "location_lat": 7.810803,
+      "location_lng": -72.442685,
       "open_time": "17:00",
       "close_time": "00:00"
     }
@@ -16778,5 +16778,5 @@
   ],
   "reviews": [],
   "promotions": [],
-  "lastUpdated": "2026-08-17T02:20:28.787Z"
+  "lastUpdated": "2026-08-17T03:15:22.990Z"
 }

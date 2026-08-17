@@ -3,9 +3,9 @@
     "latitude": 7.815,
     "longitude": -72.4438
   },
-  "luchos-burguer-1784912818841": {
-    "latitude": 7.8125,
-    "longitude": -72.444
+  "burger-grill-puente-sucre--1784935634396": {
+    "latitude": 7.8172,
+    "longitude": -72.4425
   },
   "patacon-fire-1786157840794": {
     "latitude": 7.8152,
@@ -19,9 +19,13 @@
     "latitude": 7.814,
     "longitude": -72.443
   },
+  "luchos-burguer-1784912818841": {
+    "latitude": 7.8125,
+    "longitude": -72.444
+  },
   "sabor-venezolano-arepas-1784413922154": {
-    "latitude": 7.8135,
-    "longitude": -72.4432
+    "latitude": 7.814025,
+    "longitude": -72.441775
   },
   "m-ster-cachapa-1785973083758": {
     "latitude": 7.8148,
@@ -31,17 +35,13 @@
     "latitude": 7.8145,
     "longitude": -72.4435
   },
-  "carritos-de-manuel-1784411690116": {
-    "latitude": 7.8128,
-    "longitude": -72.4451
-  },
   "mak-pizza-1784350135697": {
     "latitude": 7.8138,
     "longitude": -72.442
   },
-  "burger-grill-puente-sucre--1784935634396": {
-    "latitude": 7.8172,
-    "longitude": -72.4425
+  "carritos-de-manuel-1784411690116": {
+    "latitude": 7.8128,
+    "longitude": -72.4451
   },
   "boby-burgers-1784410785941": {
     "latitude": 7.8142,
@@ -56,11 +56,11 @@
     "longitude": -72.4425
   },
   "zeus-burger-1786252888630": {
-    "latitude": 7.8158,
-    "longitude": -72.443
+    "latitude": 7.815445,
+    "longitude": -72.43914
   },
   "boki-arepas-1784927442087": {
-    "latitude": 7.8155,
-    "longitude": -72.444
+    "latitude": 7.810803,
+    "longitude": -72.442685
   }
 }
