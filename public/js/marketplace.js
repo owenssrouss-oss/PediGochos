@@ -3151,9 +3151,52 @@ class MarketplaceController {
     this.fetchUserGPSLocation(shopCenter);
   }
 
+  setDeliveryZone(zoneKey) {
+    const zones = {
+      'san_antonio': { name: 'San Antonio Centro', coords: [7.8145, -72.4430] },
+      'libertadores': { name: 'Barrio Libertadores / Sucre', coords: [7.8210, -72.4390] },
+      'llano_jorge': { name: 'Llano Jorge', coords: [7.8380, -72.4280] },
+      'palotal': { name: 'Palotal', coords: [7.8480, -72.4220] },
+      'tienditas': { name: 'Tienditas', coords: [7.8650, -72.4150] },
+      'peracal': { name: 'Peracal', coords: [7.7950, -72.3980] },
+      'urena': { name: 'Ureña', coords: [7.9180, -72.4460] },
+      'capacho': { name: 'Capacho / Rubio', coords: [7.7050, -72.3550] }
+    };
+    const zone = zones[zoneKey];
+    if (!zone) return;
+    const shopCenter = this.getActiveShopCenter();
+    this.setUserLocationOnMap(zone.coords, shopCenter, true, zone.name);
+
+    // Update active highlight style on chips
+    document.querySelectorAll('.btn-zone-chip').forEach(btn => {
+      btn.style.background = 'rgba(255,255,255,0.06)';
+      btn.style.borderColor = 'rgba(255,255,255,0.15)';
+      btn.style.color = '#F1F5F9';
+    });
+    const clickedBtn = document.querySelector(`.btn-zone-chip[onclick*="'${zoneKey}'"]`);
+    if (clickedBtn) {
+      clickedBtn.style.background = 'rgba(16, 185, 129, 0.25)';
+      clickedBtn.style.borderColor = '#10B981';
+      clickedBtn.style.color = '#10B981';
+    }
+  }
+
+  onAddressInput(val) {
+    const text = (val || '').toLowerCase().trim();
+    if (!text) return;
+    
+    if (text.includes('llano jorge')) this.setDeliveryZone('llano_jorge');
+    else if (text.includes('palotal')) this.setDeliveryZone('palotal');
+    else if (text.includes('tienditas')) this.setDeliveryZone('tienditas');
+    else if (text.includes('ureña') || text.includes('urena')) this.setDeliveryZone('urena');
+    else if (text.includes('peracal')) this.setDeliveryZone('peracal');
+    else if (text.includes('capacho') || text.includes('rubio')) this.setDeliveryZone('capacho');
+    else if (text.includes('libertadores') || text.includes('sucre')) this.setDeliveryZone('libertadores');
+  }
+
   fetchUserGPSLocation(shopCenter) {
     const distSpan = document.getElementById('map-calc-distance');
-    if (distSpan) distSpan.innerText = 'Obteniendo GPS...';
+    if (distSpan) distSpan.innerText = '📡 Obteniendo GPS...';
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -3166,6 +3209,9 @@ class MarketplaceController {
           console.warn('Geolocation error or denied:', err);
           const fallbackUserPos = [shopCenter[0] + 0.006, shopCenter[1] + 0.006];
           this.setUserLocationOnMap(fallbackUserPos, shopCenter, false);
+          if (distSpan) {
+            distSpan.innerHTML = `⚠️ GPS no detectado. Toca tu sector o el mapa.`;
+          }
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
@@ -3175,7 +3221,7 @@ class MarketplaceController {
     }
   }
 
-  setUserLocationOnMap(userPos, shopCenter, isRealGps) {
+  setUserLocationOnMap(userPos, shopCenter, isRealGps, sectorName = null) {
     const lat = userPos[0];
     const lng = userPos[1];
 
@@ -3216,9 +3262,8 @@ class MarketplaceController {
 
     const distSpan = document.getElementById('map-calc-distance');
     if (distSpan) {
-      distSpan.innerText = isRealGps 
-        ? `📍 ${this.calculatedDistanceKm} km (GPS Detectado)` 
-        : `📍 ${this.calculatedDistanceKm} km (Aproximado)`;
+      const labelPrefix = sectorName ? `📍 ${sectorName}: ` : (isRealGps ? `📍 GPS: ` : `📍 `);
+      distSpan.innerText = `${labelPrefix}${this.calculatedDistanceKm} km`;
     }
 
     this.renderCartItems();
