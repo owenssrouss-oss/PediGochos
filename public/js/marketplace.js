@@ -3208,15 +3208,17 @@ class MarketplaceController {
 
     // Update active highlight style on chips
     document.querySelectorAll('.btn-zone-chip').forEach(btn => {
-      btn.style.background = 'rgba(255,255,255,0.06)';
-      btn.style.borderColor = 'rgba(255,255,255,0.15)';
-      btn.style.color = '#F1F5F9';
+      btn.style.background = '#FFFFFF';
+      btn.style.borderColor = '#CBD5E1';
+      btn.style.color = '#0F172A';
+      btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
     });
     const clickedBtn = document.querySelector(`.btn-zone-chip[onclick*="'${zoneKey}'"]`);
     if (clickedBtn) {
-      clickedBtn.style.background = 'rgba(16, 185, 129, 0.25)';
+      clickedBtn.style.background = '#ECFDF5';
       clickedBtn.style.borderColor = '#10B981';
-      clickedBtn.style.color = '#10B981';
+      clickedBtn.style.color = '#065F46';
+      clickedBtn.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.25)';
     }
   }
 
