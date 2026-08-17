@@ -2972,10 +2972,6 @@ class AdminController {
     est.location_lat = newLat;
     est.location_lng = newLng;
 
-    VERIFIED_STORE_GPS_FRONTEND[est.id] = { latitude: newLat, longitude: newLng };
-    const normName = normalizeStoreName(est.name || '');
-    if (normName) VERIFIED_STORE_GPS_FRONTEND[normName] = { latitude: newLat, longitude: newLng };
-
     try {
       localStorage.setItem('store_gps_' + est.id, JSON.stringify({ latitude: newLat, longitude: newLng }));
     } catch(e) {}
@@ -2999,7 +2995,7 @@ class AdminController {
         this.showToast(`✅ ¡Ubicación de "${est.name}" guardada (${newLat.toFixed(4)}, ${newLng.toFixed(4)})!`);
         this.renderTable();
         this.markPendingChanges();
-        this.initAdminGlobalStoresMap(this.currentGlobalMapFilter || 'all');
+        this.initAdminGlobalStoresMap(this.currentGlobalMapFilter || 'all', est.id, [newLat, newLng]);
         this.triggerCloudBackup();
       } else {
         this.showToast('⚠️ Error al guardar la ubicación en el servidor.');
@@ -3054,7 +3050,7 @@ class AdminController {
     }
   }
 
-  initAdminGlobalStoresMap(filterLoc = 'all', pendingEstId = null) {
+  initAdminGlobalStoresMap(filterLoc = 'all', pendingEstId = null, keepCenter = null) {
     this.currentGlobalMapFilter = filterLoc;
     const container = document.getElementById('admin-global-stores-map');
     if (!container || typeof L === 'undefined') return;
@@ -3207,7 +3203,9 @@ class AdminController {
     }
 
     try {
-      if (bounds && typeof bounds.isValid === 'function' && bounds.isValid()) {
+      if (keepCenter && Array.isArray(keepCenter) && keepCenter.length === 2) {
+        map.setView(keepCenter, 16);
+      } else if (bounds && typeof bounds.isValid === 'function' && bounds.isValid()) {
         map.fitBounds(bounds, { padding: [50, 50] });
       } else {
         map.setView([centerLat, centerLng], 14);
@@ -3215,6 +3213,15 @@ class AdminController {
     } catch(e) {
       console.warn('Map fitBounds warning:', e);
       map.setView([centerLat, centerLng], 14);
+    }
+
+    if (pendingEstId) {
+      setTimeout(() => {
+        const item = (this.globalMapMarkers || []).find(m => String(m.estId) === String(pendingEstId));
+        if (item && item.marker) {
+          item.marker.openPopup();
+        }
+      }, 250);
     }
   }
 
