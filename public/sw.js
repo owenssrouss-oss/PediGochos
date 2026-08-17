@@ -1,5 +1,5 @@
 // Service worker to make Rapi Gochos PWA Offline-First & Push Enabled
-const CACHE_NAME = 'pedigochos-v165';
+const CACHE_NAME = 'pedigochos-v189';
 const ASSETS = [
   '/',
   '/index.html',
@@ -38,14 +38,21 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   if (!event.request.url.startsWith('http://') && !event.request.url.startsWith('https://')) return;
 
+  // Never cache API calls - always fetch fresh from server
+  if (event.request.url.includes('/api/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   // Always fetch fresh JS / CSS files if online
-  if (event.request.url.includes('/js/') || event.request.url.includes('?v=')) {
+  if (event.request.url.includes('/js/') || event.request.url.includes('/css/') || event.request.url.includes('?v=')) {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(event.request))
     );
     return;
   }
 
+  // Network-First for HTML navigation requests to guarantee identical state across devices
   event.respondWith(
     fetch(event.request)
       .then((response) => {
@@ -54,9 +61,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => {
             try {
               cache.put(event.request, responseToCache);
-            } catch(e) {
-              console.warn('Cache put skipped:', e);
-            }
+            } catch(e) {}
           });
         }
         return response;

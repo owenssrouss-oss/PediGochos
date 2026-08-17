@@ -41,6 +41,13 @@ app.get('/api/debug/logs', (req, res) => {
   }
 });
 
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public'), {
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.html') || filePath.endsWith('.js') || filePath.endsWith('.css')) {
@@ -356,13 +363,20 @@ async function syncFromPostgres() {
             disabledMap[est.id] = est.disabled;
           }
 
-          // Enforce immutable verified GPS
-          const immutableCoords = getImmutableStoreGps(est);
-          est.latitude = parseFloat(immutableCoords.latitude);
-          est.longitude = parseFloat(immutableCoords.longitude);
+          // Preserve user-saved GPS
+          if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
+            est.latitude = parseFloat(storeGpsMap[est.id].latitude);
+            est.longitude = parseFloat(storeGpsMap[est.id].longitude);
+          } else if (est.latitude !== undefined && est.latitude !== null && !isNaN(parseFloat(est.latitude)) && est.longitude !== undefined && est.longitude !== null && !isNaN(parseFloat(est.longitude))) {
+            est.latitude = parseFloat(est.latitude);
+            est.longitude = parseFloat(est.longitude);
+            storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
+          } else {
+            est.latitude = null;
+            est.longitude = null;
+          }
           est.location_lat = est.latitude;
           est.location_lng = est.longitude;
-          storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
         });
         const dedupedEsts = deduplicateEstablishments(establishments);
         writeDisabledStores(disabledMap);
@@ -661,13 +675,20 @@ function writeDB(data) {
             disabledMap[est.id] = Boolean(est.disabled);
           }
 
-          // Enforce immutable verified GPS coordinates
-          const immutableCoords = getImmutableStoreGps(est);
-          est.latitude = parseFloat(immutableCoords.latitude);
-          est.longitude = parseFloat(immutableCoords.longitude);
+          // Preserve user-saved GPS
+          if (storeGpsMap[est.id] && storeGpsMap[est.id].latitude && storeGpsMap[est.id].longitude) {
+            est.latitude = parseFloat(storeGpsMap[est.id].latitude);
+            est.longitude = parseFloat(storeGpsMap[est.id].longitude);
+          } else if (est.latitude !== undefined && est.latitude !== null && !isNaN(parseFloat(est.latitude)) && est.longitude !== undefined && est.longitude !== null && !isNaN(parseFloat(est.longitude))) {
+            est.latitude = parseFloat(est.latitude);
+            est.longitude = parseFloat(est.longitude);
+            storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
+          } else {
+            est.latitude = null;
+            est.longitude = null;
+          }
           est.location_lat = est.latitude;
           est.location_lng = est.longitude;
-          storeGpsMap[est.id] = { latitude: est.latitude, longitude: est.longitude };
         });
         writeDisabledStores(disabledMap);
         writeStoreGps(storeGpsMap);
