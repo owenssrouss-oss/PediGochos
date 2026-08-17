@@ -3094,10 +3094,16 @@ class MarketplaceController {
     // Determine distance directly from the specific Restaurant's own registered GPS coordinates
     let est = this.selectedEstablishment;
     if (!est && this.cart && this.cart.items && this.cart.items.length > 0) {
-      const shopId = this.cart.items[0].restaurant_id;
+      const shopId = this.cart.items[0].restaurant_id || this.cart.items[0].establishmentId;
       est = this.establishments.find(e => e.id === shopId);
     }
     if (est) {
+      const id = String(est.id || '').trim();
+      const normName = (est.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '').trim();
+      const coords = VERIFIED_STORE_GPS_MARKETPLACE[id] || VERIFIED_STORE_GPS_MARKETPLACE[normName];
+      if (coords && coords.latitude && coords.longitude) {
+        return [parseFloat(coords.latitude), parseFloat(coords.longitude)];
+      }
       const lat = (est.location_lat !== undefined && est.location_lat !== null) 
         ? est.location_lat 
         : est.latitude;
@@ -3109,7 +3115,7 @@ class MarketplaceController {
       }
     }
     // Default fallback to city center coordinates
-    return this.locationCenters[this.currentLocation] || [7.8131, -72.4439];
+    return this.locationCenters[this.currentLocation] || [7.8145, -72.4430];
   }
 
   initLeafletMap() {
