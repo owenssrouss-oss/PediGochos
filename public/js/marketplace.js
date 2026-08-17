@@ -1807,8 +1807,13 @@ class MarketplaceController {
             group.options.forEach(opt => {
               if (opt && opt.option_id) {
                 const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
-                if (qty > 1) {
-                  sideSum += this.normalizeCopPrice(opt.extra_price) * (qty - 1);
+                const extraPrice = this.normalizeCopPrice(opt.extra_price || opt.price || 0);
+                if (qty > 0 && extraPrice > 0) {
+                  if (group.selection_type === 'single') {
+                    sideSum += extraPrice;
+                  } else {
+                    sideSum += extraPrice * qty;
+                  }
                 }
               }
             });
@@ -2063,17 +2068,17 @@ class MarketplaceController {
           group.options.forEach(opt => {
             const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
             if (qty > 0) {
+              const extraPrice = opt.extra_price || opt.price || 0;
               if (group.selection_type === 'single') {
                 singleSelections.push({
                   group_name: prefix + group.group_name,
-                  chosen_option: opt.name
+                  chosen_option: opt.name + (extraPrice > 0 ? ` (+${this.formatPesos(extraPrice)})` : '')
                 });
               } else {
-                const chargeableQty = qty > 1 ? (qty - 1) : 0;
                 addOns.push({
-                  name: prefix + opt.name + (qty === 1 ? ' (Incluido)' : ` (x${qty})`),
-                  price_per_unit: opt.extra_price || 0,
-                  quantity: chargeableQty
+                  name: prefix + opt.name + (qty > 1 ? ` (x${qty})` : ''),
+                  price_per_unit: extraPrice,
+                  quantity: qty
                 });
               }
             }

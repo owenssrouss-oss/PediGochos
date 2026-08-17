@@ -15501,29 +15501,48 @@
           "category": "Obleas",
           "modifiers": [
             {
+              "group_id": "g-base-exploradora",
+              "group_name": "Base Untable (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
               "options": [
-                {
-                  "id": "opt-17862286619210.7184984609394036",
-                  "name": "Arequipe o Nutella + topping favorito",
-                  "option_id": "opt-17862286619220.672491885627498",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786228661922",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
+                { "id": "opt-base-arequipe", "name": "🍯 Arequipe Tradicional", "option_id": "opt-base-arequipe", "extra_price": 0 },
+                { "id": "opt-base-nutella", "name": "🍫 Nutella / Chocolate", "option_id": "opt-base-nutella", "extra_price": 0 }
+              ]
+            },
             {
-              "id": "ex-0",
-              "name": "Arequipe o Nutella + topping favorito",
-              "price": 500
+              "group_id": "g-topping-exploradora",
+              "group_name": "Topping Favorito (1 Incluido)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                { "id": "opt-top-choc", "name": "🍫 Lluvia de Chocolate", "option_id": "opt-top-choc", "extra_price": 0 },
+                { "id": "opt-top-color", "name": "🌈 Chispas de Colores", "option_id": "opt-top-color", "extra_price": 0 },
+                { "id": "opt-top-mani", "name": "🥜 Maní Tostado", "option_id": "opt-top-mani", "extra_price": 0 },
+                { "id": "opt-top-coco", "name": "🥥 Coco Rallado", "option_id": "opt-top-coco", "extra_price": 0 },
+                { "id": "opt-top-queso", "name": "🧀 Queso Rallado", "option_id": "opt-top-queso", "extra_price": 0 },
+                { "id": "opt-top-fresa", "name": "🍓 Fresas Picadas", "option_id": "opt-top-fresa", "extra_price": 0 },
+                { "id": "opt-top-oreo", "name": "🍪 Galleta Oreo", "option_id": "opt-top-oreo", "extra_price": 0 },
+                { "id": "opt-top-gomitas", "name": "🍬 Gomitas", "option_id": "opt-top-gomitas", "extra_price": 0 },
+                { "id": "opt-top-lechecond", "name": "🥛 Leche Condensada", "option_id": "opt-top-lechecond", "extra_price": 0 }
+              ]
+            },
+            {
+              "group_id": "g-extras-exploradora",
+              "group_name": "Adicionales Extra (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                { "id": "opt-ext-queso", "name": "🧀 Extra Queso", "option_id": "opt-ext-queso", "extra_price": 2000 },
+                { "id": "opt-ext-fruta", "name": "🍓 Extra Fruta Fresca", "option_id": "opt-ext-fruta", "extra_price": 2500 },
+                { "id": "opt-ext-nutella", "name": "🍫 Extra Nutella", "option_id": "opt-ext-nutella", "extra_price": 3000 },
+                { "id": "opt-ext-helado", "name": "🍦 Bola de Helado", "option_id": "opt-ext-helado", "extra_price": 4000 }
+              ]
             }
           ],
+          "exclusions": [],
           "category_id": "101bcf58-2e2e-481b-bb77-eda9c950e79c",
-          "description": "Arequipe o Nutella + topping favorito."
+          "description": "Elige tu base favorita (Arequipe o Nutella) y tu topping preferido."
         },
         {
           "id": "p-1786228709944-40",
@@ -15533,27 +15552,28 @@
           "category": "Obleas",
           "modifiers": [
             {
+              "group_id": "g-base-clasica",
+              "group_name": "Base Untable (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
               "options": [
-                {
-                  "id": "opt-17862287099440.9847633039103116",
-                  "name": "Arequipe o Nutella + queso + crema",
-                  "option_id": "opt-17862287099440.02808567181122834",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786228709944",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
+                { "id": "opt-base-arequipe-c", "name": "🍯 Arequipe Tradicional", "option_id": "opt-base-arequipe-c", "extra_price": 0 },
+                { "id": "opt-base-nutella-c", "name": "🍫 Nutella / Chocolate", "option_id": "opt-base-nutella-c", "extra_price": 0 }
+              ]
+            },
             {
-              "id": "ex-0",
-              "name": "Arequipe o Nutella + queso + crema",
-              "price": 500
+              "group_id": "g-extras-clasica",
+              "group_name": "Adicionales Extra (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                { "id": "opt-ext-queso-c", "name": "🧀 Extra Queso", "option_id": "opt-ext-queso-c", "extra_price": 2000 },
+                { "id": "opt-ext-nutella-c", "name": "🍫 Extra Nutella", "option_id": "opt-ext-nutella-c", "extra_price": 3000 },
+                { "id": "opt-ext-helado-c", "name": "🍦 Bola de Helado", "option_id": "opt-ext-helado-c", "extra_price": 4000 }
+              ]
             }
           ],
+          "exclusions": [],
           "category_id": "101bcf58-2e2e-481b-bb77-eda9c950e79c",
           "description": "Arequipe o Nutella + queso + crema."
         },
@@ -15565,27 +15585,28 @@
           "category": "Obleas",
           "modifiers": [
             {
+              "group_id": "g-base-mora",
+              "group_name": "Base Untable (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
               "options": [
-                {
-                  "id": "opt-17862287365400.6438621779659598",
-                  "name": "Arequipe o Nutella + mora + crema + queso",
-                  "option_id": "opt-17862287365400.023737314330689263",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786228736540",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
+                { "id": "opt-base-arequipe-m", "name": "🍯 Arequipe Tradicional", "option_id": "opt-base-arequipe-m", "extra_price": 0 },
+                { "id": "opt-base-nutella-m", "name": "🍫 Nutella / Chocolate", "option_id": "opt-base-nutella-m", "extra_price": 0 }
+              ]
+            },
             {
-              "id": "ex-0",
-              "name": "Arequipe o Nutella + mora + crema + queso",
-              "price": 500
+              "group_id": "g-extras-mora",
+              "group_name": "Adicionales Extra (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                { "id": "opt-ext-mora-m", "name": "🍇 Extra Dulce de Mora", "option_id": "opt-ext-mora-m", "extra_price": 2000 },
+                { "id": "opt-ext-queso-m", "name": "🧀 Extra Queso", "option_id": "opt-ext-queso-m", "extra_price": 2000 },
+                { "id": "opt-ext-helado-m", "name": "🍦 Bola de Helado", "option_id": "opt-ext-helado-m", "extra_price": 4000 }
+              ]
             }
           ],
+          "exclusions": [],
           "category_id": "101bcf58-2e2e-481b-bb77-eda9c950e79c",
           "description": "Arequipe o Nutella + mora + crema + queso."
         },
@@ -15597,27 +15618,28 @@
           "category": "Obleas",
           "modifiers": [
             {
+              "group_id": "g-base-fresa",
+              "group_name": "Base Untable (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
               "options": [
-                {
-                  "id": "opt-17862288175130.2826664025392811",
-                  "name": "Arequipe o Nutella + fresa + crema + queso",
-                  "option_id": "opt-17862288175130.882666595592788",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786228817513",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
+                { "id": "opt-base-arequipe-f", "name": "🍯 Arequipe Tradicional", "option_id": "opt-base-arequipe-f", "extra_price": 0 },
+                { "id": "opt-base-nutella-f", "name": "🍫 Nutella / Chocolate", "option_id": "opt-base-nutella-f", "extra_price": 0 }
+              ]
+            },
             {
-              "id": "ex-0",
-              "name": "Arequipe o Nutella + fresa + crema + queso",
-              "price": 500
+              "group_id": "g-extras-fresa",
+              "group_name": "Adicionales Extra (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                { "id": "opt-ext-fresa-f", "name": "🍓 Extra Fresas Frescas", "option_id": "opt-ext-fresa-f", "extra_price": 2500 },
+                { "id": "opt-ext-queso-f", "name": "🧀 Extra Queso", "option_id": "opt-ext-queso-f", "extra_price": 2000 },
+                { "id": "opt-ext-helado-f", "name": "🍦 Bola de Helado", "option_id": "opt-ext-helado-f", "extra_price": 4000 }
+              ]
             }
           ],
+          "exclusions": [],
           "category_id": "101bcf58-2e2e-481b-bb77-eda9c950e79c",
           "description": "Arequipe o Nutella + fresa + crema + queso."
         },
@@ -15629,29 +15651,30 @@
           "category": "Obleas",
           "modifiers": [
             {
+              "group_id": "g-base-banano",
+              "group_name": "Base Untable (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
               "options": [
-                {
-                  "id": "opt-17862288574470.25189225624439393",
-                  "name": "Arequipe o Nutella + banano + crema + queso",
-                  "option_id": "opt-17862288574470.5214948972200106",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786228857447",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
+                { "id": "opt-base-arequipe-b", "name": "🍯 Arequipe Tradicional", "option_id": "opt-base-arequipe-b", "extra_price": 0 },
+                { "id": "opt-base-nutella-b", "name": "🍫 Nutella / Chocolate", "option_id": "opt-base-nutella-b", "extra_price": 0 }
+              ]
+            },
             {
-              "id": "ex-0",
-              "name": "Arequipe o Nutella + banano + crema + queso",
-              "price": 500
+              "group_id": "g-extras-banano",
+              "group_name": "Adicionales Extra (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                { "id": "opt-ext-banano-b", "name": "🍌 Extra Banano", "option_id": "opt-ext-banano-b", "extra_price": 2000 },
+                { "id": "opt-ext-queso-b", "name": "🧀 Extra Queso", "option_id": "opt-ext-queso-b", "extra_price": 2000 },
+                { "id": "opt-ext-helado-b", "name": "🍦 Bola de Helado", "option_id": "opt-ext-helado-b", "extra_price": 4000 }
+              ]
             }
           ],
+          "exclusions": [],
           "category_id": "101bcf58-2e2e-481b-bb77-eda9c950e79c",
-          "description": "Arequipe o Nutlla + banano + crema + queso."
+          "description": "Arequipe o Nutella + banano + crema + queso."
         }
       ],
       "prep_time": null,
