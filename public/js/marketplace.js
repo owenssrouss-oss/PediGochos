@@ -92,9 +92,16 @@ class MarketplaceController {
     // Clear any lingering redirect flag
     localStorage.removeItem('redirect_after_google_login');
 
-    // Always reset URL query parameters so user enters clean Home view
-    if (window.location.search || window.location.hash) {
-      window.history.replaceState({}, document.title, window.location.pathname);
+    // Parse URL query parameters for QR scan / direct store deep linking
+    const urlParams = new URLSearchParams(window.location.search);
+    const storeParam = urlParams.get('store') || urlParams.get('restaurant') || urlParams.get('r') || urlParams.get('shop') || urlParams.get('id');
+    const tableParam = urlParams.get('mesa') || urlParams.get('table') || urlParams.get('m');
+
+    if (tableParam) {
+      this.currentTableNumber = tableParam;
+      try {
+        localStorage.setItem('scanned_table_number', tableParam);
+      } catch(e) {}
     }
 
     // Set initial history state
@@ -126,8 +133,26 @@ class MarketplaceController {
     this.initPushNotifications();
     this.initOfflineSync();
 
-    // Show location selector tutorial if visiting for the first time
-    if (!localStorage.getItem('location_tutorial_seen')) {
+    // Auto-open store if scanned via QR or visited via direct link
+    if (storeParam && Array.isArray(this.establishments) && this.establishments.length > 0) {
+      const normQuery = storeParam.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '').trim();
+      const targetStore = this.establishments.find(e => {
+        if (!e) return false;
+        const eId = String(e.id || '').trim();
+        const eNameNorm = (e.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '').trim();
+        return eId === storeParam.trim() || eNameNorm === normQuery || eId.toLowerCase().includes(normQuery) || (e.linkKey && e.linkKey.toUpperCase() === storeParam.trim().toUpperCase());
+      });
+
+      if (targetStore) {
+        setTimeout(() => {
+          this.openEstablishment(targetStore.id, false);
+          if (tableParam) {
+            this.showToast(`🍽️ ¡Bienvenido a ${targetStore.name}! Conectado a Mesa #${tableParam}`);
+          }
+        }, 100);
+      }
+    } else if (!localStorage.getItem('location_tutorial_seen')) {
+      // Show location selector tutorial if visiting home for the first time
       setTimeout(() => {
         this.showLocationTutorial();
       }, 1000);

@@ -593,6 +593,9 @@ class AdminController {
           </div>
         </td>
         <td style="text-align: center; white-space: nowrap;">
+          <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.openStoreQRModal('${est.id}')" style="background-color: #6366F1; color: #FFFFFF; border: none; font-size: 12px; padding: 6px 12px; border-radius: var(--radius-sm); font-weight: 800; margin: 0 2px; width: auto; display: inline-block; cursor: pointer; box-shadow: 0 2px 6px rgba(99,102,241,0.3);">
+            📱 QR & Link
+          </button>
           <button class="btn-goto-kitchen" onclick="event.stopPropagation(); AdminApp.openStoreMapSingle('${est.id}')" style="background-color: #10B981; color: #FFFFFF; border: none; font-size: 12px; padding: 6px 12px; border-radius: var(--radius-sm); font-weight: 800; margin: 0 2px; width: auto; display: inline-block; cursor: pointer; box-shadow: 0 2px 6px rgba(16,185,129,0.25);">
             🗺️ Ubicación GPS
           </button>
@@ -3489,6 +3492,222 @@ class AdminController {
       </div>
     `;
     modal.style.display = 'flex';
+  }
+
+  openStoreQRModal(estId) {
+    const est = (this.establishments || []).find(e => String(e.id) === String(estId));
+    if (!est) return;
+
+    this.currentQREst = est;
+    const modal = document.getElementById('admin-store-qr-modal');
+    if (!modal) return;
+
+    const titleEl = document.getElementById('qr-modal-title');
+    if (titleEl) titleEl.innerText = `📱 QR & Link: ${est.name}`;
+    
+    const tableInp = document.getElementById('qr-modal-table-input');
+    if (tableInp) tableInp.value = '';
+
+    this.updateStoreQRDisplay();
+    modal.classList.add('active');
+    this.checkModalOpenState();
+  }
+
+  closeStoreQRModal() {
+    const modal = document.getElementById('admin-store-qr-modal');
+    if (modal) modal.classList.remove('active');
+    this.checkModalOpenState();
+  }
+
+  updateStoreQRDisplay() {
+    if (!this.currentQREst) return;
+    const est = this.currentQREst;
+    const tableInp = document.getElementById('qr-modal-table-input');
+    const tableNum = tableInp ? tableInp.value.trim() : '';
+
+    const origin = window.location.origin;
+    let directUrl = `${origin}/?store=${encodeURIComponent(est.id)}`;
+    if (tableNum) {
+      directUrl += `&mesa=${encodeURIComponent(tableNum)}`;
+    }
+
+    const qrImg = document.getElementById('qr-modal-img');
+    const urlInp = document.getElementById('qr-modal-url-input');
+    const cardName = document.getElementById('qr-card-est-name');
+    const cardSub = document.getElementById('qr-card-subtitle');
+
+    if (urlInp) urlInp.value = directUrl;
+    if (cardName) cardName.innerText = `${est.logo || '🏪'} ${est.name}`;
+    if (cardSub) {
+      cardSub.innerText = tableNum ? `📍 Mesa #${tableNum} • Escanea para ordenar` : `🍽️ Escanea para ver el menú y ordenar`;
+    }
+
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(directUrl)}&margin=10`;
+    if (qrImg) {
+      qrImg.src = qrApiUrl;
+    }
+  }
+
+  async copyStoreQRUrl() {
+    const inp = document.getElementById('qr-modal-url-input');
+    if (!inp || !inp.value) return;
+
+    try {
+      await navigator.clipboard.writeText(inp.value);
+      this.showToast('📋 ¡Enlace directo copiado al portapapeles!');
+    } catch(e) {
+      inp.select();
+      document.execCommand('copy');
+      this.showToast('📋 ¡Enlace copiado!');
+    }
+  }
+
+  openStoreQRInNewTab() {
+    const inp = document.getElementById('qr-modal-url-input');
+    if (inp && inp.value) {
+      window.open(inp.value, '_blank');
+    }
+  }
+
+  async downloadStoreQRImage() {
+    if (!this.currentQREst) return;
+    const est = this.currentQREst;
+    const tableNum = (document.getElementById('qr-modal-table-input')?.value || '').trim();
+    const qrImg = document.getElementById('qr-modal-img');
+    if (!qrImg || !qrImg.src) return;
+
+    this.showToast('⏳ Descargando imagen QR...');
+
+    try {
+      const res = await fetch(qrImg.src);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const filename = `QR_${(est.name || 'restaurante').replace(/[^a-zA-Z0-9]/g, '_')}${tableNum ? '_Mesa_' + tableNum : ''}.png`;
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+      this.showToast(`✅ ¡Código QR guardado como "${filename}"!`);
+    } catch(err) {
+      window.open(qrImg.src, '_blank');
+    }
+  }
+
+  printStoreQRAffiche() {
+    if (!this.currentQREst) return;
+    const est = this.currentQREst;
+    const tableNum = (document.getElementById('qr-modal-table-input')?.value || '').trim();
+    const qrImg = document.getElementById('qr-modal-img');
+    const qrSrc = qrImg ? qrImg.src : '';
+
+    const printWin = window.open('', '_blank', 'width=600,height=750');
+    if (!printWin) {
+      alert('⚠️ Por favor permite las ventanas emergentes para imprimir.');
+      return;
+    }
+
+    printWin.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Imprimir QR - ${est.name}</title>
+        <meta charset="utf-8">
+        <style>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f8fafc;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+          .card {
+            background: #ffffff;
+            border: 2px dashed #cbd5e1;
+            border-radius: 24px;
+            padding: 36px 30px;
+            text-align: center;
+            max-width: 360px;
+            width: 100%;
+            box-sizing: border-box;
+          }
+          .logo {
+            font-size: 32px;
+            margin-bottom: 4px;
+          }
+          .brand {
+            font-size: 16px;
+            font-weight: 900;
+            color: #FF5E3A;
+            margin-bottom: 8px;
+          }
+          .name {
+            font-size: 22px;
+            font-weight: 900;
+            color: #0f172a;
+            margin: 6px 0;
+          }
+          .mesa {
+            font-size: 16px;
+            font-weight: 800;
+            color: #10B981;
+            background: #ecfdf5;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 12px;
+          }
+          .qr-box {
+            background: #f1f5f9;
+            padding: 14px;
+            border-radius: 16px;
+            display: inline-block;
+            margin: 12px 0;
+          }
+          .qr-box img {
+            width: 230px;
+            height: 230px;
+            display: block;
+          }
+          .call-to-action {
+            font-size: 14px;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 8px 0 2px 0;
+          }
+          .sub {
+            font-size: 11px;
+            color: #64748b;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <div class="logo">${est.logo || '🏪'}</div>
+          <div class="brand">👑 DeliverCity</div>
+          <div class="name">${est.name}</div>
+          ${tableNum ? `<div class="mesa">📍 MESA #${tableNum}</div>` : ''}
+          <div class="qr-box">
+            <img src="${qrSrc}" alt="QR">
+          </div>
+          <div class="call-to-action">📲 Escanea para Ver la Carta</div>
+          <div class="sub">Haz tu pedido fácil y rápido desde tu celular</div>
+        </div>
+        <script>
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+            }, 400);
+          };
+        </script>
+      </body>
+      </html>
+    `);
+    printWin.document.close();
   }
 }
 

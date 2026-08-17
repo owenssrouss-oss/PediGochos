@@ -442,6 +442,9 @@
       </div>
       <p id="action-modal-shop-name" style="color: var(--accent); font-weight: 700; margin-bottom: 24px; font-size: 16px;"></p>
       <div style="display: flex; flex-direction: column; gap: 14px;">
+        <button class="btn-neumorphic" onclick="AdminApp.closeEstActionModal(); AdminApp.openStoreQRModal(AdminApp.activeShopId);" style="width: 100%; justify-content: center; gap: 8px; font-weight: 800; background-color: #4F46E5; color: #FFF; border-color: #6366F1; cursor: pointer; box-shadow: 0 4px 12px rgba(99,102,241,0.35);">
+          📱 Generar Link y Código QR para Mesas
+        </button>
         <button class="btn-neumorphic" onclick="AdminApp.viewShopMenu()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; cursor: pointer;">
           🔍 Ver Menú en Marketplace
         </button>
@@ -961,8 +964,8 @@
     </div>
   </div>
 
-  <script src="/js/sound.js?v=181"></script>
-  <script src="/js/admin.js?v=181"></script>
+  <script src="/js/sound.js?v=183"></script>
+  <script src="/js/admin.js?v=183"></script>
   <script src="/js/menu-builder.js"></script>
 
   <script>
@@ -1847,6 +1850,75 @@
           <button type="submit" style="background: #10B981; color: #FFF; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer;">💾 Registrar Repartidor</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal: Generador de Código QR y Link Directo para Restaurante y Mesas -->
+  <div class="modal-overlay" id="admin-store-qr-modal" style="z-index: 3950; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div class="modal-content" style="max-width: 500px; width: 94%; max-height: 92vh; overflow-y: auto; padding: 22px; border-radius: 20px; background: rgba(18, 18, 24, 0.98); border: 1px solid rgba(255, 255, 255, 0.12); margin: auto;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 id="qr-modal-title" style="margin: 0; color: #FFF; font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            📱 Código QR & Enlace
+          </h3>
+          <p style="margin: 3px 0 0 0; font-size: 12px; color: #94A3B8;">Para menús físicos, acrílicos en mesas o compartir en redes sociales.</p>
+        </div>
+        <button class="modal-close" onclick="AdminApp.closeStoreQRModal()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.1); border: none; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Table / Mesa selector option -->
+      <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px; margin-bottom: 16px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #E2E8F0; margin-bottom: 6px;">
+          🍽️ Número de Mesa (Opcional):
+        </label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="qr-modal-table-input" oninput="AdminApp.updateStoreQRDisplay()" placeholder="Ej. 1, 2, Terraza 4, Barra... (dejar vacío para menú general)" style="flex: 1; padding: 8px 12px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12.5px;">
+          <button type="button" onclick="document.getElementById('qr-modal-table-input').value=''; AdminApp.updateStoreQRDisplay();" style="background: #334155; color: #E2E8F0; border: none; padding: 8px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;">Limpiar</button>
+        </div>
+      </div>
+
+      <!-- Printable QR Card Presentation -->
+      <div id="printable-qr-card" style="background: #FFFFFF; border-radius: 16px; padding: 20px; text-align: center; color: #0F172A; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 6px;">
+          <span style="font-size: 24px;">👑</span>
+          <span style="font-weight: 900; font-size: 16px; color: #FF5E3A; letter-spacing: 0.5px;">Deliver<span style="color: #0F172A;">City</span></span>
+        </div>
+        <h4 id="qr-card-est-name" style="margin: 4px 0; font-size: 18px; font-weight: 900; color: #0F172A;">Restaurante</h4>
+        <p id="qr-card-subtitle" style="margin: 0 0 12px 0; font-size: 12px; font-weight: 700; color: #64748B;">🍽️ Escanea para ver el menú y ordenar</p>
+        
+        <div style="background: #F8FAFC; padding: 12px; border-radius: 12px; display: inline-block; border: 1px solid #E2E8F0; margin-bottom: 8px;">
+          <img id="qr-modal-img" src="" alt="Código QR del Restaurante" style="width: 220px; height: 220px; display: block; margin: 0 auto; object-fit: contain;">
+        </div>
+
+        <p style="margin: 4px 0 0 0; font-size: 11px; font-weight: 600; color: #94A3B8;">Apunta tu cámara aquí para abrir la carta</p>
+      </div>
+
+      <!-- Direct Link Box -->
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #94A3B8; margin-bottom: 6px;">🔗 Enlace Directo (URL):</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="qr-modal-url-input" readonly style="flex: 1; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #38BDF8; font-size: 12px; font-family: monospace;">
+          <button type="button" onclick="AdminApp.copyStoreQRUrl()" style="background: #3B82F6; color: #FFF; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+            📋 Copiar
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button type="button" onclick="AdminApp.openStoreQRInNewTab()" style="flex: 1; background: #334155; color: #FFF; border: none; padding: 10px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+          🌐 Probar Link
+        </button>
+        <button type="button" onclick="AdminApp.downloadStoreQRImage()" style="flex: 1; background: #10B981; color: #FFF; border: none; padding: 10px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+          ⬇️ Descargar PNG
+        </button>
+        <button type="button" onclick="AdminApp.printStoreQRAffiche()" style="flex: 1; background: #6366F1; color: #FFF; border: none; padding: 10px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(99,102,241,0.3);">
+          🖨️ Imprimir
+        </button>
+      </div>
+
     </div>
   </div>
 
