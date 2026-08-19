@@ -2411,98 +2411,217 @@ class KitchenController {
   }
 
   handleFastAdd() {
-      const text = document.getElementById('form-fast-add').value;
-      if (!text) return;
-      
-      const parts = text.split(/-|\n/).map(p => p.trim()).filter(p => p.length > 0);
-      if (parts.length >= 1) {
-          const extractedName = parts[0];
-          document.getElementById('form-name').value = extractedName;
-          
-          const catSelect = document.getElementById('form-category');
-          const firstWord = extractedName.split(' ')[0];
-          const firstWordLower = firstWord.toLowerCase();
-          
-          let foundCategory = false;
-          for (let i = 0; i < catSelect.options.length; i++) {
-              if (catSelect.options[i].value !== 'new' && catSelect.options[i].text.toLowerCase().includes(firstWordLower)) {
-                  catSelect.selectedIndex = i;
-                  foundCategory = true;
-                  break;
-              }
+    const text = document.getElementById('form-fast-add')?.value;
+    if (!text || !text.trim()) return;
+
+    // Use global parser or fallback local parser
+    const parsed = typeof parseMagicProductText === 'function' ? parseMagicProductText(text) : (() => {
+      let t = text.trim().replace(/^[\d#\*\-\.\)\•\>\s]+/, '').trim();
+      let name = '', desc = '', price = '', sizes = [], flavors = '', extras = '';
+
+      const sizesMatch = t.match(/(?:tamaños?|variaciones?|porciones?):?\s*([^-\n]+)/i);
+      if (sizesMatch) {
+        sizesMatch[1].trim().split(/,|\//).forEach(item => {
+          const trimmed = item.trim();
+          const pMatch = trimmed.match(/(\d+(?:[.,]\d+)?)\s*(?:k|cop|usd|\$)?$/i);
+          let sPrice = '', sName = trimmed;
+          if (pMatch) {
+            sPrice = pMatch[1].replace(/[.,]/g, '');
+            sName = trimmed.replace(pMatch[0], '').trim();
           }
-          
-          if (!foundCategory) {
-              catSelect.value = 'new';
-              document.getElementById('form-new-category-name').value = firstWord;
-          }
-          
-          if (typeof window.handleCategoryChange === 'function') window.handleCategoryChange(catSelect);
-      }
-      if (parts.length >= 2) document.getElementById('form-desc').value = parts[1];
-      
-      const priceMatch = text.match(/\$\s*(\d+(?:\.\d+)?)|(?:precio)?\s*(\d+(?:\.\d+)?)\s*(?:\$|usd)/i) || text.match(/\b\d+(?:\.\d+)?\b/);
-      if (parts.length >= 3) {
-          const pMatch = parts[2].match(/\d+(?:\.\d+)?/);
-          if (pMatch) document.getElementById('form-price').value = pMatch[0];
-      } else if (priceMatch) {
-          document.getElementById('form-price').value = priceMatch[1] || priceMatch[2] || priceMatch[0];
+          if (sName) sizes.push({ name: sName, price: sPrice });
+        });
+        t = t.replace(sizesMatch[0], '').trim();
       }
 
-      // Try to parse sizes if Pizza sizes container is visible
-      const pizzaContainer = document.getElementById('pizza-sizes-container');
-      if (pizzaContainer && pizzaContainer.style.display === 'block') {
-          const sizesPart = parts.find(p => p.toLowerCase().includes('pequeña') || p.toLowerCase().includes('personal') || p.toLowerCase().includes('mediana'));
-          if (sizesPart) {
-              const sizesArr = sizesPart.split(',');
-              sizesArr.forEach(s => {
-                  const sLower = s.toLowerCase();
-                  const valMatch = s.match(/\d+(?:\.\d+)?$/);
-                  if (valMatch) {
-                      const pVal = valMatch[0];
-                      if (sLower.includes('pequeña') || sLower.includes('personal')) {
-                          document.getElementById('form-pizza-small').value = pVal;
-                      } else if (sLower.includes('mediana')) {
-                          document.getElementById('form-pizza-medium').value = pVal;
-                      } else if (sLower.includes('grande')) {
-                          document.getElementById('form-pizza-large').value = pVal;
-                      }
-                  }
-              });
+      const flavorsMatch = t.match(/(?:sabores?|variantes?):?\s*([^-\n]+)/i);
+      if (flavorsMatch) {
+        flavors = flavorsMatch[1].trim();
+        t = t.replace(flavorsMatch[0], '').trim();
+      }
+
+      const extrasMatch = t.match(/(?:adicionales?|extras?|toppings?):?\s*([^-\n]+)/i);
+      if (extrasMatch) {
+        extras = extrasMatch[1].trim();
+        t = t.replace(extrasMatch[0], '').trim();
+      }
+
+      const endPriceRegex = /(?:^|\s*[-–—|:,]\s*|\s+)(?:precio\s*:?\s*)?(?:\$|usd|cop)?\s*(\d{1,3}(?:[.,]\d{3})+|\d+)\s*(?:cop|usd|\$|k|mil)?\.?\s*$/i;
+      const taggedPriceRegex = /(?:precio|valor|cuesta|vale|\$|cop|usd)\s*:?\s*(\d{1,3}(?:[.,]\d{3})+|\d+)\s*(?:cop|usd|\$|k|mil)?/i;
+
+      let priceMatch = t.match(endPriceRegex) || t.match(taggedPriceRegex);
+      if (priceMatch) {
+        let rawP = priceMatch[1].replace(/[.,]/g, '');
+        if (priceMatch[0].toLowerCase().includes('k') || priceMatch[0].toLowerCase().includes('mil')) {
+          if (parseInt(rawP, 10) < 1000) rawP = String(parseInt(rawP, 10) * 1000);
+        }
+        price = rawP;
+        t = t.substring(0, priceMatch.index) + t.substring(priceMatch.index + priceMatch[0].length);
+        t = t.trim().replace(/[-–—|:,.\s]+$/, '').trim();
+      }
+
+      let parts = t.split(/\s*[-–—|:]\s*|\n+/).map(p => p.trim().replace(/^[-–—|:,.\s]+|[-–—|:,.\s]+$/g, '')).filter(p => p.length > 0);
+
+      if (parts.length === 1) {
+        const dotSplit = parts[0].split(/\.\s+/);
+        if (dotSplit.length > 1 && dotSplit[0].length < 35 && dotSplit[1].length > 5) {
+          name = dotSplit[0].trim();
+          desc = dotSplit.slice(1).join('. ').trim();
+        } else {
+          name = parts[0];
+        }
+      } else if (parts.length === 2) {
+        name = parts[0];
+        if (!price && /^\d+$/.test(parts[1].replace(/[^\d]/g, '')) && !/[a-zA-Z]/.test(parts[1])) {
+          price = parts[1].replace(/[^\d]/g, '');
+        } else {
+          desc = parts[1];
+        }
+      } else if (parts.length >= 3) {
+        name = parts[0];
+        if (!price && /^\d+$/.test(parts[parts.length - 1].replace(/[^\d]/g, '')) && !/[a-zA-Z]/.test(parts[parts.length - 1])) {
+          price = parts[parts.length - 1].replace(/[^\d]/g, '');
+          desc = parts.slice(1, -1).join(' - ');
+        } else {
+          desc = parts.slice(1).join(' - ');
+        }
+      }
+
+      if (name) name = name.replace(/[-–—|:,.\s]+$/, '').trim();
+      if (desc) desc = desc.replace(/[-–—|:,.\s]+$/, '').trim();
+
+      return { name, desc, price, sizes, flavors, extras };
+    })();
+
+    if (!parsed) return;
+    const { name, desc, price, sizes, flavors, extras } = parsed;
+
+    if (name) {
+      document.getElementById('form-name').value = name;
+      const catSelect = document.getElementById('form-category');
+      if (catSelect) {
+        const nameLower = name.toLowerCase();
+        const categoryMapping = {
+          'pepito': 'pepitos',
+          'pepitos': 'pepitos',
+          'hamburguesa': 'hamburguesas',
+          'burguer': 'hamburguesas',
+          'burger': 'hamburguesas',
+          'perro': 'hot-dogs-perros-calientes',
+          'hot dog': 'hot-dogs-perros-calientes',
+          'hot-dog': 'hot-dogs-perros-calientes',
+          'dog': 'hot-dogs-perros-calientes',
+          'pizza': 'pizzas',
+          'shawarma': 'shawarmas',
+          'arepa': 'arepas',
+          'cachapa': 'cachapas',
+          'salchipapa': 'salchipapas',
+          'patacon': 'patacones',
+          'parrilla': 'parrillas',
+          'pollo': 'pollo',
+          'alita': 'pollo',
+          'oblea': 'helados-postres',
+          'helado': 'helados-postres',
+          'malteada': 'bebidas',
+          'batido': 'bebidas',
+          'bebida': 'bebidas',
+          'jugo': 'bebidas',
+          'empanada': 'empanadas',
+          'pastelito': 'empanadas',
+          'tequeño': 'tequenos',
+          'tequeno': 'tequenos',
+          'pan': 'pan',
+          'sándwich': 'sandwiches',
+          'sandwich': 'sandwiches',
+          'baguette': 'baguettes',
+          'sushi': 'sushi',
+          'taco': 'mexicana',
+          'burrito': 'mexicana',
+          'ramen': 'ramen',
+          'postre': 'postres',
+          'dulce': 'postres',
+          'café': 'cafe',
+          'cafe': 'cafe'
+        };
+
+        let matchedSlug = '';
+        for (const [keyword, slug] of Object.entries(categoryMapping)) {
+          if (nameLower.includes(keyword)) {
+            matchedSlug = slug;
+            break;
           }
-      }
+        }
 
-      let extrasText = [];
-      if (parts.length >= 2) {
-          const descStr = parts[1];
-          const ingredients = descStr.split(/,| y | e /i).map(i => i.trim().replace(/\.$/, '')).filter(i => i.length > 2);
-          extrasText.push(...ingredients);
-      }
-
-      const addMatch = text.match(/adicionales?:?\s*(.+)/i);
-      let addStr = '';
-      if (addMatch) {
-          addStr = addMatch[1];
-      } else if (parts.length >= 4) {
-          const lastPart = parts[parts.length - 1];
-          if (!lastPart.toLowerCase().includes('pequeña') && !lastPart.toLowerCase().includes('personal') && !lastPart.toLowerCase().includes('mediana')) {
-              addStr = lastPart;
+        let foundCategory = false;
+        for (let i = 0; i < catSelect.options.length; i++) {
+          const optVal = catSelect.options[i].value;
+          const optText = catSelect.options[i].text.toLowerCase();
+          if (optVal !== 'new') {
+            if (matchedSlug && (optVal === matchedSlug || optVal.includes(matchedSlug) || optText.includes(matchedSlug.split('-')[0]))) {
+              catSelect.selectedIndex = i;
+              foundCategory = true;
+              break;
+            }
+            const cleanOptText = optText.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim();
+            if (cleanOptText.length > 2 && nameLower.includes(cleanOptText.split('/')[0].trim().split(' ')[0].toLowerCase())) {
+              catSelect.selectedIndex = i;
+              foundCategory = true;
+              break;
+            }
+            const firstWord = name.split(' ')[0].toLowerCase();
+            if (optText.includes(firstWord)) {
+              catSelect.selectedIndex = i;
+              foundCategory = true;
+              break;
+            }
           }
-      }
+        }
 
-      if (addStr) {
-          const addParts = addStr.split(',').map(s => s.trim());
-          const filteredAddParts = addParts.filter(s => {
-              const lower = s.toLowerCase();
-              if (lower.match(/^(pequeña|personal|mediana|grande)\s*\d+(?:\.\d+)?$/)) return false;
-              return true;
-          });
-          extrasText.push(...filteredAddParts);
+        if (!foundCategory) {
+          catSelect.value = 'new';
+          const firstWord = name.split(' ')[0];
+          const suggestedCat = firstWord.charAt(0).toUpperCase() + firstWord.slice(1).toLowerCase() + (firstWord.endsWith('s') ? '' : 's');
+          const newCatInput = document.getElementById('form-new-category-name');
+          if (newCatInput) newCatInput.value = suggestedCat;
+          const container = document.getElementById('form-new-category-container');
+          if (container) container.style.display = 'block';
+        }
+
+        if (typeof window.handleCategoryChange === 'function') window.handleCategoryChange(catSelect);
       }
-      
-      document.getElementById('form-adicionales').value = extrasText.join(', ');
-      
-      this.showLocalToast('✨ Formulario autocompletado');
+    }
+
+    if (desc) {
+      const descElem = document.getElementById('form-desc');
+      if (descElem) descElem.value = desc;
+    }
+    if (price) {
+      const priceElem = document.getElementById('form-price');
+      if (priceElem) priceElem.value = price;
+    }
+
+    if (sizes && sizes.length > 0) {
+      sizes.forEach((item, idx) => {
+        if (idx < 4) {
+          const nameElem = document.getElementById(`form-size-${idx+1}-name`);
+          const priceElem = document.getElementById(`form-size-${idx+1}-price`);
+          if (nameElem) nameElem.value = item.name;
+          if (priceElem && item.price) priceElem.value = item.price;
+        }
+      });
+    }
+
+    if (flavors) {
+      const saboresElem = document.getElementById('form-sabores');
+      if (saboresElem) saboresElem.value = flavors;
+    }
+
+    if (extras) {
+      const formAdicionales = document.getElementById('form-adicionales');
+      if (formAdicionales) formAdicionales.value = extras;
+    }
+
+    this.showLocalToast(`✨ Autocompletado: ${name || 'Producto'}`);
   }
 
   async handleProductSubmit(e) {
