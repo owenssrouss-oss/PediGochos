@@ -1,5 +1,8 @@
 /* Supabase Helper Client Logic (supabase-helper.js) */
 
+const DEFAULT_SUPABASE_URL = 'https://bvdwxgfixirisqaavskj.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_8n4-tEnAx5J98ZMh_QwZiw_Qcncleqx';
+
 class SupabaseHelper {
   constructor() {
     this.client = null;
@@ -7,36 +10,50 @@ class SupabaseHelper {
   }
 
   async init() {
-    if (this.initialized) return;
+    if (this.initialized && this.client) return;
+
+    let supabaseUrl = DEFAULT_SUPABASE_URL;
+    let supabaseAnonKey = DEFAULT_SUPABASE_ANON_KEY;
+
     try {
-      const response = await fetch('/api/config/supabase');
-      const config = await response.json();
+      const isNative = window.location.origin.includes('localhost') || window.location.origin.includes('capacitor');
+      const apiUrl = isNative ? 'https://pedigochos.onrender.com/api/config/supabase' : '/api/config/supabase';
       
-      if (config.supabaseUrl && config.supabaseAnonKey) {
-        if (typeof supabase !== 'undefined') {
-          this.client = supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
-          this.initialized = true;
-          console.log('Supabase client initialized successfully.');
-        } else {
-          console.warn('Supabase SDK not loaded on window.');
+      const response = await fetch(apiUrl);
+      if (response.ok) {
+        const config = await response.json();
+        if (config.supabaseUrl && config.supabaseAnonKey) {
+          supabaseUrl = config.supabaseUrl;
+          supabaseAnonKey = config.supabaseAnonKey;
         }
-      } else {
-        console.warn('Supabase configuration missing in .env. Setup required.');
       }
     } catch (err) {
-      console.error('Failed to retrieve Supabase config:', err);
+      console.warn('Usando credenciales de Supabase locales/respaldo:', err);
+    }
+
+    if (supabaseUrl && supabaseAnonKey) {
+      if (typeof supabase !== 'undefined') {
+        this.client = supabase.createClient(supabaseUrl, supabaseAnonKey);
+        this.initialized = true;
+        console.log('✅ Supabase client initialized successfully.');
+      } else {
+        console.warn('⚠️ Supabase SDK not loaded on window.');
+      }
     }
   }
 
   async loginWithGoogle(redirectToPage) {
     await this.init();
     if (!this.client) {
-      alert('⚠️ Google OAuth requiere configurar SUPABASE_URL y SUPABASE_ANON_KEY en las variables de entorno de Render.');
+      alert('⚠️ Google OAuth requiere conexión con Supabase. Usa la Clave Maestra de Dueño (0424) para ingresar directamente.');
       return;
     }
     
     // Redirect back to the specified page or admin.html
-    const redirectUrl = window.location.origin + (redirectToPage || '/admin.html');
+    const isNative = window.location.origin.includes('localhost') || window.location.origin.includes('capacitor');
+    const redirectUrl = isNative 
+      ? 'https://pedigochos.onrender.com' + (redirectToPage || '/admin.html')
+      : window.location.origin + (redirectToPage || '/admin.html');
     
     const { error } = await this.client.auth.signInWithOAuth({
       provider: 'google',
@@ -51,7 +68,7 @@ class SupabaseHelper {
 
     if (error) {
       console.error('Error logging in with Google:', error.message);
-      alert('Error de login con Google: ' + error.message);
+      alert('Error de login con Google: ' + error.message + '\n\nPuedes ingresar directamente con la Clave Maestra: 0424');
     }
   }
 

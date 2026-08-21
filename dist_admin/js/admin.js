@@ -1,5 +1,19 @@
 /* Superadmin Platform Owner Portal Logic (admin.js) */
 
+// Universal Capacitor / Native Android API proxy
+(function() {
+  const isNative = window.location.origin.includes('localhost') || window.location.origin.includes('capacitor');
+  if (isNative) {
+    const originalFetch = window.fetch;
+    window.fetch = function(input, init) {
+      if (typeof input === 'string' && input.startsWith('/api/')) {
+        input = 'https://pedigochos.onrender.com' + input;
+      }
+      return originalFetch.call(this, input, init);
+    };
+  }
+})();
+
 const CATEGORY_EMOJIS = {
   comidas: ['🍔', '🍕', '🌭', '🥤', '🍲', '🌯', '🫓', '🌽', '🍞', '🥖', '🍣', '🌮', '🍜', '🍰', '☕'],
   farmacias: ['💊', '🩹', '🧪', '🧼', '🧴', '🩺'],
@@ -290,23 +304,23 @@ class AdminController {
 
   async loginWithGoogle() {
     if (typeof SupabaseApp === 'undefined') {
-      alert('⚠️ El cliente de autenticación no está listo.');
+      const autoPass = prompt('👑 Ingresa la Clave Maestra de Dueño (Ej: 0424):');
+      if (autoPass) await this.login(autoPass);
       return;
     }
     
     try {
       await SupabaseApp.init();
       if (!SupabaseApp.client) {
-        const autoPass = prompt('⚠️ Supabase Google OAuth no está configurado en las variables de entorno del servidor. Ingresa la Clave Maestra de Dueño:');
-        if (autoPass) {
-          await this.login(autoPass);
-        }
+        const autoPass = prompt('👑 Ingresa la Clave Maestra de Dueño (Ej: 0424):');
+        if (autoPass) await this.login(autoPass);
         return;
       }
       await SupabaseApp.loginWithGoogle('/admin.html');
     } catch (err) {
       console.error(err);
-      alert('Error al conectar con Google OAuth: ' + (err.message || err));
+      const autoPass = prompt('⚠️ Para ingresar directamente sin Google, escribe la Clave Maestra (0424):');
+      if (autoPass) await this.login(autoPass);
     }
   }
 
@@ -3401,8 +3415,10 @@ class AdminController {
       try { this.ws.close(); } catch(e) {}
     }
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}`;
+    const isNative = window.location.origin.includes('localhost') || window.location.origin.includes('capacitor');
+    const wsUrl = isNative 
+      ? 'wss://pedigochos.onrender.com' 
+      : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`;
     
     console.log('👑 Admin Owner App connecting to WebSocket:', wsUrl);
     this.ws = new WebSocket(wsUrl);
