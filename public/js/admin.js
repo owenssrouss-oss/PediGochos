@@ -3462,23 +3462,34 @@ class AdminController {
     };
   }
 
-  requestNotificationPermission() {
+  requestNotificationPermission(silent = true) {
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+      try {
+        window.Capacitor.Plugins.LocalNotifications.requestPermissions().then(result => {
+          if (result.display === 'granted' && !silent) {
+            this.showToast('🔔 Notificaciones nativas activadas');
+          }
+        }).catch(() => {});
+      } catch(e) {}
+      return;
+    }
+
     if ('Notification' in window) {
       if (Notification.permission === 'granted') {
-        this.showToast('🔔 Notificaciones de escritorio ya están activadas.');
+        if (!silent) this.showToast('🔔 Notificaciones de escritorio ya están activadas.');
       } else if (Notification.permission === 'denied') {
-        alert('⚠️ Las notificaciones están bloqueadas en tu navegador.\n\nPara activarlas: haz clic en el icono del candado 🔒 junto a la URL en tu navegador y activa la casilla "Notificaciones".');
+        if (!silent) alert('⚠️ Las notificaciones están bloqueadas en tu navegador.\n\nPara activarlas: haz clic en el icono del candado 🔒 junto a la URL en tu navegador y activa la casilla "Notificaciones".');
       } else {
         try {
           Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
+            if (permission === 'granted' && !silent) {
               this.showToast('✅ ¡Notificaciones de escritorio activadas exitosamente!');
             }
           }).catch(() => {});
         } catch(e) {}
       }
     } else {
-      alert('⚠️ Tu navegador no soporta notificaciones de escritorio.');
+      console.log('📱 Entorno nativo/móvil detectado: notificaciones gestionadas por el sistema Android.');
     }
   }
 
@@ -3498,8 +3509,26 @@ class AdminController {
     // Show top flashing persistent alarm banner
     this.showAlarmBanner(orderCode);
 
-    // 2. Native OS Push Notification
-    if ('Notification' in window && Notification.permission === 'granted') {
+    // 2. Native OS Push Notification (Capacitor or Web)
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+      try {
+        window.Capacitor.Plugins.LocalNotifications.schedule({
+          notifications: [
+            {
+              title: `🚨 ¡NUEVO PEDIDO RECIBIDO! #${orderCode}`,
+              body: `🏪 ${storeName}\n👤 ${customerName} (${orderType})\n💰 Total: ${orderTotal}`,
+              id: Math.floor(Math.random() * 1000000),
+              schedule: { at: new Date(Date.now() + 100) },
+              sound: 'alarm.wav',
+              channelId: 'pedigochos_master_alerts',
+              smallIcon: 'ic_launcher_foreground'
+            }
+          ]
+        });
+      } catch(e) {
+        console.warn('Capacitor notification schedule failed:', e);
+      }
+    } else if ('Notification' in window && Notification.permission === 'granted') {
       try {
         new Notification(`🚨 ¡NUEVO PEDIDO RECIBIDO! #${orderCode}`, {
           body: `🏪 ${storeName}\n👤 ${customerName} (${orderType})\n💰 Total: ${orderTotal}`,
