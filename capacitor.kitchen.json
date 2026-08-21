@@ -1,7 +1,7 @@
 {
-  "appId": "com.pedigochos.admin",
-  "appName": "PediGochos Dueño",
-  "webDir": "dist_admin",
+  "appId": "com.pedigochos.kitchen",
+  "appName": "PediGochos Cocina",
+  "webDir": "dist_kitchen",
   "bundledWebRuntime": false,
   "server": {
     "cleartext": true,

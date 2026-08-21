@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Dueño Rapi Gochos - Panel de Administración Central</title>
+  <link rel="stylesheet" href="/css/common.css?v=80">
+  <link rel="stylesheet" href="/css/admin.css?v=126">
+  <link rel="stylesheet" href="/css/kitchen.css?v=82">
+  <link rel="stylesheet" href="/css/menu-builder.css?v=80">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-helper.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <style>
+    .admin-map-pin-label {
+      background: rgba(15, 23, 42, 0.95) !important;
+      color: #FFFFFF !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      border-radius: 6px !important;
+      font-size: 11px !important;
+      font-weight: 800 !important;
+      padding: 2px 7px !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
+      white-space: nowrap !important;
+      pointer-events: none !important;
+    }
+    .admin-map-pin-label::before {
+      border-top-color: rgba(15, 23, 42, 0.95) !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Flashing Persistent Alarm Banner for incoming platform orders -->
+  <div id="admin-alarm-banner" class="kitchen-alarm-banner hidden" onclick="if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner();">
+    <div class="alarm-banner-inner">
+      <div class="alarm-banner-left">
+        <span class="alarm-siren-icon">🚨</span>
+        <div class="alarm-banner-text">
+          <div class="alarm-title">¡NUEVO PEDIDO ENTRANTE EN LA PLATAFORMA! <span class="alarm-order-code"></span></div>
+          <div class="alarm-subtitle">Toca la pantalla o abre la app para apagar la alarma sonora</div>
+        </div>
+      </div>
+      <button class="alarm-btn-silence" onclick="event.stopPropagation(); if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner();">
+        🔕 Silenciar Alarma
+      </button>
+    </div>
+  </div>
+
+  <!-- Login Gate Screen -->
+  <div id="login-gate" class="login-gate-overlay flex-center">
+    <div class="login-gate-card">
+      <span class="gate-icon">👑</span>
+      <h2>Deliver<span>City</span></h2>
+      <p class="gate-subtitle">Panel del Dueño de la Plataforma</p>
+      
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
+        <button class="btn-login" onclick="if (typeof AdminApp !== 'undefined' && typeof AdminApp.loginWithGoogle === 'function') { AdminApp.loginWithGoogle(); } else { alert('⚠️ El panel de administración está cargando, por favor intenta de nuevo en un segundo.'); }" style="background-color: #4285F4; border-color: #4285F4; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; font-weight: 700; width: 100%;">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.909c1.702-1.567 2.683-3.874 2.683-6.616z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.909-2.258c-.806.54-1.837.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.59.102-1.167.282-1.707V4.96H.956C.347 6.173 0 7.549 0 9c0 1.451.347 2.827.956 4.04l3.008-2.333z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.508.454 3.44 1.348l2.582-2.58C13.463.896 11.426 0 9 0 5.482 0 2.438 2.017.956 4.96l3.008 2.332C4.672 5.164 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+          🔑 Entrar con Google (Dueño)
+        </button>
+        
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #475569; font-size: 11px; font-weight: 700; margin: 6px 0;">
+          <hr style="flex-grow: 1; border-color: #334155; margin: 0;"> O USAR CLAVE MAESTRA <hr style="flex-grow: 1; border-color: #334155; margin: 0;">
+        </div>
+      </div>
+
+      <form onsubmit="event.preventDefault(); AdminApp.login()">
+        <div class="form-group" style="margin-top: 10px;">
+          <input type="password" id="admin-pass" placeholder="Ingresa la clave de dueño" style="text-align: center; letter-spacing: 2px;">
+        </div>
+        
+        <button type="submit" class="btn-login" onclick="event.preventDefault(); if (typeof AdminApp !== 'undefined' && typeof AdminApp.login === 'function') { AdminApp.login(); } else { alert('⚠️ El panel de administración está cargando, por favor intenta de nuevo en un segundo.'); }" style="background-color: #334155; cursor: pointer;">Verificar e Ingresar</button>
+      </form>
+      <p id="login-error" class="login-error-msg hidden">Contraseña incorrecta. Inténtalo de nuevo.</p>
+      <div style="margin-top: 14px; text-align: center;">
+        <button type="button" onclick="if (typeof AdminApp !== 'undefined' && typeof AdminApp.forceCleanUpdate === 'function') { AdminApp.forceCleanUpdate(); } else { window.location.reload(true); }" style="background: none; border: none; color: #94A3B8; font-size: 11px; text-decoration: underline; cursor: pointer;">
+          🔄 ¿No ves los cambios más recientes? Toca aquí para forzar actualización y limpiar caché
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Admin Dashboard Panel (hidden by default) -->
+  <div id="admin-panel" class="admin-dashboard-container hidden">
+    <header class="admin-header">
+      <div class="admin-header-content">
+        <div class="admin-brand" style="display: flex; align-items: center; gap: 10px;">
+          <span class="admin-logo-icon">👑</span>
+          <h2>Deliver<span>City</span> - Panel de Dueño</h2>
+          <div class="live-active-light-badge" title="Panel de Administración Activo en Vivo">
+            <span class="green-pulse-dot"></span>
+            <span class="live-label">SISTEMA ACTIVO</span>
+          </div>
+        </div>
+        <div class="admin-header-actions">
+          <div id="wakelock-indicator" style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 20px; font-size: 11.5px; font-weight: 800; color: #F59E0B;" title="Pantalla y Notificaciones siempre activas">
+            <span>🔆</span>
+            <span>SIEMPRE ACTIVO</span>
+          </div>
+          <div id="online-owners-indicator" class="hidden" style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 20px; font-size: 12px; font-weight: 700; color: #10b981; cursor: help;" title="Dueños en línea">
+            <span class="status-dot" style="width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; animation: pulse 2s infinite;"></span>
+            <span id="online-owners-count">1 activo</span>
+          </div>
+          <button class="btn-logout" onclick="AdminApp.forceCleanUpdate()" style="background-color: rgba(239, 68, 68, 0.15); color: #F87171; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer;" title="Limpiar caché y forzar descarga de la última versión">⚡ Forzar Actualización</button>
+          <button class="btn-logout" onclick="AdminApp.requestNotificationPermission()" style="background-color: #3B82F6; color: #FFFFFF; font-weight: 800; border: 1px solid #3B82F6;">🔔 Notificaciones</button>
+          <button id="btn-cloud-load" class="btn-logout" onclick="AdminApp.loadLatestVersionFromCloud()" style="background-color: #1E293B; color: #38BDF8; font-weight: 800; border: 1px solid #38BDF8; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer;" title="Cargar última versión guardada en la nube">📥 Cargar Última Versión</button>
+          <button id="btn-cloud-save" class="btn-logout" onclick="AdminApp.saveChangesToCloud()" style="background-color: #374151; color: #9CA3AF; font-weight: 800; border: 1px solid #4B5563; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; transition: all 0.3s ease;" title="Guardar cambios pendientes en la nube">💾 Guardar Cambios</button>
+          <button class="btn-logout" onclick="AdminApp.logout()">🚪 Cerrar Sesión</button>
+        </div>
+      </div>
+    </header>
+
+    <div id="backup-warning-banner" class="hidden" style="background-color: #ef4444; color: white; padding: 12px 20px; text-align: center; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+      <span>⚠️</span>
+      <span>Has ingresado con Clave Maestra. Los respaldos automáticos en la nube están desactivados. Cierra sesión e ingresa con <strong>Google (Dueño)</strong> para asegurar tus cambios.</span>
+    </div>
+
+    <!-- Main Workspace -->
+    <main class="admin-main-workspace">
+      
+      <!-- Left Column: Registration Form & System Settings -->
+      <section class="admin-form-column">
+
+        <!-- Store GPS Location Registration Warning Banner (Disappears once GPS is captured) -->
+        <div id="store-gps-warning-banner" class="hidden" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(245, 158, 11, 0.15)); border: 2px dashed #F59E0B; border-radius: 16px; padding: 16px 20px; margin-bottom: 20px; color: #fff; box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+          <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 260px;">
+            <span style="font-size: 28px;">📡</span>
+            <div>
+              <h4 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 800; color: #F59E0B;">⚠️ ¡Ubicación Exacta del Restaurante No Registrada!</h4>
+              <p style="margin: 0; font-size: 12.5px; color: #CBD5E1; line-height: 1.4;">Para calcular la distancia exacta de envío en tiempo real desde tu restaurante hasta la casa del cliente, presiona el botón a continuación para registrar la ubicación GPS exacta de tu local.</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="button" id="btn-capture-store-gps" onclick="AdminApp.captureCurrentStoreGPS()" style="background: #F59E0B; color: #1E293B; border: none; font-weight: 900; padding: 10px 18px; border-radius: 10px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);">
+              📡 Capturar GPS / Registrar Ubicación del Local
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <h3>📋 Registrar Nuevo Establecimiento</h3>
+          <p class="card-subtitle">Rellena los datos para agregar un nuevo comercio al marketplace.</p>
+          <hr class="card-divider">
+
+          <form id="reg-est-form" onsubmit="AdminApp.handleRegisterSubmit(event)">
+            
+            <div class="form-group">
+              <label for="reg-name">Nombre del Comercio <span class="required">*</span></label>
+              <input type="text" id="reg-name" required placeholder="Ej. Pizzería Di Napoli">
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="reg-category">Categoría <span class="required">*</span></label>
+                <select id="reg-category" required onchange="AdminApp.handleCategoryChange(this.value)">
+                  <option value="comidas">🍔 Comidas (Restaurantes)</option>
+                  <option value="farmacias">💊 Farmacias</option>
+                  <option value="mercados">🛒 Mercados (Abarrotes)</option>
+                  <option value="ferreterias">🛠️ Ferreterías</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="reg-logo-select">Logo (Emoji) <span class="required">*</span></label>
+                <select id="reg-logo-select" required>
+                  <!-- Filled dynamically -->
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="reg-location">Ubicación <span class="required">*</span></label>
+              <select id="reg-location" required style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(18, 18, 22, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; outline: none;">
+                <option value="San Antonio">San Antonio</option>
+                <option value="Ureña">Ureña</option>
+                <option value="San Cristóbal">San Cristóbal</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="reg-description">Descripción <span class="required">*</span></label>
+              <input type="text" id="reg-description" required placeholder="Ej. Auténticas pizzas napolitanas en horno de leña.">
+            </div>
+
+            <div class="form-group">
+              <label for="reg-link-key">Clave de Vinculación Administrador <span class="required">*</span></label>
+              <div class="input-with-button">
+                <input type="text" id="reg-link-key" required placeholder="Ej. PIZZA77" style="text-transform: uppercase;">
+                <button type="button" class="btn-accent" onclick="AdminApp.generateRandomLinkKey()">⚡ Generar</button>
+              </div>
+            </div>
+
+            <!-- Upload Custom Logo Photo File (Optional) -->
+            <div class="form-group">
+              <label for="reg-logo-file">Foto de Logo de Empresa (Opcional - Reemplaza Emoji)</label>
+              <input type="file" id="reg-logo-file" accept="image/*" style="width: 100%;">
+            </div>
+
+            <!-- Upload Cover Banner Photo File (Optional) -->
+            <div class="form-group">
+              <label for="reg-banner-file">Foto de Portada / Banner de Fondo (Opcional - Reemplaza Gradiente/URL)</label>
+              <input type="file" id="reg-banner-file" accept="image/*" style="width: 100%;">
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="reg-banner-type">Tipo de Fondo de Portada</label>
+                <select id="reg-banner-type" required onchange="AdminApp.toggleBannerType(this.value)">
+                  <option value="gradient">🌈 Gradiente de Color Premium</option>
+                  <option value="image">🖼️ URL de Imagen de Portada</option>
+                </select>
+              </div>
+              <div class="form-group"></div>
+            </div>
+
+            <!-- Gradient selection -->
+            <div class="form-group" id="banner-gradient-group">
+              <label>Selecciona un Gradiente</label>
+              <div class="color-options-grid">
+                <label class="color-option-card">
+                  <input type="radio" name="reg-gradient" value="linear-gradient(135deg, #FF8C00, #FF4500)" checked>
+                  <div class="color-preview" style="background: linear-gradient(135deg, #FF8C00, #FF4500);"></div>
+                  <span>Sunset (Naranja)</span>
+                </label>
+                <label class="color-option-card">
+                  <input type="radio" name="reg-gradient" value="linear-gradient(135deg, #4B0082, #8A2BE2)">
+                  <div class="color-preview" style="background: linear-gradient(135deg, #4B0082, #8A2BE2);"></div>
+                  <span>Indigo (Morado)</span>
+                </label>
+                <label class="color-option-card">
+                  <input type="radio" name="reg-gradient" value="linear-gradient(135deg, #00FF87, #60EFFF)">
+                  <div class="color-preview" style="background: linear-gradient(135deg, #00FF87, #60EFFF);"></div>
+                  <span>Mint (Verde)</span>
+                </label>
+                <label class="color-option-card">
+                  <input type="radio" name="reg-gradient" value="linear-gradient(135deg, #1D2671, #C33764)">
+                  <div class="color-preview" style="background: linear-gradient(135deg, #1D2671, #C33764);"></div>
+                  <span>Midnight (Azul)</span>
+                </label>
+                <label class="color-option-card">
+                  <input type="radio" name="reg-gradient" value="linear-gradient(135deg, #F3555D, #FFA68B)">
+                  <div class="color-preview" style="background: linear-gradient(135deg, #F3555D, #FFA68B);"></div>
+                  <span>Rose (Rosa)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Custom background image URL -->
+            <div class="form-group hidden" id="banner-image-group">
+              <label for="reg-banner-image">URL de Imagen de Fondo</label>
+              <input type="url" id="reg-banner-image" placeholder="https://ejemplo.com/portada.jpg">
+            </div>
+
+            <!-- Initial products list -->
+            <div class="form-section-title">🛍️ Productos de Venta Iniciales</div>
+            <div id="dynamic-products-container">
+              <!-- Dynamically added product rows -->
+            </div>
+            
+            <button type="button" class="btn-add-row" onclick="AdminApp.addNewProductRow()">
+              ➕ Añadir Otro Producto
+            </button>
+
+            <button type="submit" id="btn-submit-registration" class="btn-submit-registration">
+              💼 Crear Establecimiento y Registrar
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Right Column: Active Establishments List and Private Keys -->
+      <section class="admin-list-column">
+        <div class="admin-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 6px;">
+            <div>
+              <h3 style="margin: 0;">🔑 Establecimientos Registrados y Claves de Acceso</h3>
+              <p class="card-subtitle" style="margin-top: 4px;">Listado de todos los comercios del sistema con sus códigos de vinculación privados.</p>
+            </div>
+            <button type="button" onclick="AdminApp.openAllStoresMapModal()" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFF; border: none; font-weight: 800; padding: 8px 14px; border-radius: 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+              🗺️ Ver Mapa Global de Comercios
+            </button>
+          </div>
+          <hr class="card-divider">
+
+          <div class="table-container premium-scroll">
+            <table class="keys-table">
+              <thead>
+                <tr>
+                  <th>Establecimiento</th>
+                  <th>Categoría</th>
+                  <th>Pedidos</th>
+                  <th>Último Pedido / Estado</th>
+                  <th>Dinero Generado</th>
+                  <th>Clave de Vinculación (Admin)</th>
+                  <th style="text-align: center;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="keys-table-body">
+                <!-- Filled dynamically via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Card: Flota de Repartidores & Motorizados (Driver App Manager) -->
+        <div class="admin-card" style="margin-top: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 6px;">
+            <div>
+              <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                <span>🛵</span> Flota de Repartidores y Drivers
+              </h3>
+              <p class="card-subtitle" style="margin-top: 4px;">Gestión de motorizados, generación de claves de acceso y estado en tiempo real.</p>
+            </div>
+            <button type="button" onclick="AdminApp.openRegisterDriverModal()" style="background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); color: #FFF; border: none; font-weight: 800; padding: 8px 14px; border-radius: 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+              ➕ Registrar Nuevo Repartidor
+            </button>
+          </div>
+          <hr class="card-divider">
+
+          <div class="table-container premium-scroll">
+            <table class="keys-table">
+              <thead>
+                <tr>
+                  <th>Repartidor</th>
+                  <th>Teléfono / WhatsApp</th>
+                  <th>Vehículo</th>
+                  <th>Clave Driver</th>
+                  <th>Entregas Hoy</th>
+                  <th>Estado Actual</th>
+                  <th style="text-align: center;">Acceso Web Driver</th>
+                </tr>
+              </thead>
+              <tbody id="admin-drivers-table-body">
+                <!-- Filled dynamically via admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Card: Admin Analytics Pro ($10/mes) - Dashboard de Analíticas en Tiempo Real -->
+        <div class="admin-card" id="admin-analytics-pro-card" style="margin-top: 24px; border: 2px solid #F59E0B; background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); border-radius: 18px; padding: 22px; box-shadow: 0 10px 30px rgba(245, 158, 11, 0.15); color: #fff;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 14px; margin-bottom: 18px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 22px;">📊</span>
+                <h3 style="margin: 0; color: #F59E0B; font-size: 18px; font-weight: 900;">Admin Analytics Pro</h3>
+                <span style="background: #F59E0B; color: #1E293B; font-size: 10px; font-weight: 900; padding: 3px 8px; border-radius: 12px; text-transform: uppercase;">PLAN $10/MES</span>
+              </div>
+              <p style="margin: 4px 0 0 0; font-size: 12px; color: #94A3B8;">Métricas ejecutivas de ventas, horas pico y reporte inteligente en tiempo real.</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <span style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid #10B981; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 4px;">
+                ⚡ Suscripción Activa
+              </span>
+              <button type="button" onclick="AdminApp.exportExecutiveReport()" style="background: #F59E0B; color: #1E293B; border: none; font-weight: 800; padding: 8px 14px; border-radius: 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                📄 Exportar Reporte (PDF/Excel)
+              </button>
+            </div>
+          </div>
+
+          <!-- KPI Cards Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px;">
+            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px; text-align: center;">
+              <span style="font-size: 11px; color: #94A3B8; font-weight: 700; text-transform: uppercase;">Ventas Totales</span>
+              <h4 id="pro-kpi-sales-usd" style="margin: 6px 0 0 0; font-size: 22px; font-weight: 900; color: #10B981;">$0.00</h4>
+              <span id="pro-kpi-sales-cop" style="font-size: 10px; color: #64748B;">0 COP</span>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px; text-align: center;">
+              <span style="font-size: 11px; color: #94A3B8; font-weight: 700; text-transform: uppercase;">Pedidos Totales</span>
+              <h4 id="pro-kpi-total-orders" style="margin: 6px 0 0 0; font-size: 22px; font-weight: 900; color: #3B82F6;">0</h4>
+              <span style="font-size: 10px; color: #64748B;">Procesados</span>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px; text-align: center;">
+              <span style="font-size: 11px; color: #94A3B8; font-weight: 700; text-transform: uppercase;">Ticket Promedio</span>
+              <h4 id="pro-kpi-avg-ticket" style="margin: 6px 0 0 0; font-size: 22px; font-weight: 900; color: #F59E0B;">$0.00</h4>
+              <span style="font-size: 10px; color: #64748B;">Por cliente</span>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px; text-align: center;">
+              <span style="font-size: 11px; color: #94A3B8; font-weight: 700; text-transform: uppercase;">Hora Pico</span>
+              <h4 id="pro-kpi-peak-hour" style="margin: 6px 0 0 0; font-size: 20px; font-weight: 900; color: #EC4899;">7:00 PM</h4>
+              <span style="font-size: 10px; color: #64748B;">Mayor demanda</span>
+            </div>
+          </div>
+
+          <!-- Charts Visual Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+            <!-- Top Selling Products -->
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px;">
+              <h5 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 800; color: #F59E0B;">🔥 Top 5 Productos Más Vendidos</h5>
+              <div id="pro-top-products-list" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Filled dynamically -->
+              </div>
+            </div>
+
+            <!-- Revenue Breakdown -->
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px;">
+              <h5 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 800; color: #3B82F6;">📊 Ventas Semanales (USD)</h5>
+              <div id="pro-sales-chart-container" style="display: flex; align-items: flex-end; gap: 8px; height: 120px; padding-top: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <!-- Filled dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Taller de Menú y Distribución - Catálogo Maestro de Productos (Dueño) -->
+        <div class="admin-card" style="margin-top: 24px; border: 1px solid rgba(255, 94, 58, 0.3); background: #FFFFFF; border-radius: 16px; padding: 20px; box-shadow: var(--shadow-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h3 style="display: flex; align-items: center; gap: 8px; margin: 0; color: #0F172A; font-size: 16px; font-weight: 800;">
+                <span>⚡</span> Taller de Menú y Distribución - Catálogo Maestro (Dueño)
+              </h3>
+              <p class="card-subtitle" style="margin-top: 4px; font-size: 12px; color: var(--text-muted);">Gestión completa de todos los productos maestros globales disponibles para ser importados por los restaurantes. Puedes agregar o eliminar productos a tu antojo.</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <button type="button" class="btn-accent" onclick="AdminApp.openCreateMasterProductModal()" style="background: var(--primary); color: #fff; border: none; font-weight: 800; padding: 8px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                ➕ Crear Nuevo Producto Maestro
+              </button>
+            </div>
+          </div>
+
+          <div style="margin-top: 14px; margin-bottom: 12px; display: flex; gap: 10px; align-items: center;">
+            <input type="text" id="admin-master-catalog-search" oninput="AdminApp.filterMasterCatalogTable()" placeholder="🔍 Buscar producto en catálogo maestro por nombre o categoría..." style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #CBD5E1; font-size: 13px;">
+          </div>
+
+          <div class="table-container premium-scroll" style="max-height: 400px; overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;">
+            <table class="keys-table" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">Foto</th>
+                  <th>Producto</th>
+                  <th>Categoría</th>
+                  <th>Descripción</th>
+                  <th style="width: 130px;">Precio Sugerido</th>
+                  <th style="text-align: center; width: 140px;">Acción (Dueño)</th>
+                </tr>
+              </thead>
+              <tbody id="admin-master-catalog-tbody">
+                <tr>
+                  <td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted);">Cargando catálogo maestro...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+
+
+    </main>
+  </div>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast hidden">Notificación</div>
+
+  <!-- Glassmorphic Modal: Select Action for Establishment -->
+  <div class="modal-overlay" id="est-action-modal">
+    <div class="modal-content" style="background: #16161c; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); max-width: 400px; text-align: center;">
+      <div class="modal-header">
+        <h3 style="color: #ffffff; text-align: center; width: 100%;">🏪 Acciones del Comercio</h3>
+        <button type="button" class="modal-close" onclick="document.getElementById('est-action-modal').classList.remove('active'); if (typeof closeEstActionModal === 'function') closeEstActionModal(); if (typeof AdminApp !== 'undefined' && typeof AdminApp.closeEstActionModal === 'function') AdminApp.closeEstActionModal();" style="font-size: 22px; color: #ffffff; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; z-index: 100;" title="Cerrar ventana">✕</button>
+      </div>
+      <p id="action-modal-shop-name" style="color: var(--accent); font-weight: 700; margin-bottom: 24px; font-size: 16px;"></p>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <button class="btn-neumorphic" onclick="AdminApp.openStoreKitchen(AdminApp.activeShopId);" style="width: 100%; justify-content: center; gap: 8px; font-weight: 800; background-color: #F59E0B; color: #1E293B; border-color: #F59E0B; cursor: pointer; box-shadow: 0 4px 12px rgba(245,158,11,0.35);">
+          🍳 Abrir Cocina de este Comercio (KDS)
+        </button>
+        <button class="btn-neumorphic" onclick="AdminApp.closeEstActionModal(); AdminApp.openStoreQRModal(AdminApp.activeShopId);" style="width: 100%; justify-content: center; gap: 8px; font-weight: 800; background-color: #4F46E5; color: #FFF; border-color: #6366F1; cursor: pointer; box-shadow: 0 4px 12px rgba(99,102,241,0.35);">
+          📱 Generar Link y Código QR para Mesas
+        </button>
+        <button class="btn-neumorphic" onclick="AdminApp.viewShopMenu()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; cursor: pointer;">
+          🔍 Ver Menú en Marketplace
+        </button>
+        <button class="btn-neumorphic" onclick="AdminApp.openEditShopModal()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; cursor: pointer;">
+          ⚙️ Modificar Datos del Local
+        </button>
+        <button class="btn-neumorphic" onclick="AdminApp.modifyMenuAndTables()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; background-color: var(--accent); color: #121216; border-color: var(--accent); cursor: pointer;">
+          🍔 Modificar Menú y Mesas
+        </button>
+        <button class="btn-neumorphic" id="btn-toggle-disable-modal" onclick="AdminApp.toggleActiveShopDisable()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; background-color: #FEF3C7; color: #92400E; border-color: #FCD34D; cursor: pointer;">
+          🚫 Deshabilitar Comercio (Ocultar del Marketplace)
+        </button>
+        <button class="btn-neumorphic" onclick="AdminApp.resetBillingHistory()" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; background-color: rgba(255,255,255,0.05); color: #94A3B8; border-color: rgba(255,255,255,0.1); cursor: pointer;">
+          🔄 Resetear Historial / Facturación (0424)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glassmorphic Modal: Edit Establishment -->
+  <div class="modal-overlay" id="edit-est-modal">
+    <div class="modal-content" style="background: #16161c; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); max-width: 500px;">
+      <div class="modal-header">
+        <h3 style="color: #ffffff;">⚙️ Modificar Establecimiento</h3>
+        <button type="button" class="modal-close" onclick="document.getElementById('edit-est-modal').classList.remove('active'); if (typeof closeEditShopModal === 'function') closeEditShopModal(); if (typeof AdminApp !== 'undefined' && typeof AdminApp.closeEditShopModal === 'function') AdminApp.closeEditShopModal();" style="font-size: 22px; color: #ffffff; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; z-index: 100;" title="Cerrar ventana">✕</button>
+      </div>
+      
+      <form id="edit-shop-form" onsubmit="handleEditShopSubmit(event)">
+        <input type="hidden" id="edit-shop-id">
+
+        <div class="form-group">
+          <label for="edit-shop-name">Nombre del Comercio *</label>
+          <input type="text" id="edit-shop-name" required placeholder="Ej. Parrilla Don Julio" style="width: 100%;">
+        </div>
+
+        <!-- Clave de Vinculación (Link Key) -->
+        <div class="form-group" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); padding: 12px; border-radius: 12px; margin-bottom: 14px;">
+          <label for="edit-shop-link-key" style="color: #F59E0B; font-weight: 800; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+            🔑 Clave de Vinculación (Acceso Cocina / KDS) *
+          </label>
+          <div style="display: flex; gap: 8px; margin-top: 6px;">
+            <input type="text" id="edit-shop-link-key" required placeholder="Ej. MIRESTAURANTE, 6MAP9F" style="flex: 1; padding: 10px 12px; border-radius: 8px; background: rgba(18, 18, 22, 0.9); color: #FFF; border: 1px solid rgba(255,255,255,0.15); font-family: monospace; font-size: 14px; font-weight: 800; text-transform: uppercase;">
+            <button type="button" onclick="AdminApp.generateRandomLinkKeyForEdit()" style="background: #F59E0B; color: #1e293b; border: none; font-size: 11px; font-weight: 800; padding: 8px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap;">
+              🎲 Generar Clave
+            </button>
+          </div>
+          <p style="font-size: 11px; color: #94A3B8; margin: 6px 0 0 0;">Esta es la clave secreta con la que el dueño o personal del comercio ingresa a gestionar su cocina en <code>/kitchen.html</code>.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-shop-description">Descripción *</label>
+          <input type="text" id="edit-shop-description" required placeholder="Ej. Carnes a la parrilla..." style="width: 100%;">
+        </div>
+
+        <div class="form-group">
+          <label for="edit-shop-location">Ubicación *</label>
+          <select id="edit-shop-location" required style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(18, 18, 22, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; outline: none;">
+            <option value="San Antonio">San Antonio</option>
+            <option value="Ureña">Ureña</option>
+            <option value="San Cristóbal">San Cristóbal</option>
+          </select>
+        </div>
+
+        <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div class="form-group">
+             <label for="edit-shop-logo">Logo (Emoji) *</label>
+             <select id="edit-shop-logo" required style="width: 100%;">
+               <!-- Options dynamically loaded -->
+             </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-shop-delivery">Tasa Domicilio ($) *</label>
+            <input type="number" id="edit-shop-delivery" required min="0" placeholder="Ej. 3000" style="width: 100%;">
+          </div>
+        </div>
+
+        <!-- Upload Custom Logo Photo File (Optional) -->
+        <div class="form-group">
+          <label for="edit-shop-logo-file">Foto de Logo Personalizada (Opcional - Reemplaza Emoji)</label>
+          <input type="file" id="edit-shop-logo-file" accept="image/*" style="width: 100%;">
+        </div>
+
+        <!-- Upload Cover Banner Photo File (Optional) -->
+        <div class="form-group">
+          <label for="edit-shop-banner-file">Foto de Portada / Banner (Opcional - PNG/JPG)</label>
+          <input type="file" id="edit-shop-banner-file" accept="image/*" style="width: 100%;">
+        </div>
+
+        <!-- Time settings (Prep time, delivery time, business opening & closing hours) -->
+        <div id="edit-shop-times-group" class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div class="form-group">
+            <label for="edit-shop-prep-time">Prepara. Aproximada (mins)</label>
+            <input type="number" id="edit-shop-prep-time" min="0" placeholder="Ej. 25" style="width: 100%;">
+          </div>
+          <div class="form-group">
+            <label for="edit-shop-delivery-time">Envío Aproximado (mins)</label>
+            <input type="number" id="edit-shop-delivery-time" min="0" placeholder="Ej. 15" style="width: 100%;">
+          </div>
+          <div class="form-group">
+            <label for="edit-shop-open-time" style="color: #a78bfa; font-weight: 800;">🕒 Hora Apertura</label>
+            <input type="time" id="edit-shop-open-time" value="11:00" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: rgba(18, 18, 22, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff;">
+          </div>
+          <div class="form-group">
+            <label for="edit-shop-close-time" style="color: #a78bfa; font-weight: 800;">🌙 Hora Cierre</label>
+            <input type="time" id="edit-shop-close-time" value="00:00" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: rgba(18, 18, 22, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff;">
+          </div>
+        </div>
+
+        <!-- Working Days Schedule Calendar Toggle Section -->
+        <div style="margin-bottom: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px;">
+          <label style="color: #A78BFA; font-size: 13px; font-weight: 800; display: block; margin-bottom: 8px;">
+            📅 Días Laborales de Atención (Marca los días en que atiende el negocio)
+          </label>
+          <div id="edit-shop-working-days-container" style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <label class="working-day-chip" style="background: rgba(16,185,129,0.15); border: 1px solid #10B981; color: #10B981; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              <input type="checkbox" name="edit-working-day" value="Lunes" checked style="accent-color: #10B981;"> Lun
+            </label>
+            <label class="working-day-chip" style="background: rgba(16,185,129,0.15); border: 1px solid #10B981; color: #10B981; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              <input type="checkbox" name="edit-working-day" value="Martes" checked style="accent-color: #10B981;"> Mar
+            </label>
+            <label class="working-day-chip" style="background: rgba(16,185,129,0.15); border: 1px solid #10B981; color: #10B981; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              <input type="checkbox" name="edit-working-day" value="Miércoles" checked style="accent-color: #10B981;"> Mié
+            </label>
+            <label class="working-day-chip" style="background: rgba(16,185,129,0.15); border: 1px solid #10B981; color: #10B981; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              <input type="checkbox" name="edit-working-day" value="Jueves" checked style="accent-color: #10B981;"> Jue
+            </label>
+            <label class="working-day-chip" style="background: rgba(16,185,129,0.15); border: 1px solid #10B981; color: #10B981; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              <input type="checkbox" name="edit-working-day" value="Viernes" checked style="accent-color: #10B981;"> Vie
+            </label>
+            <label class="working-day-chip" style="background: rgba(16,185,129,0.15); border: 1px solid #10B981; color: #10B981; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              <input type="checkbox" name="edit-working-day" value="Sábado" checked style="accent-color: #10B981;"> Sáb
+            </label>
+            <label class="working-day-chip" style="background: rgba(16,185,129,0.15); border: 1px solid #10B981; color: #10B981; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              <input type="checkbox" name="edit-working-day" value="Domingo" checked style="accent-color: #10B981;"> Dom
+            </label>
+          </div>
+        </div>
+
+        <!-- Store GPS Location Coords Picker (Latitude & Longitude) -->
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 12px; border-radius: 12px; margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+            <label style="color: #10B981; font-weight: 800; margin: 0; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+              <span>📍</span> Coordenadas GPS Exactas del Local
+            </label>
+            <button type="button" onclick="AdminApp.getCurrentLocationForEditShop()" style="background: #10B981; color: #FFF; border: none; font-size: 10.5px; font-weight: 800; padding: 4px 10px; border-radius: 8px; cursor: pointer;">
+              📡 Usar Mi Ubicación Actual
+            </button>
+          </div>
+          <p style="font-size: 11px; color: #94A3B8; margin: 0 0 10px 0;">Toca o arrastra en el mapa interactivo para marcar la ubicación GPS exacta de tu local en el mapa del admin y del domiciliario.</p>
+          
+          <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+            <div class="form-group" style="margin: 0;">
+              <label for="edit-shop-latitude" style="font-size: 11px; color: #CBD5E1;">Latitud (Lat)</label>
+              <input type="number" step="any" id="edit-shop-latitude" placeholder="Ej. 7.8145" style="width: 100%; padding: 8px; font-size: 12px; background: rgba(18, 18, 22, 0.9); color: #FFF; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label for="edit-shop-longitude" style="font-size: 11px; color: #CBD5E1;">Longitud (Lng)</label>
+              <input type="number" step="any" id="edit-shop-longitude" placeholder="Ej. -72.4430" style="width: 100%; padding: 8px; font-size: 12px; background: rgba(18, 18, 22, 0.9); color: #FFF; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
+            </div>
+          </div>
+
+          <!-- Interactive Leaflet Map for Editing Shop GPS -->
+          <div id="edit-shop-gps-map" style="width: 100%; height: 200px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); background: #0F172A;"></div>
+        </div>
+
+        <!-- Custom Button / Theme Color -->
+        <div class="form-group">
+          <label for="edit-shop-theme">Color de Acento / Botones (Hexadecimal) *</label>
+          <input type="color" id="edit-shop-theme" value="#FF5E3A" style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: none; cursor: pointer; padding: 0;">
+        </div>
+
+        <!-- Disable Establishment Toggle -->
+        <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 10px 14px; border-radius: 10px;">
+          <input type="checkbox" id="edit-shop-disabled" style="width: 18px; height: 18px; cursor: pointer;">
+          <label for="edit-shop-disabled" style="margin: 0; font-size: 13px; font-weight: 800; color: #FCA5A5; cursor: pointer;">🚫 Deshabilitar Comercio (Ocultar del Marketplace)</label>
+        </div>
+
+        <!-- Global Products Import Section -->
+        <hr class="card-divider" style="margin: 20px 0; border: 0; border-top: 1px solid rgba(255,255,255,0.08);">
+        <div class="form-group">
+          <label style="color: var(--accent);">📥 Importar Producto del Catálogo Global (Supabase)</label>
+          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Selecciona un producto previamente registrado en Supabase para asociarlo con su foto a este local.</p>
+          <div class="input-with-button" style="display: flex; gap: 8px; align-items: center;">
+            <select id="import-product-select" style="flex: 1; background: rgba(18, 18, 22, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; padding: 10px;">
+              <option value="">Cargando catálogo global...</option>
+            </select>
+            <button type="button" class="btn-neumorphic" onclick="importGlobalProduct()" style="margin: 0; padding: 10px 16px; background-color: var(--accent); color: #121216; border-color: var(--accent); font-size: 13px; height: 42px;">
+              Importar
+            </button>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" class="btn-neumorphic" onclick="closeEditShopModal()" style="box-shadow: none; margin: 0;">Cancelar</button>
+          <button type="submit" id="btn-submit-edit-shop" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0;">
+            <span>Guardar Cambios</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Glassmorphic Modal: Create Product -->
+  <div class="modal-overlay" id="product-modal" style="z-index: 4000; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 20px 10px;">
+    <div class="modal-content" style="background: #16161c; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin: auto; max-width: 500px; width: 95%; max-height: 85vh; overflow-y: auto; border-radius: 20px; padding: 20px; -webkit-overflow-scrolling: touch;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
+        <h3 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: 800;">🍔 Agregar Producto al Menú</h3>
+        <button type="button" class="modal-close" onclick="closeMenuModal(); if (typeof AdminApp !== 'undefined') AdminApp.closeMenuModal();" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #ffffff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent;">✕</button>
+      </div>
+      
+      <form id="product-form" onsubmit="handleProductSubmit(event)">
+        <!-- Fast Add -->
+        <div class="form-group" style="background: rgba(46, 213, 115, 0.05); padding: 12px; border-radius: 12px; border: 1px dashed rgba(46, 213, 115, 0.3);">
+          <label for="form-fast-add" style="color: #2ed573; margin-bottom: 8px;">⚡ Auto-completado Mágico (Pega o escribe aquí)</label>
+          <textarea id="form-fast-add" rows="2" oninput="handleFastAdd()" onpaste="setTimeout(handleFastAdd, 50)" placeholder="Ej: Pepito Especial - pan de 40 cm, chuleta, chorizo, tocineta - 25000" style="width: 100%; font-family: inherit; resize: none; background: rgba(0,0,0,0.2);"></textarea>
+          <button type="button" class="btn-neumorphic" onclick="handleFastAdd()" style="margin-top: 8px; width: 100%; background: transparent; border: 1px solid #2ed573; color: #2ed573; box-shadow: none;">✨ Extraer y Rellenar Información</button>
+        </div>
+
+        <!-- Category Selector -->
+        <div class="form-group">
+          <label for="form-category">Categoría *</label>
+          <select id="form-category" required style="width: 100%;" onchange="handleCategoryChange(this)">
+          </select>
+        </div>
+        
+        <!-- New Category Input (Hidden by default) -->
+        <div class="form-group" id="form-new-category-container" style="display: none;">
+          <label for="form-new-category-name">Nombre de la Nueva Categoría *</label>
+          <input type="text" id="form-new-category-name" placeholder="Ej. Promociones" style="width: 100%;">
+        </div>
+
+        <!-- Product Name -->
+        <div class="form-group">
+          <label for="form-name">Nombre del Producto *</label>
+          <input type="text" id="form-name" required placeholder="Ej. Pepito Mixto Especial" style="width: 100%;">
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="form-desc">Descripción / Ingredientes (Opcional)</label>
+          <textarea id="form-desc" rows="3" placeholder="Ej. Carne de res, pollo, aguacate, queso cheddar en pan baguette." style="width: 100%; font-family: inherit; resize: none;"></textarea>
+        </div>
+
+        <!-- Base Price -->
+        <div class="form-group" id="base-price-container">
+          <label for="form-price">Precio Base ($ USD) *</label>
+          <input type="number" id="form-price" step="0.01" min="0" required placeholder="Ej. 12.50" style="width: 100%;">
+        </div>
+
+        <!-- Universal Tamaños / Variaciones de Precio -->
+        <div class="form-group" style="background: rgba(59, 130, 246, 0.05); padding: 14px; border-radius: 14px; border: 1px dashed rgba(59, 130, 246, 0.3); margin-bottom: 16px;">
+          <label style="color: #60A5FA; font-weight: 800; font-size: 13.5px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+            📏 Tamaños / Variaciones de Precio (Opcional)
+          </label>
+          <p style="font-size: 11px; color: #94A3B8; margin: 0 0 10px 0;">Activa esto si tu producto viene en varios tamaños con precios distintos (ej. Pequeña, Mediana, Familiar o 1 Litro, 2 Litros).</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="form-size-1-name" placeholder="Ej. Pequeña / 1 Litro / Personal" style="flex: 2; font-size: 12px; padding: 7px 10px;">
+              <input type="number" id="form-size-1-price" step="0.01" min="0" placeholder="Precio ($ USD)" style="flex: 1; font-size: 12px; padding: 7px 10px;">
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="form-size-2-name" placeholder="Ej. Mediana / 2 Litros / Doble" style="flex: 2; font-size: 12px; padding: 7px 10px;">
+              <input type="number" id="form-size-2-price" step="0.01" min="0" placeholder="Precio ($ USD)" style="flex: 1; font-size: 12px; padding: 7px 10px;">
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="form-size-3-name" placeholder="Ej. Grande / 3 Litros / Familiar" style="flex: 2; font-size: 12px; padding: 7px 10px;">
+              <input type="number" id="form-size-3-price" step="0.01" min="0" placeholder="Precio ($ USD)" style="flex: 1; font-size: 12px; padding: 7px 10px;">
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="form-size-4-name" placeholder="Ej. Extra Grande / Fiesta" style="flex: 2; font-size: 12px; padding: 7px 10px;">
+              <input type="number" id="form-size-4-price" step="0.01" min="0" placeholder="Precio ($ USD)" style="flex: 1; font-size: 12px; padding: 7px 10px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Universal Sabores / Variantes disponibles -->
+        <div class="form-group" style="background: rgba(236, 72, 153, 0.05); padding: 14px; border-radius: 14px; border: 1px dashed rgba(236, 72, 153, 0.3); margin-bottom: 16px;">
+          <label for="form-sabores" style="color: #F472B6; font-weight: 800; font-size: 13.5px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+            🍦 Sabores o Variantes disponibles (Elección del cliente)
+          </label>
+          <p style="font-size: 11px; color: #94A3B8; margin: 0 0 8px 0;">Escribe los sabores u opciones separados por coma para que el cliente elija al comprar.</p>
+          <input type="text" id="form-sabores" placeholder="Ej. Chocolate, Mantecado, Fresa, Parchita, Oreo, Choco-Chips" style="width: 100%; font-size: 12.5px;">
+        </div>
+
+        <!-- Image Upload -->
+        <div class="form-group">
+          <label for="form-image">Imagen del Producto (Opcional)</label>
+          <input type="file" id="form-image" accept="image/*" style="width: 100%;">
+        </div>
+
+        <!-- Adicionales -->
+        <div class="form-group">
+          <label for="form-adicionales">Adicionales / Extras</label>
+          <input type="text" id="form-adicionales" placeholder="Ej. Tocineta 2, Huevo 1, Queso Extra 1.50" style="width: 100%;">
+        </div>
+
+        <!-- Submit Button -->
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" class="btn-neumorphic" onclick="closeMenuModal()" style="box-shadow: none; margin: 0;">Cancelar</button>
+          <button type="submit" id="btn-submit-form" class="btn-neumorphic" onclick="handleProductSubmit(event)" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0; cursor: pointer;">
+            <span>Guardar Producto</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Center -->
+  <div class="toast-container" id="toast-center"></div>
+
+  <!-- Glassmorphic Modal: Immersive Menu and Floor Layout Designer -->
+  <div class="modal-overlay" id="menu-tables-modal" style="z-index: 3000; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 40px 0;">
+    <div class="modal-content" style="background: rgba(22, 22, 28, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); max-width: 1200px; width: 95%; height: auto; min-height: 90vh; display: flex; flex-direction: column; padding: 24px; border-radius: 24px; margin: auto;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <h2 id="designer-modal-shop-name" style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 800;">🍔 Taller de Menú y Distribución de Mesas</h2>
+          <span style="font-size: 12.5px; color: var(--accent); font-weight: 600;" id="designer-modal-shop-subtext">Diseñador interactivo en tiempo real</span>
+        </div>
+        <button type="button" class="modal-close" onclick="document.getElementById('menu-tables-modal').classList.remove('active'); if (typeof closeMenuTablesModal === 'function') closeMenuTablesModal(); if (typeof AdminApp !== 'undefined' && typeof AdminApp.closeMenuTablesModal === 'function') AdminApp.closeMenuTablesModal();" style="font-size: 22px; color: #ffffff; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; z-index: 100;" title="Cerrar ventana">✕</button>
+      </div>
+
+      <!-- Vertical Layout Workspace -->
+      <div class="designer-workspace" style="display: flex; flex-direction: column; gap: 24px; flex: 1;">
+        
+        <!-- SECTION 1 (TOP): Tabla de Catálogo Maestro de Productos Disponibles para Importar -->
+        <div class="import-catalog-section" style="background: rgba(255, 94, 58, 0.04); border: 1px solid rgba(255, 94, 58, 0.2); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 24px;">⚡</span>
+              <div>
+                <h3 style="color: #ffffff; font-size: 16px; margin: 0; font-weight: 800;">Catálogo Maestro de Platos Disponibles (Taller de Menú)</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">Haz clic en "➕ Agregar a mi Menú" para asociar cualquier plato global con su foto e ingredientes a la carta de este restaurante.</p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; width: 100%; max-width: 320px;">
+              <input type="text" id="modal-import-search" oninput="AdminApp.filterImportCatalogTable()" placeholder="🔍 Buscar plato en catálogo..." style="width: 100%; background: rgba(18,18,22,0.9); border: 1px solid rgba(255,255,255,0.12); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 13px;">
+            </div>
+          </div>
+
+          <!-- Tabla de Productos Maestros Disponibles -->
+          <div style="overflow-x: auto; max-height: 280px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(15, 23, 42, 0.6);" class="premium-scroll">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; color: #fff;">
+              <thead>
+                <tr style="background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 11px; text-transform: uppercase;">
+                  <th style="padding: 10px 14px; width: 60px;">Foto</th>
+                  <th style="padding: 10px 14px;">Producto y Categoría</th>
+                  <th style="padding: 10px 14px;">Descripción / Ingredientes</th>
+                  <th style="padding: 10px 14px; width: 120px;">Precio Sugerido</th>
+                  <th style="padding: 10px 14px; text-align: center; width: 140px;">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="modal-import-catalog-tbody">
+                <tr>
+                  <td colspan="5" style="padding: 20px; text-align: center; color: var(--text-muted);">Cargando catálogo maestro...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECTION 2 (MIDDLE): Distribución de Mesas y Paredes OR Product Specs Editor -->
+        <div class="floor-plan-section" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+          
+          <!-- State A: Floor Grid Canvas -->
+          <div id="floor-plan-grid-container" style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">🧱</span>
+                <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">Distribución de Mesas y Paredes</h3>
+              </div>
+              <!-- Tool Selector -->
+              <div class="floor-tools" style="display: flex; gap: 8px;">
+                <button class="btn-floor-tool active" onclick="setFloorTool('table')" id="tool-table" style="background: var(--accent); color: #121216; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                  🪑 Colocar Mesa
+                </button>
+                <button class="btn-floor-tool" onclick="setFloorTool('wall')" id="tool-wall" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                  🧱 Colocar Pared
+                </button>
+                <button class="btn-floor-tool" onclick="setFloorTool('eraser')" id="tool-eraser" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                  🧹 Borrador
+                </button>
+              </div>
+            </div>
+            <p style="font-size: 11.5px; color: var(--text-muted); margin: 0;">Selecciona una herramienta y haz clic en las celdas del plano para estructurar tu establecimiento. El plano se actualiza automáticamente.</p>
+            
+            <!-- Visual Grid Area centered -->
+            <div style="display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px;">
+              <div id="floor-grid-canvas" style="display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 6px; width: 100%; max-width: 400px; aspect-ratio: 1/1;">
+                <!-- Celdas renderizadas dinámicamente -->
+              </div>
+            </div>
+          </div>
+
+          <!-- State B: Product Specs Editor (Shown instead of grid when a product is clicked) -->
+          <div id="floor-specs-editor-container" style="display: none; width: 100%;">
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+              <h3 style="color: #ffffff; margin: 0; font-size: 16px; font-weight: 800;" id="specs-modal-title">⚙️ Especificaciones del Producto</h3>
+              <button type="button" class="btn-neumorphic" onclick="closeProductSpecsModal()" style="margin:0; padding: 4px 10px; font-size: 11px; height: auto;">✕ Cerrar Editor</button>
+            </div>
+
+            <form id="product-specs-form" onsubmit="handleSpecsSubmit(event)">
+              <input type="hidden" id="specs-product-id">
+
+              <!-- Edit Name, Category, Price & Description Section -->
+              <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px; display: flex; flex-direction: column; gap: 12px;">
+                <h4 style="color: var(--accent); margin: 0 0 4px 0; font-size: 13px; font-weight: 700;">✏️ Información General del Plato</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <div>
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Nombre del Plato *</label>
+                    <input type="text" id="specs-product-name" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
+                  </div>
+                  <div>
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Categoría *</label>
+                    <input type="text" id="specs-product-category" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;" placeholder="Ej. Pizzas, Arepas, Bebidas">
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <div>
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Precio Base *</label>
+                    <input type="number" step="any" id="specs-product-price" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
+                  </div>
+                  <div>
+                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Descripción</label>
+                    <input type="text" id="specs-product-description" style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Edit Product Image Section -->
+              <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px; display: flex; align-items: center; gap: 16px;">
+                <div style="width: 70px; height: 70px; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <img id="specs-product-image-preview" src="" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/burger_royale.jpg'">
+                </div>
+                <div style="flex-grow: 1;">
+                  <h4 style="color: var(--accent); margin: 0 0 4px 0; font-size: 13px; font-weight: 700;">📸 Foto del Producto</h4>
+                  <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 8px 0; line-height: 1.3;">Sube una nueva foto para este plato.</p>
+                  <input type="file" id="specs-product-image-file" accept="image/*" style="font-size: 12px; color: #fff; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 4px; width: 100%;">
+                </div>
+              </div>
+
+              <!-- Ingredients / Exclusions Section -->
+              <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px;">
+                <h4 style="color: var(--accent); margin: 0 0 8px 0; font-size: 13px; font-weight: 700;">📝 Ingredientes / Exclusiones</h4>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">Agrega ingredientes que el cliente puede optar por excluir (quitar) de su plato.</p>
+                <div id="specs-ingredients-list" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                  <!-- Rendered dynamically -->
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="new-ingredient-input" placeholder="Ej. Cebolla, Pepinillos" style="flex: 1; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
+                  <button type="button" class="btn-neumorphic" onclick="addIngredientOption()" style="margin: 0; padding: 8px 16px; font-size: 12px; height: 38px;">Agregar</button>
+                </div>
+              </div>
+
+              <!-- Modifier Groups Section -->
+              <div style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <h4 style="color: var(--accent); margin: 0; font-size: 13px; font-weight: 700;">🎛️ Opciones y Adicionales</h4>
+                  <button type="button" class="btn-neumorphic" onclick="addModifierGroup()" style="margin: 0; padding: 6px 12px; font-size: 11px; height: 32px; background: rgba(255,255,255,0.05); color:#fff; border-color: rgba(255,255,255,0.1);">➕ Nuevo Grupo</button>
+                </div>
+                
+                <div id="specs-groups-container" style="display: flex; flex-direction: column; gap: 16px; max-height: 280px; overflow-y: auto; padding-right: 4px;" class="premium-scroll">
+                  <!-- Loaded dynamically -->
+                </div>
+              </div>
+
+              <!-- Footer Actions -->
+              <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
+                <button type="button" class="btn-neumorphic" onclick="closeProductSpecsModal()" style="box-shadow: none; margin: 0; padding: 8px 16px; font-size: 13px;">Cancelar</button>
+                <button type="submit" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0; padding: 8px 16px; font-size: 13px; font-weight: 700;">
+                  Guardar Especificaciones
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+        <!-- SECTION 3 (BOTTOM): Modificación de Carta (Categories left, Products right) -->
+        <div class="menu-modification-section" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 20px;">🍔</span>
+              <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">Modificación del Menú del Restaurante</h3>
+            </div>
+            <button class="btn-neumorphic" onclick="AdminApp.openMenuModal()" style="margin: 0; padding: 8px 16px; font-size: 12px; height: 36px; font-weight: 700; cursor: pointer;">
+              <span>➕ Nuevo Producto</span>
+            </button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 200px 1fr; gap: 20px; min-height: 350px;">
+            <!-- Left Side: Categories -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; max-height: 400px; overflow-y: auto;">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; margin-bottom: 10px;">
+                <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">📂 CATEGORÍAS</span>
+                <button onclick="createNewCategory()" style="background: none; border: none; color: var(--accent); font-size: 11.5px; font-weight: 800; cursor: pointer;">➕ Nueva</button>
+              </div>
+              <ul class="category-list" id="modal-categories-sidebar" style="gap: 6px; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column;">
+                <li class="category-item active" onclick="filterCategoryModal('all')" style="font-size: 12px; padding: 8px 12px; cursor: pointer; border-radius: 8px;">Todos</li>
+              </ul>
+            </div>
+
+            <!-- Right Side: Products -->
+            <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 12px; max-height: 400px; overflow-y: auto;" class="premium-scroll">
+              <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">📦 PRODUCTOS AGREGADOS</span>
+              <div class="catalog-grid" id="modal-products-catalog-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px;">
+                <!-- Loaded dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/js/sound.js?v=194"></script>
+  <script src="/js/admin.js?v=194"></script>
+  <script src="/js/menu-builder.js"></script>
+
+  <script>
+    window.activeCategoryId = 'all';
+    window.categoriesList = [];
+    window.productsList = [];
+    window.activeShopIdForMenu = '';
+
+    // Trigger Supabase MenuBuilder once Admin app determines authentication
+    async function initMenuBuilderSection() {
+      const ok = await MenuBuilder.init();
+      if (!ok) return;
+
+      // Load UI lists
+      await loadCategories();
+      await loadProducts();
+
+      // Subscribe to realtime database updates for Supabase sync
+      MenuBuilder.subscribeToMenuUpdates(
+        (newProd) => {
+          showToast(`¡Nuevo producto "${newProd.name}" sincronizado en vivo! 🚀`);
+          handleRealtimeInsert(newProd);
+        },
+        (updatedProd) => {
+          showToast(`Producto "${updatedProd.name}" actualizado en vivo! 🔄`);
+          handleRealtimeUpdate(updatedProd);
+        },
+        (deletedProd) => {
+          showToast(`Un producto fue eliminado del menú 🗑️`, true);
+          handleRealtimeDelete(deletedProd);
+        }
+      );
+    }
+
+    // Call initMenuBuilderSection once document is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(initMenuBuilderSection, 800);
+    });
+
+    async function loadCategories() {
+      try {
+        window.categoriesList = await MenuBuilder.getCategories();
+        renderCategories();
+      } catch (err) {
+        console.error(err);
+        showToast('Error cargando categorías de Supabase', true);
+      }
+    }
+
+    async function loadProducts() {
+      // If a specific shop is selected in the dashboard, load its local products from db.json
+      if (window.activeShopIdForMenu) {
+        const est = AdminApp.establishments.find(e => e.id === window.activeShopIdForMenu);
+        if (est) {
+          window.productsList = est.products || [];
+          renderProducts();
+          return;
+        }
+      }
+
+      // Default fallback: load all general products from Supabase
+      try {
+        const { data, error } = await MenuBuilder.supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        window.productsList = data || [];
+        renderProducts();
+      } catch (err) {
+        console.error(err);
+        showToast('Error cargando el catálogo', true);
+      }
+    }
+
+    function renderCategories() {
+      const sidebar = document.getElementById('modal-categories-sidebar');
+      const select = document.getElementById('form-category');
+      if (!sidebar) return;
+      
+      sidebar.innerHTML = `<li class="category-item ${window.activeCategoryId === 'all' ? 'active' : ''}" onclick="filterCategory('all')" style="font-size: 11.5px; padding: 8px 10px; cursor: pointer; border-radius: 8px;">Todos</li>`;
+      select.innerHTML = `<option value="">-- Selecciona una categoría --</option>`;
+
+      window.categoriesList.forEach(cat => {
+        const li = document.createElement('li');
+        li.className = `category-item ${window.activeCategoryId === cat.id ? 'active' : ''}`;
+        li.innerText = cat.name;
+        li.style.fontSize = '11.5px';
+        li.style.padding = '8px 10px';
+        li.style.cursor = 'pointer';
+        li.style.borderRadius = '8px';
+        li.onclick = () => filterCategory(cat.id);
+        sidebar.appendChild(li);
+
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.innerText = cat.name;
+        select.appendChild(opt);
+      });
+      
+      const newOpt = document.createElement('option');
+      newOpt.value = 'new';
+      newOpt.innerText = '+ Crear nueva categoría...';
+      newOpt.style.fontWeight = 'bold';
+      newOpt.style.color = 'var(--primary)';
+      select.appendChild(newOpt);
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById('modal-products-catalog-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      let filtered = window.productsList;
+      if (window.activeCategoryId !== 'all') {
+        filtered = window.productsList.filter(p => {
+          if (p.category_id) return p.category_id === window.activeCategoryId;
+          const cat = window.categoriesList.find(c => c.id === window.activeCategoryId);
+          if (cat && p.category) return p.category.toLowerCase().includes(cat.slug);
+          return false;
+        });
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="cart-empty-state" style="grid-column: 1 / -1; background: var(--bg-card); padding: 30px; border-radius: 16px; text-align: center; border: 1px dashed var(--border-light);">
+            <span style="font-size: 24px;">📦</span>
+            <p style="margin-top: 10px; color: var(--text-muted); font-size: 12.5px;">No hay productos en esta categoría.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(prod => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.id = `prod-card-${prod.id}`;
+        card.style.background = 'rgba(255, 255, 255, 0.03)';
+        card.style.border = '1px solid rgba(255, 255, 255, 0.05)';
+        card.style.borderRadius = '14px';
+        card.style.padding = '8px';
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.gap = '6px';
+        card.style.position = 'relative';
+        card.style.cursor = 'pointer';
+        card.onclick = () => AdminApp.openProductSpecsModal(prod.id);
+        
+        const imgUrl = prod.image_url || prod.image || '/images/burger_royale.jpg';
+        
+        card.innerHTML = `
+          <img src="${imgUrl}" alt="${prod.name}" style="width: 100%; aspect-ratio: 1.2/1; object-fit: cover; border-radius: 10px;" onerror="this.src='/images/burger_royale.jpg'">
+          <div class="product-info" style="padding: 0;">
+            <h4 style="color: #ffffff; font-size: 11px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${prod.name}</h4>
+            <p style="font-size: 10px; color: var(--text-muted); line-height: 1.2; margin: 4px 0 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${prod.description || 'Sin descripción.'}</p>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+            <span style="color: var(--accent); font-weight: 700; font-size: 11px;">$${parseFloat(prod.price).toFixed(2)}</span>
+            <button onclick="event.stopPropagation(); deleteProductFromModal('${prod.id}')" style="background: rgba(239, 68, 68, 0.9); border: none; border-radius: 50%; color: #fff; width: 20px; height: 20px; font-size: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700;">✕</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function getCategoryName(catId) {
+      const cat = window.categoriesList.find(c => c.id === catId);
+      return cat ? cat.name : 'Varios';
+    }
+
+    function filterCategory(catId) {
+      if (typeof AdminApp !== 'undefined') {
+        AdminApp.filterCategoryModal(catId);
+      }
+    }
+
+    async function createNewCategory() {
+      const emoji = prompt("Ingresa el EMOJI para la categoría (Ej: 🍕, 🍔, ☕):");
+      if (!emoji) return;
+      const nameText = prompt("Ingresa el NOMBRE de la categoría (Ej: Pizzas, Hamburguesas):");
+      if (!nameText) return;
+      
+      const fullName = `${emoji} ${nameText}`;
+      const slug = nameText.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      
+      try {
+        await MenuBuilder.createCategory(fullName, slug);
+        showToast(`Categoría "${fullName}" creada con éxito.`);
+        await loadCategories();
+      } catch(err) {
+        console.error(err);
+        alert('Error creando categoría: ' + err.message);
+      }
+    }
+
+    function openMenuModal() {
+      if (typeof AdminApp !== 'undefined' && typeof AdminApp.openMenuModal === 'function') {
+        AdminApp.openMenuModal();
+      } else {
+        const modal = document.getElementById('product-modal');
+        if (modal) modal.classList.add('active');
+      }
+    }
+
+    async function resetBillingHistory() {
+      if (typeof AdminApp !== 'undefined') {
+        await AdminApp.resetBillingHistory();
+      }
+    }
+
+    function closeMenuModal() {
+      const modal = document.getElementById('product-modal');
+      if (modal) modal.classList.remove('active');
+      try {
+        const form = document.getElementById('product-form');
+        if (form) form.reset();
+      } catch(e) {}
+      if (typeof AdminApp !== 'undefined' && typeof AdminApp.closeMenuModal === 'function') {
+        AdminApp.closeMenuModal();
+      }
+    }
+
+    async function promptCreateCategory() {
+      const name = prompt('Ingresa el nombre de la nueva categoría (ej. Pepitos, Bebidas):');
+      if (!name) return;
+      const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
+      
+      try {
+        await MenuBuilder.createCategory(name, slug);
+        showToast(`Categoría "${name}" creada con éxito!`);
+        await loadCategories();
+      } catch (err) {
+        showToast('Error al crear categoría: ' + err.message, true);
+      }
+    }
+    
+    // Handle Category Dropdown Changes
+    function handleCategoryChange(selectElem) {
+      const selectedValue = selectElem.value;
+      const newCategoryContainer = document.getElementById('form-new-category-container');
+      const newCategoryInput = document.getElementById('form-new-category-name');
+      
+      if (selectedValue === 'new') {
+        newCategoryContainer.style.display = 'block';
+        newCategoryInput.required = true;
+      } else {
+        newCategoryContainer.style.display = 'none';
+        newCategoryInput.required = false;
+        newCategoryInput.value = '';
+      }
+      
+      // Also trigger pizza logic
+      togglePizzaSizes(selectElem);
+    }
+
+    // Add specific pizza or drink sizes UI toggler
+    function togglePizzaSizes(selectElem) {
+      const selectedText = selectElem.options[selectElem.selectedIndex].text.toLowerCase();
+      const pizzaContainer = document.getElementById('pizza-sizes-container');
+      const drinkContainer = document.getElementById('drink-sizes-container');
+      const basePriceInput = document.getElementById('form-price');
+      
+      const isPizza = selectedText.includes('pizza') || (selectElem.value === 'new' && document.getElementById('form-new-category-name').value.toLowerCase().includes('pizza'));
+      const isDrink = selectedText.includes('bebida') || selectedText.includes('batido') || selectedText.includes('café') || selectedText.includes('cafe') || selectedText.includes('jugo') || selectedText.includes('líquido') || selectedText.includes('sopas') || selectedText.includes('caldo') || (selectElem.value === 'new' && (document.getElementById('form-new-category-name').value.toLowerCase().includes('bebida') || document.getElementById('form-new-category-name').value.toLowerCase().includes('batido') || document.getElementById('form-new-category-name').value.toLowerCase().includes('cafe') || document.getElementById('form-new-category-name').value.toLowerCase().includes('jugo')));
+
+      if (isPizza) {
+        pizzaContainer.style.display = 'block';
+        drinkContainer.style.display = 'none';
+        basePriceInput.required = false;
+        basePriceInput.value = '0';
+      } else if (isDrink) {
+        pizzaContainer.style.display = 'none';
+        drinkContainer.style.display = 'block';
+        basePriceInput.required = false;
+        basePriceInput.value = '0';
+      } else {
+        pizzaContainer.style.display = 'none';
+        drinkContainer.style.display = 'none';
+        basePriceInput.required = true;
+      }
+    }
+
+    function parseMagicProductText(rawText) {
+      if (!rawText || !rawText.trim()) return null;
+      let text = rawText.trim();
+      text = text.replace(/^[\d#\*\-\.\)\•\>\s]+/, '').trim();
+      let name = '', desc = '', price = '', sizes = [], flavors = '', extras = '';
+
+      // 1. Explicit Sizes (e.g. "Tamaños: Pequeña 10, Grande 20")
+      const sizesMatch = text.match(/(?:tamaños?|variaciones?|porciones?):?\s*([^-\n]+)/i);
+      if (sizesMatch) {
+        const rawSizes = sizesMatch[1].trim();
+        rawSizes.split(/,|\//).forEach(item => {
+          const trimmed = item.trim();
+          const pMatch = trimmed.match(/(\d+(?:[.,]\d+)?)\s*(?:k|cop|usd|\$)?$/i);
+          let sPrice = '', sName = trimmed;
+          if (pMatch) {
+            sPrice = pMatch[1].replace(/[.,]/g, '');
+            sName = trimmed.replace(pMatch[0], '').trim();
+          }
+          if (sName) sizes.push({ name: sName, price: sPrice });
+        });
+        text = text.replace(sizesMatch[0], '').trim();
+      }
+
+      // 2. Explicit Flavors (e.g. "Sabores: Arequipe, Nutella")
+      const flavorsMatch = text.match(/(?:sabores?|variantes?):?\s*([^-\n]+)/i);
+      if (flavorsMatch) {
+        flavors = flavorsMatch[1].trim();
+        text = text.replace(flavorsMatch[0], '').trim();
+      }
+
+      // 3. Explicit Extras (e.g. "Adicionales: Tocineta 2, Queso 1")
+      const extrasMatch = text.match(/(?:adicionales?|extras?|toppings?):?\s*([^-\n]+)/i);
+      if (extrasMatch) {
+        extras = extrasMatch[1].trim();
+        text = text.replace(extrasMatch[0], '').trim();
+      }
+
+      // 4. Extract main price from trailing tokens or currency tags
+      const endPriceRegex = /(?:^|\s*[-–—|:,]\s*|\s+)(?:precio\s*:?\s*)?(?:\$|usd|cop)?\s*(\d{1,3}(?:[.,]\d{3})+|\d+)\s*(?:cop|usd|\$|k|mil)?\.?\s*$/i;
+      const taggedPriceRegex = /(?:precio|valor|cuesta|vale|\$|cop|usd)\s*:?\s*(\d{1,3}(?:[.,]\d{3})+|\d+)\s*(?:cop|usd|\$|k|mil)?/i;
+
+      let priceMatch = text.match(endPriceRegex) || text.match(taggedPriceRegex);
+      if (priceMatch) {
+        let rawP = priceMatch[1].replace(/[.,]/g, '');
+        if (priceMatch[0].toLowerCase().includes('k') || priceMatch[0].toLowerCase().includes('mil')) {
+          if (parseInt(rawP, 10) < 1000) rawP = String(parseInt(rawP, 10) * 1000);
+        }
+        price = rawP;
+        text = text.substring(0, priceMatch.index) + text.substring(priceMatch.index + priceMatch[0].length);
+        text = text.trim().replace(/[-–—|:,.\s]+$/, '').trim();
+      }
+
+      // 5. Split remaining text into Name and Description
+      let parts = text.split(/\s*[-–—|:]\s*|\n+/).map(p => p.trim().replace(/^[-–—|:,.\s]+|[-–—|:,.\s]+$/g, '')).filter(p => p.length > 0);
+
+      if (parts.length === 1) {
+        const dotSplit = parts[0].split(/\.\s+/);
+        if (dotSplit.length > 1 && dotSplit[0].length < 35 && dotSplit[1].length > 5) {
+          name = dotSplit[0].trim();
+          desc = dotSplit.slice(1).join('. ').trim();
+        } else {
+          name = parts[0];
+        }
+      } else if (parts.length === 2) {
+        name = parts[0];
+        if (!price && /^\d+$/.test(parts[1].replace(/[^\d]/g, '')) && !/[a-zA-Z]/.test(parts[1])) {
+          price = parts[1].replace(/[^\d]/g, '');
+        } else {
+          desc = parts[1];
+        }
+      } else if (parts.length >= 3) {
+        name = parts[0];
+        if (!price && /^\d+$/.test(parts[parts.length - 1].replace(/[^\d]/g, '')) && !/[a-zA-Z]/.test(parts[parts.length - 1])) {
+          price = parts[parts.length - 1].replace(/[^\d]/g, '');
+          desc = parts.slice(1, -1).join(' - ');
+        } else {
+          desc = parts.slice(1).join(' - ');
+        }
+      }
+
+      if (name) name = name.replace(/[-–—|:,.\s]+$/, '').trim();
+      if (desc) desc = desc.replace(/[-–—|:,.\s]+$/, '').trim();
+
+      return { name, desc, price, sizes, flavors, extras };
+    }
+
+    function handleFastAdd() {
+      const text = document.getElementById('form-fast-add')?.value;
+      if (!text || !text.trim()) return;
+
+      const parsed = parseMagicProductText(text);
+      if (!parsed) return;
+
+      const { name, desc, price, sizes, flavors, extras } = parsed;
+
+      if (name) {
+        document.getElementById('form-name').value = name;
+        
+        const catSelect = document.getElementById('form-category');
+        if (catSelect) {
+          const nameLower = name.toLowerCase();
+          
+          const categoryMapping = {
+            'pepito': 'pepitos',
+            'pepitos': 'pepitos',
+            'hamburguesa': 'hamburguesas',
+            'burguer': 'hamburguesas',
+            'burger': 'hamburguesas',
+            'perro': 'hot-dogs-perros-calientes',
+            'hot dog': 'hot-dogs-perros-calientes',
+            'hot-dog': 'hot-dogs-perros-calientes',
+            'dog': 'hot-dogs-perros-calientes',
+            'pizza': 'pizzas',
+            'shawarma': 'shawarmas',
+            'arepa': 'arepas',
+            'cachapa': 'cachapas',
+            'salchipapa': 'salchipapas',
+            'patacon': 'patacones',
+            'parrilla': 'parrillas',
+            'pollo': 'pollo',
+            'alita': 'pollo',
+            'oblea': 'helados-postres',
+            'helado': 'helados-postres',
+            'malteada': 'bebidas',
+            'batido': 'bebidas',
+            'bebida': 'bebidas',
+            'jugo': 'bebidas',
+            'empanada': 'empanadas',
+            'pastelito': 'empanadas',
+            'tequeño': 'tequenos',
+            'tequeno': 'tequenos',
+            'pan': 'pan',
+            'sándwich': 'sandwiches',
+            'sandwich': 'sandwiches',
+            'baguette': 'baguettes',
+            'sushi': 'sushi',
+            'taco': 'mexicana',
+            'burrito': 'mexicana',
+            'ramen': 'ramen',
+            'postre': 'postres',
+            'dulce': 'postres',
+            'café': 'cafe',
+            'cafe': 'cafe'
+          };
+
+          let matchedSlug = '';
+          for (const [keyword, slug] of Object.entries(categoryMapping)) {
+            if (nameLower.includes(keyword)) {
+              matchedSlug = slug;
+              break;
+            }
+          }
+
+          let foundCategory = false;
+          for (let i = 0; i < catSelect.options.length; i++) {
+            const optVal = catSelect.options[i].value;
+            const optText = catSelect.options[i].text.toLowerCase();
+            
+            if (optVal !== 'new') {
+              if (matchedSlug && (optVal === matchedSlug || optVal.includes(matchedSlug) || optText.includes(matchedSlug.split('-')[0]))) {
+                catSelect.selectedIndex = i;
+                foundCategory = true;
+                break;
+              }
+              const cleanOptText = optText.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim();
+              if (cleanOptText.length > 2 && nameLower.includes(cleanOptText.split('/')[0].trim().split(' ')[0].toLowerCase())) {
+                catSelect.selectedIndex = i;
+                foundCategory = true;
+                break;
+              }
+              
+              const firstWord = name.split(' ')[0].toLowerCase();
+              if (optText.includes(firstWord)) {
+                catSelect.selectedIndex = i;
+                foundCategory = true;
+                break;
+              }
+            }
+          }
+          
+          if (!foundCategory) {
+            catSelect.value = 'new';
+            const firstWord = name.split(' ')[0];
+            const suggestedCat = firstWord.charAt(0).toUpperCase() + firstWord.slice(1).toLowerCase() + (firstWord.endsWith('s') ? '' : 's');
+            const newCatInput = document.getElementById('form-new-category-name');
+            if (newCatInput) newCatInput.value = suggestedCat;
+            const container = document.getElementById('form-new-category-container');
+            if (container) container.style.display = 'block';
+          }
+          
+          if (typeof handleCategoryChange === 'function') handleCategoryChange(catSelect);
+        }
+      }
+
+      if (desc) {
+        const descElem = document.getElementById('form-desc');
+        if (descElem) descElem.value = desc;
+      }
+      if (price) {
+        const priceElem = document.getElementById('form-price');
+        if (priceElem) priceElem.value = price;
+      }
+
+      // Populate Sizes
+      if (sizes && sizes.length > 0) {
+        sizes.forEach((item, idx) => {
+          if (idx < 4) {
+            const nameElem = document.getElementById(`form-size-${idx+1}-name`);
+            const priceElem = document.getElementById(`form-size-${idx+1}-price`);
+            if (nameElem) nameElem.value = item.name;
+            if (priceElem && item.price) priceElem.value = item.price;
+          }
+        });
+      }
+
+      // Populate Sabores
+      if (flavors) {
+        const saboresElem = document.getElementById('form-sabores');
+        if (saboresElem) saboresElem.value = flavors;
+      }
+
+      // Populate Adicionales
+      if (extras) {
+        const formAdicionales = document.getElementById('form-adicionales');
+        if (formAdicionales) formAdicionales.value = extras;
+      }
+
+      if (typeof AdminApp !== 'undefined' && typeof AdminApp.showToast === 'function') {
+        AdminApp.showToast(`✨ Autocompletado: ${name || 'Producto'}`);
+      }
+    }
+
+    async function handleProductSubmit(e) {
+      if (e && e.preventDefault) e.preventDefault();
+
+      const submitBtn = document.getElementById('btn-submit-form') || 
+                        (e && e.target ? (e.target.tagName === 'BUTTON' ? e.target : e.target.querySelector('button[type="submit"]')) : null);
+      
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('heartbeat-pulse');
+        submitBtn.innerHTML = `<span class="spinner"></span> <span style="margin-left: 8px;">Procesando...</span>`;
+      }
+
+      try {
+        let catSelect = document.getElementById('form-category')?.value;
+        if (!catSelect && window.activeCategoryId && window.activeCategoryId !== 'all') {
+          catSelect = window.activeCategoryId;
+        }
+        if (!catSelect) catSelect = 'General';
+
+        const nameInput = document.getElementById('form-name')?.value?.trim();
+        const descInput = document.getElementById('form-desc')?.value?.trim();
+
+        if (!nameInput) {
+          alert('⚠️ Por favor ingresa el nombre del producto.');
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('heartbeat-pulse');
+            submitBtn.innerHTML = `<span>Guardar Producto</span>`;
+          }
+          return;
+        }
+
+        // Gather Size inputs
+        const sizeSlots = [
+          { name: document.getElementById('form-size-1-name')?.value?.trim(), price: document.getElementById('form-size-1-price')?.value?.trim() },
+          { name: document.getElementById('form-size-2-name')?.value?.trim(), price: document.getElementById('form-size-2-price')?.value?.trim() },
+          { name: document.getElementById('form-size-3-name')?.value?.trim(), price: document.getElementById('form-size-3-price')?.value?.trim() },
+          { name: document.getElementById('form-size-4-name')?.value?.trim(), price: document.getElementById('form-size-4-price')?.value?.trim() }
+        ].filter(s => s.name && s.name !== '');
+
+        let priceInput = document.getElementById('form-price')?.value;
+        if (sizeSlots.length > 0 && (!priceInput || parseFloat(priceInput) === 0)) {
+          priceInput = sizeSlots[0].price || '0';
+        }
+
+        const saboresInput = document.getElementById('form-sabores')?.value?.trim();
+        const extrasInput = document.getElementById('form-adicionales')?.value?.trim();
+        const fileInput = document.getElementById('form-image')?.files?.[0];
+
+        if (catSelect === 'new') {
+          const newCatName = document.getElementById('form-new-category-name')?.value;
+          if (newCatName) {
+            const newCatSlug = newCatName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            try {
+              const createdCat = await MenuBuilder.createCategory(newCatName, newCatSlug);
+              catSelect = createdCat ? createdCat.id : newCatSlug;
+            } catch(err) {
+              catSelect = newCatSlug;
+            }
+          }
+        }
+
+        let imageUrl = '';
+        if (fileInput) {
+          try {
+            imageUrl = await MenuBuilder.uploadProductImage(fileInput);
+          } catch(err) {
+            console.warn('Image upload fallback:', err);
+          }
+        }
+
+        if (submitBtn) {
+          submitBtn.innerHTML = `<span class="spinner"></span> <span style="margin-left: 8px;">Guardando...</span>`;
+        }
+
+        let newProduct;
+        try {
+          if (typeof MenuBuilder !== 'undefined' && MenuBuilder.supabase) {
+            newProduct = await MenuBuilder.createProduct(catSelect, nameInput, descInput, priceInput, imageUrl);
+          }
+        } catch (err) {
+          console.warn('Supabase product insert bypass:', err);
+        }
+
+        if (!newProduct) {
+          newProduct = {
+            id: 'p-local-' + Date.now() + Math.floor(Math.random() * 1000),
+            category_id: catSelect,
+            category: catSelect,
+            name: nameInput,
+            description: descInput || '',
+            price: parseFloat(priceInput) || 0,
+            image_url: imageUrl || '',
+            created_at: new Date().toISOString()
+          };
+        }
+
+        let modifiers = [];
+
+        // Build Tamaño Modifier Group if size slots were entered
+        if (sizeSlots.length > 0) {
+          const basePriceNum = parseFloat(priceInput) || 0;
+          const options = sizeSlots.map((sz, idx) => {
+            const szPriceNum = parseFloat(sz.price) || 0;
+            return {
+              id: 'opt-sz-' + Date.now() + '-' + idx,
+              name: sz.name,
+              extra_price: idx === 0 ? 0 : Math.max(0, szPriceNum - basePriceNum),
+              option_id: 'opt-sz-' + Date.now() + '-' + idx
+            };
+          });
+
+          modifiers.push({
+            group_id: 'g-tamanos-' + Date.now(),
+            group_name: 'Tamaño',
+            selection_type: 'single',
+            required: true,
+            options: options
+          });
+        }
+
+        // Build Sabor / Elección Modifier Group if sabores were entered
+        if (saboresInput && saboresInput !== '') {
+          const flavorItems = saboresInput.split(/,|\//).map(s => s.trim()).filter(s => s.length > 0);
+          if (flavorItems.length > 0) {
+            const options = flavorItems.map((flv, idx) => ({
+              id: 'opt-flv-' + Date.now() + '-' + idx,
+              name: flv,
+              extra_price: 0,
+              option_id: 'opt-flv-' + Date.now() + '-' + idx
+            }));
+
+            modifiers.push({
+              group_id: 'g-sabores-' + Date.now(),
+              group_name: 'Sabor / Elección',
+              selection_type: 'single',
+              required: true,
+              options: options
+            });
+          }
+        }
+
+        // Build Adicionales Modifier Group if extras were entered
+        if (extrasInput && extrasInput !== '') {
+          const options = extrasInput.split(',').map((ext, idx) => {
+            const priceMatch = ext.match(/\d+(?:\.\d+)?$/);
+            let val = 0;
+            let name = ext.trim();
+            if (priceMatch) {
+              val = parseFloat(priceMatch[0]);
+              name = ext.replace(/\d+(?:\.\d+)?$/, '').trim();
+            }
+            return { id: 'opt-ext-' + Date.now() + '-' + idx, name: name, extra_price: val, option_id: 'opt-ext-' + Date.now() + '-' + idx };
+          }).filter(opt => opt.name !== '');
+
+          if (options.length > 0) {
+            modifiers.push({
+              group_id: 'g-extras-' + Date.now(),
+              group_name: 'Adicionales',
+              selection_type: 'multiple',
+              required: false,
+              options: options
+            });
+          }
+        }
+
+        newProduct.modifiers = modifiers.length > 0 ? modifiers : undefined;
+
+        if (descInput && descInput.trim() !== '') {
+          const excls = descInput.split(/,| y | e /i).map(i => i.trim().replace(/\.$/, '')).filter(i => i.length > 2);
+          if (excls.length > 0) {
+            newProduct.exclusions = excls;
+          }
+        }
+
+        if (typeof AdminApp !== 'undefined') {
+          await AdminApp.importNewProductToActiveShop(newProduct);
+        }
+
+        if (typeof closeMenuModal === 'function') closeMenuModal();
+        if (typeof AdminApp !== 'undefined' && typeof AdminApp.closeMenuModal === 'function') AdminApp.closeMenuModal();
+        
+        if (typeof showToast === 'function') {
+          showToast(`🎉 ¡${newProduct.name} agregado al menú con éxito!`);
+        } else if (typeof AdminApp !== 'undefined' && typeof AdminApp.showToast === 'function') {
+          AdminApp.showToast(`🎉 ¡${newProduct.name} agregado al menú con éxito!`);
+        } else {
+          alert(`🎉 ¡${newProduct.name} agregado al menú con éxito!`);
+        }
+      } catch (err) {
+        console.error(err);
+        alert(`❌ Error al guardar producto: ${err.message || err}`);
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('heartbeat-pulse');
+          submitBtn.innerHTML = `<span>Guardar Producto</span>`;
+        }
+      }
+    }
+
+    function handleRealtimeInsert(newProd) {
+      if (productsList.some(p => p.id === newProd.id)) return;
+      
+      productsList.unshift(newProd);
+      renderProducts();
+      
+      const card = document.getElementById(`prod-card-${newProd.id}`);
+      if (card) {
+        const badge = document.createElement('div');
+        badge.className = 'new-indicator';
+        badge.innerText = 'NUEVO';
+        card.appendChild(badge);
+        
+        setTimeout(() => {
+          badge.remove();
+        }, 5000);
+      }
+    }
+
+    function handleRealtimeUpdate(updatedProd) {
+      const idx = productsList.findIndex(p => p.id === updatedProd.id);
+      if (idx !== -1) {
+        productsList[idx] = updatedProd;
+        renderProducts();
+      }
+    }
+
+    function handleRealtimeDelete(deletedProd) {
+      productsList = productsList.filter(p => p.id !== deletedProd.id);
+      renderProducts();
+    }
+
+    function closeEstActionModal() {
+      AdminApp.closeEstActionModal();
+    }
+
+    function viewShopMenu() {
+      AdminApp.viewShopMenu();
+    }
+
+    // Toggle edit modal
+    function openEditShopModal() {
+      AdminApp.openEditShopModal();
+    }
+
+    function closeEditShopModal() {
+      AdminApp.closeEditShopModal();
+    }
+
+    function handleEditShopSubmit(e) {
+      AdminApp.handleEditShopSubmit(e);
+    }
+
+    function importGlobalProduct() {
+      AdminApp.importGlobalProduct();
+    }
+
+    function modifyMenuAndTables() {
+      AdminApp.modifyMenuAndTables();
+    }
+
+    // Designer Modal wrappers
+    function closeMenuTablesModal() {
+      AdminApp.closeMenuTablesModal();
+    }
+
+    function setFloorTool(tool) {
+      AdminApp.setFloorTool(tool);
+    }
+
+    function importGlobalProductFromModal() {
+      AdminApp.importGlobalProductFromModal();
+    }
+
+    function deleteProductFromModal(prodId) {
+      AdminApp.deleteProductFromModal(prodId);
+    }
+
+    function filterCategoryModal(catId) {
+      AdminApp.filterCategoryModal(catId);
+    }
+
+    function closeProductSpecsModal() {
+      AdminApp.closeProductSpecsModal();
+    }
+    function addIngredientOption() {
+      AdminApp.addIngredientOption();
+    }
+    function addModifierGroup() {
+      AdminApp.addModifierGroup();
+    }
+    function addOptionToGroup(groupId) {
+      AdminApp.addOptionToGroup(groupId);
+    }
+    function deleteOptionFromGroup(groupId, optionId) {
+      AdminApp.deleteOptionFromGroup(groupId, optionId);
+    }
+    function deleteModifierGroup(groupId) {
+      AdminApp.deleteModifierGroup(groupId);
+    }
+    function handleSpecsSubmit(e) {
+      AdminApp.handleSpecsSubmit(e);
+    }
+
+    function showToast(message, isError = false) {
+      const container = document.getElementById('toast-center');
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.innerHTML = `
+        <span>${isError ? '⚠️' : '⚡'}</span>
+        <p>${message}</p>
+      `;
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1) reverse forwards';
+        setTimeout(() => {
+          toast.remove();
+        }, 300);
+      }, 4000);
+    }
+  </script>
+
+  <!-- Modal: Crear Nuevo Producto Maestro para Catálogo Global -->
+  <div class="modal-overlay" id="admin-create-master-product-modal" style="z-index: 4500; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+    <div class="modal-content" style="background: #1E293B; color: #fff; border: 1px solid #334155; border-radius: 16px; max-width: 500px; width: 90%; padding: 24px; margin: auto;">
+      <div class="modal-header" style="border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="color: #fff; margin: 0; font-size: 16px; font-weight: 800;">➕ Crear Producto Maestro para Catálogo Global</h3>
+        <button class="modal-close" onclick="AdminApp.closeCreateMasterProductModal()" style="color: #fff; background: none; border: none; font-size: 18px; cursor: pointer;">✕</button>
+      </div>
+      
+      <form onsubmit="AdminApp.handleCreateMasterProductSubmit(event)">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div>
+            <label style="font-size: 12px; color: #94A3B8; display: block; margin-bottom: 4px;">Nombre del Producto *</label>
+            <input type="text" id="master-prod-name" required placeholder="Ej. Hamburguesa Doble Queso" style="width: 100%; padding: 8px 12px; border-radius: 8px; background: #0F172A; border: 1px solid #475569; color: #fff; font-size: 13px;">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <label style="font-size: 12px; color: #94A3B8; display: block; margin-bottom: 4px;">Categoría *</label>
+              <input type="text" id="master-prod-category" required placeholder="Ej. Hamburguesas, Pizzas, Bebidas" style="width: 100%; padding: 8px 12px; border-radius: 8px; background: #0F172A; border: 1px solid #475569; color: #fff; font-size: 13px;">
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #94A3B8; display: block; margin-bottom: 4px;">Precio Sugerido ($ COP) *</label>
+              <input type="number" step="any" id="master-prod-price" required placeholder="Ej. 18000" style="width: 100%; padding: 8px 12px; border-radius: 8px; background: #0F172A; border: 1px solid #475569; color: #fff; font-size: 13px;">
+            </div>
+          </div>
+          <div>
+            <label style="font-size: 12px; color: #94A3B8; display: block; margin-bottom: 4px;">Descripción / Ingredientes</label>
+            <textarea id="master-prod-desc" rows="2" placeholder="Ej. Carne 100% res, queso cheddar, pepinillos y salsa especial" style="width: 100%; padding: 8px 12px; border-radius: 8px; background: #0F172A; border: 1px solid #475569; color: #fff; font-size: 13px;"></textarea>
+          </div>
+          <div>
+            <label style="font-size: 12px; color: #94A3B8; display: block; margin-bottom: 4px;">Subir Foto del Producto (Opcional)</label>
+            <input type="file" id="master-prod-image-file" accept="image/*" style="width: 100%; font-size: 12px; color: #fff;">
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+          <button type="button" onclick="AdminApp.closeCreateMasterProductModal()" style="background: transparent; color: #94A3B8; border: 1px solid #475569; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer;">Cancelar</button>
+          <button type="submit" id="btn-submit-create-master-prod" style="background: var(--primary); color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer;">💾 Guardar Producto Maestro</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Mapa Global de Ubicaciones GPS de Todos los Comercios (Dueño) -->
+  <div class="modal-overlay" id="admin-all-stores-map-modal" style="z-index: 3800; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div class="modal-content" style="max-width: 850px; width: 95%; max-height: 92vh; display: flex; flex-direction: column; padding: 20px; border-radius: 20px; background: rgba(18, 18, 24, 0.96); border: 1px solid rgba(255, 255, 255, 0.1); margin: auto;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="margin: 0; color: #FFF; font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            <span>🗺️</span> Mapa Global de Comercios Registrados
+          </h3>
+          <p style="margin: 2px 0 0 0; font-size: 12px; color: #94A3B8;">📌 Mantén presionado o arrastra cualquier pin para mover y fijar la ubicación exacta de un restaurante en el mapa.</p>
+        </div>
+        <button class="modal-close" onclick="AdminApp.closeAllStoresMapModal()" style="font-size: 20px; color: #fff; background: rgba(255,255,255,0.1); border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Map Filter & Stats Summary -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
+        <div id="admin-map-stats-text" style="font-size: 12px; font-weight: 700; color: #10B981; display: flex; align-items: center; gap: 6px;">
+          <span>📡</span> <span>Cargando ubicaciones...</span>
+        </div>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+          <select id="admin-map-store-select" onchange="AdminApp.focusStoreOnMap(this.value)" style="padding: 5px 10px; font-size: 11.5px; font-weight: 700; border-radius: 10px; background: #0F172A; color: #FFF; border: 1px solid #334155; max-width: 180px;">
+            <option value="">🔍 Centrar Restaurante...</option>
+          </select>
+          <button type="button" onclick="AdminApp.clearAllStoreGPS()" style="padding: 5px 12px; font-size: 11px; font-weight: 800; border-radius: 10px; background: #DC2626; color: #FFF; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(220,38,38,0.3);">
+            🗑️ Borrar Todas
+          </button>
+          <button type="button" onclick="AdminApp.filterGlobalMapLocation('all')" style="padding: 4px 10px; font-size: 11px; font-weight: 800; border-radius: 14px; background: var(--primary); color: #FFF; border: none; cursor: pointer;">Todos</button>
+          <button type="button" onclick="AdminApp.filterGlobalMapLocation('San Antonio')" style="padding: 4px 10px; font-size: 11px; font-weight: 800; border-radius: 14px; background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">San Antonio</button>
+          <button type="button" onclick="AdminApp.filterGlobalMapLocation('Ureña')" style="padding: 4px 10px; font-size: 11px; font-weight: 800; border-radius: 14px; background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">Ureña</button>
+        </div>
+      </div>
+
+      <!-- Leaflet Map Container -->
+      <div id="admin-global-stores-map-wrapper" style="width: 100%; height: 420px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); position: relative; background: #0F172A;">
+        <div id="admin-global-stores-map" style="width: 100%; height: 100%;"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal: Registrar Nuevo Repartidor (Admin) -->
+  <div class="modal-overlay" id="admin-register-driver-modal" style="z-index: 3900; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div class="modal-content" style="max-width: 450px; width: 94%; padding: 22px; border-radius: 20px; background: rgba(18, 18, 24, 0.96); border: 1px solid rgba(255, 255, 255, 0.1); margin: auto;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; color: #FFF; font-size: 17px; font-weight: 800;">🛵 Registrar Nuevo Repartidor</h3>
+        <button class="modal-close" onclick="AdminApp.closeRegisterDriverModal()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.1); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <form onsubmit="AdminApp.handleRegisterDriverSubmit(event)">
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="color: #94A3B8; font-size: 12px;">Nombre del Repartidor *</label>
+          <input type="text" id="reg-driver-name" required placeholder="Ej. Carlos Pérez" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="color: #94A3B8; font-size: 12px;">Teléfono Móvil (WhatsApp) *</label>
+          <div style="display: flex; gap: 8px;">
+            <select id="reg-driver-prefix" style="width: 110px; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px; font-weight: 700;">
+              <option value="+57">🇨🇴 +57</option>
+              <option value="+58">🇻🇪 +58</option>
+            </select>
+            <input type="tel" id="reg-driver-phone" required placeholder="Ej. 3227949751 u 04141234567" style="flex: 1; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="color: #94A3B8; font-size: 12px;">Tipo de Vehículo *</label>
+          <select id="reg-driver-vehicle" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
+            <option value="Moto 🛵">Moto 🛵</option>
+            <option value="Bicicleta 🚲">Bicicleta 🚲</option>
+            <option value="Carro 🚗">Carro 🚗</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label style="color: #94A3B8; font-size: 12px;">Clave de Acceso Driver (Generada) *</label>
+          <input type="text" id="reg-driver-key" required placeholder="Ej. GOCHO-8821" style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #10B981; font-weight: 800; font-family: monospace; font-size: 14px;">
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" onclick="AdminApp.closeRegisterDriverModal()" style="background: transparent; color: #94A3B8; border: 1px solid #475569; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer;">Cancelar</button>
+          <button type="submit" style="background: #10B981; color: #FFF; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer;">💾 Registrar Repartidor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Generador de Código QR y Link Directo para Restaurante y Mesas -->
+  <div class="modal-overlay" id="admin-store-qr-modal" style="z-index: 3950; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div class="modal-content" style="max-width: 500px; width: 94%; max-height: 92vh; overflow-y: auto; padding: 22px; border-radius: 20px; background: rgba(18, 18, 24, 0.98); border: 1px solid rgba(255, 255, 255, 0.12); margin: auto;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 id="qr-modal-title" style="margin: 0; color: #FFF; font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            📱 Código QR & Enlace
+          </h3>
+          <p style="margin: 3px 0 0 0; font-size: 12px; color: #94A3B8;">Para menús físicos, acrílicos en mesas o compartir en redes sociales.</p>
+        </div>
+        <button class="modal-close" onclick="AdminApp.closeStoreQRModal()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.1); border: none; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Table / Mesa selector option -->
+      <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px; margin-bottom: 16px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #E2E8F0; margin-bottom: 6px;">
+          🍽️ Número de Mesa (Opcional):
+        </label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="qr-modal-table-input" oninput="AdminApp.updateStoreQRDisplay()" placeholder="Ej. 1, 2, Terraza 4, Barra... (dejar vacío para menú general)" style="flex: 1; padding: 8px 12px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12.5px;">
+          <button type="button" onclick="document.getElementById('qr-modal-table-input').value=''; AdminApp.updateStoreQRDisplay();" style="background: #334155; color: #E2E8F0; border: none; padding: 8px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;">Limpiar</button>
+        </div>
+      </div>
+
+      <!-- Printable QR Card Presentation -->
+      <div id="printable-qr-card" style="background: #FFFFFF; border-radius: 16px; padding: 20px; text-align: center; color: #0F172A; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 6px;">
+          <span style="font-size: 24px;">👑</span>
+          <span style="font-weight: 900; font-size: 16px; color: #FF5E3A; letter-spacing: 0.5px;">Deliver<span style="color: #0F172A;">City</span></span>
+        </div>
+        <h4 id="qr-card-est-name" style="margin: 4px 0; font-size: 18px; font-weight: 900; color: #0F172A;">Restaurante</h4>
+        <p id="qr-card-subtitle" style="margin: 0 0 12px 0; font-size: 12px; font-weight: 700; color: #64748B;">🍽️ Escanea para ver el menú y ordenar</p>
+        
+        <div style="background: #F8FAFC; padding: 12px; border-radius: 12px; display: inline-block; border: 1px solid #E2E8F0; margin-bottom: 8px;">
+          <img id="qr-modal-img" src="" alt="Código QR del Restaurante" style="width: 220px; height: 220px; display: block; margin: 0 auto; object-fit: contain;">
+        </div>
+
+        <p style="margin: 4px 0 0 0; font-size: 11px; font-weight: 600; color: #94A3B8;">Apunta tu cámara aquí para abrir la carta</p>
+      </div>
+
+      <!-- Direct Link Box -->
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #94A3B8; margin-bottom: 6px;">🔗 Enlace Directo (URL):</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="qr-modal-url-input" readonly style="flex: 1; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #38BDF8; font-size: 12px; font-family: monospace;">
+          <button type="button" onclick="AdminApp.copyStoreQRUrl()" style="background: #3B82F6; color: #FFF; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+            📋 Copiar
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button type="button" onclick="AdminApp.openStoreQRInNewTab()" style="flex: 1; background: #334155; color: #FFF; border: none; padding: 10px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+          🌐 Probar Link
+        </button>
+        <button type="button" onclick="AdminApp.downloadStoreQRImage()" style="flex: 1; background: #10B981; color: #FFF; border: none; padding: 10px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+          ⬇️ Descargar PNG
+        </button>
+        <button type="button" onclick="AdminApp.printStoreQRAffiche()" style="flex: 1; background: #6366F1; color: #FFF; border: none; padding: 10px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(99,102,241,0.3);">
+          🖨️ Imprimir
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Floating sound test button for Platform Owner -->
+  <button class="sound-test-btn" onclick="if(window.Sound){ if(Sound.isPlayingAlarm){Sound.stopAlarm();}else{Sound.startPersistentOrderAlarm(10);} }" title="Probar Alarma Escandalosa">
+    🚨
+  </button>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js?v=194').then((reg) => {
+          reg.update();
+        }).catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

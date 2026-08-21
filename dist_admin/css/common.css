@@ -1,0 +1,284 @@
+/* Global Design Tokens & Common Styles */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --font-main: 'Outfit', sans-serif;
+  
+  /* Brand Colors */
+  --primary: #FF5E3A; /* Vibrant Coral / Rappi Orange */
+  --primary-hover: #E04D2A;
+  --secondary: #1F2937;
+  --accent: #FFD700; /* Gold */
+  
+  /* Light Theme Colors (Marketplace) */
+  --bg-app: #F8F9FA;
+  --bg-card: #FFFFFF;
+  --text-main: #111827;
+  --text-muted: #6B7280;
+  --border: #E5E7EB;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+  
+  /* Category Colors */
+  --color-comidas: #FF5E3A;
+  --color-farmacias: #10B981;
+  --color-mercados: #8B5CF6;
+  --color-ferreterias: #3B82F6;
+  
+  /* Status Colors */
+  --status-pending: #EF4444; /* Red */
+  --status-preparing: #F59E0B; /* Amber */
+  --status-ready: #10B981; /* Green */
+  --status-delivered: #6B7280; /* Gray */
+  
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  /* Touch action & zoom prevention on mobile */
+  input, select, textarea, button {
+    touch-action: manipulation;
+  }
+  input[type="text"], input[type="number"], input[type="password"], input[type="tel"], select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Safe Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base resets */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+button {
+  font-family: var(--font-main);
+  cursor: pointer;
+  border: none;
+  background: none;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+input, select, textarea {
+  font-family: var(--font-main);
+  outline: none;
+  border: 1px solid var(--border);
+  transition: all var(--transition-fast);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Animations */
+@keyframes slideUp {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes badgePop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* Common utility classes */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.premium-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.premium-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.premium-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-full);
+}
+.premium-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Horizontal Bubbles / Stories Carousel Styling */
+.food-bubbles-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  padding: 8px 0 14px 0;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.food-bubbles-container {
+  display: flex;
+  gap: 12px;
+  padding: 0 4px;
+  flex-wrap: nowrap;
+}
+
+.bubble-story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  width: 68px;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  user-select: none;
+}
+
+.bubble-story-item:hover {
+  transform: translateY(-2px);
+}
+
+.bubble-story-item:active {
+  transform: scale(0.92);
+}
+
+.bubble-ring {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  padding: 2.5px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.bubble-story-item.active .bubble-ring {
+  background: linear-gradient(135deg, #FF5E3A 0%, #FF2A00 50%, #F59E0B 100%);
+  box-shadow: 0 0 16px rgba(255, 94, 58, 0.6);
+  transform: scale(1.08);
+  border-color: transparent;
+}
+
+.bubble-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #1E293B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+}
+
+.bubble-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #CBD5E1;
+  text-align: center;
+  margin-top: 5px;
+  white-space: nowrap;
+  max-width: 68px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s;
+}
+
+.bubble-story-item.active .bubble-label {
+  color: #FF5E3A;
+  font-weight: 800;
+}
+
+/* Live Active Green Light Pulse Badge */
+.live-active-light-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #10B981;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+  user-select: none;
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+}
+
+.live-active-light-badge .green-pulse-dot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  min-height: 8px;
+  background-color: #10B981;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #10B981;
+  animation: pulseGreenLight 1.8s infinite ease-in-out;
+}
+
+@keyframes pulseGreenLight {
+  0% {
+    transform: scale(0.92);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8);
+  }
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.92);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}

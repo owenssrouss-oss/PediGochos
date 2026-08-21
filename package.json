@@ -6,8 +6,11 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
+    "admin:apk": "node scripts/build-admin-apk.js",
+    "admin:build": "node scripts/build-admin-app.js && npx cap sync android",
+    "kitchen:apk": "node scripts/build-kitchen-apk.js",
     "kitchen:build": "node scripts/build-kitchen-app.js && npx cap sync android",
-    "kitchen:open": "npx cap open android"
+    "cap:open": "npx cap open android"
   },
   "dependencies": {
     "@capacitor-community/keep-awake": "^8.0.1",
