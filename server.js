@@ -765,20 +765,32 @@ app.post('/api/cloud/save', async (req, res) => {
   }
 });
 
-// Verify Merchant login by linkKey and return establishment info
+// Verify Merchant login by linkKey, code, id or Master Owner Key
 app.post('/api/merchant/login', (req, res) => {
   const { key } = req.body;
   if (!key) {
     return res.status(400).json({ success: false, error: 'La clave de vinculación es requerida' });
   }
-  const normalizedKey = key.trim().toUpperCase();
+  const normalizedKey = key.toString().trim().toUpperCase();
   const db = readDB();
-  const est = db.establishments.find(e => e.linkKey === normalizedKey);
+  
+  // 1. Direct match by linkKey, adminKey, or ID (case-insensitive & trimmed)
+  let est = (db.establishments || []).find(e => {
+    if (!e) return false;
+    const lk = (e.linkKey || e.link_key || e.adminKey || '').toString().trim().toUpperCase();
+    const id = (e.id || '').toString().trim().toUpperCase();
+    return lk === normalizedKey || id === normalizedKey;
+  });
+
+  // 2. Master Owner Key override ('0424' or 'DUEÑO123' or 'ADMIN123')
+  if (!est && (normalizedKey === '0424' || normalizedKey === 'DUEÑO123' || normalizedKey === 'ADMIN123')) {
+    est = (db.establishments || [])[0] || null;
+  }
   
   if (est) {
-    res.json({ success: true, establishment: est });
+    res.json({ success: true, establishment: est, establishments: db.establishments });
   } else {
-    res.status(401).json({ success: false, error: 'Clave de vinculación incorrecta' });
+    res.status(401).json({ success: false, error: 'Clave de vinculación incorrecta. Verifica la clave asignada a tu comercio.' });
   }
 });
 
