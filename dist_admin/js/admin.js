@@ -478,12 +478,31 @@ class AdminController {
       const allOrders = await res.json();
       if (!Array.isArray(allOrders)) return;
 
-      const brandNew = allOrders.filter(ao => !this.orders.some(o => o.id === ao.id));
-      if (brandNew.length > 0) {
-        console.log('🚨 [Admin Polling] Nuevos pedidos detectados en tiempo real:', brandNew);
+      if (!this.initialOrdersLoaded) {
         this.orders = allOrders;
+        this.initialOrdersLoaded = true;
         this.renderTable();
-        this.playOrderNotification(brandNew[0]);
+        return;
+      }
+
+      const brandNew = allOrders.filter(ao => !this.orders.some(o => o.id === ao.id));
+      this.orders = allOrders;
+      this.renderTable();
+
+      if (brandNew.length > 0) {
+        const now = Date.now();
+        // Only trigger alarm for truly recent pending orders created within the last 15 minutes
+        const activeNewOrders = brandNew.filter(order => {
+          const isPending = (order.status || '').toLowerCase() === 'pendiente';
+          const orderTime = new Date(order.createdAt || order.created_at || 0).getTime();
+          const isRecent = (now - orderTime) < (15 * 60 * 1000);
+          return isPending && isRecent;
+        });
+
+        if (activeNewOrders.length > 0) {
+          console.log('🚨 [Admin Polling] Nuevos pedidos entrantes en vivo:', activeNewOrders);
+          this.playOrderNotification(activeNewOrders[0]);
+        }
       }
     } catch(e) {
       console.warn('Admin orders polling error:', e);

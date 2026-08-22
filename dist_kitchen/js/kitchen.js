@@ -196,19 +196,37 @@ class KitchenController {
       if (!Array.isArray(allOrders)) return;
 
       const shopOrders = allOrders.filter(o => o.establishmentId === this.selectedId);
+
+      if (!this.initialOrdersLoaded) {
+        this.orders = shopOrders;
+        this.initialOrdersLoaded = true;
+        this.renderOrders();
+        return;
+      }
+
       const brandNew = shopOrders.filter(so => !this.orders.some(o => o.id === so.id));
+      this.orders = shopOrders;
 
       if (brandNew.length > 0) {
-        console.log('🚨 [REST Polling] ¡Nuevos pedidos detectados en tiempo real!', brandNew);
-        this.orders = shopOrders;
+        const now = Date.now();
+        const activeNewOrders = brandNew.filter(order => {
+          const isPending = (order.status || '').toLowerCase() === 'pendiente';
+          const orderTime = new Date(order.createdAt || order.created_at || 0).getTime();
+          const isRecent = (now - orderTime) < (15 * 60 * 1000);
+          return isPending && isRecent;
+        });
+
         this.renderOrders();
 
-        const orderCode = brandNew[0].deliveryDetails?.code || brandNew[0].id.slice(-4);
-        if (typeof Sound !== 'undefined') {
-          Sound.startPersistentOrderAlarm(20);
+        if (activeNewOrders.length > 0) {
+          console.log('🚨 [REST Polling] ¡Nuevos pedidos detectados en tiempo real!', activeNewOrders);
+          const orderCode = activeNewOrders[0].deliveryDetails?.code || activeNewOrders[0].id.slice(-4);
+          if (typeof Sound !== 'undefined') {
+            Sound.startPersistentOrderAlarm(20);
+          }
+          this.showAlarmBanner(orderCode);
+          this.showToast(`🚨 ¡NUEVO PEDIDO RECIBIDO! #${orderCode}`);
         }
-        this.showAlarmBanner(orderCode);
-        this.showToast(`🚨 ¡NUEVO PEDIDO RECIBIDO! #${orderCode}`);
       } else {
         let needsReRender = false;
         shopOrders.forEach(so => {

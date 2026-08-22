@@ -237,13 +237,39 @@ public class OrderNotificationService extends Service {
         }
 
         // Check for new orders
+        long now = System.currentTimeMillis();
         for (int i = 0; i < orders.length(); i++) {
             try {
                 JSONObject order = orders.getJSONObject(i);
                 String id = order.optString("id");
-                if (!id.isEmpty() && !knownOrderIds.contains(id)) {
+                if (id.isEmpty()) continue;
+
+                if (!knownOrderIds.contains(id)) {
                     knownOrderIds.add(id);
-                    triggerNewOrderAlarm(order);
+
+                    // Check if order is actually pending and recent
+                    String status = order.optString("status", "Pendiente");
+                    boolean isPending = "Pendiente".equalsIgnoreCase(status);
+
+                    String createdAtStr = order.optString("createdAt", order.optString("created_at", ""));
+                    boolean isRecent = true;
+                    if (!createdAtStr.isEmpty()) {
+                        try {
+                            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.US);
+                            sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+                            java.util.Date orderDate = sdf.parse(createdAtStr.substring(0, Math.min(19, createdAtStr.length())));
+                            if (orderDate != null) {
+                                long diffMinutes = (now - orderDate.getTime()) / (1000 * 60);
+                                if (diffMinutes > 20) {
+                                    isRecent = false;
+                                }
+                            }
+                        } catch (Exception ignored) {}
+                    }
+
+                    if (isPending && isRecent) {
+                        triggerNewOrderAlarm(order);
+                    }
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Error parsing order: " + e.getMessage());
