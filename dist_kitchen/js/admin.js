@@ -1,5 +1,19 @@
 /* Superadmin Platform Owner Portal Logic (admin.js) */
 
+// Universal Capacitor / Native Android API proxy
+(function() {
+  const isNative = window.location.origin.includes('localhost') || window.location.origin.includes('capacitor');
+  if (isNative) {
+    const originalFetch = window.fetch;
+    window.fetch = function(input, init) {
+      if (typeof input === 'string' && input.startsWith('/api/')) {
+        input = 'https://pedigochos.onrender.com' + input;
+      }
+      return originalFetch.call(this, input, init);
+    };
+  }
+})();
+
 const CATEGORY_EMOJIS = {
   comidas: ['🍔', '🍕', '🌭', '🥤', '🍲', '🌯', '🫓', '🌽', '🍞', '🥖', '🍣', '🌮', '🍜', '🍰', '☕'],
   farmacias: ['💊', '🩹', '🧪', '🧼', '🧴', '🩺'],
@@ -290,23 +304,23 @@ class AdminController {
 
   async loginWithGoogle() {
     if (typeof SupabaseApp === 'undefined') {
-      alert('⚠️ El cliente de autenticación no está listo.');
+      const autoPass = prompt('👑 Ingresa la Clave Maestra de Dueño (Ej: 0424):');
+      if (autoPass) await this.login(autoPass);
       return;
     }
     
     try {
       await SupabaseApp.init();
       if (!SupabaseApp.client) {
-        const autoPass = prompt('⚠️ Supabase Google OAuth no está configurado en las variables de entorno del servidor. Ingresa la Clave Maestra de Dueño:');
-        if (autoPass) {
-          await this.login(autoPass);
-        }
+        const autoPass = prompt('👑 Ingresa la Clave Maestra de Dueño (Ej: 0424):');
+        if (autoPass) await this.login(autoPass);
         return;
       }
       await SupabaseApp.loginWithGoogle('/admin.html');
     } catch (err) {
       console.error(err);
-      alert('Error al conectar con Google OAuth: ' + (err.message || err));
+      const autoPass = prompt('⚠️ Para ingresar directamente sin Google, escribe la Clave Maestra (0424):');
+      if (autoPass) await this.login(autoPass);
     }
   }
 
@@ -1159,10 +1173,362 @@ class AdminController {
     if (modal) modal.classList.add('active');
     this.checkModalOpenState();
 
-    // Initialize Layout Grid & Catalog
-    this.renderFloorGrid();
-    this.loadModalProducts();
-    this.loadModalImportCatalog();
+    // Switch to default tab (daily specials or previous tab)
+    const initialTab = this.activeModalTab || 'daily';
+    this.switchModalTab(initialTab);
+  }
+
+  switchModalTab(tabId) {
+    this.activeModalTab = tabId;
+    const tabs = ['daily', 'menu', 'tables', 'catalog'];
+    tabs.forEach(t => {
+      const btn = document.getElementById(`tab-btn-${t}`);
+      const content = document.getElementById(`tab-content-${t}`);
+      if (btn) btn.classList.toggle('active', t === tabId);
+      if (content) content.classList.toggle('active', t === tabId);
+    });
+
+    if (tabId === 'daily') {
+      this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
+    } else if (tabId === 'menu') {
+      this.renderModalCategories();
+      this.renderModalProducts();
+    } else if (tabId === 'tables') {
+      this.renderFloorGrid();
+    } else if (tabId === 'catalog') {
+      this.loadModalImportCatalog();
+    }
+  }
+
+  selectDailySpecialsDay(day) {
+    this.selectedDailyDay = day;
+    const container = document.getElementById('daily-specials-day-selector');
+    if (container) {
+      container.querySelectorAll('.day-pill').forEach(pill => {
+        pill.classList.toggle('active', pill.getAttribute('data-day') === day);
+      });
+    }
+    this.renderDailySpecialsTab(day);
+  }
+
+  renderDailySpecialsTab(selectedDay = 'todos') {
+    const grid = document.getElementById('daily-specials-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const shopId = window.activeShopIdForMenu || this.activeShopId;
+    const est = this.establishments.find(e => e.id === shopId);
+    if (!est || !est.products || est.products.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: var(--text-muted); font-size: 12.5px; background: rgba(255,255,255,0.02); border-radius: 12px;">
+          No hay productos registrados en este restaurante.
+        </div>
+      `;
+      return;
+    }
+
+    const today = typeof getTodayDayId === 'function' ? getTodayDayId() : 'lunes';
+
+    // Mark the "HOY" badge on the day pill
+    const daySelector = document.getElementById('daily-specials-day-selector');
+    if (daySelector) {
+      daySelector.querySelectorAll('.day-pill').forEach(p => {
+        if (p.getAttribute('data-day') === today) {
+          p.classList.add('today-badge');
+        }
+      });
+    }
+
+    // Filter products for the selected day
+    const filtered = est.products.filter(p => {
+      const days = (p.available_days && Array.isArray(p.available_days) && p.available_days.length > 0)
+        ? p.available_days.map(d => String(d).toLowerCase())
+        : ['todos'];
+
+      if (selectedDay === 'todos') return true;
+      return days.includes('todos') || days.includes(selectedDay);
+    });
+
+    if (filtered.length === 0) {
+      const dayNames = {
+        lunes: 'Lunes', martes: 'Martes', miercoles: 'Miércoles',
+        jueves: 'Jueves', viernes: 'Viernes', sabado: 'Sábado',
+        domingo: 'Domingo', todos: 'todos los días'
+      };
+      grid.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 28px; text-align: center; color: var(--text-muted); font-size: 13px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.08); border-radius: 14px;">
+          <span style="font-size: 24px; display: block; margin-bottom: 4px;">🍲</span>
+          <p style="margin: 4px 0 10px 0;">No hay platos asignados para <strong>${dayNames[selectedDay] || selectedDay}</strong>.</p>
+          <button type="button" class="btn-neumorphic" onclick="AdminApp.openMenuModal()" style="margin: 0; font-size: 11.5px; padding: 6px 14px; background: var(--accent); color: #121216; font-weight: 800; cursor: pointer;">➕ Asignar Plato a este Día</button>
+        </div>
+      `;
+      return;
+    }
+
+    filtered.forEach(prod => {
+      const isPaused = prod.is_paused === true || prod.available === false;
+      const days = (prod.available_days && Array.isArray(prod.available_days) && prod.available_days.length > 0)
+        ? prod.available_days
+        : ['todos'];
+      
+      const daysLabel = days.includes('todos') ? 'Todos los días' : days.map(d => d.slice(0, 3).toUpperCase()).join(', ');
+      
+      const dynamicModifiers = (prod.modifiers && Array.isArray(prod.modifiers)) ? prod.modifiers : [];
+      const dynamicBadges = dynamicModifiers.map(g => `
+        <span class="daily-dish-options-badge" title="${g.group_name}: ${g.options ? g.options.map(o => o.name).join(', ') : ''}">
+          🍲 ${g.group_name} (${g.options ? g.options.length : 0})
+        </span>
+      `).join('');
+
+      const card = document.createElement('div');
+      card.className = `daily-dish-card ${isPaused ? 'paused' : ''}`;
+      const imgUrl = prod.image || '/images/burger_royale.jpg';
+
+      card.innerHTML = `
+        <div class="daily-dish-header">
+          <img src="${imgUrl}" alt="${prod.name}" class="daily-dish-img" onerror="this.src='/images/burger_royale.jpg'">
+          <div style="flex: 1; min-width: 0;">
+            <h4 class="daily-dish-title">${prod.name}</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+              <span class="daily-dish-price">$${parseFloat(prod.price || 0).toFixed(2)}</span>
+              <span style="font-size: 10px; color: #f59e0b; font-weight: 700; background: rgba(245,158,11,0.1); padding: 2px 6px; border-radius: 4px;">📅 ${daysLabel}</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+          ${dynamicBadges || '<span style="font-size: 10px; color: var(--text-muted); font-style: italic;">Sin opciones dinámicas configuradas</span>'}
+        </div>
+
+        <div class="daily-dish-actions">
+          <button type="button" class="btn-daily-action toggle-active ${isPaused ? 'is-paused' : ''}" onclick="AdminApp.toggleProductStatus('${prod.id}')" title="Pausar o activar plato">
+            <span>${isPaused ? '⏸️ Pausado' : '🟢 Activo Hoy'}</span>
+          </button>
+          <button type="button" class="btn-daily-action" onclick="AdminApp.openDailyOptionsModal('${prod.id}')" style="color: #f59e0b;" title="Editar opciones cambiantes (sopas, ensaladas, etc.)">
+            <span>🍲 Opciones</span>
+          </button>
+          <button type="button" class="btn-daily-action" onclick="AdminApp.openProductSpecsModal('${prod.id}')" title="Editar precio, foto e ingredientes">
+            <span>✏️ Editar</span>
+          </button>
+        </div>
+      `;
+
+      grid.appendChild(card);
+    });
+  }
+
+  async toggleProductStatus(productId) {
+    const shopId = window.activeShopIdForMenu || this.activeShopId;
+    const est = this.establishments.find(e => e.id === shopId);
+    if (!est || !est.products) return;
+
+    const prod = est.products.find(p => String(p.id) === String(productId));
+    if (!prod) return;
+
+    prod.is_paused = !(prod.is_paused === true || prod.available === false);
+    prod.available = !prod.is_paused;
+
+    try {
+      const res = await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          products: est.products
+        })
+      });
+      if (res.ok) {
+        this.showLocalToast(`Plato ${prod.name} ${prod.available ? 'activado' : 'pausado'}.`);
+        this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
+        this.renderModalProducts();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  openDailyOptionsModal(productId) {
+    const shopId = window.activeShopIdForMenu || this.activeShopId;
+    const est = this.establishments.find(e => e.id === shopId);
+    if (!est || !est.products) return;
+
+    const prod = est.products.find(p => String(p.id) === String(productId));
+    if (!prod) return;
+
+    this.activeDailyOptionsProductId = productId;
+    this.dailyOptionsGroups = prod.modifiers ? JSON.parse(JSON.stringify(prod.modifiers)) : [];
+
+    if (this.dailyOptionsGroups.length === 0) {
+      this.dailyOptionsGroups = [
+        {
+          group_id: 'g-sopa-' + Date.now(),
+          group_name: 'Sopa del Día',
+          selection_type: 'single',
+          required: true,
+          options: [
+            { option_id: 'opt-s1', name: 'Sopa de Costilla', extra_price: 0 },
+            { option_id: 'opt-s2', name: 'Sancocho de Gallina', extra_price: 0 },
+            { option_id: 'opt-s3', name: 'Sin Sopa', extra_price: 0 }
+          ]
+        }
+      ];
+    }
+
+    const titleEl = document.getElementById('daily-options-product-name');
+    if (titleEl) titleEl.innerText = prod.name;
+    const modal = document.getElementById('daily-options-modal');
+    if (modal) modal.classList.add('active');
+    this.renderDailyOptionsGroupsList();
+  }
+
+  closeDailyOptionsModal() {
+    const modal = document.getElementById('daily-options-modal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  renderDailyOptionsGroupsList() {
+    const container = document.getElementById('daily-options-groups-list');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!this.dailyOptionsGroups || this.dailyOptionsGroups.length === 0) {
+      container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 11.5px; padding: 16px;">Sin grupos de opciones agregados. Haz clic en "➕ Agregar Opción".</div>`;
+      return;
+    }
+
+    this.dailyOptionsGroups.forEach((group, gIdx) => {
+      const gCard = document.createElement('div');
+      gCard.style.background = 'rgba(255, 255, 255, 0.03)';
+      gCard.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+      gCard.style.borderRadius = '12px';
+      gCard.style.padding = '12px';
+      gCard.style.display = 'flex';
+      gCard.style.flexDirection = 'column';
+      gCard.style.gap = '8px';
+
+      const optionsListHTML = (group.options || []).map((opt, oIdx) => `
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <input type="text" value="${opt.name || ''}" oninput="AdminApp.updateDailyOptionName(${gIdx}, ${oIdx}, this.value)" placeholder="Nombre del sabor u opción" style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 6px; padding: 5px 8px; font-size: 12px;">
+          <input type="number" step="0.01" value="${opt.extra_price !== undefined ? opt.extra_price : (opt.price || 0)}" oninput="AdminApp.updateDailyOptionPrice(${gIdx}, ${oIdx}, this.value)" placeholder="+$ extra" style="width: 70px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #10b981; border-radius: 6px; padding: 5px 6px; font-size: 11.5px; font-weight: bold; text-align: center;">
+          <button type="button" onclick="AdminApp.removeDailyOptionItem(${gIdx}, ${oIdx})" style="background: rgba(239, 68, 68, 0.8); border: none; color: #fff; width: 24px; height: 24px; border-radius: 50%; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+        </div>
+      `).join('');
+
+      gCard.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <input type="text" value="${group.group_name || ''}" oninput="AdminApp.updateDailyGroupName(${gIdx}, this.value)" placeholder="Título (Ej: Sopa del Día, Ensalada, Proteína)" style="flex: 1; font-weight: 800; color: var(--accent); background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 4px 8px; font-size: 12.5px;">
+          <select onchange="AdminApp.updateDailyGroupType(${gIdx}, this.value)" style="background: rgba(18,18,22,0.9); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 6px; font-size: 11px;">
+            <option value="single" ${group.selection_type === 'single' ? 'selected' : ''}>1 Selección</option>
+            <option value="multiple" ${group.selection_type === 'multiple' ? 'selected' : ''}>Múltiple</option>
+          </select>
+          <button type="button" onclick="AdminApp.removeDailyGroup(${gIdx})" style="background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer;">🗑️</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+          ${optionsListHTML}
+        </div>
+
+        <button type="button" onclick="AdminApp.addDailyOptionItem(${gIdx})" style="align-self: flex-start; background: rgba(255,255,255,0.05); color: #cbd5e1; border: 1px dashed rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; margin-top: 4px;">
+          ➕ Agregar Sabor / Opción
+        </button>
+      `;
+
+      container.appendChild(gCard);
+    });
+  }
+
+  addQuickDailyGroup() {
+    if (!this.dailyOptionsGroups) this.dailyOptionsGroups = [];
+    this.dailyOptionsGroups.push({
+      group_id: 'g-grp-' + Date.now(),
+      group_name: 'Nueva Opción (Ej: Ensalada, Sabor)',
+      selection_type: 'single',
+      required: true,
+      options: [
+        { option_id: 'opt-' + Date.now() + '-1', name: 'Opción 1', extra_price: 0 },
+        { option_id: 'opt-' + Date.now() + '-2', name: 'Opción 2', extra_price: 0 }
+      ]
+    });
+    this.renderDailyOptionsGroupsList();
+  }
+
+  updateDailyGroupName(gIdx, name) {
+    if (this.dailyOptionsGroups && this.dailyOptionsGroups[gIdx]) this.dailyOptionsGroups[gIdx].group_name = name;
+  }
+
+  updateDailyGroupType(gIdx, type) {
+    if (this.dailyOptionsGroups && this.dailyOptionsGroups[gIdx]) this.dailyOptionsGroups[gIdx].selection_type = type;
+  }
+
+  removeDailyGroup(gIdx) {
+    if (this.dailyOptionsGroups) {
+      this.dailyOptionsGroups.splice(gIdx, 1);
+      this.renderDailyOptionsGroupsList();
+    }
+  }
+
+  addDailyOptionItem(gIdx) {
+    if (!this.dailyOptionsGroups || !this.dailyOptionsGroups[gIdx]) return;
+    if (!this.dailyOptionsGroups[gIdx].options) this.dailyOptionsGroups[gIdx].options = [];
+    this.dailyOptionsGroups[gIdx].options.push({
+      option_id: 'opt-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+      name: 'Nueva Variante',
+      extra_price: 0
+    });
+    this.renderDailyOptionsGroupsList();
+  }
+
+  updateDailyOptionName(gIdx, oIdx, name) {
+    if (this.dailyOptionsGroups && this.dailyOptionsGroups[gIdx] && this.dailyOptionsGroups[gIdx].options[oIdx]) {
+      this.dailyOptionsGroups[gIdx].options[oIdx].name = name;
+    }
+  }
+
+  updateDailyOptionPrice(gIdx, oIdx, val) {
+    if (this.dailyOptionsGroups && this.dailyOptionsGroups[gIdx] && this.dailyOptionsGroups[gIdx].options[oIdx]) {
+      this.dailyOptionsGroups[gIdx].options[oIdx].extra_price = parseFloat(val) || 0;
+      this.dailyOptionsGroups[gIdx].options[oIdx].price = parseFloat(val) || 0;
+    }
+  }
+
+  removeDailyOptionItem(gIdx, oIdx) {
+    if (this.dailyOptionsGroups && this.dailyOptionsGroups[gIdx] && this.dailyOptionsGroups[gIdx].options) {
+      this.dailyOptionsGroups[gIdx].options.splice(oIdx, 1);
+      this.renderDailyOptionsGroupsList();
+    }
+  }
+
+  async saveDailyOptions() {
+    const shopId = window.activeShopIdForMenu || this.activeShopId;
+    const est = this.establishments.find(e => e.id === shopId);
+    if (!est || !est.products || !this.activeDailyOptionsProductId) return;
+
+    const prod = est.products.find(p => String(p.id) === String(this.activeDailyOptionsProductId));
+    if (!prod) return;
+
+    // Filter empty groups
+    prod.modifiers = this.dailyOptionsGroups.filter(g => g.group_name && g.group_name.trim() !== '');
+
+    try {
+      const res = await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          products: est.products
+        })
+      });
+
+      if (res.ok) {
+        this.showLocalToast(`✅ Opciones dinámicas de ${prod.name} guardadas con éxito.`);
+        this.closeDailyOptionsModal();
+        this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
+        this.renderModalProducts();
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error al guardar opciones dinámicas.');
+    }
   }
 
   closeMenuTablesModal() {
@@ -1700,6 +2066,7 @@ class AdminController {
       category: newProduct.category || newProduct.category_id || '',
       category_id: newProduct.category_id || '',
       modifiers: newProduct.modifiers,
+      available_days: newProduct.available_days || ['todos'],
       exclusions: newProduct.exclusions ? newProduct.exclusions.map(name => typeof name === 'string' ? { name } : name) : undefined
     };
 
@@ -1718,6 +2085,9 @@ class AdminController {
         this.loadModalProducts();
         if (typeof this.loadModalImportCatalog === 'function') {
           this.loadModalImportCatalog();
+        }
+        if (typeof this.renderDailySpecialsTab === 'function') {
+          this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
         }
         this.markPendingChanges();
       }
@@ -2040,6 +2410,14 @@ class AdminController {
     // Switch container view (embed specs inside floor plan grid slot)
     document.getElementById('floor-plan-grid-container').style.display = 'none';
     document.getElementById('floor-specs-editor-container').style.display = 'block';
+
+    // Set available days pills
+    if (typeof window.setSelectedDaysToContainer === 'function') {
+      window.setSelectedDaysToContainer('specs-available-days-pills', prod.available_days || ['todos']);
+    }
+
+    // Switch tab to tables so editor is visible
+    this.switchModalTab('tables');
   }
 
   closeProductSpecsModal() {
@@ -2272,6 +2650,7 @@ class AdminController {
     prod.category = document.getElementById('specs-product-category').value.trim();
     prod.price = parseFloat(document.getElementById('specs-product-price').value) || 0;
     prod.description = document.getElementById('specs-product-description').value.trim();
+    prod.available_days = typeof window.getSelectedDaysFromContainer === 'function' ? window.getSelectedDaysFromContainer('specs-available-days-pills') : ['todos'];
 
     // 2. Prepare exclusions
     prod.exclusions = this.specsIngredients.map((item, i) => {
@@ -2356,6 +2735,9 @@ class AdminController {
         this.closeProductSpecsModal();
         if (typeof window.loadProducts === 'function') {
           await window.loadProducts();
+        }
+        if (typeof this.renderDailySpecialsTab === 'function') {
+          this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
         }
         this.markPendingChanges();
       } else {
@@ -3401,8 +3783,10 @@ class AdminController {
       try { this.ws.close(); } catch(e) {}
     }
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}`;
+    const isNative = window.location.origin.includes('localhost') || window.location.origin.includes('capacitor');
+    const wsUrl = isNative 
+      ? 'wss://pedigochos.onrender.com' 
+      : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`;
     
     console.log('👑 Admin Owner App connecting to WebSocket:', wsUrl);
     this.ws = new WebSocket(wsUrl);
@@ -3446,23 +3830,34 @@ class AdminController {
     };
   }
 
-  requestNotificationPermission() {
+  requestNotificationPermission(silent = true) {
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+      try {
+        window.Capacitor.Plugins.LocalNotifications.requestPermissions().then(result => {
+          if (result.display === 'granted' && !silent) {
+            this.showToast('🔔 Notificaciones nativas activadas');
+          }
+        }).catch(() => {});
+      } catch(e) {}
+      return;
+    }
+
     if ('Notification' in window) {
       if (Notification.permission === 'granted') {
-        this.showToast('🔔 Notificaciones de escritorio ya están activadas.');
+        if (!silent) this.showToast('🔔 Notificaciones de escritorio ya están activadas.');
       } else if (Notification.permission === 'denied') {
-        alert('⚠️ Las notificaciones están bloqueadas en tu navegador.\n\nPara activarlas: haz clic en el icono del candado 🔒 junto a la URL en tu navegador y activa la casilla "Notificaciones".');
+        if (!silent) alert('⚠️ Las notificaciones están bloqueadas en tu navegador.\n\nPara activarlas: haz clic en el icono del candado 🔒 junto a la URL en tu navegador y activa la casilla "Notificaciones".');
       } else {
         try {
           Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
+            if (permission === 'granted' && !silent) {
               this.showToast('✅ ¡Notificaciones de escritorio activadas exitosamente!');
             }
           }).catch(() => {});
         } catch(e) {}
       }
     } else {
-      alert('⚠️ Tu navegador no soporta notificaciones de escritorio.');
+      console.log('📱 Entorno nativo/móvil detectado: notificaciones gestionadas por el sistema Android.');
     }
   }
 
@@ -3482,8 +3877,26 @@ class AdminController {
     // Show top flashing persistent alarm banner
     this.showAlarmBanner(orderCode);
 
-    // 2. Native OS Push Notification
-    if ('Notification' in window && Notification.permission === 'granted') {
+    // 2. Native OS Push Notification (Capacitor or Web)
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+      try {
+        window.Capacitor.Plugins.LocalNotifications.schedule({
+          notifications: [
+            {
+              title: `🚨 ¡NUEVO PEDIDO RECIBIDO! #${orderCode}`,
+              body: `🏪 ${storeName}\n👤 ${customerName} (${orderType})\n💰 Total: ${orderTotal}`,
+              id: Math.floor(Math.random() * 1000000),
+              schedule: { at: new Date(Date.now() + 100) },
+              sound: 'alarm.wav',
+              channelId: 'pedigochos_master_alerts',
+              smallIcon: 'ic_launcher_foreground'
+            }
+          ]
+        });
+      } catch(e) {
+        console.warn('Capacitor notification schedule failed:', e);
+      }
+    } else if ('Notification' in window && Notification.permission === 'granted') {
       try {
         new Notification(`🚨 ¡NUEVO PEDIDO RECIBIDO! #${orderCode}`, {
           body: `🏪 ${storeName}\n👤 ${customerName} (${orderType})\n💰 Total: ${orderTotal}`,
@@ -3774,6 +4187,54 @@ class AdminController {
 
 const AdminApp = new AdminController();
 window.AdminApp = AdminApp;
+
+window.getTodayDayId = function() {
+  const dayIndex = new Date().getDay(); // 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
+  const map = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+  return map[dayIndex];
+};
+
+window.toggleFormDayPill = function(el, containerId) {
+  const day = el.getAttribute('data-day');
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  if (day === 'todos') {
+    container.querySelectorAll('.day-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+  } else {
+    const todosPill = container.querySelector('[data-day="todos"]');
+    if (todosPill) todosPill.classList.remove('active');
+    el.classList.toggle('active');
+
+    const anyActive = container.querySelectorAll('.day-pill.active').length > 0;
+    if (!anyActive && todosPill) {
+      todosPill.classList.add('active');
+    }
+  }
+};
+
+window.toggleSpecsDayPill = function(el) {
+  window.toggleFormDayPill(el, 'specs-available-days-pills');
+};
+
+window.getSelectedDaysFromContainer = function(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return ['todos'];
+  const activePills = container.querySelectorAll('.day-pill.active');
+  const days = Array.from(activePills).map(p => p.getAttribute('data-day'));
+  return (days.length === 0 || days.includes('todos')) ? ['todos'] : days;
+};
+
+window.setSelectedDaysToContainer = function(containerId, daysArray) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const days = (Array.isArray(daysArray) && daysArray.length > 0) ? daysArray.map(d => String(d).toLowerCase()) : ['todos'];
+  container.querySelectorAll('.day-pill').forEach(p => {
+    const d = p.getAttribute('data-day');
+    p.classList.toggle('active', days.includes(d) || (days.includes('todos') && d === 'todos'));
+  });
+};
 
 document.addEventListener('DOMContentLoaded', () => {
   AdminApp.init();

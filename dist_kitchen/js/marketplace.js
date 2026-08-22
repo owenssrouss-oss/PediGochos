@@ -1082,12 +1082,50 @@ class MarketplaceController {
       return;
     }
 
+    const dayMap = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+    const todayDay = dayMap[new Date().getDay()];
+
     products.forEach((prod, index) => {
+      const isPaused = prod.is_paused === true || prod.available === false;
+      const days = (prod.available_days && Array.isArray(prod.available_days) && prod.available_days.length > 0)
+        ? prod.available_days.map(d => String(d).toLowerCase())
+        : ['todos'];
+      
+      const isDaySpecific = !days.includes('todos');
+      const isAvailableToday = days.includes('todos') || days.includes(todayDay);
+
+      let dayBadgeHTML = '';
+      if (isDaySpecific) {
+        if (isAvailableToday) {
+          dayBadgeHTML = `<span style="display: inline-block; font-size: 10px; font-weight: 800; background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); padding: 2px 6px; border-radius: 4px; margin-bottom: 4px;">🔥 Especial de Hoy (${todayDay.toUpperCase()})</span>`;
+        } else {
+          const daysNames = days.map(d => d.slice(0, 3).toUpperCase()).join(', ');
+          dayBadgeHTML = `<span style="display: inline-block; font-size: 9.5px; font-weight: 700; background: rgba(255,255,255,0.06); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; margin-bottom: 4px;">📅 Solo ${daysNames}</span>`;
+        }
+      }
+
       const card = document.createElement('div');
-      card.className = 'product-card animate-fade-in-up';
-      card.style.cursor = 'pointer';
+      card.className = `product-card animate-fade-in-up ${isPaused || !isAvailableToday ? 'product-disabled' : ''}`;
+      card.style.cursor = (isPaused || !isAvailableToday) ? 'not-allowed' : 'pointer';
       card.style.animationDelay = `${index * 0.05}s`;
-      card.setAttribute('onclick', `MarketplaceApp.openCustomizerModalById('${prod.id}')`);
+      if (isPaused) {
+        card.style.opacity = '0.5';
+      } else if (!isAvailableToday) {
+        card.style.opacity = '0.65';
+      }
+
+      if (!isPaused && isAvailableToday) {
+        card.setAttribute('onclick', `MarketplaceApp.openCustomizerModalById('${prod.id}')`);
+      } else {
+        card.onclick = () => {
+          if (isPaused) {
+            alert(`⚠️ "${prod.name}" no está disponible en este momento.`);
+          } else {
+            const daysNames = days.map(d => d.toUpperCase()).join(', ');
+            alert(`📅 "${prod.name}" solo se prepara los días: ${daysNames}.`);
+          }
+        };
+      }
 
       // Check if image exists, otherwise use category fallback or emoji
       let imgHTML = '';
@@ -1099,15 +1137,22 @@ class MarketplaceController {
         imgHTML = `<div class="product-image-placeholder">${estLogo}</div>`;
       }
 
+      const actionButtonHTML = isPaused
+        ? `<span style="font-size: 10px; color: #ef4444; font-weight: 800;">Agotado</span>`
+        : (!isAvailableToday
+          ? `<span style="font-size: 10px; color: var(--text-muted); font-weight: 700;">No hoy</span>`
+          : `<button class="btn-add-product" onclick="event.stopPropagation(); MarketplaceApp.openCustomizerModalById('${prod.id}')">+</button>`);
+
       card.innerHTML = `
         <div class="product-info">
           <div>
+            ${dayBadgeHTML}
             <h4>${prod.name}</h4>
             <p>${prod.description || ''}</p>
           </div>
           <div class="product-price-row">
             <span class="product-price">${this.formatPesos(prod.price)}</span>
-            <button class="btn-add-product" onclick="event.stopPropagation(); MarketplaceApp.openCustomizerModalById('${prod.id}')">+</button>
+            ${actionButtonHTML}
           </div>
         </div>
         <div class="product-image-container">

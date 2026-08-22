@@ -296,6 +296,22 @@
           <input type="text" id="form-adicionales" placeholder="Ej. Tocineta 2, Huevo 1" style="width: 100%;">
         </div>
 
+        <!-- Días Disponibles de la Semana -->
+        <div class="form-group" style="background: rgba(245, 158, 11, 0.05); padding: 12px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.2);">
+          <label style="color: #f59e0b; margin-bottom: 6px; font-weight: 700; display: block;">📅 Días de Disponibilidad</label>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 8px 0;">Selecciona los días en que se sirve este plato (o "Todos los días"):</p>
+          <div class="day-pill-selector" id="form-available-days-pills" style="margin-bottom: 0;">
+            <span class="day-pill active" data-day="todos" onclick="toggleFormDayPill(this, 'form-available-days-pills')">Todos los días</span>
+            <span class="day-pill" data-day="lunes" onclick="toggleFormDayPill(this, 'form-available-days-pills')">Lunes</span>
+            <span class="day-pill" data-day="martes" onclick="toggleFormDayPill(this, 'form-available-days-pills')">Martes</span>
+            <span class="day-pill" data-day="miercoles" onclick="toggleFormDayPill(this, 'form-available-days-pills')">Miércoles</span>
+            <span class="day-pill" data-day="jueves" onclick="toggleFormDayPill(this, 'form-available-days-pills')">Jueves</span>
+            <span class="day-pill" data-day="viernes" onclick="toggleFormDayPill(this, 'form-available-days-pills')">Viernes</span>
+            <span class="day-pill" data-day="sabado" onclick="toggleFormDayPill(this, 'form-available-days-pills')">Sábado</span>
+            <span class="day-pill" data-day="domingo" onclick="toggleFormDayPill(this, 'form-available-days-pills')">Domingo</span>
+          </div>
+        </div>
+
         <!-- Submit Button -->
         <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
           <button type="button" class="btn-neumorphic" onclick="closeMenuModal()" style="box-shadow: none; margin: 0;">Cancelar</button>
@@ -417,211 +433,285 @@
       </form>
     </div>
   </div>
-  <!-- Glassmorphic Modal: Immersive Menu and Floor Layout Designer -->
-  <div class="modal-overlay" id="menu-tables-modal" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 40px 0;">
-    <div class="modal-content" style="background: rgba(22, 22, 28, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); max-width: 1200px; width: 95%; height: auto; min-height: 90vh; display: flex; flex-direction: column; padding: 24px; border-radius: 24px; margin: auto;">
+  <!-- Glassmorphic Modal: Immersive Menu and Floor Layout Designer with Mobile Tabs -->
+  <div class="modal-overlay" id="menu-tables-modal" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 20px 0;">
+    <div class="modal-content" style="background: rgba(22, 22, 28, 0.96); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); max-width: 1100px; width: 96%; height: auto; min-height: 85vh; display: flex; flex-direction: column; padding: 20px; border-radius: 20px; margin: auto;">
       
       <!-- Modal Header -->
-      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
-        <div style="display: flex; flex-direction: column; gap: 4px;">
-          <h2 id="designer-modal-shop-name" style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 800;">🍔 Taller de Menú y Distribución de Mesas</h2>
-          <span style="font-size: 12.5px; color: var(--accent); font-weight: 600;" id="designer-modal-shop-subtext">Diseñador interactivo en tiempo real</span>
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <h2 id="designer-modal-shop-name" style="color: #ffffff; margin: 0; font-size: 18px; font-weight: 800;">🍔 Taller de Menú y Distribución</h2>
+          <span style="font-size: 11.5px; color: var(--accent); font-weight: 600;" id="designer-modal-shop-subtext">Diseñador interactivo y platos por día</span>
         </div>
         <button class="modal-close" onclick="closeMenuTablesModal()" style="font-size: 20px; color: #ffffff; opacity: 0.6; cursor: pointer; transition: all 0.2s;">✕</button>
       </div>
 
-      <!-- Vertical Layout Workspace -->
-      <div class="designer-workspace" style="display: flex; flex-direction: column; gap: 24px; flex: 1;">
-        
-        <!-- SECTION 1 (TOP): Tabla de Catálogo Maestro de Productos Disponibles para Importar -->
-        <div class="import-catalog-section" style="background: rgba(255, 94, 58, 0.04); border: 1px solid rgba(255, 94, 58, 0.2); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <span style="font-size: 24px;">⚡</span>
-              <div>
-                <h3 style="color: #ffffff; font-size: 16px; margin: 0; font-weight: 800;">Catálogo Maestro de Platos Disponibles (Taller de Menú)</h3>
-                <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">Haz clic en "➕ Agregar a mi Menú" para asociar cualquier plato global con su foto e ingredientes a la carta de tu restaurante.</p>
-              </div>
-            </div>
-            <div style="display: flex; gap: 10px; align-items: center; width: 100%; max-width: 320px;">
-              <input type="text" id="modal-import-search" oninput="KitchenApp.filterImportCatalogTable()" placeholder="🔍 Buscar plato en catálogo..." style="width: 100%; background: rgba(18,18,22,0.9); border: 1px solid rgba(255,255,255,0.12); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 13px;">
-            </div>
-          </div>
+      <!-- Tab Navigation Bar -->
+      <div class="designer-tabs-bar">
+        <button type="button" class="designer-tab-btn active" id="tab-btn-daily" onclick="KitchenApp.switchModalTab('daily')">
+          <span>📅 Platos por Día / Menú Diario</span>
+        </button>
+        <button type="button" class="designer-tab-btn" id="tab-btn-menu" onclick="KitchenApp.switchModalTab('menu')">
+          <span>🍔 Mi Menú y Carta</span>
+        </button>
+        <button type="button" class="designer-tab-btn" id="tab-btn-tables" onclick="KitchenApp.switchModalTab('tables')">
+          <span>🪑 Mesas y Salón</span>
+        </button>
+        <button type="button" class="designer-tab-btn" id="tab-btn-catalog" onclick="KitchenApp.switchModalTab('catalog')">
+          <span>⚡ Catálogo Maestro</span>
+        </button>
+      </div>
 
-          <!-- Tabla de Productos Maestros Disponibles -->
-          <div style="overflow-x: auto; max-height: 280px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(15, 23, 42, 0.6);" class="premium-scroll">
-            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; color: #fff;">
-              <thead>
-                <tr style="background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 11px; text-transform: uppercase;">
-                  <th style="padding: 10px 14px; width: 60px;">Foto</th>
-                  <th style="padding: 10px 14px;">Producto y Categoría</th>
-                  <th style="padding: 10px 14px;">Descripción / Ingredientes</th>
-                  <th style="padding: 10px 14px; width: 120px;">Precio Sugerido</th>
-                  <th style="padding: 10px 14px; text-align: center; width: 140px;">Acción</th>
-                </tr>
-              </thead>
-              <tbody id="modal-import-catalog-tbody">
-                <tr>
-                  <td colspan="5" style="padding: 20px; text-align: center; color: var(--text-muted);">Cargando catálogo maestro...</td>
-                </tr>
-              </tbody>
-            </table>
+      <!-- TAB 1: Platos por Día / Menú Diario -->
+      <div class="designer-tab-content active" id="tab-content-daily">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px;">
+          <div>
+            <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 800;">📅 Menú y Especiales por Día de la Semana</h3>
+            <p style="font-size: 11.5px; color: var(--text-muted); margin: 2px 0 0 0;">Configura qué platos están disponibles según el día (sopas, ensaladas, platos del día) y sus opciones cambiantes.</p>
           </div>
+          <button type="button" class="btn-neumorphic" onclick="openMenuModal()" style="margin: 0; padding: 7px 14px; font-size: 11.5px; height: auto; font-weight: 700;">
+            <span>➕ Nuevo Plato</span>
+          </button>
         </div>
 
-        <!-- SECTION 2 (MIDDLE): Distribución de Mesas y Paredes OR Product Specs Editor -->
-        <div class="floor-plan-section" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
-          
-          <!-- State A: Floor Grid Canvas -->
-          <div id="floor-plan-grid-container" style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 20px;">🧱</span>
-                <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">Distribución de Mesas y Paredes</h3>
-              </div>
-              <!-- Tool Selector -->
-              <div class="floor-tools" style="display: flex; gap: 8px;">
-                <button class="btn-floor-tool active" onclick="setFloorTool('table')" id="tool-table" style="background: var(--accent); color: #121216; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                  🪑 Colocar Mesa
-                </button>
-                <button class="btn-floor-tool" onclick="setFloorTool('wall')" id="tool-wall" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                  🧱 Colocar Pared
-                </button>
-                <button class="btn-floor-tool" onclick="setFloorTool('eraser')" id="tool-eraser" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                  🧹 Borrador
-                </button>
-              </div>
-            </div>
-            <p style="font-size: 11.5px; color: var(--text-muted); margin: 0;">Selecciona una herramienta y haz clic en las celdas del plano para estructurar tu establecimiento. El plano se actualiza automáticamente.</p>
-            
-            <!-- Visual Grid Area centered -->
-            <div style="display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px;">
-              <div id="floor-grid-canvas" style="display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 6px; width: 100%; max-width: 400px; aspect-ratio: 1/1;">
-                <!-- Celdas renderizadas dinámicamente -->
-              </div>
-            </div>
-          </div>
-
-          <!-- State B: Product Specs Editor (Shown instead of grid when a product is clicked) -->
-          <div id="floor-specs-editor-container" style="display: none; width: 100%;">
-            <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-              <h3 style="color: #ffffff; margin: 0; font-size: 16px; font-weight: 800;" id="specs-modal-title">⚙️ Especificaciones del Producto</h3>
-              <button type="button" class="btn-neumorphic" onclick="closeProductSpecsModal()" style="margin:0; padding: 4px 10px; font-size: 11px; height: auto;">✕ Cerrar Editor</button>
-            </div>
-
-            <form id="product-specs-form" onsubmit="handleSpecsSubmit(event)">
-              <input type="hidden" id="specs-product-id">
-
-              <!-- Edit Name, Category, Price & Description Section -->
-              <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px; display: flex; flex-direction: column; gap: 12px;">
-                <h4 style="color: var(--accent); margin: 0 0 4px 0; font-size: 13px; font-weight: 700;">✏️ Información General del Plato</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                  <div>
-                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Nombre del Plato *</label>
-                    <input type="text" id="specs-product-name" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
-                  </div>
-                  <div>
-                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Categoría *</label>
-                    <input type="text" id="specs-product-category" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;" placeholder="Ej. Pizzas, Arepas, Bebidas">
-                  </div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                  <div>
-                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Precio Base *</label>
-                    <input type="number" step="any" id="specs-product-price" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
-                  </div>
-                  <div>
-                    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Descripción</label>
-                    <input type="text" id="specs-product-description" style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Edit Product Image Section -->
-              <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px; display: flex; align-items: center; gap: 16px;">
-                <div style="width: 70px; height: 70px; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                  <img id="specs-product-image-preview" src="" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/burger_royale.jpg'">
-                </div>
-                <div style="flex-grow: 1;">
-                  <h4 style="color: var(--accent); margin: 0 0 4px 0; font-size: 13px; font-weight: 700;">📸 Foto del Producto</h4>
-                  <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 8px 0; line-height: 1.3;">Sube una nueva foto para este plato.</p>
-                  <input type="file" id="specs-product-image-file" accept="image/*" style="font-size: 12px; color: #fff; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 4px; width: 100%;">
-                </div>
-              </div>
-
-              <!-- Ingredients / Exclusions Section -->
-              <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px;">
-                <h4 style="color: var(--accent); margin: 0 0 8px 0; font-size: 13px; font-weight: 700;">📝 Ingredientes / Exclusiones</h4>
-                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">Agrega ingredientes que el cliente puede optar por excluir (quitar) de su plato.</p>
-                <div id="specs-ingredients-list" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
-                  <!-- Rendered dynamically -->
-                </div>
-                <div style="display: flex; gap: 8px;">
-                  <input type="text" id="new-ingredient-input" placeholder="Ej. Cebolla, Pepinillos" style="flex: 1; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;">
-                  <button type="button" class="btn-neumorphic" onclick="addIngredientOption()" style="margin: 0; padding: 8px 16px; font-size: 12px; height: 38px;">Agregar</button>
-                </div>
-              </div>
-
-              <!-- Modifier Groups Section -->
-              <div style="margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                  <h4 style="color: var(--accent); margin: 0; font-size: 13px; font-weight: 700;">🎛️ Opciones y Adicionales</h4>
-                  <button type="button" class="btn-neumorphic" onclick="addModifierGroup()" style="margin: 0; padding: 6px 12px; font-size: 11px; height: 32px; background: rgba(255,255,255,0.05); color:#fff; border-color: rgba(255,255,255,0.1);">➕ Nuevo Grupo</button>
-                </div>
-                
-                <div id="specs-groups-container" style="display: flex; flex-direction: column; gap: 16px; max-height: 280px; overflow-y: auto; padding-right: 4px;" class="premium-scroll">
-                  <!-- Loaded dynamically -->
-                </div>
-              </div>
-
-              <!-- Footer Actions -->
-              <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
-                <button type="button" class="btn-neumorphic" onclick="closeProductSpecsModal()" style="box-shadow: none; margin: 0; padding: 8px 16px; font-size: 13px;">Cancelar</button>
-                <button type="submit" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0; padding: 8px 16px; font-size: 13px; font-weight: 700;">
-                  Guardar Especificaciones
-                </button>
-              </div>
-            </form>
-          </div>
-
+        <!-- Selector de Días de la Semana -->
+        <div class="day-pill-selector" id="daily-specials-day-selector">
+          <span class="day-pill active" data-day="todos" onclick="KitchenApp.selectDailySpecialsDay('todos')">Todos los días</span>
+          <span class="day-pill" data-day="lunes" onclick="KitchenApp.selectDailySpecialsDay('lunes')">Lunes</span>
+          <span class="day-pill" data-day="martes" onclick="KitchenApp.selectDailySpecialsDay('martes')">Martes</span>
+          <span class="day-pill" data-day="miercoles" onclick="KitchenApp.selectDailySpecialsDay('miercoles')">Miércoles</span>
+          <span class="day-pill" data-day="jueves" onclick="KitchenApp.selectDailySpecialsDay('jueves')">Jueves</span>
+          <span class="day-pill" data-day="viernes" onclick="KitchenApp.selectDailySpecialsDay('viernes')">Viernes</span>
+          <span class="day-pill" data-day="sabado" onclick="KitchenApp.selectDailySpecialsDay('sabado')">Sábado</span>
+          <span class="day-pill" data-day="domingo" onclick="KitchenApp.selectDailySpecialsDay('domingo')">Domingo</span>
         </div>
 
-        <!-- SECTION 3 (BOTTOM): Modificación de Carta (Categories left, Products right) -->
-        <div class="menu-modification-section" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 20px;">🍔</span>
-              <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">Modificación del Menú del Restaurante</h3>
-            </div>
-            <button class="btn-neumorphic" onclick="openMenuModal()" style="margin: 0; padding: 8px 16px; font-size: 12px; height: 36px; font-weight: 700;">
+        <!-- Lista / Grid de Platos del Día Seleccionado -->
+        <div id="daily-specials-grid" class="daily-specials-grid">
+          <!-- Renderizado dinámicamente -->
+        </div>
+      </div>
+
+      <!-- TAB 2: Mi Menú y Carta Normal -->
+      <div class="designer-tab-content" id="tab-content-menu">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 18px;">🍔</span>
+            <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">Carta y Productos del Restaurante</h3>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button onclick="createNewCategory()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--accent); font-size: 11.5px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer;">➕ Nueva Categoría</button>
+            <button class="btn-neumorphic" onclick="openMenuModal()" style="margin: 0; padding: 6px 14px; font-size: 11.5px; height: 32px; font-weight: 700;">
               <span>➕ Nuevo Producto</span>
             </button>
           </div>
+        </div>
 
-          <div style="display: grid; grid-template-columns: 200px 1fr; gap: 20px; min-height: 350px;">
-            <!-- Left Side: Categories -->
-            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; max-height: 400px; overflow-y: auto;">
-              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; margin-bottom: 10px;">
-                <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">📂 CATEGORÍAS</span>
-                <button onclick="createNewCategory()" style="background: none; border: none; color: var(--accent); font-size: 11.5px; font-weight: 800; cursor: pointer;">➕ Nueva</button>
-              </div>
-              <ul class="category-list" id="modal-categories-sidebar" style="gap: 6px; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column;">
-                <li class="category-item active" onclick="filterCategoryModal('all')" style="font-size: 12px; padding: 8px 12px; cursor: pointer; border-radius: 8px;">Todos</li>
-              </ul>
+        <!-- Categorías en barra deslizante horizontal (óptimo para móvil) -->
+        <ul class="category-list-horizontal" id="modal-categories-sidebar">
+          <li class="category-item active" onclick="filterCategoryModal('all')">Todos</li>
+        </ul>
+
+        <!-- Cuadrícula de Productos Compacta -->
+        <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 14px; padding: 10px; max-height: 440px; overflow-y: auto;" class="premium-scroll">
+          <div class="catalog-grid" id="modal-products-catalog-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
+            <!-- Loaded dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: Mesas y Salón / Editor de Especificaciones -->
+      <div class="designer-tab-content" id="tab-content-tables">
+        <!-- State A: Floor Grid Canvas -->
+        <div id="floor-plan-grid-container" style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 18px;">🧱</span>
+              <h3 style="color: #ffffff; font-size: 14.5px; margin: 0; font-weight: 700;">Distribución de Mesas y Paredes</h3>
             </div>
-
-            <!-- Right Side: Products -->
-            <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; padding: 12px; max-height: 400px; overflow-y: auto;" class="premium-scroll">
-              <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">📦 PRODUCTOS AGREGADOS</span>
-              <div class="catalog-grid" id="modal-products-catalog-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px;">
-                <!-- Loaded dynamically -->
-              </div>
+            <!-- Tool Selector -->
+            <div class="floor-tools" style="display: flex; gap: 6px;">
+              <button class="btn-floor-tool active" onclick="setFloorTool('table')" id="tool-table" style="background: var(--accent); color: #121216; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                🪑 Mesa
+              </button>
+              <button class="btn-floor-tool" onclick="setFloorTool('wall')" id="tool-wall" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                🧱 Pared
+              </button>
+              <button class="btn-floor-tool" onclick="setFloorTool('eraser')" id="tool-eraser" style="background: rgba(255,255,255,0.05); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                🧹 Borrar
+              </button>
+            </div>
+          </div>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 0;">Toca una herramienta y haz clic en las celdas del plano para colocar mesas o paredes.</p>
+          
+          <!-- Visual Grid Area centered -->
+          <div style="display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 14px;">
+            <div id="floor-grid-canvas" style="display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 5px; width: 100%; max-width: 320px; aspect-ratio: 1/1;">
+              <!-- Celdas renderizadas dinámicamente -->
             </div>
           </div>
         </div>
 
+        <!-- State B: Product Specs Editor -->
+        <div id="floor-specs-editor-container" style="display: none; width: 100%;">
+          <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: #ffffff; margin: 0; font-size: 15px; font-weight: 800;" id="specs-modal-title">⚙️ Especificaciones del Producto</h3>
+            <button type="button" class="btn-neumorphic" onclick="closeProductSpecsModal()" style="margin:0; padding: 4px 10px; font-size: 11px; height: auto;">✕ Cerrar Editor</button>
+          </div>
+
+          <form id="product-specs-form" onsubmit="handleSpecsSubmit(event)">
+            <input type="hidden" id="specs-product-id">
+
+            <!-- Edit Name, Category, Price & Description Section -->
+            <div style="margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px; display: flex; flex-direction: column; gap: 10px;">
+              <h4 style="color: var(--accent); margin: 0 0 2px 0; font-size: 12.5px; font-weight: 700;">✏️ Información General del Plato</h4>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                  <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Nombre del Plato *</label>
+                  <input type="text" id="specs-product-name" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 7px 10px; font-size: 12px;">
+                </div>
+                <div>
+                  <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Categoría *</label>
+                  <input type="text" id="specs-product-category" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 7px 10px; font-size: 12px;" placeholder="Ej. Pizzas, Arepas">
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                  <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Precio Base *</label>
+                  <input type="number" step="any" id="specs-product-price" required style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 7px 10px; font-size: 12px;">
+                </div>
+                <div>
+                  <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Descripción</label>
+                  <input type="text" id="specs-product-description" style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 7px 10px; font-size: 12px;">
+                </div>
+              </div>
+
+              <!-- Días Disponibles de la Semana -->
+              <div>
+                <label style="font-size: 11px; color: #f59e0b; display: block; margin-bottom: 4px; font-weight: 700;">📅 Días de Disponibilidad</label>
+                <div class="day-pill-selector" id="specs-available-days-pills" style="margin-bottom: 0;">
+                  <span class="day-pill active" data-day="todos" onclick="toggleSpecsDayPill(this)">Todos los días</span>
+                  <span class="day-pill" data-day="lunes" onclick="toggleSpecsDayPill(this)">Lunes</span>
+                  <span class="day-pill" data-day="martes" onclick="toggleSpecsDayPill(this)">Martes</span>
+                  <span class="day-pill" data-day="miercoles" onclick="toggleSpecsDayPill(this)">Miércoles</span>
+                  <span class="day-pill" data-day="jueves" onclick="toggleSpecsDayPill(this)">Jueves</span>
+                  <span class="day-pill" data-day="viernes" onclick="toggleSpecsDayPill(this)">Viernes</span>
+                  <span class="day-pill" data-day="sabado" onclick="toggleSpecsDayPill(this)">Sábado</span>
+                  <span class="day-pill" data-day="domingo" onclick="toggleSpecsDayPill(this)">Domingo</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Edit Product Image Section -->
+            <div style="margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px; display: flex; align-items: center; gap: 12px;">
+              <div style="width: 58px; height: 58px; border-radius: 10px; overflow: hidden; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <img id="specs-product-image-preview" src="" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/burger_royale.jpg'">
+              </div>
+              <div style="flex-grow: 1;">
+                <h4 style="color: var(--accent); margin: 0 0 2px 0; font-size: 12.5px; font-weight: 700;">📸 Foto del Producto</h4>
+                <input type="file" id="specs-product-image-file" accept="image/*" style="font-size: 11px; color: #fff; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 3px; width: 100%;">
+              </div>
+            </div>
+
+            <!-- Ingredients / Exclusions Section -->
+            <div style="margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px;">
+              <h4 style="color: var(--accent); margin: 0 0 6px 0; font-size: 12.5px; font-weight: 700;">📝 Ingredientes / Exclusiones</h4>
+              <div id="specs-ingredients-list" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+                <!-- Rendered dynamically -->
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <input type="text" id="new-ingredient-input" placeholder="Ej. Cebolla, Pepinillos" style="flex: 1; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 6px 10px; font-size: 12px;">
+                <button type="button" class="btn-neumorphic" onclick="addIngredientOption()" style="margin: 0; padding: 6px 12px; font-size: 11.5px; height: 34px;">Agregar</button>
+              </div>
+            </div>
+
+            <!-- Modifier Groups Section -->
+            <div style="margin-bottom: 14px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h4 style="color: var(--accent); margin: 0; font-size: 12.5px; font-weight: 700;">🎛️ Opciones y Adicionales</h4>
+                <button type="button" class="btn-neumorphic" onclick="addModifierGroup()" style="margin: 0; padding: 5px 10px; font-size: 11px; height: 28px; background: rgba(255,255,255,0.05); color:#fff; border-color: rgba(255,255,255,0.1);">➕ Nuevo Grupo</button>
+              </div>
+              
+              <div id="specs-groups-container" style="display: flex; flex-direction: column; gap: 12px; max-height: 240px; overflow-y: auto; padding-right: 4px;" class="premium-scroll">
+                <!-- Loaded dynamically -->
+              </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;">
+              <button type="button" class="btn-neumorphic" onclick="closeProductSpecsModal()" style="box-shadow: none; margin: 0; padding: 6px 14px; font-size: 12px;">Cancelar</button>
+              <button type="submit" class="btn-neumorphic" style="background-color: var(--accent); color: #121216; border-color: var(--accent); margin: 0; padding: 6px 16px; font-size: 12px; font-weight: 700;">
+                Guardar Especificaciones
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
 
+      <!-- TAB 4: Catálogo Maestro para Importar -->
+      <div class="designer-tab-content" id="tab-content-catalog">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+          <div>
+            <h3 style="color: #ffffff; font-size: 14.5px; margin: 0; font-weight: 800;">⚡ Catálogo Global de Platos</h3>
+            <p style="font-size: 11px; color: var(--text-muted); margin: 2px 0 0 0;">Importa platos globales con sus fotos e ingredientes con 1 toque.</p>
+          </div>
+          <div style="width: 100%; max-width: 280px;">
+            <input type="text" id="modal-import-search" oninput="KitchenApp.filterImportCatalogTable()" placeholder="🔍 Buscar en catálogo..." style="width: 100%; background: rgba(18,18,22,0.9); border: 1px solid rgba(255,255,255,0.12); color: #fff; padding: 6px 10px; border-radius: 8px; font-size: 12px;">
+          </div>
+        </div>
+
+        <div style="overflow-x: auto; max-height: 380px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(15, 23, 42, 0.6);" class="premium-scroll">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; color: #fff;">
+            <thead>
+              <tr style="background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 10.5px; text-transform: uppercase;">
+                <th style="padding: 8px 10px; width: 50px;">Foto</th>
+                <th style="padding: 8px 10px;">Producto</th>
+                <th style="padding: 8px 10px;">Descripción</th>
+                <th style="padding: 8px 10px; width: 100px;">Precio</th>
+                <th style="padding: 8px 10px; text-align: center; width: 120px;">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="modal-import-catalog-tbody">
+              <tr>
+                <td colspan="5" style="padding: 16px; text-align: center; color: var(--text-muted);">Cargando catálogo maestro...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal: Opciones Cambiantes del Plato (Sopas, Ensaladas, Bebidas, etc.) -->
+  <div class="modal-overlay" id="daily-options-modal" style="z-index: 4100; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+    <div class="modal-content" style="background: #16161c; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.6); margin: auto; max-width: 500px; width: 92%; border-radius: 20px; padding: 18px;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="color: #ffffff; margin: 0; font-size: 15px; font-weight: 800;">🍲 Opciones e Ingredientes del Día</h3>
+          <span id="daily-options-product-name" style="font-size: 11.5px; color: var(--accent); font-weight: 600;">Plato</span>
+        </div>
+        <button type="button" class="modal-close" onclick="KitchenApp.closeDailyOptionsModal()" style="font-size: 18px; color: #fff; background: none; border: none; cursor: pointer;">✕</button>
+      </div>
+
+      <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 12px 0; line-height: 1.3;">
+        Configura los sabores o componentes que el cliente puede elegir hoy (ej. tipo de sopa, ensalada, proteína o acompañamiento).
+      </p>
+
+      <div id="daily-options-groups-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; padding-right: 4px;" class="premium-scroll">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div style="margin-top: 12px; display: flex; gap: 8px;">
+        <button type="button" class="btn-neumorphic" onclick="KitchenApp.addQuickDailyGroup()" style="margin: 0; font-size: 11.5px; padding: 7px 12px; background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(255,255,255,0.1);">
+          ➕ Agregar Opción (Ej: Sopa, Ensalada)
+        </button>
+      </div>
+
+      <div style="margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; display: flex; justify-content: flex-end; gap: 8px;">
+        <button type="button" class="btn-neumorphic" onclick="KitchenApp.closeDailyOptionsModal()" style="margin: 0; padding: 6px 14px; font-size: 11.5px;">Cerrar</button>
+        <button type="button" class="btn-neumorphic" onclick="KitchenApp.saveDailyOptions()" style="margin: 0; padding: 6px 16px; font-size: 11.5px; font-weight: 800; background: var(--accent); color: #121216;">💾 Guardar Opciones</button>
+      </div>
     </div>
   </div>
 
