@@ -837,11 +837,18 @@ class KitchenController {
              </div>` 
           : '';
 
+        const clientLat = order.deliveryDetails.latitude;
+        const clientLng = order.deliveryDetails.longitude;
+        const gpsLinkHTML = (clientLat && clientLng)
+          ? `<p style="margin-top: 4px;"><a href="https://maps.google.com/?q=${clientLat},${clientLng}" target="_blank" style="color: #38BDF8; font-weight: 800; text-decoration: none; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">🗺️ Ubicación GPS (${parseFloat(clientLat).toFixed(4)}, ${parseFloat(clientLng).toFixed(4)})</a></p>`
+          : '';
+
         detailsHTML = `
           <div class="order-address-box">
             <strong>🚴 Envío a Domicilio</strong>
             <p><strong>Tlf:</strong> ${phoneLink}</p>
             <p><strong>Dir:</strong> ${order.deliveryDetails.address || 'N/A'}</p>
+            ${gpsLinkHTML}
             ${codeHTML}
             ${photoHTML}
           </div>
@@ -1233,7 +1240,10 @@ class KitchenController {
         `💳 *Forma de Pago:* ${payMethodText}\n`;
 
       if (clientLat && clientLng) {
-        messageText += `🗺️ *Ubicación GPS:* https://maps.google.com/?q=${clientLat},${clientLng}\n`;
+        const distText = order.deliveryDetails?.distanceKm ? ` (Distancia: ~${order.deliveryDetails.distanceKm} km)` : '';
+        messageText += `🗺️ *Ubicación GPS de Entrega:* https://maps.google.com/?q=${clientLat},${clientLng}\n` +
+          `🧭 *Waze:* https://waze.com/ul?ll=${clientLat},${clientLng}&navigate=yes\n` +
+          `📌 *Coordenadas:* ${clientLat}, ${clientLng}${distText}\n`;
       }
 
       messageText += `\n📝 *DETALLE DE LA ORDEN:*\n${itemsSummary}\n\n` +

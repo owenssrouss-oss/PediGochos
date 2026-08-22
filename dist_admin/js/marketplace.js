@@ -111,9 +111,8 @@ class MarketplaceController {
     await this.loadPromotions();
     this.initWebSocket();
     
-    // Update active location display in header on startup
-    const display = document.getElementById('active-location-display');
-    if (display) display.innerText = this.currentLocation;
+    // Auto-detect user's GPS coordinates immediately on startup
+    this.requestAutomaticGPS(false);
 
     this.currentCategory = null;
     window.activeFoodTypeFilter = null;
@@ -2668,8 +2667,15 @@ class MarketplaceController {
         phone = `${countryCode} ${rawPhone}`;
       }
       if (this.selectedLatitude === null || this.selectedLongitude === null) {
-        alert('Por favor, selecciona tu ubicación en el mapa haciendo clic en "🗺️ Seleccionar en Mapa" para calcular tu domicilio.');
-        return;
+        const cachedLat = localStorage.getItem('user_gps_lat');
+        const cachedLng = localStorage.getItem('user_gps_lng');
+        if (cachedLat && cachedLng) {
+          this.selectedLatitude = parseFloat(cachedLat);
+          this.selectedLongitude = parseFloat(cachedLng);
+        } else {
+          alert('📍 Por favor, toca tu ubicación exacta en el mapa para que el domiciliario sepa a dónde llevar tu pedido.');
+          return;
+        }
       }
     }
 
@@ -2994,21 +3000,80 @@ class MarketplaceController {
     }
   }
 
+  requestAutomaticGPS(showToast = false) {
+    const display = document.getElementById('active-location-display');
+    if (display) display.innerText = '📡 Detectando GPS...';
+
+    if (!navigator.geolocation) {
+      if (showToast) this.showToast('⚠️ Tu navegador o dispositivo no soporta geolocalización.');
+      if (display) display.innerText = '📍 Marca tu ubicación';
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const userLat = pos.coords.latitude;
+        const userLng = pos.coords.longitude;
+        this.userGpsLat = userLat;
+        this.userGpsLng = userLng;
+        this.selectedLatitude = userLat;
+        this.selectedLongitude = userLng;
+
+        try {
+          localStorage.setItem('user_gps_lat', userLat.toString());
+          localStorage.setItem('user_gps_lng', userLng.toString());
+        } catch(e) {}
+
+        if (display) {
+          display.innerText = `📍 GPS (${userLat.toFixed(4)}, ${userLng.toFixed(4)})`;
+        }
+
+        const shopCenter = this.getActiveShopCenter();
+        if (this.leafMap) {
+          this.setUserLocationOnMap([userLat, userLng], shopCenter, true);
+        }
+
+        const modalTitle = document.getElementById('modal-gps-status-title');
+        if (modalTitle) modalTitle.innerText = `GPS Activo (${userLat.toFixed(4)}, ${userLng.toFixed(4)})`;
+
+        if (showToast) {
+          this.showToast(`🎯 ¡Ubicación GPS detectada con éxito!`);
+        }
+      },
+      (err) => {
+        console.warn('GPS error / permission denied:', err);
+        const cachedLat = localStorage.getItem('user_gps_lat');
+        const cachedLng = localStorage.getItem('user_gps_lng');
+        if (cachedLat && cachedLng) {
+          const latNum = parseFloat(cachedLat);
+          const lngNum = parseFloat(cachedLng);
+          this.userGpsLat = latNum;
+          this.userGpsLng = lngNum;
+          this.selectedLatitude = latNum;
+          this.selectedLongitude = lngNum;
+          if (display) display.innerText = `📍 GPS (${latNum.toFixed(4)}, ${lngNum.toFixed(4)})`;
+          const shopCenter = this.getActiveShopCenter();
+          if (this.leafMap) {
+            this.setUserLocationOnMap([latNum, lngNum], shopCenter, true);
+          }
+        } else {
+          if (display) display.innerText = '📍 Marca tu ubicación';
+        }
+        if (showToast) {
+          this.showToast('⚠️ No se pudo obtener GPS automáticamente. Puedes tocar tu ubicación en el mapa al hacer tu pedido.', true);
+        }
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+    );
+  }
+
   openLocationModal() {
-    this.closeAllModals();
+    this.requestAutomaticGPS(true);
     const modal = document.getElementById('location-modal');
     if (modal) {
+      this.closeAllModals();
       modal.classList.add('open');
       modal.style.setProperty('display', 'flex', 'important');
-      // Highlight selected button
-      document.querySelectorAll('.btn-location-option').forEach(btn => btn.style.borderColor = 'var(--border)');
-      let activeBtnId = 'btn-loc-san-antonio';
-      if (this.currentLocation === 'Ureña') activeBtnId = 'btn-loc-urena';
-      else if (this.currentLocation === 'San Cristóbal') activeBtnId = 'btn-loc-san-cristobal';
-      
-      const activeBtn = document.getElementById(activeBtnId);
-      if (activeBtn) activeBtn.style.borderColor = 'var(--primary)';
-      
       window.history.pushState({ view: 'modal', modalId: 'location-modal' }, '');
     }
   }
@@ -3024,10 +3089,6 @@ class MarketplaceController {
   setLocation(location) {
     this.currentLocation = location;
     localStorage.setItem('selected_location', location);
-    
-    const display = document.getElementById('active-location-display');
-    if (display) display.innerText = location;
-    
     this.closeLocationModal();
     this.renderEstablishments();
   }
@@ -3203,8 +3264,12 @@ class MarketplaceController {
       return;
     }
 
-    // Initialize Leaflet map centered at Restaurant location
-    this.leafMap = L.map('checkout-leaflet-map').setView(shopCenter, 14);
+    // Initialize Leaflet map centered at User GPS if available, otherwise Restaurant location
+    const initialCenter = (this.selectedLatitude && this.selectedLongitude)
+      ? [this.selectedLatitude, this.selectedLongitude]
+      : shopCenter;
+
+    this.leafMap = L.map('checkout-leaflet-map').setView(initialCenter, 15);
 
     // OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -3217,15 +3282,22 @@ class MarketplaceController {
     const storeName = this.selectedEstablishment ? this.selectedEstablishment.name : 'Restaurante';
     this.sedeMarker.bindPopup(`<b>🏪 Restaurante: ${storeName}</b><br><small>Origen del Domicilio</small>`);
 
-    // 2. Create User Destination Location Marker (Interactive / Draggable)
+    // 2. Create User Destination Location Marker (Interactive / Draggable with radar effect)
     const userIcon = L.divIcon({
       className: 'custom-user-marker',
-      html: `<div style="background-color: #FF5E3A; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(255, 94, 58, 0.4); border: 2px solid white; cursor: grab;">📍</div>`,
-      iconSize: [34, 34],
-      iconAnchor: [17, 17]
+      html: `<div style="position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+               <div style="position: absolute; width: 40px; height: 40px; background: rgba(239, 68, 68, 0.3); border-radius: 50%; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+               <div style="position: relative; background-color: #EF4444; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5); border: 2.5px solid white; cursor: grab;">📍</div>
+             </div>`,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
     });
 
-    this.leafMarker = L.marker(shopCenter, { icon: userIcon, draggable: true }).addTo(this.leafMap);
+    const markerPos = (this.selectedLatitude && this.selectedLongitude)
+      ? [this.selectedLatitude, this.selectedLongitude]
+      : shopCenter;
+
+    this.leafMarker = L.marker(markerPos, { icon: userIcon, draggable: true }).addTo(this.leafMap);
 
     this.leafMarker.on('dragend', (e) => {
       const pos = e.target.getLatLng();
@@ -3236,57 +3308,19 @@ class MarketplaceController {
       this.setUserLocationOnMap([e.latlng.lat, e.latlng.lng], shopCenter, true);
     });
 
-    // Fetch real GPS position automatically
-    this.fetchUserGPSLocation(shopCenter);
-  }
-
-  setDeliveryZone(zoneKey) {
-    const zones = {
-      'san_antonio': { name: 'San Antonio Centro', coords: [7.8145, -72.4430] },
-      'libertadores': { name: 'Libertadores', coords: [7.8064, -72.4483] },
-      'sucre': { name: 'Barrio Sucre', coords: [7.8175, -72.4410] },
-      'llano_jorge': { name: 'Llano Jorge', coords: [7.7786, -72.4584] },
-      'peracal': { name: 'Peracal', coords: [7.7922, -72.4306] },
-      'palotal': { name: 'El Palotal', coords: [7.8562, -72.4406] },
-      'tienditas': { name: 'Tienditas', coords: [7.8837, -72.4421] },
-      'urena': { name: 'Ureña', coords: [7.9183, -72.4467] },
-      'capacho': { name: 'Capacho', coords: [7.8247, -72.3075] },
-      'rubio': { name: 'Rubio', coords: [7.7055, -72.3552] }
-    };
-    const zone = zones[zoneKey];
-    if (!zone) return;
-    const shopCenter = this.getActiveShopCenter();
-    this.setUserLocationOnMap(zone.coords, shopCenter, true, zone.name);
-
-    // Update active highlight style on chips
-    document.querySelectorAll('.btn-zone-chip').forEach(btn => {
-      btn.style.background = '#FFFFFF';
-      btn.style.borderColor = '#CBD5E1';
-      btn.style.color = '#0F172A';
-      btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
-    });
-    const clickedBtn = document.querySelector(`.btn-zone-chip[onclick*="'${zoneKey}'"]`);
-    if (clickedBtn) {
-      clickedBtn.style.background = '#ECFDF5';
-      clickedBtn.style.borderColor = '#10B981';
-      clickedBtn.style.color = '#065F46';
-      clickedBtn.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.25)';
+    if (this.selectedLatitude && this.selectedLongitude) {
+      this.setUserLocationOnMap([this.selectedLatitude, this.selectedLongitude], shopCenter, true);
+    } else {
+      this.fetchUserGPSLocation(shopCenter);
     }
   }
 
+  setDeliveryZone(zoneKey) {
+    // Deprecated in favor of exact GPS pin positioning
+  }
+
   onAddressInput(val) {
-    const text = (val || '').toLowerCase().trim();
-    if (!text) return;
-    
-    if (text.includes('llano jorge') || text.includes('llano de jorge')) this.setDeliveryZone('llano_jorge');
-    else if (text.includes('palotal')) this.setDeliveryZone('palotal');
-    else if (text.includes('tienditas')) this.setDeliveryZone('tienditas');
-    else if (text.includes('ureña') || text.includes('urena')) this.setDeliveryZone('urena');
-    else if (text.includes('peracal')) this.setDeliveryZone('peracal');
-    else if (text.includes('capacho')) this.setDeliveryZone('capacho');
-    else if (text.includes('rubio')) this.setDeliveryZone('rubio');
-    else if (text.includes('libertadores')) this.setDeliveryZone('libertadores');
-    else if (text.includes('sucre')) this.setDeliveryZone('sucre');
+    // Just accepts typed address text (e.g. Calle, Casa, Referencia)
   }
 
   fetchUserGPSLocation(shopCenter) {
@@ -3298,20 +3332,28 @@ class MarketplaceController {
         (pos) => {
           const userLat = pos.coords.latitude;
           const userLng = pos.coords.longitude;
+          this.userGpsLat = userLat;
+          this.userGpsLng = userLng;
           this.setUserLocationOnMap([userLat, userLng], shopCenter, true);
         },
         (err) => {
           console.warn('Geolocation error or denied:', err);
-          const fallbackUserPos = [shopCenter[0] + 0.006, shopCenter[1] + 0.006];
-          this.setUserLocationOnMap(fallbackUserPos, shopCenter, false);
-          if (distSpan) {
-            distSpan.innerHTML = `⚠️ GPS no detectado. Toca tu sector o el mapa.`;
+          const cachedLat = localStorage.getItem('user_gps_lat');
+          const cachedLng = localStorage.getItem('user_gps_lng');
+          if (cachedLat && cachedLng) {
+            this.setUserLocationOnMap([parseFloat(cachedLat), parseFloat(cachedLng)], shopCenter, true);
+          } else {
+            const fallbackUserPos = [shopCenter[0] + 0.005, shopCenter[1] + 0.005];
+            this.setUserLocationOnMap(fallbackUserPos, shopCenter, false);
+            if (distSpan) {
+              distSpan.innerHTML = `⚠️ Toca en el mapa tu ubicación exacta`;
+            }
           }
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
-      const fallbackUserPos = [shopCenter[0] + 0.006, shopCenter[1] + 0.006];
+      const fallbackUserPos = [shopCenter[0] + 0.005, shopCenter[1] + 0.005];
       this.setUserLocationOnMap(fallbackUserPos, shopCenter, false);
     }
   }
@@ -3327,6 +3369,11 @@ class MarketplaceController {
     if (latInp) latInp.value = lat;
     const lngInp = document.getElementById('order-lng');
     if (lngInp) lngInp.value = lng;
+
+    const coordsSpan = document.getElementById('map-pin-coords');
+    if (coordsSpan) {
+      coordsSpan.innerText = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    }
 
     if (this.leafMarker) {
       this.leafMarker.setLatLng(userPos);

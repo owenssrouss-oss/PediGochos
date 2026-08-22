@@ -3947,7 +3947,8 @@ class AdminController {
             <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: #FFD700;">🏪 ${storeName}</p>
             <p style="margin: 0 0 4px 0; font-size: 13px;">👤 <strong>Cliente:</strong> ${customerName}</p>
             <p style="margin: 0 0 4px 0; font-size: 13px;">📞 <strong>Teléfono:</strong> ${phone}</p>
-            <p style="margin: 0; font-size: 13px;">📍 <strong>Ubicación/Mesa:</strong> ${address}</p>
+            <p style="margin: 0 0 4px 0; font-size: 13px;">📍 <strong>Ubicación/Mesa:</strong> ${address}</p>
+            ${(order.deliveryDetails?.latitude && order.deliveryDetails?.longitude) ? `<p style="margin: 0; font-size: 13px;">🗺️ <strong>GPS:</strong> <a href="https://maps.google.com/?q=${order.deliveryDetails.latitude},${order.deliveryDetails.longitude}" target="_blank" style="color: #38BDF8; font-weight: 700; text-decoration: underline;">Abrir en Google Maps</a></p>` : ''}
           </div>
           <div style="margin-bottom: 16px;">
             <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #CBD5E1;">📦 Productos Solicitados:</h4>
