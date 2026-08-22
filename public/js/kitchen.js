@@ -3237,10 +3237,12 @@ class KitchenController {
 
       // Base ingredients from description
       if (descInput && descInput.trim() !== '') {
-          const excls = descInput.split(/,| y | e /i).map(i => i.trim().replace(/\.$/, '')).filter(i => i.length > 2);
-          if (excls.length > 0) {
-              newProduct.exclusions = excls;
-          }
+        const excls = descInput.split(/,| y | e /i).map(i => i.trim().replace(/\.$/, '')).filter(i => i.length > 2);
+        if (excls.length > 0) {
+          newProduct.exclusions = excls;
+        }
+      }
+
       const availableDays = typeof window.getSelectedDaysFromContainer === 'function' ? window.getSelectedDaysFromContainer('form-available-days-pills') : ['todos'];
       newProduct.available_days = availableDays;
 
