@@ -2,12 +2,24 @@
 
 // Universal Capacitor / Native Android API proxy
 (function() {
-  const isNative = window.location.origin.includes('localhost') || window.location.origin.includes('capacitor');
-  if (isNative) {
+  const isWebRender = window.location.origin.includes('pedigochos.onrender.com');
+  const isLocalDev = window.location.hostname === 'localhost' && window.location.port === '3000';
+  
+  if (!isWebRender && !isLocalDev) {
+    const TARGET_HOST = 'https://pedigochos.onrender.com';
     const originalFetch = window.fetch;
     window.fetch = function(input, init) {
-      if (typeof input === 'string' && input.startsWith('/api/')) {
-        input = 'https://pedigochos.onrender.com' + input;
+      if (typeof input === 'string') {
+        if (input.startsWith('/api/')) {
+          input = TARGET_HOST + input;
+        } else if (input.startsWith('api/')) {
+          input = TARGET_HOST + '/' + input;
+        }
+      } else if (input && input.url) {
+        if (input.url.startsWith('/') || input.url.includes('localhost/api/')) {
+          const newUrl = input.url.replace(/^(?:https?:\/\/[^\/]+)?\/api\//, TARGET_HOST + '/api/');
+          input = new Request(newUrl, input);
+        }
       }
       return originalFetch.call(this, input, init);
     };
@@ -41,6 +53,17 @@ class AdminController {
     this.establishments = [];
     this.orders = [];
     this.isAuthenticated = false;
+
+    // Load cached establishments immediately so UI is never blank
+    try {
+      const cached = localStorage.getItem('pedigochos_admin_establishments');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          this.establishments = this.enforceVerifiedGps(parsed);
+        }
+      }
+    } catch(e) {}
   }
 
   enforceVerifiedGps(establishments) {
@@ -354,6 +377,9 @@ class AdminController {
         localStorage.setItem('owner_authenticated_permanently', 'true');
         localStorage.setItem('is_platform_owner', 'true');
         localStorage.setItem('owner_password', password);
+        try {
+          localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
+        } catch(e) {}
 
         // Load orders for statistics
         await this.loadOrders();
@@ -391,11 +417,51 @@ class AdminController {
       const panel = document.getElementById('admin-panel');
       if (panel) panel.classList.remove('hidden');
 
+      // Render cached data immediately if available
+      this.renderTable();
       this.initWebSocket();
       this.requestNotificationPermission();
       this.requestWakeLock();
-      this.showToast('⚠️ Modo sin conexión - Reconectando con servidor...', true);
+      this.showToast('🔄 Conectando con el servidor central...', true);
+
+      // Start automatic retry loop until establishments load from server
+      this.startEstablishmentsRetryLoop();
     }
+  }
+
+  async fetchEstablishments() {
+    try {
+      const res = await fetch('/api/owner/establishments');
+      if (res.ok) {
+        const raw = await res.json();
+        if (Array.isArray(raw) && raw.length > 0) {
+          this.establishments = this.enforceVerifiedGps(raw);
+          try {
+            localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
+          } catch(e) {}
+          this.renderTable();
+          return true;
+        }
+      }
+    } catch(err) {
+      console.warn('Retry fetch establishments notice:', err);
+    }
+    return false;
+  }
+
+  startEstablishmentsRetryLoop() {
+    if (this.estRetryTimer) clearInterval(this.estRetryTimer);
+    this.estRetryTimer = setInterval(async () => {
+      const ok = await this.fetchEstablishments();
+      if (ok) {
+        clearInterval(this.estRetryTimer);
+        this.estRetryTimer = null;
+        await this.loadOrders();
+        await this.loadCentralSedeSettings();
+        this.renderTable();
+        this.showToast('🟢 Conectado con el servidor central');
+      }
+    }, 3000);
   }
 
   startOrdersPolling() {
