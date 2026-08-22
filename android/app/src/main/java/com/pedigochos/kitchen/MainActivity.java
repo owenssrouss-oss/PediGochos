@@ -56,6 +56,28 @@ public class MainActivity extends BridgeActivity {
 
         // 6. Request Battery Optimization Exemption so app is NEVER killed in background
         requestIgnoreBatteryOptimizations();
+
+        // 7. Launch 24/7 Native Background Order Monitor & Alarm Service
+        startBackgroundOrderService();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        startBackgroundOrderService();
+    }
+
+    private void startBackgroundOrderService() {
+        try {
+            Intent serviceIntent = new Intent(this, OrderNotificationService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Error starting OrderNotificationService: " + e.getMessage());
+        }
     }
 
     private void createNotificationChannel() {

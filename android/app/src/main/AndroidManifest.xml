@@ -33,6 +33,13 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+        <!-- 24/7 Foreground Service for Background Order Monitoring and Loud Alarms -->
+        <service
+            android:name=".OrderNotificationService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync|mediaPlayback" />
     </application>
 
     <!-- Permissions for Continuous Background Activity, Alarms, and Push Notifications -->
