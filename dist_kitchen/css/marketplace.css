@@ -2506,4 +2506,52 @@ body {
   }
 }
 
+/* Cash Payment Attention Glow & High Contrast Styles */
+@keyframes cash-glow-pulse {
+  0%, 100% {
+    border-color: #10B981;
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.45), inset 0 0 8px rgba(16, 185, 129, 0.15);
+    background-color: #071a12;
+  }
+  50% {
+    border-color: #34D399;
+    box-shadow: 0 0 28px rgba(52, 211, 153, 0.85), inset 0 0 16px rgba(52, 211, 153, 0.3);
+    background-color: #0d281e;
+  }
+}
+
+.payment-cash-box-pulsing {
+  animation: cash-glow-pulse 1.4s infinite ease-in-out;
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.btn-cash-chip {
+  background: #1e293b !important;
+  color: #F8FAFC !important;
+  border: 1.5px solid #475569 !important;
+  padding: 7px 12px !important;
+  border-radius: 10px !important;
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.btn-cash-chip:hover {
+  background: #334155 !important;
+  border-color: #94A3B8 !important;
+  color: #FFFFFF !important;
+}
+
+.btn-cash-chip.active {
+  background: #10B981 !important;
+  color: #022c22 !important;
+  border-color: #34D399 !important;
+  font-weight: 900 !important;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.7) !important;
+  transform: scale(1.04);
+}
+
 

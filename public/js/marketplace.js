@@ -2565,9 +2565,6 @@ class MarketplaceController {
 
   selectCashDenomination(val) {
     document.querySelectorAll('.btn-cash-chip').forEach(btn => {
-      btn.style.background = 'rgba(255,255,255,0.06)';
-      btn.style.borderColor = 'rgba(255,255,255,0.15)';
-      btn.style.color = '#fff';
       btn.classList.remove('active');
     });
 
@@ -2575,9 +2572,6 @@ class MarketplaceController {
     const chipId = (val === 'exacto' || val === 'otro') ? `chip-cash-${val}` : `chip-cash-${val}`;
     const activeChip = document.getElementById(chipId);
     if (activeChip) {
-      activeChip.style.background = 'rgba(16, 185, 129, 0.25)';
-      activeChip.style.borderColor = '#10B981';
-      activeChip.style.color = '#10B981';
       activeChip.classList.add('active');
     }
 
@@ -2606,9 +2600,12 @@ class MarketplaceController {
       return;
     }
 
+    previewEl.style.display = 'block';
+
     if (valStr.toLowerCase().includes('exacto')) {
-      previewEl.style.display = 'block';
-      previewEl.style.color = '#10B981';
+      previewEl.style.color = '#6EE7B7';
+      previewEl.style.background = '#042f2e';
+      previewEl.style.borderColor = '#10B981';
       previewEl.innerHTML = `✅ <strong>Pago Exacto:</strong> No se requiere cambio para el repartidor.`;
       return;
     }
@@ -2628,13 +2625,16 @@ class MarketplaceController {
     }
 
     if (paidNum > 0 && totalCop > 0) {
-      previewEl.style.display = 'block';
       if (paidNum >= totalCop) {
         const change = paidNum - totalCop;
-        previewEl.style.color = '#34D399';
-        previewEl.innerHTML = `💵 <strong>Pagas con:</strong> $${paidNum.toLocaleString('de-DE')} COP ➔ <strong>Llevar Vuelto:</strong> $${change.toLocaleString('de-DE')} COP`;
+        previewEl.style.color = '#6EE7B7';
+        previewEl.style.background = '#042f2e';
+        previewEl.style.borderColor = '#10B981';
+        previewEl.innerHTML = `💵 <strong>Pagas con:</strong> $${paidNum.toLocaleString('de-DE')} COP ➔ <strong style="color:#FDE047;">Llevar Vuelto:</strong> $${change.toLocaleString('de-DE')} COP`;
       } else {
-        previewEl.style.color = '#F59E0B';
+        previewEl.style.color = '#FDE047';
+        previewEl.style.background = '#451a03';
+        previewEl.style.borderColor = '#F59E0B';
         previewEl.innerHTML = `⚠️ El monto ingresado ($${paidNum.toLocaleString('de-DE')}) es menor al total del pedido ($${totalCop.toLocaleString('de-DE')}).`;
       }
     }
@@ -2863,8 +2863,23 @@ class MarketplaceController {
     const paymentMethod = this.paymentMethod || 'Efectivo';
     let paymentNotes = '';
     const cashAmtInpEl = document.getElementById('order-cash-amount');
-    if (paymentMethod === 'Efectivo' && cashAmtInpEl && cashAmtInpEl.value.trim()) {
-      const cashVal = cashAmtInpEl.value.trim();
+
+    if (paymentMethod === 'Efectivo') {
+      const cashVal = cashAmtInpEl ? cashAmtInpEl.value.trim() : '';
+      if (!cashVal) {
+        const cashBox = document.getElementById('payment-cash-details');
+        if (cashBox) {
+          cashBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          cashBox.style.borderColor = '#EF4444';
+          cashBox.style.boxShadow = '0 0 25px rgba(239, 68, 68, 0.9)';
+          setTimeout(() => {
+            cashBox.style.borderColor = '';
+            cashBox.style.boxShadow = '';
+          }, 3500);
+        }
+        alert('💵 Por favor, indica tu billete o selecciona "Pago Exacto" en el apartado de Efectivo para que el repartidor lleve tu cambio.');
+        return;
+      }
       const changeEl = document.getElementById('cash-change-preview');
       const changeText = (changeEl && changeEl.style.display !== 'none') ? ` (${changeEl.innerText.replace(/^[^\w]+/, '')})` : '';
       paymentNotes = `Paga con: ${cashVal}${changeText}`;

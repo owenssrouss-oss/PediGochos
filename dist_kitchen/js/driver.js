@@ -277,6 +277,15 @@ class DriverController {
           </a>
         </div>
 
+        <!-- Payment & Change Section -->
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 12px; border-radius: 12px; margin-bottom: 12px;">
+          <strong style="color: #10B981; font-size: 13px; display: block; margin-bottom: 4px;">💵 Cobro en Destino:</strong>
+          <div style="font-size: 16px; font-weight: 900; color: #FFF;">Total a Cobrar: $${Math.round(order.total < 1000 ? order.total * 1000 : order.total).toLocaleString('de-DE')} COP</div>
+          <div style="font-size: 12.5px; font-weight: 800; color: #34D399; margin-top: 4px;">
+            ${order.paymentMethod === 'Transferencia' ? '📲 Transferencia / Pago Móvil (Ya Pagado)' : `💵 Efectivo: ${order.paymentNotes || 'Monto exacto'}`}
+          </div>
+        </div>
+
         <!-- Customer Delivery Section -->
         <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.08);">
           <strong style="color: #10B981; font-size: 13px; display: block; margin-bottom: 4px;">🏠 2. Entregar a Cliente:</strong>
