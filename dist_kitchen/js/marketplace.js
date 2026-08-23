@@ -2554,12 +2554,186 @@ class MarketplaceController {
       if (transferBtn) transferBtn.classList.remove('active');
       if (cashDetails) cashDetails.classList.remove('hidden');
       if (transferDetails) transferDetails.classList.add('hidden');
+      this.calculateCashChange();
     } else {
       if (cashBtn) cashBtn.classList.remove('active');
       if (transferBtn) transferBtn.classList.add('active');
       if (cashDetails) cashDetails.classList.add('hidden');
       if (transferDetails) transferDetails.classList.remove('hidden');
     }
+  }
+
+  selectCashDenomination(val) {
+    document.querySelectorAll('.btn-cash-chip').forEach(btn => {
+      btn.style.background = 'rgba(255,255,255,0.06)';
+      btn.style.borderColor = 'rgba(255,255,255,0.15)';
+      btn.style.color = '#fff';
+      btn.classList.remove('active');
+    });
+
+    const cashInput = document.getElementById('order-cash-amount');
+    const chipId = (val === 'exacto' || val === 'otro') ? `chip-cash-${val}` : `chip-cash-${val}`;
+    const activeChip = document.getElementById(chipId);
+    if (activeChip) {
+      activeChip.style.background = 'rgba(16, 185, 129, 0.25)';
+      activeChip.style.borderColor = '#10B981';
+      activeChip.style.color = '#10B981';
+      activeChip.classList.add('active');
+    }
+
+    if (val === 'exacto') {
+      if (cashInput) cashInput.value = 'Pago Exacto (Sin vuelto)';
+    } else if (val === 'otro') {
+      if (cashInput) {
+        cashInput.value = '';
+        cashInput.focus();
+      }
+    } else {
+      if (cashInput) cashInput.value = `$${Number(val).toLocaleString('de-DE')} COP`;
+    }
+
+    this.calculateCashChange();
+  }
+
+  calculateCashChange() {
+    const cashInput = document.getElementById('order-cash-amount');
+    const previewEl = document.getElementById('cash-change-preview');
+    if (!cashInput || !previewEl) return;
+
+    const valStr = cashInput.value.trim();
+    if (!valStr) {
+      previewEl.style.display = 'none';
+      return;
+    }
+
+    if (valStr.toLowerCase().includes('exacto')) {
+      previewEl.style.display = 'block';
+      previewEl.style.color = '#10B981';
+      previewEl.innerHTML = `✅ <strong>Pago Exacto:</strong> No se requiere cambio para el repartidor.`;
+      return;
+    }
+
+    const numMatch = valStr.replace(/\./g, '').replace(/,/g, '').match(/\d+/);
+    if (!numMatch) {
+      previewEl.style.display = 'none';
+      return;
+    }
+
+    const paidNum = parseFloat(numMatch[0]);
+    let totalCop = 0;
+    const totalEl = document.getElementById('cart-total');
+    if (totalEl) {
+      const match = totalEl.innerText.replace(/\./g, '').replace(/,/g, '').match(/\d+/);
+      if (match) totalCop = parseFloat(match[0]);
+    }
+
+    if (paidNum > 0 && totalCop > 0) {
+      previewEl.style.display = 'block';
+      if (paidNum >= totalCop) {
+        const change = paidNum - totalCop;
+        previewEl.style.color = '#34D399';
+        previewEl.innerHTML = `💵 <strong>Pagas con:</strong> $${paidNum.toLocaleString('de-DE')} COP ➔ <strong>Llevar Vuelto:</strong> $${change.toLocaleString('de-DE')} COP`;
+      } else {
+        previewEl.style.color = '#F59E0B';
+        previewEl.innerHTML = `⚠️ El monto ingresado ($${paidNum.toLocaleString('de-DE')}) es menor al total del pedido ($${totalCop.toLocaleString('de-DE')}).`;
+      }
+    }
+  }
+
+  isDrinkOrBeverage(item) {
+    if (!item) return false;
+    const cat = (item.category || '').toLowerCase();
+    const name = (item.name || '').toLowerCase();
+    const desc = (item.description || '').toLowerCase();
+    const drinkKeywords = ['bebida', 'bebidas', 'refresco', 'gaseosa', 'jugo', 'jugos', 'agua', 'coca', 'pepsi', 'cerveza', 'malta', 'soda', 'nestea', 'hit', 'postobon', 'colombiana', 'manzana', 'cuatro', 'monster', 'red bull', 'té', 'te frio', 'limonada', 'batido', 'smoothie', 'frescolita', 'chinotto', 'speed', 'polar', 'cafe', 'café', 'milo'];
+    return drinkKeywords.some(k => cat.includes(k) || name.includes(k) || desc.includes(k));
+  }
+
+  getAvailableBeveragesFromCartStores() {
+    const storeIds = [...new Set(this.cart.items.map(i => i.restaurant_id))];
+    const drinks = [];
+
+    storeIds.forEach(sId => {
+      const est = (this.establishments || []).find(e => e.id === sId);
+      if (est && Array.isArray(est.products)) {
+        est.products.forEach(p => {
+          if (p && this.isDrinkOrBeverage(p) && !p.is_paused) {
+            drinks.push({
+              ...p,
+              restaurant_id: est.id,
+              restaurant_name: est.name
+            });
+          }
+        });
+      }
+    });
+
+    return drinks;
+  }
+
+  checkBeveragesAndPrompt() {
+    const hasBeverages = this.cart.items.some(i => this.isDrinkOrBeverage(i));
+    if (hasBeverages) {
+      return false;
+    }
+
+    const availableDrinks = this.getAvailableBeveragesFromCartStores();
+    if (!availableDrinks || availableDrinks.length === 0) {
+      return false;
+    }
+
+    const listContainer = document.getElementById('beverage-upsell-list');
+    if (listContainer) {
+      listContainer.innerHTML = availableDrinks.map(drink => {
+        const rawPrice = drink.price || 0;
+        const priceCop = rawPrice < 1000 ? rawPrice * 1000 : rawPrice;
+        const imgUrl = drink.image || '/images/burger_royale.jpg';
+        return `
+          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 10px 12px; border-radius: 14px; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+              <img src="${imgUrl}" alt="${drink.name}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">
+              <div>
+                <div style="font-weight: 800; font-size: 13px; color: #FFF;">${drink.name}</div>
+                <div style="font-size: 11px; color: var(--text-muted);">${drink.restaurant_name}</div>
+                <div style="font-size: 12px; font-weight: 800; color: var(--primary); margin-top: 2px;">$${priceCop.toLocaleString('de-DE')} COP</div>
+              </div>
+            </div>
+            <button type="button" onclick="MarketplaceApp.addBeverageAndRefresh('${drink.id}', '${drink.restaurant_id}')" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFF; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(16,185,129,0.3); white-space: nowrap;">
+              ➕ Agregar
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    const modal = document.getElementById('beverage-upsell-modal');
+    if (modal) {
+      modal.classList.add('open');
+      modal.style.setProperty('display', 'flex', 'important');
+      return true;
+    }
+
+    return false;
+  }
+
+  addBeverageAndRefresh(prodId, restId) {
+    const est = (this.establishments || []).find(e => e.id === restId);
+    if (!est) return;
+    const prod = (est.products || []).find(p => p.id === prodId);
+    if (!prod) return;
+
+    this.addToCart(prod, est);
+    this.showToast(`🥤 ${prod.name} agregada al carrito`);
+
+    const modal = document.getElementById('beverage-upsell-modal');
+    if (modal) modal.classList.remove('open');
+    this.submitOrder(true);
+  }
+
+  closeBeverageModalAndProceed() {
+    const modal = document.getElementById('beverage-upsell-modal');
+    if (modal) modal.classList.remove('open');
+    this.submitOrder(true);
   }
 
   detectPhoneCountry() {
@@ -2631,7 +2805,7 @@ class MarketplaceController {
     }
   }
 
-  async submitOrder() {
+  async submitOrder(skipBeveragePrompt = false) {
     const acceptTerms = document.getElementById('checkout-accept-terms').checked;
     if (!acceptTerms) {
       alert('Debes aceptar los Términos y Condiciones y autorizar la verificación telefónica para enviar tu pedido.');
@@ -2651,6 +2825,13 @@ class MarketplaceController {
         return;
       }
     } else {
+      // Upsell beverage suggestion before confirming final order
+      if (!skipBeveragePrompt) {
+        const openedPrompt = this.checkBeveragesAndPrompt();
+        if (openedPrompt) {
+          return;
+        }
+      }
       const countryCode = document.getElementById('order-phone-country') ? document.getElementById('order-phone-country').value : '+58';
       let rawPhone = document.getElementById('order-phone').value.trim();
       address = document.getElementById('order-address').value.trim();
@@ -2683,7 +2864,10 @@ class MarketplaceController {
     let paymentNotes = '';
     const cashAmtInpEl = document.getElementById('order-cash-amount');
     if (paymentMethod === 'Efectivo' && cashAmtInpEl && cashAmtInpEl.value.trim()) {
-      paymentNotes = `Paga con: ${cashAmtInpEl.value.trim()}`;
+      const cashVal = cashAmtInpEl.value.trim();
+      const changeEl = document.getElementById('cash-change-preview');
+      const changeText = (changeEl && changeEl.style.display !== 'none') ? ` (${changeEl.innerText.replace(/^[^\w]+/, '')})` : '';
+      paymentNotes = `Paga con: ${cashVal}${changeText}`;
     }
 
     // Group items by restaurant_id

@@ -413,9 +413,29 @@
           </div>
 
           <!-- Cash Payment Helper Details -->
-          <div id="payment-cash-details" style="margin-top: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 10px 12px; border-radius: 12px; font-size: 12px; color: #10B981;">
-            <div style="font-weight: 700;">💵 Pagas en efectivo al momento de recibir tu pedido.</div>
-            <input type="text" id="order-cash-amount" placeholder="¿Con cuánto vas a pagar? (Opcional, para cambio)" style="margin-top: 6px; width: 100%; font-size: 12px; padding: 7px 10px; border-radius: 8px; background: rgba(0,0,0,0.25); border: 1px solid rgba(16, 185, 129, 0.3); color: #fff;">
+          <div id="payment-cash-details" style="margin-top: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 12px 14px; border-radius: 14px; font-size: 12px; color: #10B981;">
+            <div style="font-weight: 800; font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+              <span>💵</span> Pago en Efectivo contra Entrega
+            </div>
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px;">
+              Selecciona el billete con el que vas a pagar para que el domiciliario lleve tu vuelto exacto (opcional):
+            </div>
+
+            <!-- Quick Denomination Chips -->
+            <div class="cash-denomination-chips" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+              <button type="button" class="btn-cash-chip active" id="chip-cash-exacto" onclick="MarketplaceApp.selectCashDenomination('exacto')" style="background: rgba(16, 185, 129, 0.25); border: 1px solid #10B981; color: #10B981; padding: 5px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer;">💵 Exacto</button>
+              <button type="button" class="btn-cash-chip" id="chip-cash-20000" onclick="MarketplaceApp.selectCashDenomination(20000)" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;">$20.000</button>
+              <button type="button" class="btn-cash-chip" id="chip-cash-50000" onclick="MarketplaceApp.selectCashDenomination(50000)" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;">$50.000</button>
+              <button type="button" class="btn-cash-chip" id="chip-cash-100000" onclick="MarketplaceApp.selectCashDenomination(100000)" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;">$100.000</button>
+              <button type="button" class="btn-cash-chip" id="chip-cash-otro" onclick="MarketplaceApp.selectCashDenomination('otro')" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;">✏️ Otro</button>
+            </div>
+
+            <!-- Custom Cash Input & Change Display -->
+            <div id="custom-cash-container" style="margin-top: 4px;">
+              <input type="text" id="order-cash-amount" oninput="MarketplaceApp.calculateCashChange()" placeholder="Ej: 50.000 COP, 20 USD, 500 Bs..." style="width: 100%; font-size: 12px; padding: 8px 10px; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(16, 185, 129, 0.35); color: #fff;">
+            </div>
+            
+            <div id="cash-change-preview" style="margin-top: 6px; font-size: 12px; font-weight: 800; color: #34D399; display: none;"></div>
           </div>
 
           <!-- Transfer Payment Helper Details -->
@@ -639,6 +659,32 @@
 
         <button type="button" onclick="MarketplaceApp.requestAutomaticGPS(true); MarketplaceApp.closeLocationModal();" style="padding: 14px; border-radius: 12px; border: none; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #ffffff; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
           <span>📡</span> Actualizar Mi Ubicación GPS Ahora
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Beverage Upsell Suggestion Modal -->
+  <div class="modal-overlay" id="beverage-upsell-modal" style="z-index: 3600; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
+    <div class="modal-content" style="max-width: 480px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; padding: 20px; border-radius: 24px; background: rgba(18, 18, 24, 0.98); border: 1px solid rgba(255, 255, 255, 0.12); margin: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.8);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 26px;">🥤</span>
+          <div>
+            <h3 style="margin: 0; color: #FFF; font-size: 17px; font-weight: 900;">¿Deseas agregar una bebida?</h3>
+            <p style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted);">Acompaña tu comida con un refresco, jugo o agua fría.</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="MarketplaceApp.closeBeverageModalAndProceed()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.08); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <div id="beverage-upsell-list" class="premium-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; max-height: 340px; padding-right: 4px;">
+        <!-- Filled dynamically with store drinks -->
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
+        <button type="button" onclick="MarketplaceApp.closeBeverageModalAndProceed()" class="btn-checkout" style="padding: 12px; font-size: 14px; font-weight: 800; border-radius: 12px; background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <span>👉</span> No, continuar al pago directamente
         </button>
       </div>
     </div>

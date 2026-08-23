@@ -977,7 +977,56 @@ class KitchenController {
         ? '<span style="background-color: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 4px;">📲 Transferencia</span>'
         : '<span style="background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 4px;">💵 Efectivo</span>';
 
-      const payNotesHTML = order.paymentNotes ? `<div style="font-size: 11px; color: #f59e0b; font-weight: 700; margin-top: 4px; background: rgba(245,158,11,0.08); padding: 4px 8px; border-radius: 6px;">💬 Nota de Pago: ${order.paymentNotes}</div>` : '';
+      const payNotesHTML = order.paymentNotes ? `<div style="font-size: 11.5px; color: #F59E0B; font-weight: 800; margin-top: 6px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); padding: 6px 10px; border-radius: 8px;">💵 <strong>Detalle de Pago:</strong> ${order.paymentNotes}</div>` : '';
+
+      // Collect all kitchen observations (exclusions, customer notes, item notes)
+      const allObservations = [];
+      if (order.notes && String(order.notes).trim()) {
+        allObservations.push(`📝 <strong>Nota General:</strong> ${String(order.notes).trim()}`);
+      }
+      if (order.deliveryDetails?.notes && String(order.deliveryDetails.notes).trim()) {
+        allObservations.push(`📍 <strong>Nota de Entrega:</strong> ${String(order.deliveryDetails.notes).trim()}`);
+      }
+      if (order.customerNotes && String(order.customerNotes).trim()) {
+        allObservations.push(`👤 <strong>Cliente:</strong> ${String(order.customerNotes).trim()}`);
+      }
+
+      order.items.forEach(item => {
+        const itemObs = [];
+        if (item.selected_specifications) {
+          const specs = item.selected_specifications;
+          if (Array.isArray(specs.exclusions) && specs.exclusions.length > 0) {
+            const excList = specs.exclusions.map(e => e.name).join(', ');
+            itemObs.push(`🚫 <strong style="color: #EF4444;">SIN:</strong> ${excList}`);
+          }
+          if (specs.special_notes && String(specs.special_notes).trim()) {
+            itemObs.push(`💬 "${String(specs.special_notes).trim()}"`);
+          }
+        }
+        if (Array.isArray(item.exclusions) && item.exclusions.length > 0) {
+          itemObs.push(`🚫 <strong style="color: #EF4444;">SIN:</strong> ${item.exclusions.join(', ')}`);
+        }
+        if (item.notes && String(item.notes).trim()) {
+          itemObs.push(`💬 ${String(item.notes).trim()}`);
+        }
+        if (itemObs.length > 0) {
+          allObservations.push(`🍽️ <strong>${item.quantity}x ${item.name}:</strong> ${itemObs.join(' | ')}`);
+        }
+      });
+
+      let observationsHTML = '';
+      if (allObservations.length > 0) {
+        observationsHTML = `
+          <div class="order-observations-box">
+            <div class="obs-title">
+              <span class="blinking-obs-badge">⚠️ ¡OBSERVACIONES DE PREPARACIÓN!</span>
+            </div>
+            <div class="obs-content">
+              ${allObservations.map(obs => `<div style="margin-bottom: 3px;">${obs}</div>`).join('')}
+            </div>
+          </div>
+        `;
+      }
 
       let actionBtnHTML = '';
       if (order.status === 'Pendiente') {
@@ -1011,6 +1060,7 @@ class KitchenController {
           ${itemsListHTML}
         </ul>
 
+        ${observationsHTML}
         ${detailsHTML}
         ${payNotesHTML}
         
@@ -1341,7 +1391,22 @@ class KitchenController {
       const rawTotal = order.total || 0;
       const totalCop = Math.round(rawTotal < 1000 ? rawTotal * 1000 : rawTotal);
       const formattedTotal = `$${totalCop.toLocaleString('de-DE')} COP`;
-      const payMethodText = order.paymentMethod === 'Transferencia' ? '📲 Transferencia / Pago Móvil (Verificado)' : `💵 Efectivo contra entrega${order.paymentNotes ? ` (${order.paymentNotes})` : ''}`;
+      const payMethodText = order.paymentMethod === 'Transferencia' 
+        ? '📲 Transferencia / Pago Móvil (Verificado)' 
+        : `💵 Efectivo contra entrega${order.paymentNotes ? ` [${order.paymentNotes}]` : ''}`;
+
+      // Build observations for the driver
+      const driverObservations = [];
+      if (order.notes && String(order.notes).trim()) driverObservations.push(`• Nota: ${String(order.notes).trim()}`);
+      if (order.deliveryDetails?.notes && String(order.deliveryDetails.notes).trim()) driverObservations.push(`• Entrega: ${String(order.deliveryDetails.notes).trim()}`);
+      order.items?.forEach(it => {
+        if (it.selected_specifications?.exclusions?.length > 0) {
+          driverObservations.push(`• ${it.name}: SIN ${it.selected_specifications.exclusions.map(e => e.name).join(', ')}`);
+        }
+        if (it.selected_specifications?.special_notes) {
+          driverObservations.push(`• ${it.name}: "${it.selected_specifications.special_notes}"`);
+        }
+      });
 
       let messageText = `🚴 *Rapi Gochos - SOLICITUD DE DOMICILIO*\n` +
         `👤 *Asignado a:* ${driverName}\n\n` +
@@ -1350,6 +1415,10 @@ class KitchenController {
         `📞 *Teléfono:* ${clientPhone}\n` +
         `📍 *Dirección de Entrega:* ${clientAddress}\n` +
         `💳 *Forma de Pago:* ${payMethodText}\n`;
+
+      if (driverObservations.length > 0) {
+        messageText += `⚠️ *OBSERVACIONES / NOTAS:* \n${driverObservations.join('\n')}\n`;
+      }
 
       if (clientLat && clientLng) {
         const distText = order.deliveryDetails?.distanceKm ? ` (Distancia: ~${order.deliveryDetails.distanceKm} km)` : '';
