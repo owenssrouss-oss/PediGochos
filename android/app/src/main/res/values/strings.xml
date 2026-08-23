@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">PediGochos Dueño</string>
-    <string name="title_activity_main">PediGochos Dueño</string>
-    <string name="package_name">com.pedigochos.admin</string>
-    <string name="custom_url_scheme">com.pedigochos.admin</string>
+    <string name="app_name">PediGochos</string>
+    <string name="title_activity_main">PediGochos</string>
+    <string name="package_name">com.pedigochos.app</string>
+    <string name="custom_url_scheme">com.pedigochos.app</string>
 </resources>

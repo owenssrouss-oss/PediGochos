@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Rapi Gochos - Tu Delivery y Pedidos al Instante</title>
+  <meta name="description" content="El mejor marketplace de delivery. Comidas, farmacias, mercados y ferreterías, con entregas en minutos o pedidos directamente a tu mesa.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍔</text></svg>">
+  <link rel="stylesheet" href="/css/common.css?v=83">
+  <link rel="stylesheet" href="/css/marketplace.css?v=83">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+</head>
+<body>
+
+  <!-- Offline Status Banner -->
+  <div id="offline-banner" style="display: none; background: #E11D48; color: #ffffff; text-align: center; padding: 8px 12px; font-size: 12px; font-weight: 800; position: sticky; top: 0; z-index: 99999;">
+    📴 Modo Sin Conexión - Tus pedidos se guardarán localmente y se sincronizarán automáticamente al conectar.
+  </div>
+
+  <!-- App Header (Rapi Gochos Style) -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="delivery-address-area" style="cursor: pointer;" onclick="MarketplaceApp.requestAutomaticGPS(true)" title="Toca para actualizar tu ubicación GPS en vivo">
+        <span class="location-icon">📡</span>
+        <div class="address-text-container">
+          <span class="delivery-label">Mi Ubicación GPS</span>
+          <span class="delivery-address-wrap">
+            <span id="active-location-display" class="delivery-address">📍 Detectando GPS...</span>
+          </span>
+        </div>
+      </div>
+      
+      <div class="logo-area" onclick="MarketplaceApp.goHome()" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <h1 class="logo-text">Rapi<span> Gochos</span></h1>
+        <div class="live-active-light-badge" title="Página y Servidor Activos en Vivo">
+          <span class="green-pulse-dot"></span>
+          <span class="live-label">EN LÍNEA</span>
+        </div>
+      </div>
+
+      <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
+        <!-- GochoPoints Badge -->
+        <button type="button" id="header-gochopoints-btn" onclick="MarketplaceApp.openGochoPointsModal()" title="Ver tus GochoPoints" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid #F59E0B; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          ⭐ <span id="header-gochopoints-val">0</span> Pts
+        </button>
+
+        <!-- User Orders History Button -->
+        <button type="button" id="header-orders-btn" onclick="MarketplaceApp.openUserOrdersModal()" title="Mis Pedidos" style="background: rgba(59, 130, 246, 0.15); color: #3B82F6; border: 1px solid #3B82F6; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          📋 <span>Mis Pedidos</span>
+        </button>
+
+        <!-- Top Back Button -->
+        <button class="btn-top-header" onclick="MarketplaceApp.handleNavBack()" title="Volver / Atrás" style="background: rgba(255,255,255,0.08); color: var(--text-main); border: 1px solid var(--border); padding: 6px 12px; font-size: 13px; font-weight: 700; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          <span>⬅</span> <span>Atrás</span>
+        </button>
+
+        <!-- Top Header Cart Button -->
+        <button class="btn-top-header" onclick="MarketplaceApp.openCartModal()" title="Ver Carrito" style="background: var(--primary); color: #fff; border: none; padding: 6px 14px; font-size: 13px; font-weight: 800; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(255, 94, 58, 0.35);">
+          <span>🛒</span>
+          <span id="header-cart-badge-count">0</span>
+          <span id="header-cart-badge-total" style="font-size: 11px; opacity: 0.9;">$0</span>
+        </button>
+        
+        <div id="auth-status-container" style="display: flex; align-items: center; gap: 8px;">
+          <button class="btn-notification" onclick="MarketplaceApp.loginWithGoogle()" title="Iniciar Sesión" style="background-color: rgba(255,255,255,0.1); color: #fff; padding: 6px 12px; font-size: 12px; font-weight: 700; width: auto; height: auto; border-radius: 20px;">
+            🔑 Ingresar
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Search Bar Section -->
+    <div class="search-section-wrapper">
+      <div class="search-bar-container">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="global-search" placeholder="¿Qué necesitas hoy?" oninput="MarketplaceApp.handleSearch(event)">
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-content">
+    <!-- Home View -->
+    <section id="home-view" class="view active">
+
+      <!-- Real-Time Active Order Tracking Card (Appears after placing an order) -->
+      <div id="active-order-tracking-card" class="active-order-tracking-card hidden" style="margin-bottom: 20px; background: linear-gradient(135deg, #1E293B, #0F172A); border: 1px solid rgba(255, 94, 58, 0.3); border-radius: 16px; padding: 16px; color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.3); position: relative; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+        <button type="button" onclick="MarketplaceApp.minimizeActiveOrderTracking()" title="Minimizar mapa" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.1); border: none; color: #cbd5e1; border-radius: 50%; width: 28px; height: 28px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;">✕</button>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 12px; padding-right: 32px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 20px;">📍</span>
+            <h4 style="margin: 0; font-size: 15px; font-weight: 800; color: #fff;">Seguimiento de tu Pedido en Tiempo Real</h4>
+          </div>
+          <span id="active-order-status-badge" class="status-badge" style="background: rgba(255, 94, 58, 0.2); color: var(--primary); font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 12px;">⏳ Pendiente</span>
+        </div>
+
+        <p id="active-order-info-text" style="font-size: 13px; color: #cbd5e1; margin: 0 0 10px 0; font-weight: 500;">
+          El restaurante está recibiendo tu pedido...
+        </p>
+
+        <!-- Mini Real-Time Tracking Map -->
+        <div id="active-order-map-wrapper" style="width: 100%; height: 200px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #0f172a;">
+          <div id="active-order-tracking-map" style="width: 100%; height: 100%;"></div>
+        </div>
+
+        <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <div style="display: flex; gap: 8px;">
+            <button type="button" id="active-order-cancel-btn" onclick="MarketplaceApp.cancelActiveOrder()" style="background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; color: #EF4444; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
+              ❌ Cancelar Pedido
+            </button>
+            <button type="button" onclick="MarketplaceApp.minimizeActiveOrderTracking()" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              🔽 Minimizar
+            </button>
+          </div>
+          <button type="button" onclick="MarketplaceApp.dismissActiveOrderTracking()" style="background: rgba(255, 94, 58, 0.2); border: 1px solid var(--primary); color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            ✅ Marcar como Entregado / Cerrar
+          </button>
+        </div>
+      </div>
+
+      <!-- Minimized Real-Time Tracking Floating Widget/Pill -->
+      <div id="active-order-minimized-pill" class="active-order-minimized-pill hidden" onclick="MarketplaceApp.expandActiveOrderTracking()">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="live-pulse-dot" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10B981; box-shadow: 0 0 10px #10B981; animation: pulse 1.5s infinite;"></span>
+          <span style="font-size: 18px;">🛵</span>
+          <div>
+            <div style="font-size: 12.5px; font-weight: 800; color: #FFF;">Pedido en Curso</div>
+            <div id="minimized-pill-status" style="font-size: 11px; color: #F59E0B; font-weight: 700;">⏳ Pendiente</div>
+          </div>
+        </div>
+        <button type="button" style="background: var(--primary); color: #fff; border: none; padding: 6px 14px; border-radius: 20px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          🗺️ Ver Mapa ⤢
+        </button>
+      </div>
+      
+      <!-- Categories Section (Asymmetrical Grid) -->
+      <section class="categories-section">
+        <div class="categories-grid-delivercity">
+          <!-- Restaurantes (Tall Vertical Card) -->
+          <div class="category-card-delivercity card-restaurantes" data-category="comidas" onclick="MarketplaceApp.selectCategory('comidas')">
+            <div class="category-overlay-dark"></div>
+            <div class="category-card-bg" style="background-image: url('/images/burger_royale.jpg');"></div>
+            <div class="category-card-content">
+              <h4>🍔 Restaurantes</h4>
+              <p>Los mejores sabores</p>
+            </div>
+          </div>
+          
+          <!-- Farmacias (Horizontal Card 1) -->
+          <div class="category-card-delivercity card-farmacias" data-category="farmacias" onclick="MarketplaceApp.selectCategory('farmacias')">
+            <div class="category-overlay-dark"></div>
+            <div class="category-card-bg" style="background-image: url('/images/vitamina_c.jpg');"></div>
+            <div class="category-card-content">
+              <h4>💊 Farmacias</h4>
+            </div>
+          </div>
+
+          <!-- Mercados (Horizontal Card 2) -->
+          <div class="category-card-delivercity card-mercados" data-category="mercados" onclick="MarketplaceApp.selectCategory('mercados')">
+            <div class="category-overlay-dark"></div>
+            <div class="category-card-bg" style="background-image: url('/images/pack_frutas.jpg');"></div>
+            <div class="category-card-content">
+              <h4>🛒 Mercados</h4>
+            </div>
+          </div>
+
+          <!-- Ferreterías (Horizontal Card 3) -->
+          <div class="category-card-delivercity card-ferreterias" data-category="ferreterias" onclick="MarketplaceApp.selectCategory('ferreterias')">
+            <div class="category-overlay-dark"></div>
+            <div class="category-card-bg" style="background-image: url('/images/destornilladores.jpg'); background-color: #B8860B;"></div>
+            <div class="category-card-content">
+              <h4>🛠️ Ferreterías</h4>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
+      <!-- Establishments List (Popular) -->
+      <section class="establishments-section">
+        <div class="section-header-flex">
+          <div>
+            <h3 class="section-title" id="establishments-title">Restaurantes</h3>
+          </div>
+          <a href="#" class="btn-view-all" onclick="event.preventDefault(); MarketplaceApp.filterRestaurantsByFoodType('all')">Ver todos <span class="arrow-icon">›</span></a>
+        </div>
+
+        <!-- Dynamic Food Type Filter Chips (Hamburguesas, Pizzas, Arepas, Bebidas, etc.) -->
+        <div id="food-type-filters-container" style="display: flex; gap: 8px; overflow-x: auto; padding: 6px 0 14px 0; -webkit-overflow-scrolling: touch;" class="premium-scroll">
+        </div>
+
+        <!-- Daily Promotions Carousel Section (Carrusel Horizontal de Promociones del Día - 24 Horas) -->
+        <section id="daily-promotions-section" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 18px; padding: 14px 12px 10px 12px; box-shadow: 0 8px 24px rgba(239, 68, 68, 0.12);" class="hidden">
+          <div class="section-header-flex" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+            <h4 style="font-size: 14px; font-weight: 800; color: #FFF; margin: 0; display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 18px;">🔥</span> <span>PROMO DEL DÍA</span> <span style="font-size: 10px; background: #EF4444; color: #FFF; padding: 2px 8px; border-radius: 12px; font-weight: 900;">24h Oferta</span>
+            </h4>
+            <span style="font-size: 10.5px; color: #FCA5A5; font-weight: 700;">⏱️ Expira en 24h</span>
+          </div>
+          <div id="daily-promotions-container" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;" class="premium-scroll">
+            <!-- Dynamically populated promo cards -->
+          </div>
+        </section>
+
+        <!-- Featured Carousel Section (Carrusel Horizontal de Destacados) -->
+        <section id="featured-carousel-section" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(255, 94, 58, 0.08), rgba(22, 22, 28, 0.95)); border: 1px solid rgba(255, 94, 58, 0.25); border-radius: 18px; padding: 14px 12px 10px 12px; box-shadow: 0 8px 24px rgba(255, 94, 58, 0.08);">
+          <div class="section-header-flex" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+            <h4 style="font-size: 14px; font-weight: 800; color: #FFF; margin: 0; display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 16px;">✨</span> Destacados del Día
+            </h4>
+            <span style="font-size: 10px; color: var(--accent); background: rgba(255, 94, 58, 0.15); padding: 2px 8px; border-radius: 20px; font-weight: 800;">Desliza ➔</span>
+          </div>
+          <div id="featured-carousel-container" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;" class="premium-scroll">
+            <!-- Dynamically populated horizontal cards -->
+          </div>
+        </section>
+
+        <!-- Divider & Section Header for Main Establishments Grid -->
+        <div id="all-restaurants-header" style="margin: 16px 0 12px 0; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1);">
+          <h4 style="font-size: 15px; font-weight: 800; color: #ffffff; margin: 0; display: flex; align-items: center; gap: 6px;">
+            <span>🏪</span> Todos los Comercios
+          </h4>
+        </div>
+
+        <div class="establishments-list-delivercity" id="establishments-grid">
+          <!-- Dynamically filled -->
+        </div>
+      </section>
+    </section>
+
+    <!-- Establishment Details View -->
+    <section id="establishment-view" class="view">
+      <div class="establishment-header" id="est-banner">
+        <button class="btn-back" onclick="MarketplaceApp.goHome()">⬅ Volver a Categorías</button>
+        <div class="est-header-content">
+          <div class="est-logo" id="est-logo">🍔</div>
+          <div class="est-details-text">
+            <h2 id="est-name">Nombre de Comercio</h2>
+            <p id="est-desc">Descripción del comercio</p>
+            <div class="est-meta">
+              <span class="est-badge" id="est-category-badge">Comida</span>
+              <span class="est-delivery-time">⏱️ 20-30 min</span>
+              <span class="est-rating">⭐ 0.0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="establishment-body">
+        <div class="products-section">
+          <!-- Premium modern subcategory filtering strip -->
+          <div class="internal-categories-wrapper">
+            <div class="internal-categories-container" id="internal-categories-list">
+              <!-- Dynamically populated categories with photos/names -->
+            </div>
+          </div>
+
+          <h3 class="section-title" id="internal-section-title">Nuestros Productos</h3>
+          <div class="products-grid" id="products-grid">
+            <!-- Dynamically filled -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating Quick Access Action Bar -->
+  <div class="quick-access-bar" id="quick-access-bar">
+    <button class="quick-btn btn-quick-back" onclick="MarketplaceApp.handleNavBack()" title="Regresar / Atrás">
+      <span class="quick-icon">⬅️</span>
+      <span class="quick-label">Atrás</span>
+    </button>
+    <button class="quick-btn btn-quick-cart" onclick="MarketplaceApp.openCartModal()" title="Ver Carrito">
+      <span class="quick-icon">🛒</span>
+      <span class="quick-label">Carrito</span>
+      <span class="quick-cart-badge" id="quick-cart-count">0</span>
+      <span class="quick-cart-price" id="quick-cart-total">$0</span>
+    </button>
+  </div>
+
+  <!-- Floating Cart Button -->
+  <button class="floating-cart-btn" id="floating-cart" onclick="MarketplaceApp.openCartModal()">
+    <span class="cart-icon">🛒</span>
+    <span class="cart-count badge-pop" id="cart-badge-count">0</span>
+    <span class="cart-total" id="cart-badge-total">$0.00</span>
+  </button>
+
+  <!-- Cart Modal -->
+  <div class="modal-overlay" id="cart-modal">
+    <div class="modal-content cart-modal-content">
+      <div class="modal-header">
+        <h3>Tu Carrito</h3>
+        <button class="btn-close" onclick="MarketplaceApp.closeCartModal()">✕</button>
+      </div>
+      
+      <div class="modal-body premium-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;">
+        <div id="cart-items-container">
+          <!-- Dynamically filled -->
+        </div>
+        
+        <div class="cart-checkout-form" id="checkout-form">
+        <h4>Detalles del Pedido</h4>
+        
+        <div class="order-type-toggle">
+          <button class="btn-toggle active" id="type-delivery-btn" onclick="MarketplaceApp.setOrderType('delivery')">🚴 Delivery</button>
+          <button class="btn-toggle" id="type-mesa-btn" onclick="MarketplaceApp.setOrderType('mesa')">🍽️ Consumo en Mesa</button>
+        </div>
+
+        <!-- Customer Name (Universal) -->
+        <div class="form-group">
+          <label for="order-customer-name">Tu Nombre <span class="required">*</span></label>
+          <input type="text" id="order-customer-name" placeholder="Ej. Owen Pérez">
+        </div>
+
+        <!-- Mesa Form Fields -->
+        <div class="form-group-dynamic hidden" id="group-mesa">
+          <label style="font-weight: 800; font-size: 13.5px; color: var(--text-main); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <span>🪑 Selecciona tu Mesa en el Plano del Local <span class="required">*</span></span>
+          </label>
+
+          <!-- Visual Floor Plan Grid / Interactive Map -->
+          <div id="customer-table-layout-container" style="background: rgba(15, 23, 42, 0.95); border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-bottom: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.2);">
+            <!-- Rendered dynamically via JS -->
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px;">
+            <label for="order-table-number" style="font-size: 12.5px; font-weight: 800; white-space: nowrap; color: var(--text-main);">Nº de Mesa:</label>
+            <input type="number" id="order-table-number" placeholder="Ej. 5" min="1" style="flex: 1; padding: 8px 12px; border-radius: 8px; font-weight: 800; font-size: 14px;">
+          </div>
+          <div id="customer-selected-table-badge" style="font-size: 12px; font-weight: 800; color: #10B981; margin-top: 6px; display: none;"></div>
+        </div>
+
+        <!-- Delivery Form Fields -->
+        <div class="form-group-dynamic" id="group-delivery">
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label for="order-phone" style="font-weight: 700; font-size: 13px; color: var(--text-main); margin: 0;">Número de WhatsApp <span class="required">*</span></label>
+              <div id="phone-country-detected-badge" style="display: none; align-items: center; gap: 4px; font-size: 11px; color: #10B981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 8px; border-radius: 6px; font-weight: 800;"></div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <select id="order-phone-country" style="width: 115px; background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--border); border-radius: 12px; padding: 10px 6px; font-weight: 700; font-size: 13px; outline: none; cursor: pointer;">
+                <option value="+58" selected style="background: #1e293b; color: #fff;">🇻🇪 VE +58</option>
+                <option value="+57" style="background: #1e293b; color: #fff;">🇨🇴 CO +57</option>
+                <option value="+52" style="background: #1e293b; color: #fff;">🇲🇽 MX +52</option>
+                <option value="+1" style="background: #1e293b; color: #fff;">🇺🇸 US +1</option>
+                <option value="+34" style="background: #1e293b; color: #fff;">🇪🇸 ES +34</option>
+                <option value="+593" style="background: #1e293b; color: #fff;">🇪🇨 EC +593</option>
+                <option value="+51" style="background: #1e293b; color: #fff;">🇵🇪 PE +51</option>
+                <option value="+56" style="background: #1e293b; color: #fff;">🇨🇱 CL +56</option>
+                <option value="+54" style="background: #1e293b; color: #fff;">🇦🇷 AR +54</option>
+              </select>
+              <input type="tel" id="order-phone" oninput="MarketplaceApp.detectPhoneCountry()" onpaste="setTimeout(() => MarketplaceApp.detectPhoneCountry(), 50)" placeholder="📞 Ej. 04241234567 o 3001234567" style="flex: 1; border-radius: 12px; padding: 10px 12px; font-size: 14px;">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="order-address">Dirección de Entrega <span class="required">*</span></label>
+            <textarea id="order-address" oninput="MarketplaceApp.onAddressInput(this.value)" placeholder="Ej. Barrio Llano Jorge, Calle 3 con Carrera 2, Casa #15 (o escribe tu sector)"></textarea>
+          </div>
+          <div class="form-group" style="margin-top: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label style="font-weight: 800; font-size: 13.5px; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 6px;">
+                <span>📍 Ubicación Exacta en el Mapa</span> <span class="required">*</span>
+              </label>
+              <button type="button" class="btn-secondary" onclick="MarketplaceApp.requestAutomaticGPS(true)" style="padding: 5px 12px; font-size: 11.5px; font-weight: 800; width: auto; margin: 0; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #ffffff; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(16,185,129,0.3);">
+                🎯 Mi Ubicación Actual (GPS)
+              </button>
+            </div>
+
+            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; font-size: 12px; color: #065F46; line-height: 1.4;">
+              👉 <strong>Toca el mapa o arrastra el marcador rojo 📍</strong> exactamente hasta tu casa para que el repartidor llegue directo.
+            </div>
+
+            <div id="checkout-map-container" style="border-radius: var(--radius); border: 1.5px solid var(--border); overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+              <div id="checkout-leaflet-map" style="width: 100%; height: 240px; background: #0f172a;"></div>
+              <div style="background: #1e293b; padding: 9px 12px; font-size: 11.5px; color: #F8FAFC; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; gap: 6px;">
+                <span id="map-status-pin" style="display: flex; align-items: center; gap: 5px; font-weight: 700; color: #38BDF8;">
+                  📍 Pin: <span id="map-pin-coords">Detectando GPS...</span>
+                </span>
+                <span id="map-calc-distance" style="font-weight: 800; color: #10B981; background: rgba(16,185,129,0.15); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.3);">
+                  📡 Obteniendo GPS...
+                </span>
+              </div>
+            </div>
+            <input type="hidden" id="order-lat">
+            <input type="hidden" id="order-lng">
+            <input type="hidden" id="order-distance">
+          </div>
+          <div class="form-group">
+            <label for="order-house-photo">📷 Foto de la Fachada/Casa (Recomendado para el repartidor)</label>
+            <input type="file" id="order-house-photo" accept="image/*" style="width: 100%; font-size: 13px;">
+          </div>
+        </div>
+
+        <!-- Warning for Multi-Establishment delivery fees -->
+        <div id="multi-delivery-warning" class="multi-delivery-warning-container hidden">
+          <!-- Filled dynamically -->
+        </div>
+
+        <!-- Payment Method Selection -->
+        <div class="form-group" style="margin-top: 14px; margin-bottom: 14px;">
+          <label style="font-weight: 800; font-size: 13px; color: var(--text-main); margin-bottom: 8px; display: block;">
+            💳 Método de Pago <span class="required">*</span>
+          </label>
+          <div class="payment-method-toggle" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button type="button" class="btn-toggle active" id="pay-cash-btn" onclick="MarketplaceApp.setPaymentMethod('Efectivo')">
+              💵 Efectivo
+            </button>
+            <button type="button" class="btn-toggle" id="pay-transfer-btn" onclick="MarketplaceApp.setPaymentMethod('Transferencia')">
+              📲 Transferencia / Pago Móvil
+            </button>
+          </div>
+
+          <!-- Cash Payment Helper Details -->
+          <div id="payment-cash-details" style="margin-top: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 12px 14px; border-radius: 14px; font-size: 12px; color: #10B981;">
+            <div style="font-weight: 800; font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+              <span>💵</span> Pago en Efectivo contra Entrega
+            </div>
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px;">
+              Selecciona el billete con el que vas a pagar para que el domiciliario lleve tu vuelto exacto (opcional):
+            </div>
+
+            <!-- Quick Denomination Chips -->
+            <div class="cash-denomination-chips" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+              <button type="button" class="btn-cash-chip active" id="chip-cash-exacto" onclick="MarketplaceApp.selectCashDenomination('exacto')" style="background: rgba(16, 185, 129, 0.25); border: 1px solid #10B981; color: #10B981; padding: 5px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer;">💵 Exacto</button>
+              <button type="button" class="btn-cash-chip" id="chip-cash-20000" onclick="MarketplaceApp.selectCashDenomination(20000)" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;">$20.000</button>
+              <button type="button" class="btn-cash-chip" id="chip-cash-50000" onclick="MarketplaceApp.selectCashDenomination(50000)" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;">$50.000</button>
+              <button type="button" class="btn-cash-chip" id="chip-cash-100000" onclick="MarketplaceApp.selectCashDenomination(100000)" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;">$100.000</button>
+              <button type="button" class="btn-cash-chip" id="chip-cash-otro" onclick="MarketplaceApp.selectCashDenomination('otro')" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;">✏️ Otro</button>
+            </div>
+
+            <!-- Custom Cash Input & Change Display -->
+            <div id="custom-cash-container" style="margin-top: 4px;">
+              <input type="text" id="order-cash-amount" oninput="MarketplaceApp.calculateCashChange()" placeholder="Ej: 50.000 COP, 20 USD, 500 Bs..." style="width: 100%; font-size: 12px; padding: 8px 10px; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(16, 185, 129, 0.35); color: #fff;">
+            </div>
+            
+            <div id="cash-change-preview" style="margin-top: 6px; font-size: 12px; font-weight: 800; color: #34D399; display: none;"></div>
+          </div>
+
+          <!-- Transfer Payment Helper Details -->
+          <div id="payment-transfer-details" class="hidden" style="margin-top: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); padding: 10px 12px; border-radius: 12px; font-size: 12px; color: #60A5FA;">
+            <div style="font-weight: 700;">📲 Pago Móvil / Transferencia Bancaria / Zelle / Binance.</div>
+            <div style="font-size: 11.5px; opacity: 0.9; margin-top: 2px;">Podrás acordar los datos o transferir directamente con el comercio al confirmar tu orden.</div>
+          </div>
+        </div>
+
+        <!-- Coupon Input Area -->
+        <div class="form-group" style="margin-top: 14px; margin-bottom: 12px; background: rgba(245, 158, 11, 0.08); padding: 10px 12px; border-radius: 12px; border: 1px dashed rgba(245, 158, 11, 0.3);">
+          <label for="checkout-coupon-input" style="font-size: 12px; font-weight: 800; color: #F59E0B; display: flex; align-items: center; gap: 4px;">🎟️ Código de Cupón de Descuento</label>
+          <div style="display: flex; gap: 6px; margin-top: 6px;">
+            <input type="text" id="checkout-coupon-input" placeholder="Ej. GOCHO10, ENVIOGRATIS" style="flex: 1; padding: 8px 10px; font-size: 12.5px; border-radius: 8px; text-transform: uppercase; font-weight: 700;">
+            <button type="button" class="btn-secondary" onclick="MarketplaceApp.applyCouponCode()" style="padding: 8px 14px; font-size: 12px; margin: 0; width: auto; font-weight: 800; background: #F59E0B; color: #1e293b; border: none; border-radius: 8px; cursor: pointer;">Aplicar</button>
+          </div>
+          <div id="checkout-coupon-msg" style="font-size: 11px; margin-top: 4px; font-weight: 700;"></div>
+        </div>
+
+        <div class="cart-summary-totals">
+          <div class="total-row">
+            <span>Subtotal</span>
+            <span id="cart-subtotal">$0.00</span>
+          </div>
+          <div class="total-row delivery-cost-row">
+            <span>Costo de Envío</span>
+            <span id="cart-delivery-cost">$2.00</span>
+          </div>
+          <div class="total-row discount-cost-row hidden" id="cart-discount-row" style="color: #10B981; font-weight: 800;">
+            <span>Descuento Cupón</span>
+            <span id="cart-discount-val">-$0.00</span>
+          </div>
+          <hr>
+          <div class="total-row grand-total">
+            <span>Total</span>
+            <span id="cart-grand-total">$0.00</span>
+          </div>
+        </div>
+
+        <!-- Terms & verification checkbox -->
+        <div class="checkout-terms-container" style="margin-top: 20px; margin-bottom: 15px; display: flex; align-items: flex-start; gap: 8px; text-align: left; font-size: 13px; color: var(--text-muted);">
+          <input type="checkbox" id="checkout-accept-terms" style="width: auto; height: auto; margin-top: 3px; cursor: pointer;">
+          <label for="checkout-accept-terms" style="cursor: pointer; line-height: 1.4;">
+            Acepto los <a href="#" onclick="MarketplaceApp.openTermsModal(event)" style="color: var(--primary); text-decoration: underline; font-weight: 700;">Términos y Condiciones</a> y autorizo la verificación telefónica de mi pedido para evitar fraudes.
+          </label>
+        </div>
+
+        <button class="btn-submit-order" onclick="MarketplaceApp.submitOrder()">
+          🚀 Enviar Pedido en Tiempo Real
+        </button>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Terms and Conditions Modal -->
+  <div class="modal-overlay" id="terms-modal">
+    <div class="modal-content" style="max-width: 480px; margin: auto; border-radius: 16px; box-shadow: var(--shadow-lg);">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+        <h3 style="font-weight: 800; font-size: 18px;">📋 Términos & Verificación</h3>
+        <button class="btn-close" onclick="MarketplaceApp.closeTermsModal()">✕</button>
+      </div>
+      <div class="modal-body premium-scroll" style="max-height: 50vh; font-size: 13.5px; line-height: 1.5; color: #475569; text-align: left; padding: 15px 0;">
+        <h4 style="color: #0F172A; margin-top: 0; font-size: 14.5px; font-weight: 700;">1. Verificación Telefónica Antifraude</h4>
+        <p style="margin-bottom: 12px;">Para proteger a nuestros repartidores y establecimientos afiliados, <strong>todo pedido está sujeto a verificación telefónica</strong>. El comercio podrá llamarle al número provisto para confirmar la orden antes de comenzar la preparación.</p>
+        
+        <h4 style="color: #0F172A; font-size: 14.5px; font-weight: 700;">2. Compromiso de Recepción y Pago</h4>
+        <p style="margin-bottom: 12px;">Al enviar esta solicitud, el cliente asume el compromiso formal de recibir el pedido y realizar el pago total indicado (en efectivo o mediante la plataforma, según corresponda).</p>
+        
+        <h4 style="color: #0F172A; font-size: 14.5px; font-weight: 700;">3. Política de Privacidad de Datos</h4>
+        <p style="margin-bottom: 12px;">Sus datos de contacto y dirección se compartirán únicamente con el comercio y el repartidor para completar la entrega física de esta orden específica.</p>
+      </div>
+      <div class="modal-footer" style="padding-top: 12px; border-top: 1px solid var(--border); text-align: right;">
+        <button class="btn-submit-order" onclick="MarketplaceApp.closeTermsModal()" style="padding: 10px 18px; font-size: 13px; margin: 0; width: auto; display: inline-block;">Entendido y Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Customizer Modal -->
+  <div class="modal-overlay" id="customizer-modal">
+    <div class="modal-content customizer-modal-content">
+      <div class="modal-header">
+        <h3 id="customizer-title">Personalizar Producto</h3>
+        <button class="btn-close" onclick="MarketplaceApp.closeCustomizerModal()">✕</button>
+      </div>
+      
+      <div class="modal-body premium-scroll">
+        <!-- Product Main Info (Header) -->
+        <div class="customizer-product-header">
+          <div class="customizer-product-img-wrapper" id="customizer-product-img-wrapper">
+            <!-- image or placeholder -->
+          </div>
+          <div class="customizer-product-info">
+            <h4 id="customizer-product-name">Nombre de Producto</h4>
+            <p id="customizer-product-desc" style="color: var(--text-muted); font-size: 13px; margin-top: 4px;"></p>
+            <p id="customizer-product-ingredients" style="color: var(--accent); font-size: 12px; margin-top: 6px; font-weight: 700; display: none;"></p>
+            <span class="customizer-base-price-tag" id="customizer-base-price">$0</span>
+          </div>
+        </div>
+
+        <!-- Pizza Halves Switch (Special Case) -->
+        <div class="pizza-halves-container hidden" id="pizza-halves-section">
+          <div class="pizza-switch-row">
+            <span class="pizza-switch-label">🍕 Preparación de la Pizza</span>
+            <div class="pizza-toggle-buttons">
+              <button class="btn-pizza-toggle active" id="pizza-whole-btn" onclick="MarketplaceApp.setPizzaMode('whole')">Toda la pizza</button>
+              <button class="btn-pizza-toggle" id="pizza-halves-btn" onclick="MarketplaceApp.setPizzaMode('halves')">Por Mitades</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columns Container (for halves/normal) -->
+        <div class="customizer-columns-wrapper" id="customizer-columns">
+          <!-- Column A (Single / Whole / Mitad A) -->
+          <div class="customizer-column" id="customizer-col-a">
+            <div class="customizer-column-header hidden" id="col-a-header">Mitad A</div>
+            <div class="modifiers-groups-container" id="modifiers-groups-a">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+
+          <!-- Column B (Mitad B) -->
+          <div class="customizer-column hidden" id="customizer-col-b">
+            <div class="customizer-column-header">Mitad B</div>
+            <div class="modifiers-groups-container" id="modifiers-groups-b">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Special Notes Area -->
+        <div class="form-group" style="margin-top: 20px;">
+          <label for="customizer-special-notes">Observaciones / Notas Especiales</label>
+          <textarea id="customizer-special-notes" placeholder="Ej. Sin cebolla, sin mayonesa, salsas aparte, carne bien cocida, etc." style="width: 100%; border-radius: 8px; padding: 10px; font-size: 13.5px; height: 60px; resize: none;"></textarea>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="customizer-footer" style="display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+        <div class="quantity-selector-container">
+          <button class="btn-qty-large" onclick="MarketplaceApp.updateCustomizerQty(-1)">-</button>
+          <span id="customizer-quantity-display">1</span>
+          <button class="btn-qty-large" onclick="MarketplaceApp.updateCustomizerQty(1)">+</button>
+        </div>
+        
+        <div style="display: flex; gap: 10px; flex: 1; min-width: 220px;">
+          <button class="btn-cancel-modal" onclick="MarketplaceApp.closeCustomizerModal()" style="padding: 12px 18px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); color: var(--text-main); font-weight: 700; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;">
+            Cancelar
+          </button>
+          <button class="btn-add-to-cart-large" id="btn-confirm-add" onclick="MarketplaceApp.confirmCustomizerAdd()" style="flex: 1;">
+            🛒 Agregar al Carrito • $0
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- GochoPoints & Recompensas Modal -->
+  <div class="modal-overlay" id="gochopoints-modal">
+    <div class="modal-content" style="max-width: 440px; margin: auto; border-radius: 20px; background: #1E293B; color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.5); padding: 20px;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #F59E0B; display: flex; align-items: center; gap: 8px;">
+          ⭐ GochoPoints & Recompensas
+        </h3>
+        <button class="btn-close" onclick="MarketplaceApp.closeGochoPointsModal()" style="background: none; border: none; font-size: 20px; color: #fff; cursor: pointer;">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 16px 0;">
+        <div style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); padding: 18px; border-radius: 16px; text-align: center; color: #fff; margin-bottom: 16px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);">
+          <span style="font-size: 12px; font-weight: 700; opacity: 0.9; text-transform: uppercase;">Tu Saldo de Puntos</span>
+          <h2 id="modal-gochopoints-total" style="font-size: 36px; font-weight: 900; margin: 4px 0 0 0;">0 Pts</h2>
+          <p style="font-size: 11px; margin: 4px 0 0 0; opacity: 0.95;">Ganas 10 GochoPoints por cada $1 de compra en RapiGochos 🚀</p>
+        </div>
+
+        <h4 style="color: #fff; font-size: 14px; font-weight: 800; margin: 0 0 10px 0;">🎁 Recompensas Disponibles:</h4>
+        
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h5 style="margin: 0; font-size: 13px; font-weight: 800; color: #fff;">🚲 Cupón de Envío Gratis</h5>
+              <p style="margin: 2px 0 0 0; font-size: 11px; color: #94A3B8;">Costo de Delivery $0 en tu próxima orden</p>
+            </div>
+            <button type="button" onclick="MarketplaceApp.redeemReward('ENVIOGRATIS', 100)" style="background: #F59E0B; color: #1e293b; border: none; padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer;">Canjear (100 Pts)</button>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h5 style="margin: 0; font-size: 13px; font-weight: 800; color: #fff;">🎟️ $2.00 USD de Descuento</h5>
+              <p style="margin: 2px 0 0 0; font-size: 11px; color: #94A3B8;">Aplica el código `GOCHO10` en tu pedido</p>
+            </div>
+            <button type="button" onclick="MarketplaceApp.redeemReward('GOCHO10', 150)" style="background: #F59E0B; color: #1e293b; border: none; padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer;">Canjear (150 Pts)</button>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h5 style="margin: 0; font-size: 13px; font-weight: 800; color: #fff;">👑 15% Descuento VIP</h5>
+              <p style="margin: 2px 0 0 0; font-size: 11px; color: #94A3B8;">Aplica `GOCHOVIP` en cualquier comercio</p>
+            </div>
+            <button type="button" onclick="MarketplaceApp.redeemReward('GOCHOVIP', 250)" style="background: #F59E0B; color: #1e293b; border: none; padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer;">Canjear (250 Pts)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GPS Location Status Modal -->
+  <div class="modal-overlay" id="location-modal">
+    <div class="modal-content" style="max-width: 420px; margin: auto; border-radius: 20px; box-shadow: var(--shadow-lg); background-color: var(--card-bg); color: var(--text-main); padding: 20px;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+          <span>📡</span> Tu Ubicación GPS
+        </h3>
+        <button class="btn-close" onclick="MarketplaceApp.closeLocationModal()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted);">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 16px 0; display: flex; flex-direction: column; gap: 14px; width: 100%;">
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px; text-align: center;">
+          <span style="font-size: 32px; display: block; margin-bottom: 6px;">🎯</span>
+          <div style="font-size: 15px; font-weight: 800; color: #10B981;" id="modal-gps-status-title">GPS Automático Activo</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="modal-gps-status-desc">Tu posición exacta se detecta automáticamente para que el domiciliario llegue sin retrasos.</div>
+        </div>
+
+        <button type="button" onclick="MarketplaceApp.requestAutomaticGPS(true); MarketplaceApp.closeLocationModal();" style="padding: 14px; border-radius: 12px; border: none; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #ffffff; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+          <span>📡</span> Actualizar Mi Ubicación GPS Ahora
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Beverage Upsell Suggestion Modal -->
+  <div class="modal-overlay" id="beverage-upsell-modal" style="z-index: 3600; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
+    <div class="modal-content" style="max-width: 480px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; padding: 20px; border-radius: 24px; background: rgba(18, 18, 24, 0.98); border: 1px solid rgba(255, 255, 255, 0.12); margin: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.8);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 26px;">🥤</span>
+          <div>
+            <h3 style="margin: 0; color: #FFF; font-size: 17px; font-weight: 900;">¿Deseas agregar una bebida?</h3>
+            <p style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted);">Acompaña tu comida con un refresco, jugo o agua fría.</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="MarketplaceApp.closeBeverageModalAndProceed()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.08); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <div id="beverage-upsell-list" class="premium-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; max-height: 340px; padding-right: 4px;">
+        <!-- Filled dynamically with store drinks -->
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
+        <button type="button" onclick="MarketplaceApp.closeBeverageModalAndProceed()" class="btn-checkout" style="padding: 12px; font-size: 14px; font-weight: 800; border-radius: 12px; background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid rgba(255,255,255,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <span>👉</span> No, continuar al pago directamente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Orders History Modal -->
+  <div class="modal-overlay" id="user-orders-modal" style="z-index: 3500; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; padding: 20px; border-radius: 20px; background: rgba(18, 18, 24, 0.96); border: 1px solid rgba(255, 255, 255, 0.1); margin: auto;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="margin: 0; color: #FFF; font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+            <span>📋</span> Mis Pedidos Realizados
+          </h3>
+          <p style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted);">Historial de compras, ingredientes, estados en vivo y detalles.</p>
+        </div>
+        <button class="modal-close" onclick="MarketplaceApp.closeUserOrdersModal()" style="font-size: 20px; color: #fff; background: rgba(255,255,255,0.1); border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div style="display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px;" class="premium-scroll">
+        <button class="btn-secondary active-order-filter" onclick="MarketplaceApp.filterUserOrders('all')" id="user-order-filter-all" style="padding: 6px 14px; font-size: 12px; font-weight: 800; border-radius: 20px; background: var(--primary); color: #fff; border: none; cursor: pointer; white-space: nowrap;">Todos</button>
+        <button class="btn-secondary" onclick="MarketplaceApp.filterUserOrders('active')" id="user-order-filter-active" style="padding: 6px 14px; font-size: 12px; font-weight: 800; border-radius: 20px; background: rgba(255,255,255,0.06); color: #FFF; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; white-space: nowrap;">⏳ En Camino / Activos</button>
+        <button class="btn-secondary" onclick="MarketplaceApp.filterUserOrders('completed')" id="user-order-filter-completed" style="padding: 6px 14px; font-size: 12px; font-weight: 800; border-radius: 20px; background: rgba(255,255,255,0.06); color: #FFF; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; white-space: nowrap;">✅ Entregados</button>
+      </div>
+
+      <!-- Orders List Container -->
+      <div id="user-orders-list-container" class="premium-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-right: 4px;">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Calificar Pedido (5 Estrellas 3D y Reseña) -->
+  <div class="modal-overlay" id="rating-modal" style="z-index: 4500; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div class="modal-content" style="max-width: 440px; width: 92%; padding: 24px; border-radius: 24px; background: rgba(18, 18, 26, 0.96); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 20px 50px rgba(0,0,0,0.6); text-align: center; margin: auto;">
+      
+      <div style="font-size: 42px; margin-bottom: 8px; animation: bounce 2s infinite;">🌟</div>
+      <h3 style="margin: 0 0 6px 0; color: #FFF; font-size: 20px; font-weight: 800;">¿Qué tal estuvo tu pedido?</h3>
+      <p style="margin: 0 0 18px 0; font-size: 13px; color: #94A3B8;">Tu calificación ayuda a mejorar el servicio de los restaurantes en Rapi Gochos.</p>
+
+      <input type="hidden" id="rating-order-id">
+      <input type="hidden" id="rating-est-id">
+
+      <!-- Interactive 3D Star Selector -->
+      <div class="star-rating-picker" style="display: flex; justify-content: center; gap: 8px; font-size: 36px; cursor: pointer; margin-bottom: 16px;">
+        <span onclick="MarketplaceApp.setRatingStars(1)" id="star-1" style="transition: transform 0.2s;">⭐</span>
+        <span onclick="MarketplaceApp.setRatingStars(2)" id="star-2" style="transition: transform 0.2s;">⭐</span>
+        <span onclick="MarketplaceApp.setRatingStars(3)" id="star-3" style="transition: transform 0.2s;">⭐</span>
+        <span onclick="MarketplaceApp.setRatingStars(4)" id="star-4" style="transition: transform 0.2s;">⭐</span>
+        <span onclick="MarketplaceApp.setRatingStars(5)" id="star-5" style="transition: transform 0.2s;">⭐</span>
+      </div>
+      <div id="rating-label-text" style="font-size: 13px; font-weight: 800; color: #F59E0B; margin-bottom: 14px;">⭐⭐⭐⭐⭐ (5 / 5 - ¡Excelente!)</div>
+
+      <textarea id="rating-comment-text" rows="3" placeholder="Escribe un comentario opcional sobre la comida o la entrega..." style="width: 100%; box-sizing: border-box; padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: #FFF; font-size: 13px; outline: none; margin-bottom: 18px;"></textarea>
+
+      <div style="display: flex; gap: 10px;">
+        <button type="button" onclick="MarketplaceApp.closeRatingModal()" style="flex: 1; background: transparent; color: #94A3B8; border: 1px solid rgba(255,255,255,0.15); padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer;">Omitir</button>
+        <button type="button" onclick="MarketplaceApp.submitReview()" style="flex: 2; background: linear-gradient(180deg, #F59E0B 0%, #D97706 100%); color: #FFF; border: none; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 4px 0 #B45309, 0 8px 18px rgba(245, 158, 11, 0.4);">🌟 Enviar Calificación</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Lista de Reseñas y Estrellas de un Restaurante -->
+  <div class="modal-overlay" id="reviews-list-modal" style="z-index: 4400; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div class="modal-content" style="max-width: 520px; width: 94%; max-height: 85vh; display: flex; flex-direction: column; padding: 20px; border-radius: 20px; background: rgba(18, 18, 24, 0.96); border: 1px solid rgba(255, 255, 255, 0.1); margin: auto;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 id="reviews-modal-title" style="margin: 0; color: #FFF; font-size: 17px; font-weight: 800;">⭐ Reseñas de Clientes</h3>
+          <p id="reviews-modal-sub" style="margin: 2px 0 0 0; font-size: 12px; color: #94A3B8;">Calificaciones reales registradas por los clientes.</p>
+        </div>
+        <button class="modal-close" onclick="MarketplaceApp.closeReviewsListModal()" style="font-size: 20px; color: #fff; background: rgba(255,255,255,0.1); border: none; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <div id="reviews-modal-cards-list" class="premium-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px;">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast hidden">Mensaje de notificación</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-helper.js?v=81"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="/js/sound.js?v=193"></script>
+  <script src="/js/marketplace.js?v=193"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js?v=193').then((reg) => {
+          reg.update();
+        }).catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
