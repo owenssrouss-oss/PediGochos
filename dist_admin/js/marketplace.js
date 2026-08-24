@@ -129,6 +129,7 @@ class MarketplaceController {
     this.updateGochoPointsDisplay();
     this.initPushNotifications();
     this.initOfflineSync();
+    this.checkFirstTimeWelcome();
 
     // Auto-open store if scanned via QR or visited via direct link
     if (storeParam && Array.isArray(this.establishments) && this.establishments.length > 0) {
@@ -153,6 +154,32 @@ class MarketplaceController {
       setTimeout(() => {
         this.showLocationTutorial();
       }, 1000);
+    }
+  }
+
+  checkFirstTimeWelcome() {
+    try {
+      const hasSeen = localStorage.getItem('pedigochos_welcome_shown_v1');
+      if (!hasSeen) {
+        const modal = document.getElementById('first-time-welcome-modal');
+        if (modal) {
+          setTimeout(() => {
+            modal.classList.add('open');
+            modal.style.setProperty('display', 'flex', 'important');
+          }, 600);
+        }
+      }
+    } catch(e) {}
+  }
+
+  closeWelcomeModal() {
+    try {
+      localStorage.setItem('pedigochos_welcome_shown_v1', 'true');
+    } catch(e) {}
+    const modal = document.getElementById('first-time-welcome-modal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.style.display = 'none';
     }
   }
 
@@ -1387,16 +1414,83 @@ class MarketplaceController {
     if (!product) return;
     const isHalves = this.customizerState.pizzaMode === 'halves';
     
-    // Col A (Whole / Mitad A)
+    // Global Pizza Size Selector (rendered once for the whole pizza in halves mode)
+    const globalSizeContainer = document.getElementById('pizza-global-size-container');
+    if (globalSizeContainer) {
+      globalSizeContainer.innerHTML = '';
+      if (isHalves && product.modifiers && Array.isArray(product.modifiers)) {
+        const sizeGroup = product.modifiers.find(g => (g.group_name || '').toLowerCase() === 'tamaño');
+        if (sizeGroup && Array.isArray(sizeGroup.options)) {
+          globalSizeContainer.style.display = 'block';
+          const groupDiv = document.createElement('div');
+          groupDiv.className = 'modifier-group';
+          groupDiv.style.background = 'rgba(255, 94, 58, 0.08)';
+          groupDiv.style.border = '1px solid rgba(255, 94, 58, 0.25)';
+          groupDiv.style.borderRadius = '14px';
+          groupDiv.style.padding = '12px';
+          groupDiv.style.marginBottom = '14px';
+
+          groupDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-weight: 800; color: #FFF; font-size: 13.5px;">📏 Tamaño de la Pizza Completa</span>
+              <span class="required-badge" style="background: #EF4444; color: #fff; font-size: 10px; font-weight: 900; padding: 2px 6px; border-radius: 4px;">Requerido</span>
+            </div>
+            <div class="modifier-options-list" id="pizza-global-size-list"></div>
+          `;
+          const list = groupDiv.querySelector('#pizza-global-size-list');
+
+          // Ensure default size selection if none active
+          const hasActiveSize = sizeGroup.options.some(opt => this.customizerState.quantities.whole['opt_' + opt.option_id] === 1);
+          if (!hasActiveSize && sizeGroup.options.length > 0) {
+            this.customizerState.quantities.whole['opt_' + sizeGroup.options[0].option_id] = 1;
+          }
+
+          sizeGroup.options.forEach(opt => {
+            const optId = opt.option_id;
+            const isSelected = this.customizerState.quantities.whole['opt_' + optId] === 1;
+            const deltaVal = this.normalizeCopPrice(opt.extra_price || opt.price || 0);
+            const priceTag = deltaVal > 0 ? ` (+${this.formatPesos(deltaVal)})` : '';
+            
+            const optionDiv = document.createElement('div');
+            optionDiv.className = `modifier-option ${isSelected ? 'option-single-active' : ''}`;
+            optionDiv.style.cursor = 'pointer';
+            optionDiv.onclick = () => {
+              sizeGroup.options.forEach(o => {
+                this.customizerState.quantities.whole['opt_' + o.option_id] = 0;
+              });
+              this.customizerState.quantities.whole['opt_' + optId] = 1;
+              this.renderCustomizerModifiers();
+            };
+            optionDiv.innerHTML = `
+              <div class="option-label-container">
+                <input type="radio" name="radio_global_pizza_size" ${isSelected ? 'checked' : ''} style="margin: 0;">
+                <span class="option-name" style="margin-left: 8px; font-weight: 700;">${opt.name || ''}</span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span class="option-extra-price" style="font-weight: 800; color: var(--primary);">${priceTag}</span>
+              </div>
+            `;
+            list.appendChild(optionDiv);
+          });
+          globalSizeContainer.appendChild(groupDiv);
+        } else {
+          globalSizeContainer.style.display = 'none';
+        }
+      } else {
+        globalSizeContainer.style.display = 'none';
+      }
+    }
+
+    // Col A (Whole / Mitad 1)
     const containerA = document.getElementById('modifiers-groups-a');
     if (containerA) {
       containerA.innerHTML = '';
       const sideKeyA = isHalves ? 'halfA' : 'whole';
-      const labelSuffixA = isHalves ? 'A' : '';
-      this.renderUnifiedList(containerA, sideKeyA, labelSuffixA);
+      const labelSuffixA = isHalves ? '1' : '';
+      this.renderUnifiedList(containerA, sideKeyA, labelSuffixA, isHalves);
     }
 
-    // Col B (Mitad B) if halves
+    // Col B (Mitad 2) if halves
     const containerB = document.getElementById('modifiers-groups-b');
     if (containerB) {
       containerB.innerHTML = '';
@@ -1406,9 +1500,11 @@ class MarketplaceController {
         if (colB) colB.classList.remove('hidden');
         if (colAHead) {
           colAHead.classList.remove('hidden');
-          colAHead.innerText = 'Mitad A';
+          colAHead.innerHTML = '🌓 Mitad 1 (50%)';
         }
-        this.renderUnifiedList(containerB, 'halfB', 'B', true);
+        const colBHead = document.querySelector('#customizer-col-b .customizer-column-header');
+        if (colBHead) colBHead.innerHTML = '🌓 Mitad 2 (50%)';
+        this.renderUnifiedList(containerB, 'halfB', '2', true);
       } else {
         const colB = document.getElementById('customizer-col-b');
         const colAHead = document.getElementById('col-a-header');
@@ -1440,14 +1536,15 @@ class MarketplaceController {
         const pizzaProducts = estProducts.filter(p => (p.category || '').toLowerCase() === 'pizzas' || (p.name || '').toLowerCase().includes('pizza'));
         const currentSpec = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
         
-        let optionsHTML = '<option value="">-- Elige un sabor --</option>';
+        let optionsHTML = '<option value="">-- Elige el sabor para esta mitad --</option>';
         pizzaProducts.forEach(p => {
-          optionsHTML += `<option value="${p.id}" ${currentSpec && currentSpec.id === p.id ? 'selected' : ''}>${p.name} (${this.formatPesos(p.price || 0)})</option>`;
+          // NO PRICES IN HALVES SELECTOR (Size sets the price)
+          optionsHTML += `<option value="${p.id}" ${currentSpec && currentSpec.id === p.id ? 'selected' : ''}>🍕 ${p.name}</option>`;
         });
 
         specDiv.innerHTML = `
-          <label style="font-weight: 700; display: block; margin-bottom: 8px;">Especialidad / Sabor${sideLabel}</label>
-          <select class="customizer-specialty-select" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc; background: var(--surface); color: var(--text);" onchange="MarketplaceApp.selectHalvesSpecialty('${sideKey}', this.value)">
+          <label style="font-weight: 800; font-size: 13px; color: #F59E0B; display: block; margin-bottom: 8px;">Sabor de Pizza${sideLabel}</label>
+          <select class="customizer-specialty-select" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #F59E0B; background: #111827; color: #FFF; font-weight: 700; font-size: 13px;" onchange="MarketplaceApp.selectHalvesSpecialty('${sideKey}', this.value)">
             ${optionsHTML}
           </select>
         `;
@@ -1602,16 +1699,6 @@ class MarketplaceController {
   selectHalvesSpecialty(sideKey, productId) {
     const estProducts = (this.selectedEstablishment && Array.isArray(this.selectedEstablishment.products)) ? this.selectedEstablishment.products : [];
     const selectedProduct = estProducts.find(p => p.id === productId);
-    
-    let previousSizeOptId = null;
-    const currentSpecialty = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
-    if (currentSpecialty && currentSpecialty.modifiers && Array.isArray(currentSpecialty.modifiers)) {
-      const sizeGroup = currentSpecialty.modifiers.find(g => (g.group_name || '').toLowerCase() === 'tamaño');
-      if (sizeGroup && Array.isArray(sizeGroup.options)) {
-        const found = sizeGroup.options.find(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
-        if (found) previousSizeOptId = found.option_id;
-      }
-    }
 
     if (sideKey === 'halfA') {
       this.customizerState.specialtyA = selectedProduct || null;
@@ -1629,42 +1716,19 @@ class MarketplaceController {
 
       if (selectedProduct.modifiers && Array.isArray(selectedProduct.modifiers)) {
         selectedProduct.modifiers.forEach(group => {
-          if (group && group.selection_type === 'single' && Array.isArray(group.options)) {
-            const isSizeGroup = (group.group_name || '').toLowerCase() === 'tamaño';
+          const isSizeGroup = (group.group_name || '').toLowerCase() === 'tamaño';
+          if (!isSizeGroup && group.options && Array.isArray(group.options)) {
             group.options.forEach((opt, idx) => {
               if (opt && opt.option_id) {
-                if (isSizeGroup && previousSizeOptId) {
-                  this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (opt.option_id === previousSizeOptId) ? 1 : 0;
-                } else {
+                if (group.selection_type === 'single') {
                   this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (idx === 0) ? 1 : 0;
+                } else {
+                  this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = 0;
                 }
               }
             });
-          } else {
-            group.options.forEach(opt => {
-              this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = 0;
-            });
           }
         });
-      }
-
-      const sizeGroup = selectedProduct.modifiers ? selectedProduct.modifiers.find(g => g.group_name.toLowerCase() === 'tamaño') : null;
-      if (sizeGroup) {
-        const selectedSizeOpt = sizeGroup.options.find(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
-        if (selectedSizeOpt) {
-          const otherSideKey = sideKey === 'halfA' ? 'halfB' : 'halfA';
-          const otherSpecialty = otherSideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
-          if (otherSpecialty && otherSpecialty.modifiers) {
-            const otherSizeGroup = otherSpecialty.modifiers.find(g => g.group_name.toLowerCase() === 'tamaño');
-            if (otherSizeGroup) {
-              const sameNameOpt = otherSizeGroup.options.find(opt => opt.name.toLowerCase() === selectedSizeOpt.name.toLowerCase());
-              const targetOptId = sameNameOpt ? sameNameOpt.option_id : otherSizeGroup.options[0].option_id;
-              otherSizeGroup.options.forEach(opt => {
-                this.customizerState.quantities[otherSideKey]['opt_' + opt.option_id] = (opt.option_id === targetOptId) ? 1 : 0;
-              });
-            }
-          }
-        }
       }
     } else {
       this.customizerState.quantities[sideKey] = {};
@@ -1681,34 +1745,11 @@ class MarketplaceController {
     }
     if (!product) return;
 
-    const group = product.modifiers.find(g => g.group_id === groupId);
-    if (group) {
-      const isPizza = product.category === 'Pizzas' || product.name.toLowerCase().includes('pizza');
-      const isSizeGroup = group.group_name.toLowerCase() === 'tamaño';
-
-      if (isPizza && isSizeGroup) {
-        ['whole', 'halfA', 'halfB'].forEach(key => {
-          let currentProduct = this.customizerState.product;
-          if (isHalves) {
-            currentProduct = key === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
-          }
-          if (!currentProduct || !currentProduct.modifiers) return;
-          const targetGroup = currentProduct.modifiers.find(g => g.group_name.toLowerCase() === 'tamaño');
-          if (targetGroup) {
-            const origOpt = group.options.find(o => o.option_id === optionId);
-            if (origOpt) {
-              const matchedOpt = targetGroup.options.find(o => o.name.toLowerCase() === origOpt.name.toLowerCase());
-              targetGroup.options.forEach(opt => {
-                this.customizerState.quantities[key]['opt_' + opt.option_id] = (matchedOpt && opt.option_id === matchedOpt.option_id) ? 1 : 0;
-              });
-            }
-          }
-        });
-      } else {
-        group.options.forEach(opt => {
-          this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (opt.option_id === optionId) ? 1 : 0;
-        });
-      }
+    const group = product.modifiers ? product.modifiers.find(g => g.group_id === groupId) : null;
+    if (group && group.options) {
+      group.options.forEach(opt => {
+        this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (opt.option_id === optionId) ? 1 : 0;
+      });
     }
     this.renderCustomizerModifiers();
   }
@@ -1742,20 +1783,28 @@ class MarketplaceController {
     const halvesBtn = document.getElementById('pizza-halves-btn');
     
     if (mode === 'whole') {
-      wholeBtn.classList.add('active');
-      halvesBtn.classList.remove('active');
+      if (wholeBtn) wholeBtn.classList.add('active');
+      if (halvesBtn) halvesBtn.classList.remove('active');
       
       this.customizerState.specialtyA = null;
       this.customizerState.specialtyB = null;
       this.customizerState.quantities.halfA = {};
       this.customizerState.quantities.halfB = {};
     } else {
-      wholeBtn.classList.remove('active');
-      halvesBtn.classList.add('active');
+      if (wholeBtn) wholeBtn.classList.remove('active');
+      if (halvesBtn) halvesBtn.classList.add('active');
       
-      this.customizerState.specialtyA = null;
-      this.customizerState.specialtyB = null;
+      // Default Mitad 1 to the current selected pizza product
+      this.customizerState.specialtyA = this.customizerState.product;
       this.customizerState.quantities.halfA = {};
+      if (this.customizerState.product && this.customizerState.product.exclusions && Array.isArray(this.customizerState.product.exclusions)) {
+        this.customizerState.product.exclusions.forEach(item => {
+          const itemName = typeof item === 'object' && item.name ? item.name : String(item);
+          this.customizerState.quantities.halfA['base_' + itemName] = 1;
+        });
+      }
+
+      this.customizerState.specialtyB = null;
       this.customizerState.quantities.halfB = {};
     }
     
@@ -1786,6 +1835,9 @@ class MarketplaceController {
 
       let selectedContornosCount = 0;
       currentProduct.modifiers.forEach(group => {
+        const isSizeGroup = (group.group_name || '').toLowerCase() === 'tamaño';
+        if (isHalves && isSizeGroup) return;
+
         if (group.selection_type === 'multiple') {
           group.options.forEach(opt => {
             const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
@@ -1807,6 +1859,14 @@ class MarketplaceController {
     };
     
     if (isHalves) {
+      // Check whole product required size
+      if (product && product.modifiers) {
+        const sizeGroup = product.modifiers.find(g => (g.group_name || '').toLowerCase() === 'tamaño');
+        if (sizeGroup && sizeGroup.options) {
+          const active = sizeGroup.options.some(opt => this.customizerState.quantities.whole['opt_' + opt.option_id] === 1);
+          if (!active) allValid = false;
+        }
+      }
       checkSide('halfA');
       checkSide('halfB');
     } else {
@@ -1821,17 +1881,15 @@ class MarketplaceController {
     const product = this.customizerState.product;
     const isHalves = this.customizerState.pizzaMode === 'halves';
     
-    const sumForSide = (sideKey) => {
+    let totalExtras = 0;
+
+    const sumSide = (targetProduct, sideKey, ignoreSize = false) => {
       let sideSum = 0;
-      let activeProduct = product;
-      if (isHalves) {
-        activeProduct = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
-      }
-      if (!activeProduct) return 0;
-      
-      const isSpecialZeroInit = this.isArepaOrHeladoProduct(activeProduct);
-      if (activeProduct.exclusions && Array.isArray(activeProduct.exclusions)) {
-        activeProduct.exclusions.forEach(item => {
+      if (!targetProduct) return 0;
+
+      const isSpecialZeroInit = this.isArepaOrHeladoProduct(targetProduct);
+      if (targetProduct.exclusions && Array.isArray(targetProduct.exclusions)) {
+        targetProduct.exclusions.forEach(item => {
           const itemName = typeof item === 'object' && item.name ? item.name : String(item);
           const basePrice = (typeof item === 'object' && item.price !== undefined) ? item.price : 500;
           const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
@@ -1844,10 +1902,13 @@ class MarketplaceController {
           }
         });
       }
-      
-      if (activeProduct.modifiers && Array.isArray(activeProduct.modifiers)) {
-        activeProduct.modifiers.forEach(group => {
+
+      if (targetProduct.modifiers && Array.isArray(targetProduct.modifiers)) {
+        targetProduct.modifiers.forEach(group => {
           if (group && group.options && Array.isArray(group.options)) {
+            const isSize = (group.group_name || '').toLowerCase() === 'tamaño';
+            if (ignoreSize && isSize) return;
+
             group.options.forEach(opt => {
               if (opt && opt.option_id) {
                 const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
@@ -1864,26 +1925,34 @@ class MarketplaceController {
           }
         });
       }
-      
       return sideSum;
     };
-    
+
     if (isHalves) {
-      return sumForSide('halfA') + sumForSide('halfB');
+      // Global pizza size & extras from 'whole'
+      totalExtras += sumSide(product, 'whole', false);
+      // Extras / ingredients from Half 1 (ignore size)
+      if (this.customizerState.specialtyA) {
+        totalExtras += sumSide(this.customizerState.specialtyA, 'halfA', true);
+      }
+      // Extras / ingredients from Half 2 (ignore size)
+      if (this.customizerState.specialtyB) {
+        totalExtras += sumSide(this.customizerState.specialtyB, 'halfB', true);
+      }
     } else {
-      return sumForSide('whole');
+      totalExtras += sumSide(product, 'whole', false);
     }
+
+    return totalExtras;
   }
 
   updateCustomizerPrice() {
     if (!this.customizerState || !this.customizerState.product) return;
+    const product = this.customizerState.product;
     const isHalves = this.customizerState.pizzaMode === 'halves';
-    let basePrice = this.normalizeCopPrice(this.customizerState.product.price);
-    if (isHalves) {
-      const priceA = this.customizerState.specialtyA ? this.normalizeCopPrice(this.customizerState.specialtyA.price) : 0;
-      const priceB = this.customizerState.specialtyB ? this.normalizeCopPrice(this.customizerState.specialtyB.price) : 0;
-      basePrice = (priceA + priceB) / 2;
-    }
+    
+    // Base price is strictly the main product price (Size delta is computed in calculateExtrasTotal)
+    const basePrice = this.normalizeCopPrice(product.price);
     const extrasTotal = this.calculateExtrasTotal();
     const qty = this.customizerState.quantity || 1;
     
@@ -1897,13 +1966,13 @@ class MarketplaceController {
     
     const allValid = this.validateRequiredModifiers();
     
-    const pName = this.customizerState.product.name || '';
+    const pName = product.name || '';
     const contornosMatch = pName.match(/(\d+)\s+Contornos/i);
     const maxContornosAllowed = contornosMatch ? parseInt(contornosMatch[1], 10) : null;
     
     const sideKey = isHalves ? 'halfA' : 'whole';
     let selectedContornosCount = 0;
-    const activeProduct = isHalves ? this.customizerState.specialtyA : this.customizerState.product;
+    const activeProduct = isHalves ? this.customizerState.specialtyA : product;
     if (activeProduct && activeProduct.modifiers && Array.isArray(activeProduct.modifiers)) {
       activeProduct.modifiers.forEach(group => {
         if (group && group.selection_type === 'multiple' && Array.isArray(group.options)) {
@@ -1925,7 +1994,7 @@ class MarketplaceController {
         btn.innerText = `Elige exactamente ${maxContornosAllowed} Contorno(s) (${selectedContornosCount}/${maxContornosAllowed})`;
         btn.disabled = true;
       } else {
-        btn.innerText = `Agregar al Carrito • ${this.formatPesos(combinedTotal)}`;
+        btn.innerText = `🛒 Agregar al Carrito • ${this.formatPesos(combinedTotal)}`;
         btn.disabled = !allValid;
       }
     }
@@ -1937,7 +2006,8 @@ class MarketplaceController {
     if (currentQty < 1) currentQty = 1;
     
     this.customizerState.quantity = currentQty;
-    document.getElementById('customizer-quantity-display').innerText = currentQty;
+    const displayEl = document.getElementById('customizer-quantity-display');
+    if (displayEl) displayEl.innerText = currentQty;
     this.updateCustomizerPrice();
   }
 
@@ -2057,8 +2127,8 @@ class MarketplaceController {
     const exclusions = [];
     
     const formatSidePrefix = (sideKey) => {
-      if (sideKey === 'halfA') return '[Mitad A] ';
-      if (sideKey === 'halfB') return '[Mitad B] ';
+      if (sideKey === 'halfA') return '[Mitad 1] ';
+      if (sideKey === 'halfB') return '[Mitad 2] ';
       return '';
     };
 
@@ -2079,10 +2149,10 @@ class MarketplaceController {
       
       // 1. Base ingredients (exclusions and extras)
       const isSpecialZeroInit = this.isArepaOrHeladoProduct(activeProduct);
-      if (activeProduct.exclusions) {
+      if (activeProduct.exclusions && Array.isArray(activeProduct.exclusions)) {
         activeProduct.exclusions.forEach(item => {
-          const itemName = item.name || item;
-          const basePrice = item.price !== undefined ? item.price : 500;
+          const itemName = typeof item === 'object' && item.name ? item.name : String(item);
+          const basePrice = (typeof item === 'object' && item.price !== undefined) ? item.price : 500;
           const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
           if (isSpecialZeroInit) {
             if (qty > 0) {
@@ -2107,8 +2177,11 @@ class MarketplaceController {
       }
 
       // 2. Modifiers
-      if (activeProduct.modifiers) {
+      if (activeProduct.modifiers && Array.isArray(activeProduct.modifiers)) {
         activeProduct.modifiers.forEach(group => {
+          const isSize = (group.group_name || '').toLowerCase() === 'tamaño';
+          if (isHalves && isSize) return;
+
           group.options.forEach(opt => {
             const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
             if (qty > 0) {
@@ -2132,6 +2205,21 @@ class MarketplaceController {
     };
     
     if (isHalves) {
+      // Process global pizza size from whole product
+      if (product.modifiers && Array.isArray(product.modifiers)) {
+        const sizeGroup = product.modifiers.find(g => (g.group_name || '').toLowerCase() === 'tamaño');
+        if (sizeGroup && sizeGroup.options) {
+          sizeGroup.options.forEach(opt => {
+            if (this.customizerState.quantities.whole['opt_' + opt.option_id] === 1) {
+              const extraPrice = opt.extra_price || opt.price || 0;
+              singleSelections.push({
+                group_name: 'Tamaño',
+                chosen_option: opt.name + (extraPrice > 0 ? ` (+${this.formatPesos(extraPrice)})` : '')
+              });
+            }
+          });
+        }
+      }
       processSide('halfA');
       processSide('halfB');
     } else {
@@ -2139,22 +2227,19 @@ class MarketplaceController {
     }
     
     const specialNotes = document.getElementById('customizer-special-notes').value.trim();
-    let basePrice = product.price;
-    if (isHalves) {
-      const priceA = this.customizerState.specialtyA ? this.customizerState.specialtyA.price : 0;
-      const priceB = this.customizerState.specialtyB ? this.customizerState.specialtyB.price : 0;
-      basePrice = (priceA + priceB) / 2;
-    }
+    const basePrice = this.normalizeCopPrice(product.price);
     const extrasTotal = this.calculateExtrasTotal();
     const unitTotalCalculated = basePrice + extrasTotal;
-    const qty = this.customizerState.quantity;
+    const qty = this.customizerState.quantity || 1;
     const subtotalCombined = unitTotalCalculated * qty;
     
     const cartItemId = 'item-' + Date.now() + '-' + Math.floor(Math.random() * 100000);
     
     let itemName = product.name;
     if (isHalves) {
-      itemName = `${product.name} (Mitades: ${this.customizerState.specialtyA ? this.customizerState.specialtyA.name : 'N/A'} / ${this.customizerState.specialtyB ? this.customizerState.specialtyB.name : 'N/A'})`;
+      const nameA = this.customizerState.specialtyA ? this.customizerState.specialtyA.name.replace(/^pizza\s+/i, '') : 'Mitad 1';
+      const nameB = this.customizerState.specialtyB ? this.customizerState.specialtyB.name.replace(/^pizza\s+/i, '') : 'Mitad 2';
+      itemName = `Pizza Mitad y Mitad (${nameA} / ${nameB})`;
     }
 
     const cartItem = {

@@ -74,7 +74,7 @@ self.addEventListener('fetch', (event) => {
 
 // Web Push Notification Listener
 self.addEventListener('push', (event) => {
-  let data = { title: 'RapiGochos 🛵', body: '¡Tienes una nueva actualización de tu pedido!', icon: '/images/burger_royale.jpg' };
+  let data = { title: 'PediGochos 🛵', body: '¡Tienes una nueva actualización de tu pedido!', icon: '/images/burger_royale.jpg' };
   if (event.data) {
     try {
       data = event.data.json();
