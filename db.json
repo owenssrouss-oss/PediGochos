@@ -3321,7 +3321,7 @@
           "id": "p-1786158805766-9",
           "name": "​Batido de Guanábana",
           "image": "",
-          "price": 10,
+          "price": 8000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -3330,42 +3330,22 @@
                   "id": "opt-drk-17861588057652",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861588057652",
-                  "extra_price": 8000
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861588057653",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861588057653",
-                  "extra_price": 10000
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786158805765",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861588057660.09058283269879785",
-                  "name": "Delicioso batido natural de guanábana",
-                  "option_id": "opt-17861588057660.3094905370164752",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786158805766",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de guanábana",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de guanábana."
         },
@@ -3373,7 +3353,7 @@
           "id": "p-1786158921294-28",
           "name": "​Batido de Durazno",
           "image": "",
-          "price": 10,
+          "price": 8000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -3382,42 +3362,22 @@
                   "id": "opt-drk-17861589212932",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861589212932",
-                  "extra_price": 8000
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861589212933",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861589212933",
-                  "extra_price": 10000
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786158921293",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861589212940.7494128416018491",
-                  "name": "Delicioso batido natural de durazno",
-                  "option_id": "opt-17861589212940.5951984080048189",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786158921294",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de durazno",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de durazno."
         },
@@ -3425,7 +3385,7 @@
           "id": "p-1786158976829-90",
           "name": "​Batido de Melón",
           "image": "",
-          "price": 10,
+          "price": 8000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -3434,42 +3394,22 @@
                   "id": "opt-drk-17861589768292",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861589768292",
-                  "extra_price": 8000
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861589768293",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861589768293",
-                  "extra_price": 10000
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786158976829",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861589768290.3194736546070963",
-                  "name": "Delicioso batido natural de melón",
-                  "option_id": "opt-17861589768290.456805637148046",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786158976829",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de melón",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de melón."
         },
@@ -3477,7 +3417,7 @@
           "id": "p-1786159035890-70",
           "name": "​Batido de Tomate de Árbol",
           "image": "",
-          "price": 10,
+          "price": 8000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -3486,42 +3426,22 @@
                   "id": "opt-drk-17861590358902",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861590358902",
-                  "extra_price": 8000
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861590358903",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861590358903",
-                  "extra_price": 10000
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786159035890",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861590358900.8401404972890634",
-                  "name": "Delicioso batido natural de tomate de árbol",
-                  "option_id": "opt-17861590358900.2521899695086002",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786159035890",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de tomate de árbol",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de tomate de árbol."
         },
@@ -3529,7 +3449,7 @@
           "id": "p-1786159373914-66",
           "name": "​Batido de Fresa",
           "image": "",
-          "price": 10,
+          "price": 8000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -3538,42 +3458,22 @@
                   "id": "opt-drk-17861593739132",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861593739142",
-                  "extra_price": 8000
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861593739143",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861593739143",
-                  "extra_price": 10000
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786159373914",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861593739140.9819223189502603",
-                  "name": "Delicioso batido natural de fresa",
-                  "option_id": "opt-17861593739140.8133451125107373",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786159373914",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de fresa",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de fresa."
         },
@@ -3581,7 +3481,7 @@
           "id": "p-1786159462877-92",
           "name": "​Batido de Cambur",
           "image": "",
-          "price": 10,
+          "price": 8000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -3590,42 +3490,22 @@
                   "id": "opt-drk-17861594628762",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861594628762",
-                  "extra_price": 8000
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861594628763",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861594628763",
-                  "extra_price": 10000
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786159462876",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861594628760.9047573159240047",
-                  "name": "Delicioso batido natural de cambur",
-                  "option_id": "opt-17861594628770.3480424013711373",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786159462877",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de cambur",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de cambur."
         },
@@ -3633,7 +3513,7 @@
           "id": "p-1786159567950-79",
           "name": "Batido de Lechoza",
           "image": "",
-          "price": 10,
+          "price": 8000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -3642,42 +3522,22 @@
                   "id": "opt-drk-17861595679502",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861595679502",
-                  "extra_price": 8
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861595679503",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861595679503",
-                  "extra_price": 10
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786159567950",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861595679500.8634609781196086",
-                  "name": "Delicioso batido natural de lechoza",
-                  "option_id": "opt-17861595679500.3563587479587714",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786159567950",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de lechoza",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de lechoza."
         },
@@ -3685,7 +3545,7 @@
           "id": "p-1786159702725-92",
           "name": "​Batido de Mango",
           "image": "",
-          "price": 10,
+          "price": 8000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -3694,42 +3554,22 @@
                   "id": "opt-drk-17861597027242",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861597027242",
-                  "extra_price": 8
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861597027243",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861597027243",
-                  "extra_price": 10
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786159702724",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861597027240.03268606983886835",
-                  "name": "Delicioso batido natural de mango",
-                  "option_id": "opt-17861597027240.33693686868030925",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786159702724",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de mango",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de mango."
         },
@@ -3737,7 +3577,7 @@
           "id": "p-1786160455712-92",
           "name": "​Batido de Guayaba",
           "image": "",
-          "price": 10,
+          "price": 8000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -3746,42 +3586,22 @@
                   "id": "opt-drk-17861604557122",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861604557122",
-                  "extra_price": 8
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861604557123",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861604557123",
-                  "extra_price": 10
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786160455712",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861604557120.5019114237556116",
-                  "name": "Delicioso batido natural de guayaba",
-                  "option_id": "opt-17861604557120.6212955421906672",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786160455712",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de guayaba",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de guayaba."
         },
@@ -3789,7 +3609,7 @@
           "id": "p-1786160518736-60",
           "name": "​Batido de Lulo",
           "image": "",
-          "price": 10,
+          "price": 8000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -3798,42 +3618,22 @@
                   "id": "opt-drk-17861605187362",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861605187362",
-                  "extra_price": 8
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861605187363",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861605187363",
-                  "extra_price": 10
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786160518736",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861605187360.06921339694172912",
-                  "name": "Delicioso batido natural de lulo",
-                  "option_id": "opt-17861605187360.2461705794199377",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786160518736",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de lulo",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de lulo."
         },
@@ -3841,7 +3641,7 @@
           "id": "p-1786160563433-8",
           "name": "Batido de Mora",
           "image": "",
-          "price": 8,
+          "price": 8000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -3850,42 +3650,22 @@
                   "id": "opt-drk-17861605634332",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861605634332",
-                  "extra_price": 8
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861605634333",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861605634333",
-                  "extra_price": 10
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786160563433",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861605634330.7885994176164112",
-                  "name": "Delicioso batido natural de mora",
-                  "option_id": "opt-17861605634330.02053643925805726",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786160563433",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de mora",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de mora."
         },
@@ -3893,7 +3673,7 @@
           "id": "p-1786160597451-47",
           "name": "​Batido de Borojó",
           "image": "",
-          "price": 10,
+          "price": 10000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -3902,42 +3682,22 @@
                   "id": "opt-drk-17861605974512",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861605974512",
-                  "extra_price": 8
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861605974513",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861605974513",
-                  "extra_price": 10
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786160597451",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861605974510.17366458453005262",
-                  "name": "Delicioso batido natural de borojó",
-                  "option_id": "opt-17861605974510.2975363803126737",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786160597451",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de borojó",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de borojó."
         },
@@ -3945,7 +3705,7 @@
           "id": "p-1786160631031-69",
           "name": "Batido de Curuba",
           "image": "",
-          "price": 8,
+          "price": 8000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -3954,42 +3714,22 @@
                   "id": "opt-drk-17861606310302",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861606310302",
-                  "extra_price": 8
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861606310303",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861606310303",
-                  "extra_price": 10
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786160631030",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861606310300.11169967207904352",
-                  "name": "Delicioso batido natural de curuba",
-                  "option_id": "opt-17861606310300.5681463591599962",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786160631030",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de curuba",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de curuba."
         },
@@ -3997,7 +3737,7 @@
           "id": "p-1786160762297-83",
           "name": "Batido de Piña",
           "image": "",
-          "price": 8,
+          "price": 8000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -4006,42 +3746,22 @@
                   "id": "opt-drk-17861607622962",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861607622962",
-                  "extra_price": 8
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861607622963",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861607622963",
-                  "extra_price": 10
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786160762296",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861607622970.15533854036631445",
-                  "name": "Delicioso batido natural de piña",
-                  "option_id": "opt-17861607622970.35708636892637124",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786160762297",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de piña",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de piña."
         },
@@ -4049,7 +3769,7 @@
           "id": "p-1786160801283-78",
           "name": "​Batido de Avena",
           "image": "",
-          "price": 10,
+          "price": 10000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -4058,42 +3778,22 @@
                   "id": "opt-drk-17861608012822",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861608012822",
-                  "extra_price": 8
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861608012823",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861608012823",
-                  "extra_price": 10
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786160801282",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861608012830.03018552572588684",
-                  "name": "Delicioso batido natural de avena",
-                  "option_id": "opt-17861608012830.2860261316168824",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786160801283",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido natural de avena",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido natural de avena."
         },
@@ -4101,7 +3801,7 @@
           "id": "p-1786160846494-67",
           "name": "​Batido de Toddy",
           "image": "",
-          "price": 10,
+          "price": 10000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -4110,42 +3810,22 @@
                   "id": "opt-drk-17861608464922",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861608464922",
-                  "extra_price": 8
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861608464923",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861608464923",
-                  "extra_price": 10
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786160846492",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861608464940.9741347291676805",
-                  "name": "Delicioso batido frío de Toddy",
-                  "option_id": "opt-17861608464940.04436370260370959",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786160846494",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido frío de Toddy",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido frío de Toddy."
         },
@@ -4153,7 +3833,7 @@
           "id": "p-1786160924602-14",
           "name": "​Batido de Cerelac",
           "image": "",
-          "price": 10,
+          "price": 10000,
           "category": "Batidos",
           "modifiers": [
             {
@@ -4162,42 +3842,22 @@
                   "id": "opt-drk-17861609246022",
                   "name": "Mediano / 16oz",
                   "option_id": "opt-drk-17861609246022",
-                  "extra_price": 8
+                  "extra_price": 0
                 },
                 {
                   "id": "opt-drk-17861609246023",
                   "name": "Grande / 32oz",
                   "option_id": "opt-drk-17861609246023",
-                  "extra_price": 10
+                  "extra_price": 2000
                 }
               ],
               "group_id": "g-tamanos-drk-1786160924602",
               "required": true,
               "group_name": "Tamaño",
               "selection_type": "single"
-            },
-            {
-              "options": [
-                {
-                  "id": "opt-17861609246020.4159126362103067",
-                  "name": "Delicioso batido frío de Cerelac",
-                  "option_id": "opt-17861609246020.6329903126191528",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786160924602",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
             }
           ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Delicioso batido frío de Cerelac",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "733b5503-4254-431d-b18e-2bb1fd3eea76",
           "description": "Delicioso batido frío de Cerelac."
         },
@@ -4205,7 +3865,7 @@
           "id": "p-1786161148254-37",
           "name": "Frappuccino",
           "image": "",
-          "price": 16,
+          "price": 8000,
           "category": "Batidos",
           "modifiers": [],
           "exclusions": [
@@ -4222,16 +3882,10 @@
           "id": "p-1786161281672-17",
           "name": "​Frapé de Limón",
           "image": "",
-          "price": 10,
+          "price": 10000,
           "category": "Frappé",
           "modifiers": [],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Bebida refrescante frappé sabor a limón",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "75a4f4db-4e87-4391-8801-08e3f2c398d3",
           "description": "Bebida refrescante frappé sabor a limón"
         },
@@ -4239,7 +3893,7 @@
           "id": "p-1786161403581-14",
           "name": "Frapé de Parchita",
           "image": "",
-          "price": 12,
+          "price": 12000,
           "category": "Frappé",
           "modifiers": [],
           "exclusions": [],
@@ -4250,16 +3904,10 @@
           "id": "p-1786161450440-99",
           "name": "Frapé de Naranja",
           "image": "",
-          "price": 12,
+          "price": 12000,
           "category": "Frappé",
           "modifiers": [],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Bebida refrescante frappé sabor a naranja",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "75a4f4db-4e87-4391-8801-08e3f2c398d3",
           "description": "Bebida refrescante frappé sabor a naranja."
         },
@@ -4267,16 +3915,10 @@
           "id": "p-1786161531338-54",
           "name": "Fresa Fresh",
           "image": "",
-          "price": 10,
+          "price": 10000,
           "category": "Frappe",
           "modifiers": [],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Bebida refrescante sabor a fresa",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "75a4f4db-4e87-4391-8801-08e3f2c398d3",
           "description": "Bebida refrescante sabor a fresa."
         },
@@ -4284,16 +3926,10 @@
           "id": "p-1786161625241-24",
           "name": "Lulo Fresh",
           "image": "",
-          "price": 10,
+          "price": 10000,
           "category": "Frappe",
           "modifiers": [],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Bebida refrescante sabor a lulo",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "75a4f4db-4e87-4391-8801-08e3f2c398d3",
           "description": "Bebida refrescante sabor a lulo"
         },
@@ -4301,16 +3937,10 @@
           "id": "p-1786161701628-0",
           "name": "Limonada de Piña",
           "image": "",
-          "price": 10,
+          "price": 10000,
           "category": "Frappé",
           "modifiers": [],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "scante limonada natural combinada con piña",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "75a4f4db-4e87-4391-8801-08e3f2c398d3",
           "description": "scante limonada natural combinada con piña."
         },
@@ -4318,16 +3948,10 @@
           "id": "p-1786161750173-81",
           "name": "​Naranja con Zanahoria",
           "image": "",
-          "price": 12,
+          "price": 12000,
           "category": "Frappé",
           "modifiers": [],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Jugo refrescante de naranja natural con zanahoria",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "75a4f4db-4e87-4391-8801-08e3f2c398d3",
           "description": "Jugo refrescante de naranja natural con zanahoria."
         },
@@ -4335,7 +3959,7 @@
           "id": "p-1786161822801-7",
           "name": "Detox",
           "image": "",
-          "price": 10,
+          "price": 10000,
           "category": "Batidos naturales",
           "modifiers": [],
           "exclusions": [
@@ -4372,7 +3996,7 @@
           "id": "p-1786161904607-0",
           "name": "Digestivo",
           "image": "",
-          "price": 10,
+          "price": 10000,
           "category": "Batidos naturales",
           "modifiers": [],
           "exclusions": [
@@ -4404,7 +4028,7 @@
           "id": "p-1786161966269-62",
           "name": "Energy",
           "image": "",
-          "price": 10,
+          "price": 10000,
           "category": "Batido energizante",
           "modifiers": [],
           "exclusions": [
@@ -4446,7 +4070,7 @@
           "id": "p-1786162008609-35",
           "name": "​Escudo Verde",
           "image": "",
-          "price": 10,
+          "price": 10000,
           "category": "Batidos naturales",
           "modifiers": [],
           "exclusions": [
@@ -4488,31 +4112,10 @@
           "id": "p-1786162055313-60",
           "name": "Malteada Oreo",
           "image": "",
-          "price": 16,
+          "price": 16000,
           "category": "Malteadas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861620553130.15110149751081425",
-                  "name": "Cremosa malteada preparada con galleta Oreo",
-                  "option_id": "opt-17861620553130.9960508328879012",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786162055313",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cremosa malteada preparada con galleta Oreo",
-              "price": 500
-            }
-          ],
+          "modifiers": [],
+          "exclusions": [],
           "category_id": "e0a9b961-48df-4a27-8222-26c4d9fef1db",
           "description": "Cremosa malteada preparada con galleta Oreo."
         },
@@ -4520,31 +4123,10 @@
           "id": "p-1786162071529-97",
           "name": "Malteada Snickers",
           "image": "",
-          "price": 20,
+          "price": 20000,
           "category": "Malteada",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861620715290.5943188202620222",
-                  "name": "Cremosa malteada con chocolate Snickers",
-                  "option_id": "opt-17861620715290.9570235867571034",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786162071529",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cremosa malteada con chocolate Snickers",
-              "price": 500
-            }
-          ],
+          "modifiers": [],
+          "exclusions": [],
           "category_id": "e0a9b961-48df-4a27-8222-26c4d9fef1db",
           "description": "Cremosa malteada con chocolate Snickers."
         },
@@ -4552,31 +4134,10 @@
           "id": "p-1786162087038-57",
           "name": "Malteada Pirulin",
           "image": "",
-          "price": 23,
+          "price": 23000,
           "category": "Malteada",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861620870380.7307904632972664",
-                  "name": "Cremosa malteada acompañada de Pirulin",
-                  "option_id": "opt-17861620870380.03034485133241105",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786162087038",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cremosa malteada acompañada de Pirulin",
-              "price": 500
-            }
-          ],
+          "modifiers": [],
+          "exclusions": [],
           "category_id": "e0a9b961-48df-4a27-8222-26c4d9fef1db",
           "description": "Cremosa malteada acompañada de Pirulin."
         },
@@ -4584,31 +4145,10 @@
           "id": "p-1786162100942-82",
           "name": "Malteada M&M's",
           "image": "",
-          "price": 18,
+          "price": 18000,
           "category": "Malteada",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861621009420.6057900292709333",
-                  "name": "Cremosa malteada decorada con chocolates M&M's",
-                  "option_id": "opt-17861621009420.8277415741879866",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786162100942",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cremosa malteada decorada con chocolates M&M's",
-              "price": 500
-            }
-          ],
+          "modifiers": [],
+          "exclusions": [],
           "category_id": "e0a9b961-48df-4a27-8222-26c4d9fef1db",
           "description": "Cremosa malteada decorada con chocolates M&M's."
         },
@@ -4616,31 +4156,10 @@
           "id": "p-1786162118592-16",
           "name": "Malteada Samba",
           "image": "",
-          "price": 17,
+          "price": 17000,
           "category": "Malteadas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861621185920.0986985703616402",
-                  "name": "Cremosa malteada de chocolate Samba",
-                  "option_id": "opt-17861621185920.6458520273758209",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786162118592",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cremosa malteada de chocolate Samba",
-              "price": 500
-            }
-          ],
+          "modifiers": [],
+          "exclusions": [],
           "category_id": "e0a9b961-48df-4a27-8222-26c4d9fef1db",
           "description": "Cremosa malteada de chocolate Samba."
         },
@@ -4648,31 +4167,10 @@
           "id": "p-1786162143997-90",
           "name": "Malteada Mr. Brown",
           "image": "",
-          "price": 17,
+          "price": 17000,
           "category": "Malteada",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861621439970.033987335750808034",
-                  "name": "Cremosa malteada preparada con trozos de Mr. Brown",
-                  "option_id": "opt-17861621439970.621955734599789",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786162143997",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cremosa malteada preparada con trozos de Mr. Brown",
-              "price": 500
-            }
-          ],
+          "modifiers": [],
+          "exclusions": [],
           "category_id": "e0a9b961-48df-4a27-8222-26c4d9fef1db",
           "description": "Cremosa malteada preparada con trozos de Mr. Brown."
         },
@@ -4680,31 +4178,10 @@
           "id": "p-1786162185240-18",
           "name": "Malteada Cocosette",
           "image": "",
-          "price": 17,
+          "price": 17000,
           "category": "Malteadas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861621852400.617761155762405",
-                  "name": "Cremosa malteada con galleta Cocosette",
-                  "option_id": "opt-17861621852400.09241168760630125",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786162185240",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cremosa malteada con galleta Cocosette",
-              "price": 500
-            }
-          ],
+          "modifiers": [],
+          "exclusions": [],
           "category_id": "e0a9b961-48df-4a27-8222-26c4d9fef1db",
           "description": "Cremosa malteada con galleta Cocosette."
         },
@@ -4712,31 +4189,10 @@
           "id": "p-1786162206117-43",
           "name": "Malteada Flips",
           "image": "",
-          "price": 18,
+          "price": 18000,
           "category": "Malteadas",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861622061170.6350305167404693",
-                  "name": "Cremosa malteada servida con cereales Flips",
-                  "option_id": "opt-17861622061170.10841051052827089",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786162206117",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cremosa malteada servida con cereales Flips",
-              "price": 500
-            }
-          ],
+          "modifiers": [],
+          "exclusions": [],
           "category_id": "e0a9b961-48df-4a27-8222-26c4d9fef1db",
           "description": "Cremosa malteada servida con cereales Flips."
         },
@@ -4744,31 +4200,10 @@
           "id": "p-1786162261771-14",
           "name": "Malteada MilkyWay",
           "image": "",
-          "price": 20,
+          "price": 20000,
           "category": "Malteada",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861622617710.055207106756136715",
-                  "name": "Cremosa malteada sabor a chocolate MilkyWay",
-                  "option_id": "opt-17861622617710.9293759727093637",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786162261771",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cremosa malteada sabor a chocolate MilkyWay",
-              "price": 500
-            }
-          ],
+          "modifiers": [],
+          "exclusions": [],
           "category_id": "e0a9b961-48df-4a27-8222-26c4d9fef1db",
           "description": "Cremosa malteada sabor a chocolate MilkyWay."
         },
@@ -4776,16 +4211,10 @@
           "id": "p-1786162304987-24",
           "name": "​Malteada Susy / Pasas",
           "image": "",
-          "price": 20,
+          "price": 20000,
           "category": "Malteada",
           "modifiers": [],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cremosa malteada sabor a galleta Susy o Pasas",
-              "price": 500
-            }
-          ],
+          "exclusions": [],
           "category_id": "e0a9b961-48df-4a27-8222-26c4d9fef1db",
           "description": "Cremosa malteada sabor a galleta Susy o Pasas."
         },
@@ -4793,32 +4222,10 @@
           "id": "p-1786162321625-69",
           "name": "Malteada Susy / Pasas",
           "image": "",
-          "price": 20,
+          "price": 20000,
           "category": "Malteada",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861623216240.17550387731762251",
-                  "name": "Cremosa malteada sabor a galleta Susy o Pasas",
-                  "price": 500,
-                  "option_id": "opt-17861623216240.8656588212080708",
-                  "extra_price": 500
-                }
-              ],
-              "group_id": "g-extras-1786162321624",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "id": "ex-0",
-              "name": "Cremosa malteada sabor a galleta Susy o Pasas",
-              "price": 500
-            }
-          ],
+          "modifiers": [],
+          "exclusions": [],
           "category_id": "e0a9b961-48df-4a27-8222-26c4d9fef1db",
           "description": "Cremosa malteada sabor a galleta Susy o Pasas."
         },
@@ -4826,7 +4233,7 @@
           "id": "p-1786162524309-50",
           "name": "​Wafle Dulce",
           "image": "",
-          "price": 14,
+          "price": 14000,
           "category": "Waffles",
           "modifiers": [
             {
@@ -4930,7 +4337,7 @@
           "id": "p-1786162610134-99",
           "name": "​Fresas con Crema",
           "image": "",
-          "price": 17,
+          "price": 17000,
           "category": "Fresas con crema",
           "modifiers": [],
           "exclusions": [
@@ -4947,7 +4354,7 @@
           "id": "p-1786162735180-62",
           "name": "​Wafle Salado",
           "image": "",
-          "price": 20,
+          "price": 20000,
           "category": "Waffles",
           "modifiers": [],
           "exclusions": [
@@ -4984,7 +4391,7 @@
           "id": "p-1786162760868-42",
           "name": "Ensalada de Frutas Tradicional",
           "image": "",
-          "price": 12,
+          "price": 12000,
           "category": "Ensalada",
           "modifiers": [
             {
@@ -5118,7 +4525,7 @@
           "id": "p-1786162782915-96",
           "name": "Ensalada de Frutas Especial",
           "image": "",
-          "price": 15,
+          "price": 15000,
           "category": "Ensalada",
           "modifiers": [
             {
@@ -5263,7 +4670,7 @@
           "id": "p-1786162809955-19",
           "name": "​Ensalada de Frutas Especial",
           "image": "",
-          "price": 15,
+          "price": 15000,
           "category": "Ensalada",
           "modifiers": [
             {
@@ -5408,7 +4815,7 @@
           "id": "p-1786162832212-51",
           "name": "Café Expreso",
           "image": "",
-          "price": 5,
+          "price": 5000,
           "category": "Café",
           "modifiers": [
             {
@@ -5451,7 +4858,7 @@
           "id": "p-1786162843321-99",
           "name": "Café Americano",
           "image": "",
-          "price": 6,
+          "price": 6000,
           "category": "Café",
           "modifiers": [
             {
@@ -5483,7 +4890,7 @@
           "id": "p-1786162857389-72",
           "name": "​Café Capuccino",
           "image": "",
-          "price": 6.5,
+          "price": 6500,
           "category": "Café",
           "modifiers": [
             {
@@ -5526,7 +4933,7 @@
           "id": "p-1786162916012-75",
           "name": "​Café Moca",
           "image": "",
-          "price": 5,
+          "price": 5000,
           "category": "Café",
           "modifiers": [
             {
@@ -5580,7 +4987,7 @@
           "id": "p-1786162940532-84",
           "name": "Toddy Caliente",
           "image": "",
-          "price": 6.5,
+          "price": 6500,
           "category": "Café",
           "modifiers": [],
           "exclusions": [],
@@ -5591,7 +4998,7 @@
           "id": "p-1786163091992-58",
           "name": "Café Ganoderma Clasico",
           "image": "",
-          "price": 6,
+          "price": 6000,
           "category": "Café",
           "modifiers": [
             {
@@ -5623,7 +5030,7 @@
           "id": "p-1786163104637-77",
           "name": "Café Ganoderma 3 en Uno",
           "image": "",
-          "price": 8,
+          "price": 8000,
           "category": "Café",
           "modifiers": [
             {
@@ -5677,24 +5084,9 @@
           "id": "p-1786163119453-90",
           "name": "Café Ganoderma Choco",
           "image": "",
-          "price": 8,
+          "price": 8000,
           "category": "Cafes",
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17861631194530.4370011922168523",
-                  "name": "Deliciosa mezcla de cacao gourmet con extracto de Ganoderma",
-                  "option_id": "opt-17861631194530.024255126718027986",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1786163119453",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
+          "modifiers": [],
           "exclusions": [
             {
               "id": "ex-0",
@@ -5709,7 +5101,7 @@
           "id": "p-1786163162343-79",
           "name": "Pan de Bono",
           "image": "",
-          "price": 2.5,
+          "price": 2500,
           "category": "Pan",
           "modifiers": [
             {
@@ -5752,7 +5144,7 @@
           "id": "p-1786163226879-24",
           "name": "Desayuno Americano",
           "image": "",
-          "price": 15,
+          "price": 15000,
           "category": "Desayuno",
           "modifiers": [],
           "exclusions": [
@@ -5789,7 +5181,7 @@
           "id": "p-1786163268995-63",
           "name": "Desayuno Tradicional",
           "image": "",
-          "price": 15,
+          "price": 15000,
           "category": "Desayuno",
           "modifiers": [],
           "exclusions": [
@@ -5826,7 +5218,7 @@
           "id": "p-1786163293618-33",
           "name": "Perro Caliente",
           "image": "",
-          "price": 15,
+          "price": 15000,
           "category": "Hot dogs",
           "modifiers": [
             {
@@ -5913,7 +5305,7 @@
           "id": "p-1786163308405-70",
           "name": "​Hamburguesa",
           "image": "",
-          "price": 20,
+          "price": 20000,
           "category": "Hamburguesas",
           "modifiers": [
             {
@@ -6000,7 +5392,7 @@
           "id": "p-1786163319686-99",
           "name": "Sandwich de Pollo",
           "image": "",
-          "price": 14,
+          "price": 14000,
           "category": "Sándwiches",
           "modifiers": [
             {
@@ -6104,7 +5496,7 @@
           "id": "p-1786163340593-87",
           "name": "​Sandwich de Carne",
           "image": "",
-          "price": 16,
+          "price": 16000,
           "category": "Sandwich",
           "modifiers": [
             {
@@ -6208,7 +5600,7 @@
           "id": "p-1786163356043-89",
           "name": "​Sandwich de Cerdo",
           "image": "",
-          "price": 16,
+          "price": 16000,
           "category": "Sándwiches",
           "modifiers": [
             {
@@ -6312,7 +5704,7 @@
           "id": "p-1786163371287-81",
           "name": "​Sandwich de Atún",
           "image": "",
-          "price": 18,
+          "price": 18000,
           "category": "Sándwiches",
           "modifiers": [
             {
@@ -6416,7 +5808,7 @@
           "id": "p-1786163411118-39",
           "name": "Fajita de Pollo",
           "image": "",
-          "price": 16,
+          "price": 16000,
           "category": "Sándwiches",
           "modifiers": [],
           "exclusions": [
@@ -6463,7 +5855,7 @@
           "id": "p-1786163476258-45",
           "name": "Fajita de Carne",
           "image": "",
-          "price": 16,
+          "price": 16000,
           "category": "Fajitas",
           "modifiers": [],
           "exclusions": [
@@ -6510,7 +5902,7 @@
           "id": "p-1786163513001-57",
           "name": "Fajita de Cerdo",
           "image": "",
-          "price": 16,
+          "price": 16000,
           "category": "Fajitas",
           "modifiers": [],
           "exclusions": [
@@ -6557,7 +5949,7 @@
           "id": "p-1786163560411-85",
           "name": "Fajita de Atún",
           "image": "",
-          "price": 18,
+          "price": 18000,
           "category": "Fajitas",
           "modifiers": [],
           "exclusions": [
@@ -15506,8 +14898,18 @@
               "selection_type": "single",
               "required": true,
               "options": [
-                { "id": "opt-base-arequipe", "name": "🍯 Arequipe Tradicional", "option_id": "opt-base-arequipe", "extra_price": 0 },
-                { "id": "opt-base-nutella", "name": "🍫 Nutella / Chocolate", "option_id": "opt-base-nutella", "extra_price": 0 }
+                {
+                  "id": "opt-base-arequipe",
+                  "name": "🍯 Arequipe Tradicional",
+                  "option_id": "opt-base-arequipe",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-base-nutella",
+                  "name": "🍫 Nutella / Chocolate",
+                  "option_id": "opt-base-nutella",
+                  "extra_price": 0
+                }
               ]
             },
             {
@@ -15516,15 +14918,60 @@
               "selection_type": "single",
               "required": true,
               "options": [
-                { "id": "opt-top-choc", "name": "🍫 Lluvia de Chocolate", "option_id": "opt-top-choc", "extra_price": 0 },
-                { "id": "opt-top-color", "name": "🌈 Chispas de Colores", "option_id": "opt-top-color", "extra_price": 0 },
-                { "id": "opt-top-mani", "name": "🥜 Maní Tostado", "option_id": "opt-top-mani", "extra_price": 0 },
-                { "id": "opt-top-coco", "name": "🥥 Coco Rallado", "option_id": "opt-top-coco", "extra_price": 0 },
-                { "id": "opt-top-queso", "name": "🧀 Queso Rallado", "option_id": "opt-top-queso", "extra_price": 0 },
-                { "id": "opt-top-fresa", "name": "🍓 Fresas Picadas", "option_id": "opt-top-fresa", "extra_price": 0 },
-                { "id": "opt-top-oreo", "name": "🍪 Galleta Oreo", "option_id": "opt-top-oreo", "extra_price": 0 },
-                { "id": "opt-top-gomitas", "name": "🍬 Gomitas", "option_id": "opt-top-gomitas", "extra_price": 0 },
-                { "id": "opt-top-lechecond", "name": "🥛 Leche Condensada", "option_id": "opt-top-lechecond", "extra_price": 0 }
+                {
+                  "id": "opt-top-choc",
+                  "name": "🍫 Lluvia de Chocolate",
+                  "option_id": "opt-top-choc",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-top-color",
+                  "name": "🌈 Chispas de Colores",
+                  "option_id": "opt-top-color",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-top-mani",
+                  "name": "🥜 Maní Tostado",
+                  "option_id": "opt-top-mani",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-top-coco",
+                  "name": "🥥 Coco Rallado",
+                  "option_id": "opt-top-coco",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-top-queso",
+                  "name": "🧀 Queso Rallado",
+                  "option_id": "opt-top-queso",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-top-fresa",
+                  "name": "🍓 Fresas Picadas",
+                  "option_id": "opt-top-fresa",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-top-oreo",
+                  "name": "🍪 Galleta Oreo",
+                  "option_id": "opt-top-oreo",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-top-gomitas",
+                  "name": "🍬 Gomitas",
+                  "option_id": "opt-top-gomitas",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-top-lechecond",
+                  "name": "🥛 Leche Condensada",
+                  "option_id": "opt-top-lechecond",
+                  "extra_price": 0
+                }
               ]
             },
             {
@@ -15533,10 +14980,30 @@
               "selection_type": "multiple",
               "required": false,
               "options": [
-                { "id": "opt-ext-queso", "name": "🧀 Extra Queso", "option_id": "opt-ext-queso", "extra_price": 2000 },
-                { "id": "opt-ext-fruta", "name": "🍓 Extra Fruta Fresca", "option_id": "opt-ext-fruta", "extra_price": 2500 },
-                { "id": "opt-ext-nutella", "name": "🍫 Extra Nutella", "option_id": "opt-ext-nutella", "extra_price": 3000 },
-                { "id": "opt-ext-helado", "name": "🍦 Bola de Helado", "option_id": "opt-ext-helado", "extra_price": 4000 }
+                {
+                  "id": "opt-ext-queso",
+                  "name": "🧀 Extra Queso",
+                  "option_id": "opt-ext-queso",
+                  "extra_price": 2000
+                },
+                {
+                  "id": "opt-ext-fruta",
+                  "name": "🍓 Extra Fruta Fresca",
+                  "option_id": "opt-ext-fruta",
+                  "extra_price": 2500
+                },
+                {
+                  "id": "opt-ext-nutella",
+                  "name": "🍫 Extra Nutella",
+                  "option_id": "opt-ext-nutella",
+                  "extra_price": 3000
+                },
+                {
+                  "id": "opt-ext-helado",
+                  "name": "🍦 Bola de Helado",
+                  "option_id": "opt-ext-helado",
+                  "extra_price": 4000
+                }
               ]
             }
           ],
@@ -15557,8 +15024,18 @@
               "selection_type": "single",
               "required": true,
               "options": [
-                { "id": "opt-base-arequipe-c", "name": "🍯 Arequipe Tradicional", "option_id": "opt-base-arequipe-c", "extra_price": 0 },
-                { "id": "opt-base-nutella-c", "name": "🍫 Nutella / Chocolate", "option_id": "opt-base-nutella-c", "extra_price": 0 }
+                {
+                  "id": "opt-base-arequipe-c",
+                  "name": "🍯 Arequipe Tradicional",
+                  "option_id": "opt-base-arequipe-c",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-base-nutella-c",
+                  "name": "🍫 Nutella / Chocolate",
+                  "option_id": "opt-base-nutella-c",
+                  "extra_price": 0
+                }
               ]
             },
             {
@@ -15567,9 +15044,24 @@
               "selection_type": "multiple",
               "required": false,
               "options": [
-                { "id": "opt-ext-queso-c", "name": "🧀 Extra Queso", "option_id": "opt-ext-queso-c", "extra_price": 2000 },
-                { "id": "opt-ext-nutella-c", "name": "🍫 Extra Nutella", "option_id": "opt-ext-nutella-c", "extra_price": 3000 },
-                { "id": "opt-ext-helado-c", "name": "🍦 Bola de Helado", "option_id": "opt-ext-helado-c", "extra_price": 4000 }
+                {
+                  "id": "opt-ext-queso-c",
+                  "name": "🧀 Extra Queso",
+                  "option_id": "opt-ext-queso-c",
+                  "extra_price": 2000
+                },
+                {
+                  "id": "opt-ext-nutella-c",
+                  "name": "🍫 Extra Nutella",
+                  "option_id": "opt-ext-nutella-c",
+                  "extra_price": 3000
+                },
+                {
+                  "id": "opt-ext-helado-c",
+                  "name": "🍦 Bola de Helado",
+                  "option_id": "opt-ext-helado-c",
+                  "extra_price": 4000
+                }
               ]
             }
           ],
@@ -15590,8 +15082,18 @@
               "selection_type": "single",
               "required": true,
               "options": [
-                { "id": "opt-base-arequipe-m", "name": "🍯 Arequipe Tradicional", "option_id": "opt-base-arequipe-m", "extra_price": 0 },
-                { "id": "opt-base-nutella-m", "name": "🍫 Nutella / Chocolate", "option_id": "opt-base-nutella-m", "extra_price": 0 }
+                {
+                  "id": "opt-base-arequipe-m",
+                  "name": "🍯 Arequipe Tradicional",
+                  "option_id": "opt-base-arequipe-m",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-base-nutella-m",
+                  "name": "🍫 Nutella / Chocolate",
+                  "option_id": "opt-base-nutella-m",
+                  "extra_price": 0
+                }
               ]
             },
             {
@@ -15600,9 +15102,24 @@
               "selection_type": "multiple",
               "required": false,
               "options": [
-                { "id": "opt-ext-mora-m", "name": "🍇 Extra Dulce de Mora", "option_id": "opt-ext-mora-m", "extra_price": 2000 },
-                { "id": "opt-ext-queso-m", "name": "🧀 Extra Queso", "option_id": "opt-ext-queso-m", "extra_price": 2000 },
-                { "id": "opt-ext-helado-m", "name": "🍦 Bola de Helado", "option_id": "opt-ext-helado-m", "extra_price": 4000 }
+                {
+                  "id": "opt-ext-mora-m",
+                  "name": "🍇 Extra Dulce de Mora",
+                  "option_id": "opt-ext-mora-m",
+                  "extra_price": 2000
+                },
+                {
+                  "id": "opt-ext-queso-m",
+                  "name": "🧀 Extra Queso",
+                  "option_id": "opt-ext-queso-m",
+                  "extra_price": 2000
+                },
+                {
+                  "id": "opt-ext-helado-m",
+                  "name": "🍦 Bola de Helado",
+                  "option_id": "opt-ext-helado-m",
+                  "extra_price": 4000
+                }
               ]
             }
           ],
@@ -15623,8 +15140,18 @@
               "selection_type": "single",
               "required": true,
               "options": [
-                { "id": "opt-base-arequipe-f", "name": "🍯 Arequipe Tradicional", "option_id": "opt-base-arequipe-f", "extra_price": 0 },
-                { "id": "opt-base-nutella-f", "name": "🍫 Nutella / Chocolate", "option_id": "opt-base-nutella-f", "extra_price": 0 }
+                {
+                  "id": "opt-base-arequipe-f",
+                  "name": "🍯 Arequipe Tradicional",
+                  "option_id": "opt-base-arequipe-f",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-base-nutella-f",
+                  "name": "🍫 Nutella / Chocolate",
+                  "option_id": "opt-base-nutella-f",
+                  "extra_price": 0
+                }
               ]
             },
             {
@@ -15633,9 +15160,24 @@
               "selection_type": "multiple",
               "required": false,
               "options": [
-                { "id": "opt-ext-fresa-f", "name": "🍓 Extra Fresas Frescas", "option_id": "opt-ext-fresa-f", "extra_price": 2500 },
-                { "id": "opt-ext-queso-f", "name": "🧀 Extra Queso", "option_id": "opt-ext-queso-f", "extra_price": 2000 },
-                { "id": "opt-ext-helado-f", "name": "🍦 Bola de Helado", "option_id": "opt-ext-helado-f", "extra_price": 4000 }
+                {
+                  "id": "opt-ext-fresa-f",
+                  "name": "🍓 Extra Fresas Frescas",
+                  "option_id": "opt-ext-fresa-f",
+                  "extra_price": 2500
+                },
+                {
+                  "id": "opt-ext-queso-f",
+                  "name": "🧀 Extra Queso",
+                  "option_id": "opt-ext-queso-f",
+                  "extra_price": 2000
+                },
+                {
+                  "id": "opt-ext-helado-f",
+                  "name": "🍦 Bola de Helado",
+                  "option_id": "opt-ext-helado-f",
+                  "extra_price": 4000
+                }
               ]
             }
           ],
@@ -15656,8 +15198,18 @@
               "selection_type": "single",
               "required": true,
               "options": [
-                { "id": "opt-base-arequipe-b", "name": "🍯 Arequipe Tradicional", "option_id": "opt-base-arequipe-b", "extra_price": 0 },
-                { "id": "opt-base-nutella-b", "name": "🍫 Nutella / Chocolate", "option_id": "opt-base-nutella-b", "extra_price": 0 }
+                {
+                  "id": "opt-base-arequipe-b",
+                  "name": "🍯 Arequipe Tradicional",
+                  "option_id": "opt-base-arequipe-b",
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-base-nutella-b",
+                  "name": "🍫 Nutella / Chocolate",
+                  "option_id": "opt-base-nutella-b",
+                  "extra_price": 0
+                }
               ]
             },
             {
@@ -15666,9 +15218,24 @@
               "selection_type": "multiple",
               "required": false,
               "options": [
-                { "id": "opt-ext-banano-b", "name": "🍌 Extra Banano", "option_id": "opt-ext-banano-b", "extra_price": 2000 },
-                { "id": "opt-ext-queso-b", "name": "🧀 Extra Queso", "option_id": "opt-ext-queso-b", "extra_price": 2000 },
-                { "id": "opt-ext-helado-b", "name": "🍦 Bola de Helado", "option_id": "opt-ext-helado-b", "extra_price": 4000 }
+                {
+                  "id": "opt-ext-banano-b",
+                  "name": "🍌 Extra Banano",
+                  "option_id": "opt-ext-banano-b",
+                  "extra_price": 2000
+                },
+                {
+                  "id": "opt-ext-queso-b",
+                  "name": "🧀 Extra Queso",
+                  "option_id": "opt-ext-queso-b",
+                  "extra_price": 2000
+                },
+                {
+                  "id": "opt-ext-helado-b",
+                  "name": "🍦 Bola de Helado",
+                  "option_id": "opt-ext-helado-b",
+                  "extra_price": 4000
+                }
               ]
             }
           ],
