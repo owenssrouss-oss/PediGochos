@@ -3147,15 +3147,48 @@ class MarketplaceController {
       this.goHome();
       this.checkActiveOrderTracking();
 
-      // Smooth unhurried transition to Order History modal so user sees status in vivo
-      setTimeout(() => {
-        this.openUserOrdersModal({ highlightFirst: true });
-      }, 400);
+      // Show prominent restaurant contact notice modal to reassure the user
+      this.openOrderNoticeModal({
+        storeNames: shopIds.map(id => groupedItems[id].name).join(', '),
+        phone: phone,
+        paymentMethod: paymentMethod,
+        paymentNotes: paymentNotes,
+        orderCount: shopIds.length
+      });
 
     } catch (e) {
       console.error(e);
       alert('Error de conexión o problema al enviar el pedido: ' + e.message);
     }
+  }
+
+  openOrderNoticeModal(data = {}) {
+    const modal = document.getElementById('order-confirmation-notice-modal');
+    const summaryEl = document.getElementById('order-notice-summary');
+    if (summaryEl) {
+      const stores = data.storeNames || (this.selectedEstablishment ? this.selectedEstablishment.name : 'el restaurante');
+      const phoneTxt = data.phone ? `<div style="margin-bottom: 4px;">📱 <strong>Teléfono de contacto:</strong> ${data.phone}</div>` : '';
+      const payTxt = data.paymentMethod ? `<div>💵 <strong>Método de pago:</strong> ${data.paymentMethod}${data.paymentNotes ? ` <span style="color:#FDE047;">(${data.paymentNotes})</span>` : ''}</div>` : '';
+
+      summaryEl.innerHTML = `
+        <div style="margin-bottom: 4px;">🏪 <strong>Establecimiento:</strong> ${stores}</div>
+        ${phoneTxt}
+        ${payTxt}
+      `;
+    }
+    if (modal) {
+      modal.classList.add('open');
+      modal.style.setProperty('display', 'flex', 'important');
+    }
+  }
+
+  closeOrderNoticeModal() {
+    const modal = document.getElementById('order-confirmation-notice-modal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.style.display = 'none';
+    }
+    this.openUserOrdersModal({ highlightFirst: true });
   }
 
   getSpecsStringForKitchen(specs) {
@@ -4602,6 +4635,13 @@ class MarketplaceController {
           </div>
           <span style="font-size: 14px; font-weight: 900; color: var(--primary);">Total: ${this.formatPesos(ord.total || 0)}</span>
         </div>
+
+        ${isCardActive ? `
+          <div style="background: rgba(16, 185, 129, 0.08); border: 1px dashed #10B981; border-radius: 10px; padding: 8px 12px; font-size: 12px; color: #6EE7B7; display: flex; align-items: center; gap: 8px; font-weight: 600;">
+            <span style="font-size: 16px;">📞</span>
+            <span>El restaurante se pondrá en contacto contigo en unos minutos para confirmar los detalles.</span>
+          </div>
+        ` : ''}
 
         <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; flex-wrap: wrap;">
           ${liveBtnHTML}

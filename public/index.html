@@ -735,6 +735,32 @@
     </div>
   </div>
 
+  <!-- Order Confirmation & Restaurant Contact Notice Modal -->
+  <div class="modal-overlay" id="order-confirmation-notice-modal" style="z-index: 5500; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: none;">
+    <div class="modal-content" style="max-width: 460px; width: 92%; padding: 24px; border-radius: 24px; background: linear-gradient(180deg, #111827 0%, #0B0F17 100%); border: 2px solid #10B981; box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 30px rgba(16, 185, 129, 0.3); text-align: center; margin: auto;">
+      <div style="font-size: 48px; margin-bottom: 6px;">🛵</div>
+      <h2 style="font-size: 22px; font-weight: 900; color: #FFFFFF; margin: 0 0 8px 0;">¡Pedido Recibido con Éxito!</h2>
+      
+      <!-- Prominent Restaurant Contact Notice Box -->
+      <div style="background: rgba(16, 185, 129, 0.12); border: 1.5px solid #10B981; padding: 14px 16px; border-radius: 16px; margin: 14px 0; text-align: left;">
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 900; color: #34D399; font-size: 14px; margin-bottom: 6px;">
+          <span>📞</span> El restaurante se comunicará contigo
+        </div>
+        <p style="font-size: 12.5px; color: #ECFDF5; line-height: 1.45; margin: 0; font-weight: 600;">
+          En unos minutos el establecimiento se pondrá en contacto contigo para <strong>confirmar todos los detalles de tu orden</strong>, verificar el pedido y coordinar el despacho.
+        </p>
+      </div>
+
+      <div id="order-notice-summary" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 14px; border-radius: 14px; text-align: left; font-size: 12.5px; color: #CBD5E1; margin-bottom: 16px;">
+        <!-- Filled dynamically -->
+      </div>
+
+      <button type="button" onclick="MarketplaceApp.closeOrderNoticeModal()" style="width: 100%; padding: 14px; border-radius: 14px; border: none; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFFFFF; font-size: 15px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45); transition: all 0.2s;">
+        👀 Ver Seguimiento de mi Pedido
+      </button>
+    </div>
+  </div>
+
   <!-- User Orders History Modal -->
   <div class="modal-overlay" id="user-orders-modal" style="z-index: 3500; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
     <div class="modal-content" style="max-width: 600px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; padding: 20px; border-radius: 20px; background: rgba(18, 18, 24, 0.96); border: 1px solid rgba(255, 255, 255, 0.1); margin: auto;">
