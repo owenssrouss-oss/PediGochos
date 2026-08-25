@@ -38,70 +38,14 @@ public class MainActivity extends BridgeActivity {
         // 2. Route default volume controls to media/alarm stream
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        // 3. Configure WebView for autonomous audio autoplay, persistent storage and external URL schemes (WhatsApp, tel, maps)
+        // 3. Configure WebView for autonomous audio autoplay and persistent storage
         if (bridge != null && bridge.getWebView() != null) {
-            android.webkit.WebView webView = bridge.getWebView();
-            WebSettings settings = webView.getSettings();
+            WebSettings settings = bridge.getWebView().getSettings();
             settings.setMediaPlaybackRequiresUserGesture(false);
             settings.setDomStorageEnabled(true);
             settings.setDatabaseEnabled(true);
             settings.setAllowFileAccess(true);
             settings.setJavaScriptCanOpenWindowsAutomatically(true);
-            settings.setSupportMultipleWindows(true);
-
-            final android.webkit.WebViewClient defaultClient = bridge.getWebViewClient();
-            webView.setWebViewClient(new android.webkit.WebViewClient() {
-                @Override
-                public boolean shouldOverrideUrlLoading(android.webkit.WebView view, android.webkit.WebResourceRequest request) {
-                    if (request != null && request.getUrl() != null) {
-                        if (handleExternalScheme(request.getUrl())) {
-                            return true;
-                        }
-                    }
-                    return defaultClient != null && defaultClient.shouldOverrideUrlLoading(view, request);
-                }
-
-                @SuppressWarnings("deprecation")
-                @Override
-                public boolean shouldOverrideUrlLoading(android.webkit.WebView view, String url) {
-                    if (url != null) {
-                        if (handleExternalScheme(Uri.parse(url))) {
-                            return true;
-                        }
-                    }
-                    return defaultClient != null && defaultClient.shouldOverrideUrlLoading(view, url);
-                }
-
-                private boolean handleExternalScheme(Uri uri) {
-                    if (uri == null) return false;
-                    String scheme = uri.getScheme();
-                    String host = uri.getHost();
-                    if ("whatsapp".equalsIgnoreCase(scheme) || 
-                        "tel".equalsIgnoreCase(scheme) || 
-                        "mailto".equalsIgnoreCase(scheme) || 
-                        "intent".equalsIgnoreCase(scheme) || 
-                        "wa.me".equalsIgnoreCase(host) || 
-                        (host != null && host.contains("whatsapp.com"))) {
-                        try {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                            return true;
-                        } catch (Exception e) {
-                            try {
-                                String phoneParam = uri.getQueryParameter("phone");
-                                String cleanUrl = "https://wa.me/" + (phoneParam != null ? phoneParam : "");
-                                Intent fallbackIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(cleanUrl));
-                                fallbackIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(fallbackIntent);
-                                return true;
-                            } catch (Exception ignored) {}
-                        }
-                        return true;
-                    }
-                    return false;
-                }
-            });
         }
 
         // 4. Create High-Priority Notification Channel for background order alarms
