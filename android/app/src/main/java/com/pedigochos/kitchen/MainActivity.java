@@ -59,12 +59,57 @@ public class MainActivity extends BridgeActivity {
 
         // 7. Launch 24/7 Native Background Order Monitor & Alarm Service
         startBackgroundOrderService();
+
+        // 8. Handle notification click intent on initial launch
+        handleIncomingNotificationIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIncomingNotificationIntent(intent);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         startBackgroundOrderService();
+        handleIncomingNotificationIntent(getIntent());
+    }
+
+    private void handleIncomingNotificationIntent(Intent intent) {
+        if (intent != null && intent.hasExtra("target_establishment_id")) {
+            final String estId = intent.getStringExtra("target_establishment_id");
+            final String orderId = intent.getStringExtra("target_order_id");
+            final String estName = intent.getStringExtra("target_establishment_name");
+
+            intent.removeExtra("target_establishment_id");
+            intent.removeExtra("target_order_id");
+            intent.removeExtra("target_establishment_name");
+
+            if (estId != null && !estId.isEmpty() && bridge != null && bridge.getWebView() != null) {
+                final String safeEstId = estId.replace("'", "\\'");
+                final String safeOrderId = orderId != null ? orderId.replace("'", "\\'") : "";
+                final String js = "if (window.AdminApp && typeof window.AdminApp.focusEstablishment === 'function') { " +
+                                  "  window.AdminApp.focusEstablishment('" + safeEstId + "', '" + safeOrderId + "'); " +
+                                  "} else { " +
+                                  "  window.pendingTargetEstId = '" + safeEstId + "'; " +
+                                  "  window.pendingTargetOrderId = '" + safeOrderId + "'; " +
+                                  "}";
+
+                bridge.getWebView().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            bridge.getWebView().evaluateJavascript(js, null);
+                        } catch (Exception e) {
+                            android.util.Log.w("MainActivity", "Eval JS notice: " + e.getMessage());
+                        }
+                    }
+                });
+            }
+        }
     }
 
     private void startBackgroundOrderService() {

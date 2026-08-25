@@ -195,6 +195,23 @@ class AdminController {
       Sound.onAlarmStop(() => this.hideAlarmBanner());
     }
 
+    // Listen for notification tap actions in Capacitor Native
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+      try {
+        window.Capacitor.Plugins.LocalNotifications.addListener('localNotificationActionPerformed', (notificationAction) => {
+          console.log('🚨 Notification clicked:', notificationAction);
+          const extra = notificationAction.notification?.extra || {};
+          const targetEstId = extra.establishmentId || extra.establishment_id;
+          const targetOrderId = extra.orderId || extra.order_id;
+          if (targetEstId) {
+            this.focusEstablishment(targetEstId, targetOrderId);
+          }
+        });
+      } catch(e) {
+        console.warn('LocalNotifications listener registration:', e);
+      }
+    }
+
     // Keep screen awake permanently so mobile/desktop browsers do not sleep
     this.requestWakeLock();
 
@@ -215,6 +232,15 @@ class AdminController {
       if (savedPass) {
         await this.login(savedPass, true);
       }
+    }
+
+    // Process any pending notification click target on app start
+    if (window.pendingTargetEstId) {
+      const pEstId = window.pendingTargetEstId;
+      const pOrderId = window.pendingTargetOrderId;
+      window.pendingTargetEstId = null;
+      window.pendingTargetOrderId = null;
+      setTimeout(() => this.focusEstablishment(pEstId, pOrderId), 500);
     }
   }
 
@@ -510,33 +536,43 @@ class AdminController {
     }
   }
 
-  showAlarmBanner(orderCode) {
+  showAlarmBanner(orderCode, storeName = null, estId = null, orderId = null) {
+    this.lastAlarmEstId = estId || this.lastAlarmEstId;
+    this.lastAlarmOrderId = orderId || this.lastAlarmOrderId;
+
     let banner = document.getElementById('admin-alarm-banner');
+    const storeLabel = storeName ? `🏪 ${storeName}` : '¡NUEVO PEDIDO ENTRANTE EN LA PLATAFORMA!';
+    
     if (!banner) {
       banner = document.createElement('div');
       banner.id = 'admin-alarm-banner';
       banner.className = 'kitchen-alarm-banner';
-      banner.innerHTML = `
-        <div class="alarm-banner-inner" onclick="if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner();">
-          <div class="alarm-banner-left">
-            <span class="alarm-siren-icon">🚨</span>
-            <div class="alarm-banner-text">
-              <div class="alarm-title">¡NUEVO PEDIDO ENTRANTE EN LA PLATAFORMA! <span class="alarm-order-code"></span></div>
-              <div class="alarm-subtitle">Toca la pantalla o abre la app para apagar la alarma sonora</div>
-            </div>
-          </div>
-          <button class="alarm-btn-silence" onclick="event.stopPropagation(); if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner();">
-            🔕 Silenciar Alarma
-          </button>
-        </div>
-      `;
       document.body.appendChild(banner);
     }
-    if (orderCode) {
-      const codeEl = banner.querySelector('.alarm-order-code');
-      if (codeEl) codeEl.textContent = `#${orderCode}`;
-    }
+
+    banner.innerHTML = `
+      <div class="alarm-banner-inner" onclick="AdminApp.handleAlarmBannerClick();">
+        <div class="alarm-banner-left">
+          <span class="alarm-siren-icon">🚨</span>
+          <div class="alarm-banner-text">
+            <div class="alarm-title">${storeLabel} <span class="alarm-order-code">${orderCode ? '#' + orderCode : ''}</span></div>
+            <div class="alarm-subtitle">👉 Toca aquí para ver este restaurante y apagar la alarma</div>
+          </div>
+        </div>
+        <button class="alarm-btn-silence" onclick="event.stopPropagation(); if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner();">
+          🔕 Silenciar
+        </button>
+      </div>
+    `;
     banner.classList.remove('hidden');
+  }
+
+  handleAlarmBannerClick() {
+    if (window.Sound) Sound.stopAlarm();
+    this.hideAlarmBanner();
+    if (this.lastAlarmEstId) {
+      this.focusEstablishment(this.lastAlarmEstId, this.lastAlarmOrderId);
+    }
   }
 
   hideAlarmBanner() {
@@ -826,6 +862,57 @@ class AdminController {
 
   showEstablishmentActions(id) {
     this.openEstActionModal(id);
+  }
+
+  focusEstablishment(estId, orderId = null) {
+    if (!estId) return;
+    if (window.Sound) Sound.stopAlarm();
+    this.hideAlarmBanner();
+
+    // If not authenticated or establishments not loaded yet, save pending
+    if (!this.isAuthenticated || !this.establishments || this.establishments.length === 0) {
+      window.pendingTargetEstId = estId;
+      window.pendingTargetOrderId = orderId;
+      return;
+    }
+
+    const cleanId = String(estId).trim();
+    const est = this.establishments.find(e => String(e.id).trim() === cleanId || (e.name && e.name.toLowerCase().trim() === cleanId.toLowerCase()));
+    if (!est) {
+      console.warn('focusEstablishment: establishment not found with ID/Name:', estId);
+      return;
+    }
+
+    // 1. Highlight and scroll smoothly to the store row in the table
+    const tbody = document.getElementById('keys-table-body');
+    if (tbody) {
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      const targetRow = rows.find(r => r.innerHTML.includes(est.id) || r.textContent.includes(est.name));
+      if (targetRow) {
+        targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        targetRow.style.transition = 'all 0.4s ease';
+        targetRow.style.backgroundColor = 'rgba(255, 94, 58, 0.28)';
+        targetRow.style.outline = '3px solid #FF5E3A';
+        targetRow.style.borderRadius = '8px';
+        setTimeout(() => {
+          targetRow.style.backgroundColor = '';
+          targetRow.style.outline = '';
+        }, 5000);
+      }
+    }
+
+    // 2. Open establishment action modal directly
+    this.openEstActionModal(est.id);
+
+    // 3. If there is a specific order, show the order popup on top
+    if (orderId) {
+      const order = this.orders.find(o => String(o.id) === String(orderId));
+      if (order) {
+        this.showNewOrderModal(order, est.name);
+      }
+    }
+
+    this.showToast(`🏪 Mostrando local: ${est.name}`);
   }
 
   initModalHistoryNavigation() {
@@ -3965,8 +4052,10 @@ class AdminController {
     const orderTotal = order.total !== undefined ? `$${parseFloat(order.total).toFixed(2)}` : '';
     const orderType = order.orderType === 'mesa' ? '🍽️ Mesa ' + (order.mesaNumber || order.deliveryDetails?.mesa || '') : '🚴 Delivery';
 
-    // Show top flashing persistent alarm banner
-    this.showAlarmBanner(orderCode);
+    const estId = order.establishmentId || order.establishment_id || '';
+
+    // Show top flashing persistent alarm banner with direct store linkage
+    this.showAlarmBanner(orderCode, storeName, estId, order.id);
 
     // 2. Native OS Push Notification (Capacitor or Web)
     if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
@@ -3980,7 +4069,12 @@ class AdminController {
               schedule: { at: new Date(Date.now() + 100) },
               sound: 'alarm.wav',
               channelId: 'pedigochos_master_alerts',
-              smallIcon: 'ic_launcher_foreground'
+              smallIcon: 'ic_launcher_foreground',
+              extra: {
+                establishmentId: estId,
+                orderId: order.id,
+                storeName: storeName
+              }
             }
           ]
         });
@@ -3989,12 +4083,17 @@ class AdminController {
       }
     } else if ('Notification' in window && Notification.permission === 'granted') {
       try {
-        new Notification(`🚨 ¡NUEVO PEDIDO RECIBIDO! #${orderCode}`, {
+        const notif = new Notification(`🚨 ¡NUEVO PEDIDO RECIBIDO! #${orderCode}`, {
           body: `🏪 ${storeName}\n👤 ${customerName} (${orderType})\n💰 Total: ${orderTotal}`,
           icon: '/icons/icon-192.png',
           tag: 'order-' + order.id,
-          requireInteraction: true
+          requireInteraction: true,
+          data: { establishmentId: estId, orderId: order.id }
         });
+        notif.onclick = () => {
+          window.focus();
+          if (estId) AdminApp.focusEstablishment(estId, order.id);
+        };
       } catch(e) {}
     }
 
@@ -4014,6 +4113,7 @@ class AdminController {
       document.body.appendChild(modal);
     }
 
+    const estId = order.establishmentId || order.establishment_id || '';
     const orderCode = order.deliveryDetails?.code || (order.id ? order.id.slice(-4) : '####');
     const customerName = order.customerName || order.deliveryDetails?.name || 'Cliente';
     const phone = order.customerPhone || order.deliveryDetails?.phone || 'Sin teléfono';
@@ -4022,7 +4122,7 @@ class AdminController {
     const items = order.items || [];
 
     modal.innerHTML = `
-      <div class="modal-content" style="max-width: 440px; border-radius: 24px; border: 2px solid var(--primary); background: #111827; box-shadow: 0 0 35px rgba(255, 94, 58, 0.4); animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+      <div class="modal-content" style="max-width: 460px; border-radius: 24px; border: 2px solid var(--primary); background: #111827; box-shadow: 0 0 35px rgba(255, 94, 58, 0.4); animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
         <div style="background: linear-gradient(135deg, #FF5E3A 0%, #FF2A00 100%); color: #FFF; padding: 18px 20px; border-radius: 22px 22px 0 0; text-align: center; position: relative;">
           <span style="font-size: 36px; display: block; margin-bottom: 4px;">🔔</span>
           <h3 style="margin: 0; font-size: 18px; font-weight: 800;">¡NUEVO PEDIDO RECIBIDO!</h3>
@@ -4030,7 +4130,7 @@ class AdminController {
         </div>
         <div style="padding: 20px; color: #FFF;">
           <div style="background: rgba(255,255,255,0.05); border-radius: 14px; padding: 12px 16px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.08);">
-            <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: #FFD700;">🏪 ${storeName}</p>
+            <p style="margin: 0 0 6px 0; font-size: 15px; font-weight: 800; color: #FFD700;">🏪 ${storeName}</p>
             <p style="margin: 0 0 4px 0; font-size: 13px;">👤 <strong>Cliente:</strong> ${customerName}</p>
             <p style="margin: 0 0 4px 0; font-size: 13px;">📞 <strong>Teléfono:</strong> ${phone}</p>
             <p style="margin: 0 0 4px 0; font-size: 13px;">📍 <strong>Ubicación/Mesa:</strong> ${address}</p>
@@ -4047,12 +4147,22 @@ class AdminController {
               `).join('')}
             </div>
           </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255, 94, 58, 0.15); border: 1px solid var(--primary); padding: 12px 16px; border-radius: 14px; margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255, 94, 58, 0.15); border: 1px solid var(--primary); padding: 12px 16px; border-radius: 14px; margin-bottom: 16px;">
             <span style="font-size: 14px; font-weight: 700;">Total del Pedido:</span>
             <span style="font-size: 20px; font-weight: 800; color: #FFD700;">$${total}</span>
           </div>
-          <button type="button" onclick="if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner(); document.getElementById('admin-new-order-modal').style.display='none';" class="btn-primary" style="width: 100%; padding: 12px; font-size: 14px; font-weight: 800; border-radius: 14px; cursor: pointer; background: linear-gradient(135deg, #FF5E3A 0%, #FF2A00 100%); border: none; color: #FFF;">
-            ✅ Entendido / Cerrar Alerta
+
+          <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <button type="button" onclick="if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner(); document.getElementById('admin-new-order-modal').style.display='none'; AdminApp.openEstActionModal('${estId}');" class="btn-primary" style="flex: 1; padding: 10px; font-size: 12px; font-weight: 800; border-radius: 10px; cursor: pointer; background: #3B82F6; border: none; color: #FFF;">
+              📋 Administrar Comercio
+            </button>
+            <button type="button" onclick="if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner(); document.getElementById('admin-new-order-modal').style.display='none'; AdminApp.openStoreKitchen('${estId}');" class="btn-primary" style="flex: 1; padding: 10px; font-size: 12px; font-weight: 800; border-radius: 10px; cursor: pointer; background: #F59E0B; border: none; color: #1E293B;">
+              🍳 Abrir Cocina (KDS)
+            </button>
+          </div>
+
+          <button type="button" onclick="if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner(); document.getElementById('admin-new-order-modal').style.display='none';" class="btn-primary" style="width: 100%; padding: 11px; font-size: 13.5px; font-weight: 800; border-radius: 12px; cursor: pointer; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #FFF;">
+            ✅ Cerrar Alerta
           </button>
         </div>
       </div>

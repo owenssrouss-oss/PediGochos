@@ -329,8 +329,10 @@ public class OrderNotificationService extends Service {
                     // 3. Vibrate Phone
                     vibratePhone();
 
-                    // 4. Show Heads-Up Alert Notification
-                    showIncomingOrderNotification(customer, restaurant, total);
+                    // 4. Show Heads-Up Alert Notification with direct establishment target
+                    String estId = order.optString("establishmentId", order.optString("establishment_id", ""));
+                    String orderId = order.optString("id", "");
+                    showIncomingOrderNotification(customer, restaurant, total, estId, orderId);
                 } catch (Exception e) {
                     Log.e(TAG, "Error triggering alarm: " + e.getMessage());
                 }
@@ -419,13 +421,23 @@ public class OrderNotificationService extends Service {
         }
     }
 
-    private void showIncomingOrderNotification(String customer, String restaurant, double total) {
+    private void showIncomingOrderNotification(String customer, String restaurant, double total, String establishmentId, String orderId) {
         try {
             NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             if (nm == null) return;
 
             Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            if (establishmentId != null && !establishmentId.isEmpty()) {
+                intent.putExtra("target_establishment_id", establishmentId);
+            }
+            if (orderId != null && !orderId.isEmpty()) {
+                intent.putExtra("target_order_id", orderId);
+            }
+            if (restaurant != null && !restaurant.isEmpty()) {
+                intent.putExtra("target_establishment_name", restaurant);
+            }
+
             PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
                 (int) System.currentTimeMillis(),
@@ -438,7 +450,7 @@ public class OrderNotificationService extends Service {
                 .setContentTitle("🚨 ¡NUEVO PEDIDO RECIBIDO!")
                 .setContentText("🛒 " + customer + " en " + restaurant + " - Total: $" + String.format("%.2f", total))
                 .setStyle(new NotificationCompat.BigTextStyle()
-                    .bigText("🛒 Cliente: " + customer + "\n🏪 Local: " + restaurant + "\n💵 Total: $" + String.format("%.2f", total) + "\n\nToca para abrir la orden de inmediato."))
+                    .bigText("🛒 Cliente: " + customer + "\n🏪 Local: " + restaurant + "\n💵 Total: $" + String.format("%.2f", total) + "\n\n👉 Toca aquí para ver los detalles del restaurante."))
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
