@@ -195,7 +195,7 @@ class KitchenController {
       const allOrders = await res.json();
       if (!Array.isArray(allOrders)) return;
 
-      const shopOrders = allOrders.filter(o => o.establishmentId === this.selectedId);
+      const shopOrders = allOrders.filter(o => String(o.establishmentId || o.establishment_id).trim() === String(this.selectedId).trim());
 
       if (!this.initialOrdersLoaded) {
         this.orders = shopOrders;
@@ -210,9 +210,10 @@ class KitchenController {
       if (brandNew.length > 0) {
         const now = Date.now();
         const activeNewOrders = brandNew.filter(order => {
-          const isPending = (order.status || '').toLowerCase() === 'pendiente';
-          const orderTime = new Date(order.createdAt || order.created_at || 0).getTime();
-          const isRecent = (now - orderTime) < (15 * 60 * 1000);
+          const status = (order.status || '').toLowerCase();
+          const isPending = status === 'pendiente' || status === 'pending' || status === 'preparando';
+          const orderTime = new Date(order.createdAt || order.created_at || order.timestamp || Date.now()).getTime();
+          const isRecent = isNaN(orderTime) ? true : (now - orderTime) < (30 * 60 * 1000);
           return isPending && isRecent;
         });
 
@@ -226,6 +227,19 @@ class KitchenController {
           }
           this.showAlarmBanner(orderCode);
           this.showToast(`🚨 ¡NUEVO PEDIDO RECIBIDO! #${orderCode}`);
+
+          if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+            try {
+              window.Capacitor.Plugins.LocalNotifications.schedule({
+                notifications: [{
+                  title: '🚨 ¡NUEVO PEDIDO RECIBIDO! #' + orderCode,
+                  body: `${activeNewOrders[0].customerName || 'Cliente'} - Total: $${activeNewOrders[0].total || 0}`,
+                  id: Math.floor(Math.random() * 100000),
+                  schedule: { at: new Date(Date.now() + 100) }
+                }]
+              });
+            } catch(e) {}
+          }
         }
       } else {
         let needsReRender = false;
@@ -242,7 +256,7 @@ class KitchenController {
         }
       }
     } catch(e) {
-      console.warn('REST Polling fallback error:', e);
+      console.warn('Kitchen polling error:', e);
     }
   }
 

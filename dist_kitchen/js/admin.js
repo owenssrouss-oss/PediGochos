@@ -493,9 +493,10 @@ class AdminController {
         const now = Date.now();
         // Only trigger alarm for truly recent pending orders created within the last 15 minutes
         const activeNewOrders = brandNew.filter(order => {
-          const isPending = (order.status || '').toLowerCase() === 'pendiente';
-          const orderTime = new Date(order.createdAt || order.created_at || 0).getTime();
-          const isRecent = (now - orderTime) < (15 * 60 * 1000);
+          const status = (order.status || '').toLowerCase();
+          const isPending = status === 'pendiente' || status === 'pending' || status === 'preparando';
+          const orderTime = new Date(order.createdAt || order.created_at || order.timestamp || Date.now()).getTime();
+          const isRecent = isNaN(orderTime) ? true : (now - orderTime) < (30 * 60 * 1000);
           return isPending && isRecent;
         });
 

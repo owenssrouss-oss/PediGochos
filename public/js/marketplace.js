@@ -1,5 +1,31 @@
 /* Customer Marketplace App Logic */
 
+// Universal Capacitor / Native Android API proxy
+(function() {
+  const isWebRender = window.location.origin.includes('pedigochos.onrender.com');
+  const isLocalDev = window.location.hostname === 'localhost' && window.location.port === '3000';
+  
+  if (!isWebRender && !isLocalDev) {
+    const TARGET_HOST = 'https://pedigochos.onrender.com';
+    const originalFetch = window.fetch;
+    window.fetch = function(input, init) {
+      if (typeof input === 'string') {
+        if (input.startsWith('/api/')) {
+          input = TARGET_HOST + input;
+        } else if (input.startsWith('api/')) {
+          input = TARGET_HOST + '/' + input;
+        }
+      } else if (input && input.url) {
+        if (input.url.startsWith('/') || input.url.includes('localhost/api/')) {
+          const newUrl = input.url.replace(/^(?:https?:\/\/[^\/]+)?\/api\//, TARGET_HOST + '/api/');
+          input = new Request(newUrl, input);
+        }
+      }
+      return originalFetch.call(this, input, init);
+    };
+  }
+})();
+
 const CATEGORY_EMOJIS = {
   comidas: ['🍔', '🍕', '🌭', '🥤', '🍲', '🌯', '🫓', '🌽', '🍞', '🥖', '🍣', '🌮', '🍜', '🍰', '☕'],
   farmacias: ['💊', '🩹', '🧪', '🧼', '🧴', '🩺'],

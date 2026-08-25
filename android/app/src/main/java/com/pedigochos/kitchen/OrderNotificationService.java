@@ -236,8 +236,7 @@ public class OrderNotificationService extends Service {
             return;
         }
 
-        // Check for new orders
-        long now = System.currentTimeMillis();
+        // Check for new orders during live monitoring
         for (int i = 0; i < orders.length(); i++) {
             try {
                 JSONObject order = orders.getJSONObject(i);
@@ -247,27 +246,12 @@ public class OrderNotificationService extends Service {
                 if (!knownOrderIds.contains(id)) {
                     knownOrderIds.add(id);
 
-                    // Check if order is actually pending and recent
+                    // Check if order is actually pending
                     String status = order.optString("status", "Pendiente");
-                    boolean isPending = "Pendiente".equalsIgnoreCase(status);
+                    boolean isPending = "Pendiente".equalsIgnoreCase(status) || "pending".equalsIgnoreCase(status) || "Preparando".equalsIgnoreCase(status);
 
-                    String createdAtStr = order.optString("createdAt", order.optString("created_at", ""));
-                    boolean isRecent = true;
-                    if (!createdAtStr.isEmpty()) {
-                        try {
-                            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.US);
-                            sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
-                            java.util.Date orderDate = sdf.parse(createdAtStr.substring(0, Math.min(19, createdAtStr.length())));
-                            if (orderDate != null) {
-                                long diffMinutes = (now - orderDate.getTime()) / (1000 * 60);
-                                if (diffMinutes > 20) {
-                                    isRecent = false;
-                                }
-                            }
-                        } catch (Exception ignored) {}
-                    }
-
-                    if (isPending && isRecent) {
+                    if (isPending) {
+                        Log.d(TAG, "🚨 NEW LIVE ORDER DETECTED: " + id + " Status: " + status);
                         triggerNewOrderAlarm(order);
                     }
                 }
@@ -278,14 +262,14 @@ public class OrderNotificationService extends Service {
     }
 
     private void triggerNewOrderAlarm(final JSONObject order) {
-        Log.d(TAG, "🚨 NEW ORDER DETECTED in Background: " + order.optString("id"));
+        Log.d(TAG, "🚨 TRIGGERING ORDER ALARM in Background: " + order.optString("id"));
 
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
-                    String customer = order.optString("customer_name", "Cliente");
-                    String restaurant = order.optString("restaurant_name", "Restaurante");
+                    String customer = order.optString("customerName", order.optString("customer_name", "Cliente"));
+                    String restaurant = order.optString("establishmentName", order.optString("establishment_name", order.optString("restaurant_name", "Restaurante")));
                     double total = order.optDouble("total", 0);
 
                     // 1. Wake screen up

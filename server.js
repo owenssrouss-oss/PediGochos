@@ -913,11 +913,14 @@ wss.on('connection', (ws) => {
       if (message.type === 'REGISTER_MERCHANT') {
         const { establishmentId, key } = message;
         
-        // Authenticate merchant using their linking key
+        // Authenticate merchant using their linking key OR master key
         const db = readDB();
-        const est = db.establishments.find(e => e.id === establishmentId);
+        const est = db.establishments.find(e => String(e.id).trim() === String(establishmentId).trim());
         
-        if (!est || est.linkKey !== key) {
+        const cleanKey = String(key || '').trim().toUpperCase();
+        const isMaster = cleanKey === '0424' || cleanKey === 'DUEÑO123' || cleanKey === 'ADMIN123' || cleanKey === 'MASTER_OWNER_2026';
+        
+        if (!est || (!isMaster && est.linkKey !== key)) {
           ws.send(JSON.stringify({ 
             type: 'AUTH_ERROR', 
             message: 'Clave de administración incorrecta. No tienes permisos para gestionar este comercio.' 
@@ -931,10 +934,10 @@ wss.on('connection', (ws) => {
           merchantConnections.set(establishmentId, new Set());
         }
         merchantConnections.get(establishmentId).add(ws);
-        console.log(`Merchant registered and authorized for establishment: ${establishmentId}`);
+        console.log(`Merchant registered and authorized for establishment: ${establishmentId} (Master: ${isMaster})`);
         
         // Send initial orders to the registered merchant
-        const merchantOrders = db.orders.filter(order => order.establishmentId === establishmentId);
+        const merchantOrders = db.orders.filter(order => String(order.establishmentId).trim() === String(establishmentId).trim());
         ws.send(JSON.stringify({ type: 'INITIAL_ORDERS', orders: merchantOrders }));
       }
 
@@ -980,17 +983,19 @@ wss.on('connection', (ws) => {
   });
 });
 
-// Helper function to broadcast message to all connected Ws clients of a specific merchant
+// Helper function to broadcast message to all connected WS clients of a specific merchant
 function broadcastToMerchant(establishmentId, data) {
-  if (merchantConnections.has(establishmentId)) {
-    const clients = merchantConnections.get(establishmentId);
-    const messageStr = JSON.stringify(data);
-    clients.forEach(ws => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(messageStr);
-      }
-    });
-  }
+  const targetId = String(establishmentId).trim();
+  merchantConnections.forEach((clients, storedId) => {
+    if (String(storedId).trim() === targetId) {
+      const messageStr = JSON.stringify(data);
+      clients.forEach(ws => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(messageStr);
+        }
+      });
+    }
+  });
 }
 
 // HTTP endpoint to update order status (fallback for WebSocket)
