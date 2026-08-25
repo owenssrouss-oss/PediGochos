@@ -1448,7 +1448,7 @@ class KitchenController {
         messageText += `\n\n🏡 *FOTO FACHADA/CASA:* ${housePhotoUrl}`;
       }
 
-      const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanDriverPhone}&text=${encodeURIComponent(messageText)}`;
+      const whatsappUrl = `https://wa.me/${cleanDriverPhone}?text=${encodeURIComponent(messageText)}`;
       
       try {
         this.showLocalToast(`✨ Pedido asignado a ${driverName} (${driverPhone})`);
@@ -1456,25 +1456,25 @@ class KitchenController {
         console.log('Toast error suppressed');
       }
 
-      // Open WhatsApp safely in a new tab without blocking navigation or leaving dashboard
-      let opened = false;
-      try {
-        const waLink = document.createElement('a');
-        waLink.href = whatsappUrl;
-        waLink.target = '_blank';
-        waLink.rel = 'noopener noreferrer';
-        document.body.appendChild(waLink);
-        waLink.click();
-        setTimeout(() => waLink.remove(), 300);
-        opened = true;
-      } catch(e) {
-        opened = false;
-      }
-
-      if (!opened) {
+      // Open WhatsApp directly via wa.me / _system on Capacitor
+      if (window.Capacitor) {
         try {
+          window.open(whatsappUrl, '_system');
+        } catch(e) {
+          window.location.href = whatsappUrl;
+        }
+      } else {
+        try {
+          const waLink = document.createElement('a');
+          waLink.href = whatsappUrl;
+          waLink.target = '_blank';
+          waLink.rel = 'noopener noreferrer';
+          document.body.appendChild(waLink);
+          waLink.click();
+          setTimeout(() => waLink.remove(), 300);
+        } catch(e) {
           window.open(whatsappUrl, '_blank');
-        } catch(e) {}
+        }
       }
 
       // Persist status and driver to server
@@ -1689,30 +1689,31 @@ class KitchenController {
       `3️⃣ *Verificación:* Revisa que los artículos y la dirección sean exactos para evitar demoras.\n\n` +
       `¡Esperamos tu pronta confirmación para comenzar a preparar tu comida! ✨🍽️`;
 
-    const clientWhatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(confirmationMessage)}`;
+    const clientWhatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(confirmationMessage)}`;
 
     try {
       this.showLocalToast(`💬 Abriendo WhatsApp para solicitar confirmación...`);
     } catch(e) {}
 
-    let opened = false;
-    try {
-      const waLink = document.createElement('a');
-      waLink.href = clientWhatsappUrl;
-      waLink.target = '_blank';
-      waLink.rel = 'noopener noreferrer';
-      document.body.appendChild(waLink);
-      waLink.click();
-      setTimeout(() => waLink.remove(), 300);
-      opened = true;
-    } catch(e) {
-      opened = false;
-    }
-
-    if (!opened) {
+    // Open WhatsApp directly via wa.me / _system on Capacitor
+    if (window.Capacitor) {
       try {
+        window.open(clientWhatsappUrl, '_system');
+      } catch(e) {
+        window.location.href = clientWhatsappUrl;
+      }
+    } else {
+      try {
+        const waLink = document.createElement('a');
+        waLink.href = clientWhatsappUrl;
+        waLink.target = '_blank';
+        waLink.rel = 'noopener noreferrer';
+        document.body.appendChild(waLink);
+        waLink.click();
+        setTimeout(() => waLink.remove(), 300);
+      } catch(e) {
         window.open(clientWhatsappUrl, '_blank');
-      } catch(e) {}
+      }
     }
   }
 
