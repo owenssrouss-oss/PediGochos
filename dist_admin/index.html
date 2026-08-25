@@ -1080,10 +1080,6 @@
     </div>
   </div>
 
-  <script src="/js/sound.js?v=194"></script>
-  <script src="/js/admin.js?v=194"></script>
-  <script src="/js/menu-builder.js"></script>
-
   <script>
     window.activeCategoryId = 'all';
     window.categoriesList = [];
@@ -2128,10 +2124,13 @@
     🚨
   </button>
 
+  <script src="/js/sound.js?v=195"></script>
+  <script src="/js/admin.js?v=195"></script>
+  <script src="/js/menu-builder.js?v=195"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js?v=194').then((reg) => {
+        navigator.serviceWorker.register('/sw.js?v=195').then((reg) => {
           reg.update();
         }).catch(() => {});
       });
