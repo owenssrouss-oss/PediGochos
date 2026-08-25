@@ -80,13 +80,26 @@ public class OrderNotificationService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        Log.d(TAG, "App task removed, restarting service to maintain 24/7 alarms...");
-        Intent restartServiceIntent = new Intent(getApplicationContext(), OrderNotificationService.class);
-        restartServiceIntent.setPackage(getPackageName());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(restartServiceIntent);
-        } else {
-            startService(restartServiceIntent);
+        Log.d(TAG, "App task removed from recents, scheduling immediate resurrection...");
+        try {
+            Intent restartServiceIntent = new Intent(getApplicationContext(), OrderNotificationService.class);
+            restartServiceIntent.setPackage(getPackageName());
+            PendingIntent restartPending = PendingIntent.getService(
+                getApplicationContext(),
+                999,
+                restartServiceIntent,
+                PendingIntent.FLAG_ONE_SHOT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+            );
+            android.app.AlarmManager am = (android.app.AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            if (am != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    am.setExactAndAllowWhileIdle(android.app.AlarmManager.ELAPSED_REALTIME_WAKEUP, android.os.SystemClock.elapsedRealtime() + 1000, restartPending);
+                } else {
+                    am.set(android.app.AlarmManager.ELAPSED_REALTIME_WAKEUP, android.os.SystemClock.elapsedRealtime() + 1000, restartPending);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error scheduling restart: " + e.getMessage());
         }
     }
 
@@ -218,20 +231,55 @@ public class OrderNotificationService extends Service {
         }
     }
 
+    private boolean isOrderRecent(JSONObject order) {
+        long now = System.currentTimeMillis();
+        String createdStr = order.optString("createdAt", order.optString("created_at", order.optString("timestamp", "")));
+        if (createdStr.isEmpty()) return true;
+
+        try {
+            if (createdStr.matches("^\\d+$")) {
+                long ts = Long.parseLong(createdStr);
+                if (ts < 10000000000L) ts *= 1000L;
+                return (now - ts) < (25 * 60 * 1000);
+            }
+
+            String clean = createdStr.replace("Z", "+00:00");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                java.time.Instant instant = java.time.Instant.parse(clean);
+                return (now - instant.toEpochMilli()) < (25 * 60 * 1000);
+            } else {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.US);
+                sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+                java.util.Date date = sdf.parse(createdStr);
+                if (date != null) {
+                    return (now - date.getTime()) < (25 * 60 * 1000);
+                }
+            }
+        } catch (Exception ignored) {}
+        return true;
+    }
+
     private synchronized void handleOrdersData(JSONArray orders) {
         if (orders == null) return;
 
         if (isFirstFetch) {
+            isFirstFetch = false;
             for (int i = 0; i < orders.length(); i++) {
                 try {
                     JSONObject order = orders.getJSONObject(i);
                     String id = order.optString("id");
-                    if (!id.isEmpty()) {
-                        knownOrderIds.add(id);
+                    if (id.isEmpty()) continue;
+                    knownOrderIds.add(id);
+
+                    String status = order.optString("status", "Pendiente");
+                    boolean isPending = "Pendiente".equalsIgnoreCase(status) || "pending".equalsIgnoreCase(status) || "Preparando".equalsIgnoreCase(status);
+
+                    if (isPending && isOrderRecent(order)) {
+                        Log.d(TAG, "🚨 NEW PENDING ORDER ON APP START/RESTART: " + id);
+                        triggerNewOrderAlarm(order);
                     }
                 } catch (Exception ignored) {}
             }
-            isFirstFetch = false;
             Log.d(TAG, "Initial seed completed with " + knownOrderIds.size() + " orders.");
             return;
         }
