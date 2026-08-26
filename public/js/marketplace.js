@@ -1328,6 +1328,7 @@ class MarketplaceController {
         pizzaMode: 'whole',
         specialtyA: null,
         specialtyB: null,
+        selectedCrust: { id: 'tradicional', name: 'Borde Tradicional (Sin relleno)', price: 0 },
         quantities: {
           whole: {},
           halfA: {},
@@ -1507,6 +1508,61 @@ class MarketplaceController {
       }
     }
 
+    // Pizza Crust / Bordes Selector (for whole or halves)
+    const pName = (product.name || '').toLowerCase();
+    const pCat = (product.category || '').toLowerCase();
+    const isPizza = pCat === 'pizzas' || pName.includes('pizza');
+    const crustSection = document.getElementById('pizza-crust-section');
+    if (crustSection) {
+      if (isPizza) {
+        crustSection.classList.remove('hidden');
+        crustSection.style.display = 'block';
+        
+        const crustOptions = this.getPizzaCrustOptions(product);
+        if (!this.customizerState.selectedCrust) {
+          this.customizerState.selectedCrust = crustOptions[0] || { id: 'tradicional', name: 'Borde Tradicional (Sin relleno)', price: 0 };
+        }
+
+        crustSection.innerHTML = `
+          <div style="background: rgba(245, 158, 11, 0.08); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 14px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.08);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+              <span style="font-weight: 800; color: #FFF; font-size: 13.5px; display: flex; align-items: center; gap: 6px;">
+                <span>🧀</span> Tipo de Borde de la Pizza
+              </span>
+              <span style="background: rgba(245, 158, 11, 0.2); color: #F59E0B; font-size: 10.5px; font-weight: 800; padding: 3px 8px; border-radius: 6px;">
+                Opcional
+              </span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              ${crustOptions.map(opt => {
+                const isSelected = this.customizerState.selectedCrust && this.customizerState.selectedCrust.id === opt.id;
+                const priceTag = opt.price > 0 ? `+${this.formatPesos(opt.price)}` : 'Sin costo';
+                return `
+                  <div onclick="MarketplaceApp.selectPizzaCrust('${opt.id}', '${opt.name}', ${opt.price})" 
+                       style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 12px; cursor: pointer; transition: all 0.2s; background: ${isSelected ? 'rgba(245, 158, 11, 0.18)' : 'rgba(255, 255, 255, 0.03)'}; border: 1.5px solid ${isSelected ? '#F59E0B' : 'rgba(255, 255, 255, 0.08)'};">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <input type="radio" name="radio_pizza_crust" ${isSelected ? 'checked' : ''} style="margin: 0; accent-color: #F59E0B; width: 16px; height: 16px; pointer-events: none;">
+                      <div>
+                        <div style="font-weight: 800; font-size: 13px; color: ${isSelected ? '#FCD34D' : '#FFF'};">${opt.icon || '🧀'} ${opt.name}</div>
+                        ${opt.description ? `<div style="font-size: 11px; color: var(--text-muted);">${opt.description}</div>` : ''}
+                      </div>
+                    </div>
+                    <span style="font-size: 12px; font-weight: 800; color: ${opt.price > 0 ? '#F59E0B' : '#10B981'}; white-space: nowrap;">
+                      ${priceTag}
+                    </span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      } else {
+        crustSection.classList.add('hidden');
+        crustSection.style.display = 'none';
+        this.customizerState.selectedCrust = null;
+      }
+    }
+
     // Col A (Whole / Mitad 1)
     const containerA = document.getElementById('modifiers-groups-a');
     if (containerA) {
@@ -1539,6 +1595,37 @@ class MarketplaceController {
       }
     }
 
+    this.updateCustomizerPrice();
+  }
+
+  getPizzaCrustOptions(product) {
+    const defaultCrusts = [
+      { id: 'tradicional', name: 'Borde Tradicional (Sin relleno)', icon: '🥖', description: 'Masa clásica crujiente', price: 0 },
+      { id: 'queso', name: 'Borde de Queso Mozzarella', icon: '🧀', description: 'Relleno de queso derretido', price: 5000 },
+      { id: 'salchicha', name: 'Borde de Salchicha', icon: '🌭', description: 'Relleno de salchicha parrillera', price: 6000 },
+      { id: 'bocadillo_queso', name: 'Borde de Bocadillo con Queso', icon: '🍯', description: 'Dulce de guayaba con queso', price: 6000 },
+      { id: 'queso_crema', name: 'Borde de Queso Crema / Cheddar', icon: '🧀', description: 'Queso crema suave', price: 6000 }
+    ];
+
+    if (product && product.modifiers && Array.isArray(product.modifiers)) {
+      const crustGroup = product.modifiers.find(g => (g.group_name || '').toLowerCase().includes('borde'));
+      if (crustGroup && Array.isArray(crustGroup.options) && crustGroup.options.length > 0) {
+        return crustGroup.options.map(opt => ({
+          id: opt.option_id || opt.id,
+          name: opt.name,
+          icon: opt.name.toLowerCase().includes('salchicha') ? '🌭' : (opt.name.toLowerCase().includes('bocadillo') ? '🍯' : '🧀'),
+          description: '',
+          price: this.normalizeCopPrice(opt.extra_price || opt.price || 0)
+        }));
+      }
+    }
+
+    return defaultCrusts;
+  }
+
+  selectPizzaCrust(id, name, price) {
+    this.customizerState.selectedCrust = { id, name, price: Number(price) || 0 };
+    this.renderCustomizerModifiers();
     this.updateCustomizerPrice();
   }
 
@@ -1969,6 +2056,11 @@ class MarketplaceController {
       totalExtras += sumSide(product, 'whole', false);
     }
 
+    // Include selected pizza crust price
+    if (this.customizerState.selectedCrust && this.customizerState.selectedCrust.price > 0) {
+      totalExtras += this.customizerState.selectedCrust.price;
+    }
+
     return totalExtras;
   }
 
@@ -2250,6 +2342,16 @@ class MarketplaceController {
       processSide('halfB');
     } else {
       processSide('whole');
+    }
+
+    // Process selected pizza crust
+    if (this.customizerState.selectedCrust && this.customizerState.selectedCrust.id !== 'tradicional') {
+      const extraPrice = this.customizerState.selectedCrust.price || 0;
+      singleSelections.push({
+        group_name: 'Tipo de Borde',
+        chosen_option: `${this.customizerState.selectedCrust.name}` + (extraPrice > 0 ? ` (+${this.formatPesos(extraPrice)})` : ''),
+        extra_price: extraPrice
+      });
     }
     
     const specialNotes = document.getElementById('customizer-special-notes').value.trim();
@@ -2782,39 +2884,157 @@ class MarketplaceController {
     return drinks;
   }
 
+  getPizzasWithoutSpecialCrustInCart() {
+    return this.cart.items.filter(item => {
+      const pName = (item.product_name || item.product?.name || '').toLowerCase();
+      const pCat = (item.product?.category || '').toLowerCase();
+      const isPizza = pCat === 'pizzas' || pName.includes('pizza');
+      if (!isPizza) return false;
+      const hasSpecialCrust = item.selected_specifications?.single_selections?.some(s => 
+        (s.group_name || '').toLowerCase().includes('borde') && 
+        !s.chosen_option.toLowerCase().includes('tradicional')
+      );
+      return !hasSpecialCrust;
+    });
+  }
+
+  addCrustToCartItem(cartItemId, crustName, crustPrice) {
+    const item = this.cart.items.find(i => i.cart_item_id === cartItemId);
+    if (!item) return;
+
+    if (!item.selected_specifications) {
+      item.selected_specifications = { single_selections: [], add_ons: [], exclusions: [], special_notes: '' };
+    }
+    if (!Array.isArray(item.selected_specifications.single_selections)) {
+      item.selected_specifications.single_selections = [];
+    }
+
+    const prevCrustIdx = item.selected_specifications.single_selections.findIndex(s => (s.group_name || '').toLowerCase().includes('borde'));
+    let prevExtra = 0;
+    if (prevCrustIdx !== -1) {
+      prevExtra = item.selected_specifications.single_selections[prevCrustIdx].extra_price || 0;
+      item.selected_specifications.single_selections.splice(prevCrustIdx, 1);
+    }
+
+    const normPrice = this.normalizeCopPrice(crustPrice);
+    item.selected_specifications.single_selections.push({
+      group_name: 'Tipo de Borde',
+      chosen_option: `${crustName} (+${this.formatPesos(normPrice)})`,
+      extra_price: normPrice
+    });
+
+    item.unit_total_calculated = (item.unit_total_calculated - prevExtra) + normPrice;
+    item.subtotal_combined = item.unit_total_calculated * item.quantity;
+
+    this.updateCartBadge();
+    this.showToast(`🧀 ${crustName} agregado a tu pizza`);
+
+    // Re-render upsell modal list so user sees updated status
+    this.checkBeveragesAndPrompt();
+  }
+
   checkBeveragesAndPrompt() {
+    const pizzasWithoutCrust = this.getPizzasWithoutSpecialCrustInCart();
     const hasBeverages = this.cart.items.some(i => this.isDrinkOrBeverage(i));
-    if (hasBeverages) {
+    const availableDrinks = !hasBeverages ? this.getAvailableBeveragesFromCartStores() : [];
+
+    if (pizzasWithoutCrust.length === 0 && availableDrinks.length === 0) {
       return false;
     }
 
-    const availableDrinks = this.getAvailableBeveragesFromCartStores();
-    if (!availableDrinks || availableDrinks.length === 0) {
-      return false;
+    const iconEl = document.getElementById('upsell-modal-icon');
+    const titleEl = document.getElementById('upsell-modal-title');
+    const subEl = document.getElementById('upsell-modal-subtitle');
+
+    if (pizzasWithoutCrust.length > 0 && availableDrinks.length > 0) {
+      if (iconEl) iconEl.innerText = '🍕🥤';
+      if (titleEl) titleEl.innerText = '¿Deseas Borde Relleno o Bebidas?';
+      if (subEl) subEl.innerText = 'Personaliza tu pizza con un delicioso borde y acompaña tu comida con una bebida fría.';
+    } else if (pizzasWithoutCrust.length > 0) {
+      if (iconEl) iconEl.innerText = '🧀🍕';
+      if (titleEl) titleEl.innerText = '¿Deseas agregar un Borde a tu Pizza?';
+      if (subEl) subEl.innerText = 'Dale el toque maestro a tu pizza con un borde relleno de queso, salchicha o bocadillo.';
+    } else {
+      if (iconEl) iconEl.innerText = '🥤';
+      if (titleEl) titleEl.innerText = '¿Deseas agregar una bebida?';
+      if (subEl) subEl.innerText = 'Acompaña tu comida con un refresco, jugo o agua fría.';
     }
 
     const listContainer = document.getElementById('beverage-upsell-list');
     if (listContainer) {
-      listContainer.innerHTML = availableDrinks.map(drink => {
-        const rawPrice = drink.price || 0;
-        const priceCop = rawPrice < 1000 ? rawPrice * 1000 : rawPrice;
-        const imgUrl = drink.image || '/images/burger_royale.jpg';
-        return `
-          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 10px 12px; border-radius: 14px; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
-              <img src="${imgUrl}" alt="${drink.name}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">
-              <div>
-                <div style="font-weight: 800; font-size: 13px; color: #FFF;">${drink.name}</div>
-                <div style="font-size: 11px; color: var(--text-muted);">${drink.restaurant_name}</div>
-                <div style="font-size: 12px; font-weight: 800; color: var(--primary); margin-top: 2px;">$${priceCop.toLocaleString('de-DE')} COP</div>
-              </div>
+      let html = '';
+
+      // 1. Pizza Crust Suggestions Section
+      if (pizzasWithoutCrust.length > 0) {
+        html += `
+          <div style="background: rgba(245, 158, 11, 0.08); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 14px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+              <span style="font-size: 20px;">🧀</span>
+              <h4 style="margin: 0; color: #FCD34D; font-size: 14px; font-weight: 800;">Bordes Rellenos para tus Pizzas</h4>
             </div>
-            <button type="button" onclick="MarketplaceApp.addBeverageAndRefresh('${drink.id}', '${drink.restaurant_id}')" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFF; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(16,185,129,0.3); white-space: nowrap;">
-              ➕ Agregar
-            </button>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              ${pizzasWithoutCrust.map(pizza => `
+                <div style="background: rgba(0,0,0,0.35); border-radius: 12px; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.08);">
+                  <div style="font-weight: 800; font-size: 13px; color: #FFF; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>🍕 ${pizza.product_name}</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">${pizza.restaurant_name}</span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px;">
+                    <button type="button" onclick="MarketplaceApp.addCrustToCartItem('${pizza.cart_item_id}', 'Borde de Queso Mozzarella', 5000)" style="background: rgba(245,158,11,0.15); border: 1px solid #F59E0B; color: #FFF; padding: 8px 10px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s;">
+                      🧀 Borde Queso (+$5.000)
+                    </button>
+                    <button type="button" onclick="MarketplaceApp.addCrustToCartItem('${pizza.cart_item_id}', 'Borde de Salchicha', 6000)" style="background: rgba(239,68,68,0.15); border: 1px solid #EF4444; color: #FFF; padding: 8px 10px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s;">
+                      🌭 Borde Salchicha (+$6.000)
+                    </button>
+                    <button type="button" onclick="MarketplaceApp.addCrustToCartItem('${pizza.cart_item_id}', 'Borde de Bocadillo con Queso', 6000)" style="background: rgba(245,158,11,0.15); border: 1px solid #F59E0B; color: #FFF; padding: 8px 10px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s;">
+                      🍯 Bocadillo y Queso (+$6.000)
+                    </button>
+                    <button type="button" onclick="MarketplaceApp.addCrustToCartItem('${pizza.cart_item_id}', 'Borde de Queso Crema / Cheddar', 6000)" style="background: rgba(245,158,11,0.15); border: 1px solid #F59E0B; color: #FFF; padding: 8px 10px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s;">
+                      🧀 Borde Cheddar (+$6.000)
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
           </div>
         `;
-      }).join('');
+      }
+
+      // 2. Beverage Suggestions Section
+      if (availableDrinks.length > 0) {
+        html += `
+          <div style="background: rgba(59, 130, 246, 0.08); border: 1.5px solid rgba(59, 130, 246, 0.35); border-radius: 16px; padding: 14px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+              <span style="font-size: 20px;">🥤</span>
+              <h4 style="margin: 0; color: #93C5FD; font-size: 14px; font-weight: 800;">Bebidas Recomendadas</h4>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              ${availableDrinks.map(drink => {
+                const rawPrice = drink.price || 0;
+                const priceCop = rawPrice < 1000 ? rawPrice * 1000 : rawPrice;
+                const imgUrl = drink.image || '/images/burger_royale.jpg';
+                return `
+                  <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); padding: 9px 12px; border-radius: 12px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                      <img src="${imgUrl}" alt="${drink.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                      <div>
+                        <div style="font-weight: 800; font-size: 13px; color: #FFF;">${drink.name}</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">${drink.restaurant_name}</div>
+                        <div style="font-size: 12px; font-weight: 800; color: var(--primary); margin-top: 1px;">$${priceCop.toLocaleString('de-DE')} COP</div>
+                      </div>
+                    </div>
+                    <button type="button" onclick="MarketplaceApp.addBeverageAndRefresh('${drink.id}', '${drink.restaurant_id}')" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFF; border: none; padding: 7px 12px; border-radius: 9px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(16,185,129,0.3); white-space: nowrap;">
+                      ➕ Agregar
+                    </button>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      listContainer.innerHTML = html;
     }
 
     const modal = document.getElementById('beverage-upsell-modal');
@@ -2833,17 +3053,19 @@ class MarketplaceController {
     const prod = (est.products || []).find(p => p.id === prodId);
     if (!prod) return;
 
-    this.addToCart(prod, est);
+    this.addDirectToCart(prod);
     this.showToast(`🥤 ${prod.name} agregada al carrito`);
 
-    const modal = document.getElementById('beverage-upsell-modal');
-    if (modal) modal.classList.remove('open');
-    this.submitOrder(true);
+    // Re-render the upsell list
+    this.checkBeveragesAndPrompt();
   }
 
   closeBeverageModalAndProceed() {
     const modal = document.getElementById('beverage-upsell-modal');
-    if (modal) modal.classList.remove('open');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.style.setProperty('display', 'none', 'important');
+    }
     this.submitOrder(true);
   }
 
