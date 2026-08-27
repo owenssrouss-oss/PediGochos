@@ -1523,31 +1523,49 @@ class MarketplaceController {
           this.customizerState.selectedCrust = crustOptions[0] || { id: 'tradicional', name: 'Borde Tradicional (Sin relleno)', price: 0 };
         }
 
+        const selectedOpt = this.customizerState.selectedCrust;
+        const isAccordionOpen = !!this.customizerState.crustAccordionOpen;
+
         crustSection.innerHTML = `
-          <div style="background: rgba(245, 158, 11, 0.08); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 14px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.08);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-              <span style="font-weight: 800; color: #FFF; font-size: 13.5px; display: flex; align-items: center; gap: 6px;">
-                <span>🧀</span> Tipo de Borde de la Pizza
-              </span>
-              <span style="background: rgba(245, 158, 11, 0.2); color: #F59E0B; font-size: 10.5px; font-weight: 800; padding: 3px 8px; border-radius: 6px;">
-                Opcional
-              </span>
+          <div style="background: #FFFFFF; border: 1.5px solid #F59E0B; border-radius: 16px; margin-bottom: 16px; overflow: hidden; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.12);">
+            <!-- Header (Always visible, acts as Accordion Trigger) -->
+            <div onclick="MarketplaceApp.togglePizzaCrustAccordion()" 
+                 style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; cursor: pointer; background: #FFFBEB; border-bottom: ${isAccordionOpen ? '1.5px solid rgba(245, 158, 11, 0.3)' : 'none'}; user-select: none;">
+              <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                <span style="font-size: 20px;">🧀</span>
+                <div>
+                  <div style="font-weight: 900; color: #1E293B; font-size: 13.5px; display: flex; align-items: center; gap: 6px;">
+                    Tipo de Borde de la Pizza
+                    <span style="background: #FEF3C7; color: #B45309; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 6px; border: 1px solid #FCD34D;">Opcional</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: #475569; font-weight: 700; margin-top: 1px;">
+                    Seleccionado: <strong style="color: ${selectedOpt.price > 0 ? '#B45309' : '#059669'}; font-weight: 800;">${selectedOpt.name} (${selectedOpt.price > 0 ? `+${this.formatPesos(selectedOpt.price)}` : 'Sin costo'})</strong>
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 11.5px; font-weight: 800; color: #B45309; background: #FEF3C7; border: 1px solid #FCD34D; padding: 4px 10px; border-radius: 8px;">
+                  ${isAccordionOpen ? 'Plegar ▴' : 'Cambiar ▾'}
+                </span>
+              </div>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
+
+            <!-- Accordion Content (Visible only when isAccordionOpen) -->
+            <div style="display: ${isAccordionOpen ? 'flex' : 'none'}; flex-direction: column; gap: 8px; padding: 12px 14px; background: #FAFAF9;">
               ${crustOptions.map(opt => {
-                const isSelected = this.customizerState.selectedCrust && this.customizerState.selectedCrust.id === opt.id;
+                const isSelected = this.customizerState.selectedCrust && (this.customizerState.selectedCrust.id === opt.id || this.customizerState.selectedCrust.name === opt.name);
                 const priceTag = opt.price > 0 ? `+${this.formatPesos(opt.price)}` : 'Sin costo';
                 return `
                   <div onclick="MarketplaceApp.selectPizzaCrust('${opt.id}', '${opt.name}', ${opt.price})" 
-                       style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 12px; cursor: pointer; transition: all 0.2s; background: ${isSelected ? 'rgba(245, 158, 11, 0.18)' : 'rgba(255, 255, 255, 0.03)'}; border: 1.5px solid ${isSelected ? '#F59E0B' : 'rgba(255, 255, 255, 0.08)'};">
+                       style="display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; border-radius: 12px; cursor: pointer; transition: all 0.2s; background: ${isSelected ? '#FFFBEB' : '#FFFFFF'}; border: 1.5px solid ${isSelected ? '#F59E0B' : '#E2E8F0'}; box-shadow: ${isSelected ? '0 2px 8px rgba(245, 158, 11, 0.2)' : 'none'};">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                      <input type="radio" name="radio_pizza_crust" ${isSelected ? 'checked' : ''} style="margin: 0; accent-color: #F59E0B; width: 16px; height: 16px; pointer-events: none;">
+                      <input type="radio" name="radio_pizza_crust" ${isSelected ? 'checked' : ''} style="margin: 0; accent-color: #F59E0B; width: 18px; height: 18px; pointer-events: none;">
                       <div>
-                        <div style="font-weight: 800; font-size: 13px; color: ${isSelected ? '#FCD34D' : '#FFF'};">${opt.icon || '🧀'} ${opt.name}</div>
-                        ${opt.description ? `<div style="font-size: 11px; color: var(--text-muted);">${opt.description}</div>` : ''}
+                        <div style="font-weight: 800; font-size: 13.5px; color: ${isSelected ? '#92400E' : '#0F172A'};">${opt.icon || '🧀'} ${opt.name}</div>
+                        ${opt.description ? `<div style="font-size: 11.5px; color: #64748B; margin-top: 1px;">${opt.description}</div>` : ''}
                       </div>
                     </div>
-                    <span style="font-size: 12px; font-weight: 800; color: ${opt.price > 0 ? '#F59E0B' : '#10B981'}; white-space: nowrap;">
+                    <span style="font-size: 12.5px; font-weight: 900; color: ${opt.price > 0 ? '#B45309' : '#059669'}; white-space: nowrap;">
                       ${priceTag}
                     </span>
                   </div>
@@ -1598,6 +1616,12 @@ class MarketplaceController {
     this.updateCustomizerPrice();
   }
 
+  togglePizzaCrustAccordion() {
+    if (!this.customizerState) return;
+    this.customizerState.crustAccordionOpen = !this.customizerState.crustAccordionOpen;
+    this.renderCustomizerModifiers();
+  }
+
   getPizzaCrustOptions(product) {
     const defaultCrusts = [
       { id: 'tradicional', name: 'Borde Tradicional (Sin relleno)', icon: '🥖', description: 'Masa clásica crujiente', price: 0 },
@@ -1607,16 +1631,34 @@ class MarketplaceController {
       { id: 'queso_crema', name: 'Borde de Queso Crema / Cheddar', icon: '🧀', description: 'Queso crema suave', price: 6000 }
     ];
 
+    const storeId = product?.restaurant_id || this.customizerState?.product?.restaurant_id;
+    const est = (this.establishments || []).find(e => e.id === storeId);
+    if (est && Array.isArray(est.pizza_crusts) && est.pizza_crusts.length > 0) {
+      const list = est.pizza_crusts.map(c => ({
+        id: c.id || ('crust-' + c.name.toLowerCase().replace(/\s+/g, '-')),
+        name: c.name,
+        icon: c.icon || (c.name.toLowerCase().includes('salchicha') ? '🌭' : (c.name.toLowerCase().includes('bocadillo') ? '🍯' : '🧀')),
+        description: c.description || '',
+        price: this.normalizeCopPrice(c.price || 0)
+      }));
+      const hasTrad = list.some(c => (c.name || '').toLowerCase().includes('tradicional'));
+      if (!hasTrad) list.unshift(defaultCrusts[0]);
+      return list;
+    }
+
     if (product && product.modifiers && Array.isArray(product.modifiers)) {
       const crustGroup = product.modifiers.find(g => (g.group_name || '').toLowerCase().includes('borde'));
       if (crustGroup && Array.isArray(crustGroup.options) && crustGroup.options.length > 0) {
-        return crustGroup.options.map(opt => ({
+        const list = crustGroup.options.map(opt => ({
           id: opt.option_id || opt.id,
           name: opt.name,
           icon: opt.name.toLowerCase().includes('salchicha') ? '🌭' : (opt.name.toLowerCase().includes('bocadillo') ? '🍯' : '🧀'),
           description: '',
           price: this.normalizeCopPrice(opt.extra_price || opt.price || 0)
         }));
+        const hasTrad = list.some(c => (c.name || '').toLowerCase().includes('tradicional'));
+        if (!hasTrad) list.unshift(defaultCrusts[0]);
+        return list;
       }
     }
 
@@ -1625,6 +1667,7 @@ class MarketplaceController {
 
   selectPizzaCrust(id, name, price) {
     this.customizerState.selectedCrust = { id, name, price: Number(price) || 0 };
+    // After selection, keep state and re-render
     this.renderCustomizerModifiers();
     this.updateCustomizerPrice();
   }
@@ -2973,28 +3016,24 @@ class MarketplaceController {
               <h4 style="margin: 0; color: #FCD34D; font-size: 14px; font-weight: 800;">Bordes Rellenos para tus Pizzas</h4>
             </div>
             <div style="display: flex; flex-direction: column; gap: 10px;">
-              ${pizzasWithoutCrust.map(pizza => `
-                <div style="background: rgba(0,0,0,0.35); border-radius: 12px; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.08);">
-                  <div style="font-weight: 800; font-size: 13px; color: #FFF; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <span>🍕 ${pizza.product_name}</span>
-                    <span style="font-size: 11px; color: var(--text-muted);">${pizza.restaurant_name}</span>
+              ${pizzasWithoutCrust.map(pizza => {
+                const availCrusts = this.getPizzaCrustOptions({ restaurant_id: pizza.restaurant_id }).filter(c => (c.price || 0) > 0);
+                return `
+                  <div style="background: rgba(0,0,0,0.35); border-radius: 12px; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.08);">
+                    <div style="font-weight: 800; font-size: 13px; color: #FFF; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                      <span>🍕 ${pizza.product_name}</span>
+                      <span style="font-size: 11px; color: var(--text-muted);">${pizza.restaurant_name}</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px;">
+                      ${availCrusts.map(c => `
+                        <button type="button" onclick="MarketplaceApp.addCrustToCartItem('${pizza.cart_item_id}', '${c.name}', ${c.price})" style="background: rgba(245,158,11,0.15); border: 1px solid #F59E0B; color: #FFF; padding: 8px 10px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s;">
+                          ${c.icon || '🧀'} ${c.name} (+${this.formatPesos(c.price)})
+                        </button>
+                      `).join('')}
+                    </div>
                   </div>
-                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px;">
-                    <button type="button" onclick="MarketplaceApp.addCrustToCartItem('${pizza.cart_item_id}', 'Borde de Queso Mozzarella', 5000)" style="background: rgba(245,158,11,0.15); border: 1px solid #F59E0B; color: #FFF; padding: 8px 10px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s;">
-                      🧀 Borde Queso (+$5.000)
-                    </button>
-                    <button type="button" onclick="MarketplaceApp.addCrustToCartItem('${pizza.cart_item_id}', 'Borde de Salchicha', 6000)" style="background: rgba(239,68,68,0.15); border: 1px solid #EF4444; color: #FFF; padding: 8px 10px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s;">
-                      🌭 Borde Salchicha (+$6.000)
-                    </button>
-                    <button type="button" onclick="MarketplaceApp.addCrustToCartItem('${pizza.cart_item_id}', 'Borde de Bocadillo con Queso', 6000)" style="background: rgba(245,158,11,0.15); border: 1px solid #F59E0B; color: #FFF; padding: 8px 10px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s;">
-                      🍯 Bocadillo y Queso (+$6.000)
-                    </button>
-                    <button type="button" onclick="MarketplaceApp.addCrustToCartItem('${pizza.cart_item_id}', 'Borde de Queso Crema / Cheddar', 6000)" style="background: rgba(245,158,11,0.15); border: 1px solid #F59E0B; color: #FFF; padding: 8px 10px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s;">
-                      🧀 Borde Cheddar (+$6.000)
-                    </button>
-                  </div>
-                </div>
-              `).join('')}
+                `;
+              }).join('')}
             </div>
           </div>
         `;

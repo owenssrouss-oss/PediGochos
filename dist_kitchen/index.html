@@ -517,6 +517,9 @@
             <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">Carta y Productos del Restaurante</h3>
           </div>
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button type="button" onclick="KitchenApp.openPizzaCrustsManagerModal()" style="background: rgba(245,158,11,0.15); border: 1px solid #F59E0B; color: #FCD34D; font-size: 11.5px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              <span>🧀 Bordes Pizza</span>
+            </button>
             <button type="button" onclick="KitchenApp.switchModalTab('ai')" style="background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%); border: none; color: #FFF; font-size: 11.5px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(139,92,246,0.35);">
               <span>✨📸 Escanear con IA</span>
             </button>
@@ -806,6 +809,51 @@
         <button type="button" class="btn-neumorphic" onclick="document.getElementById('quick-fill-prices-modal').classList.remove('active');" style="margin: 0; padding: 8px 16px; font-size: 12px;">Cerrar</button>
         <button type="button" class="btn-neumorphic" onclick="KitchenApp.saveQuickFillPrices()" style="margin: 0; padding: 8px 20px; font-size: 13px; font-weight: 800; background: #F59E0B; color: #1E293B; border-color: #F59E0B; box-shadow: 0 4px 12px rgba(245,158,11,0.4);">
           💾 Guardar Todos los Precios
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Gestor de Bordes de Pizza (Pizzerías) -->
+  <div class="modal-overlay" id="pizza-crusts-manager-modal" style="z-index: 4400; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
+    <div class="modal-content" style="background: #16161c; border: 1.5px solid #F59E0B; box-shadow: 0 20px 50px rgba(0,0,0,0.7); margin: auto; max-width: 620px; width: 94%; border-radius: 22px; padding: 20px;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 24px;">🧀</span>
+          <div>
+            <h3 style="color: #ffffff; margin: 0; font-size: 16px; font-weight: 800;">Gestión de Bordes de Pizza</h3>
+            <span id="pizza-crusts-shop-name" style="font-size: 11.5px; color: #FCD34D; font-weight: 700;">Pizzería</span>
+          </div>
+        </div>
+        <button type="button" class="modal-close" onclick="document.getElementById('pizza-crusts-manager-modal').classList.remove('active');" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.08); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <p style="font-size: 12px; color: #CBD5E1; margin: 0 0 14px 0; line-height: 1.4;">
+        Configura los tipos de bordes que ofrece tu pizzería (queso, salchicha, bocadillo, etc.) con sus precios adicionales en Pesos (COP).
+      </p>
+
+      <!-- Add New Crust Row -->
+      <div style="background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.4); padding: 12px; border-radius: 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 12px; font-weight: 800; color: #FCD34D;">➕ Agregar Nuevo Borde:</div>
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 8px; align-items: center;">
+          <input type="text" id="new-crust-name" placeholder="Ej: Borde de Chocolate" style="background: rgba(18,18,22,0.9); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; padding: 7px 10px; font-size: 12px;">
+          <input type="number" step="500" id="new-crust-price" placeholder="Precio COP ($)" style="background: rgba(18,18,22,0.9); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; padding: 7px 10px; font-size: 12px;">
+          <input type="text" id="new-crust-icon" placeholder="Icono (🧀)" style="background: rgba(18,18,22,0.9); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; padding: 7px 10px; font-size: 12px; text-align: center;">
+          <button type="button" onclick="KitchenApp.addNewPizzaCrust()" style="background: #F59E0B; color: #1E293B; border: none; font-weight: 800; font-size: 12px; padding: 8px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap;">
+            ➕ Añadir
+          </button>
+        </div>
+      </div>
+
+      <!-- Current Crusts List -->
+      <div id="pizza-crusts-list" class="premium-scroll" style="display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; padding-right: 4px;">
+        <!-- Loaded dynamically -->
+      </div>
+
+      <div style="margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px; display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" class="btn-neumorphic" onclick="document.getElementById('pizza-crusts-manager-modal').classList.remove('active');" style="margin: 0; padding: 8px 16px; font-size: 12px;">Cerrar</button>
+        <button type="button" class="btn-neumorphic" onclick="KitchenApp.savePizzaCrusts()" style="margin: 0; padding: 8px 20px; font-size: 13px; font-weight: 800; background: #10B981; color: #FFF; border-color: #10B981; box-shadow: 0 4px 12px rgba(16,185,129,0.4);">
+          💾 Guardar Bordes
         </button>
       </div>
     </div>

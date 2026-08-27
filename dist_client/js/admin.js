@@ -4876,6 +4876,175 @@ class AdminController {
       alert('Error al guardar precios: ' + err.message);
     }
   }
+
+  // ==========================================
+  // PIZZA CRUSTS MANAGER (ADMIN)
+  // ==========================================
+
+  openPizzaCrustsManagerModal(shopId) {
+    const targetId = shopId || window.activeShopIdForMenu || this.activeShopId;
+    const est = this.establishments.find(e => e.id === targetId);
+    if (!est) {
+      this.showToast('⚠️ Por favor selecciona un comercio primero');
+      return;
+    }
+
+    this.activeShopIdForCrusts = est.id;
+
+    const nameEl = document.getElementById('pizza-crusts-shop-name');
+    if (nameEl) nameEl.innerText = `🍕 ${est.name}`;
+
+    const defaultCrusts = [
+      { id: 'tradicional', name: 'Borde Tradicional (Sin relleno)', price: 0, icon: '🥖', description: 'Masa clásica crujiente' },
+      { id: 'queso', name: 'Borde de Queso Mozzarella', price: 5000, icon: '🧀', description: 'Relleno de queso derretido' },
+      { id: 'salchicha', name: 'Borde de Salchicha', price: 6000, icon: '🌭', description: 'Relleno de salchicha parrillera' },
+      { id: 'bocadillo_queso', name: 'Borde de Bocadillo con Queso', price: 6000, icon: '🍯', description: 'Dulce de guayaba con queso' },
+      { id: 'queso_crema', name: 'Borde de Queso Crema / Cheddar', price: 6000, icon: '🧀', description: 'Queso crema suave' }
+    ];
+
+    if (!Array.isArray(est.pizza_crusts) || est.pizza_crusts.length === 0) {
+      this.editingPizzaCrusts = JSON.parse(JSON.stringify(defaultCrusts));
+    } else {
+      this.editingPizzaCrusts = JSON.parse(JSON.stringify(est.pizza_crusts));
+      const hasTrad = this.editingPizzaCrusts.some(c => (c.name || '').toLowerCase().includes('tradicional'));
+      if (!hasTrad) this.editingPizzaCrusts.unshift(defaultCrusts[0]);
+    }
+
+    this.renderPizzaCrustsManagerList();
+
+    const modal = document.getElementById('pizza-crusts-manager-modal');
+    if (modal) modal.classList.add('active');
+    this.checkModalOpenState();
+  }
+
+  renderPizzaCrustsManagerList() {
+    const listCont = document.getElementById('pizza-crusts-list');
+    if (!listCont || !Array.isArray(this.editingPizzaCrusts)) return;
+
+    if (this.editingPizzaCrusts.length === 0) {
+      listCont.innerHTML = `
+        <div style="text-align: center; padding: 20px; color: #94A3B8; font-size: 13px;">
+          No hay bordes configurados. Usa el formulario de arriba para añadir uno.
+        </div>
+      `;
+      return;
+    }
+
+    listCont.innerHTML = this.editingPizzaCrusts.map((crust, idx) => {
+      const isTrad = (crust.name || '').toLowerCase().includes('tradicional');
+      return `
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); padding: 10px 12px; border-radius: 12px; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+            <span style="font-size: 20px;">${crust.icon || '🧀'}</span>
+            <input type="text" class="crust-name-input" data-idx="${idx}" value="${crust.name}" style="flex: 1; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #FFF; font-weight: 700; font-size: 12.5px; padding: 6px 10px;">
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px; width: 130px;">
+            <span style="color: #FCD34D; font-weight: 800; font-size: 13px;">$</span>
+            <input type="number" step="500" min="0" class="crust-price-input" data-idx="${idx}" value="${crust.price || 0}" ${isTrad ? 'readonly' : ''} style="width: 100%; padding: 6px 8px; border-radius: 8px; background: rgba(18,18,22,0.9); border: 1.5px solid ${isTrad ? 'rgba(255,255,255,0.1)' : '#F59E0B'}; color: #FFF; font-weight: 800; font-size: 12.5px;">
+          </div>
+          <div>
+            ${isTrad ? `
+              <span style="font-size: 10.5px; color: #10B981; font-weight: 800; padding: 4px 6px;">Base</span>
+            ` : `
+              <button type="button" onclick="AdminApp.removePizzaCrust(${idx})" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #FCA5A5; border-radius: 8px; padding: 6px 10px; font-size: 12px; cursor: pointer;" title="Eliminar borde">
+                🗑️
+              </button>
+            `}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  addNewPizzaCrust() {
+    const nameInput = document.getElementById('new-crust-name');
+    const priceInput = document.getElementById('new-crust-price');
+    const iconInput = document.getElementById('new-crust-icon');
+
+    const name = nameInput?.value?.trim();
+    const price = parseFloat(priceInput?.value) || 0;
+    const icon = iconInput?.value?.trim() || (name?.toLowerCase().includes('salchicha') ? '🌭' : (name?.toLowerCase().includes('bocadillo') ? '🍯' : (name?.toLowerCase().includes('choc') ? '🍫' : '🧀')));
+
+    if (!name) {
+      this.showToast('⚠️ Escribe el nombre del borde');
+      return;
+    }
+
+    if (!Array.isArray(this.editingPizzaCrusts)) {
+      this.editingPizzaCrusts = [];
+    }
+
+    this.editingPizzaCrusts.push({
+      id: 'crust-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+      name: name,
+      price: price,
+      icon: icon,
+      description: ''
+    });
+
+    if (nameInput) nameInput.value = '';
+    if (priceInput) priceInput.value = '';
+    if (iconInput) iconInput.value = '';
+
+    this.renderPizzaCrustsManagerList();
+    this.showToast(`➕ Borde "${name}" añadido a la lista`);
+  }
+
+  removePizzaCrust(idx) {
+    if (!Array.isArray(this.editingPizzaCrusts) || !this.editingPizzaCrusts[idx]) return;
+    this.editingPizzaCrusts.splice(idx, 1);
+    this.renderPizzaCrustsManagerList();
+    this.showToast(`🗑️ Borde eliminado`);
+  }
+
+  async savePizzaCrusts() {
+    const est = this.establishments.find(e => e.id === this.activeShopIdForCrusts);
+    if (!est || !Array.isArray(this.editingPizzaCrusts)) return;
+
+    // Sync from inputs in DOM
+    const nameInputs = document.querySelectorAll('.crust-name-input');
+    const priceInputs = document.querySelectorAll('.crust-price-input');
+
+    nameInputs.forEach(inp => {
+      const idx = parseInt(inp.getAttribute('data-idx'));
+      if (this.editingPizzaCrusts[idx]) {
+        this.editingPizzaCrusts[idx].name = inp.value.trim() || this.editingPizzaCrusts[idx].name;
+      }
+    });
+
+    priceInputs.forEach(inp => {
+      const idx = parseInt(inp.getAttribute('data-idx'));
+      if (this.editingPizzaCrusts[idx]) {
+        this.editingPizzaCrusts[idx].price = parseFloat(inp.value) || 0;
+      }
+    });
+
+    est.pizza_crusts = this.editingPizzaCrusts;
+
+    try {
+      const res = await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          linkKey: est.linkKey,
+          isOwner: true,
+          pizza_crusts: est.pizza_crusts
+        })
+      });
+
+      if (!res.ok) throw new Error('Error al guardar bordes');
+
+      this.showToast(`✅ Bordes de pizza guardados para ${est.name}`);
+      this.markPendingChanges();
+
+      const modal = document.getElementById('pizza-crusts-manager-modal');
+      if (modal) modal.classList.remove('active');
+      this.checkModalOpenState();
+    } catch (err) {
+      console.error(err);
+      alert('Error al guardar bordes: ' + err.message);
+    }
+  }
 }
 
 const AdminApp = new AdminController();

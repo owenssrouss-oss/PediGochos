@@ -1303,6 +1303,9 @@ app.put('/api/establishments/:id', (req, res) => {
   if (tables !== undefined) {
     est.tables = tables;
   }
+  if (req.body.pizza_crusts !== undefined) {
+    est.pizza_crusts = req.body.pizza_crusts;
+  }
   if (req.body.prep_time !== undefined) {
     est.prep_time = req.body.prep_time ? parseInt(req.body.prep_time) : null;
   }
