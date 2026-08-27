@@ -454,6 +454,9 @@
         <button type="button" class="designer-tab-btn" id="tab-btn-menu" onclick="KitchenApp.switchModalTab('menu')">
           <span>🍔 Mi Menú y Carta</span>
         </button>
+        <button type="button" class="designer-tab-btn" id="tab-btn-ai" onclick="KitchenApp.switchModalTab('ai')" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(236, 72, 153, 0.25) 100%); border-color: rgba(168, 85, 247, 0.45);">
+          <span>🤖 Escanear Menú con IA</span>
+        </button>
         <button type="button" class="designer-tab-btn" id="tab-btn-tables" onclick="KitchenApp.switchModalTab('tables')">
           <span>🪑 Mesas y Salón</span>
         </button>
@@ -494,13 +497,30 @@
 
       <!-- TAB 2: Mi Menú y Carta Normal -->
       <div class="designer-tab-content" id="tab-content-menu">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <!-- Missing Prices Banner Notification -->
+        <div id="missing-prices-alert-banner" class="hidden" style="background: rgba(245, 158, 11, 0.12); border: 1.5px solid #F59E0B; border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 20px;">⚠️</span>
+            <div>
+              <strong id="missing-prices-alert-text" style="color: #FCD34D; font-size: 12.5px;">Tienes adicionales/platos sin precio registrado</strong>
+              <p style="margin: 0; font-size: 11px; color: #CBD5E1;">Completa los precios rápidamente para habilitarlos para tus clientes.</p>
+            </div>
+          </div>
+          <button type="button" onclick="KitchenApp.openQuickFillPricesModal()" style="background: #F59E0B; color: #1E293B; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 6px rgba(245,158,11,0.3);">
+            ⚡ Llenar Precios
+          </button>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 18px;">🍔</span>
             <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">Carta y Productos del Restaurante</h3>
           </div>
-          <div style="display: flex; gap: 8px;">
-            <button onclick="createNewCategory()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--accent); font-size: 11.5px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer;">➕ Nueva Categoría</button>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button type="button" onclick="KitchenApp.switchModalTab('ai')" style="background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%); border: none; color: #FFF; font-size: 11.5px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(139,92,246,0.35);">
+              <span>✨📸 Escanear con IA</span>
+            </button>
+            <button onclick="createNewCategory()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--accent); font-size: 11.5px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer;">➕ Categoría</button>
             <button class="btn-neumorphic" onclick="openMenuModal()" style="margin: 0; padding: 6px 14px; font-size: 11.5px; height: 32px; font-weight: 700;">
               <span>➕ Nuevo Producto</span>
             </button>
@@ -680,6 +700,114 @@
         </div>
       </div>
 
+      <!-- TAB 5: Escanear Menú con IA -->
+      <div class="designer-tab-content" id="tab-content-ai">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
+          <div>
+            <h3 style="color: #ffffff; font-size: 16px; margin: 0; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 20px;">🤖</span> Digitalización Automática de Menú con IA
+            </h3>
+            <p style="font-size: 11.5px; color: var(--text-muted); margin: 2px 0 0 0;">
+              Sube una foto o PDF de la carta del restaurante y la Inteligencia Artificial creará todos los productos, categorías, ingredientes y adicionales en segundos.
+            </p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+          <!-- Left: Upload & Config Box -->
+          <div style="background: rgba(255,255,255,0.03); border: 1.5px dashed rgba(168, 85, 247, 0.4); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+            <div style="text-align: center; padding: 8px 0;">
+              <span style="font-size: 38px; display: block; margin-bottom: 6px;">📸</span>
+              <h4 style="margin: 0 0 4px 0; color: #FFF; font-size: 14px; font-weight: 800;">Selecciona o Toma una Foto del Menú</h4>
+              <p style="font-size: 11.5px; color: var(--text-muted); margin: 0;">Formatos: JPG, PNG, WebP o PDF</p>
+            </div>
+
+            <input type="file" id="ai-menu-file-input" accept="image/*,application/pdf" capture="environment" style="display: none;" onchange="KitchenApp.handleAIMenuFileSelected(event)">
+            
+            <div style="display: flex; gap: 8px;">
+              <button type="button" onclick="document.getElementById('ai-menu-file-input').click()" style="flex: 1; padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); color: #FFF; border: none; font-weight: 800; font-size: 12.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(139,92,246,0.3);">
+                <span>📁 Subir Foto o Carta</span>
+              </button>
+            </div>
+
+            <!-- Preview Image if selected -->
+            <div id="ai-menu-file-preview-container" class="hidden" style="position: relative; border-radius: 12px; overflow: hidden; max-height: 180px; background: #000; border: 1px solid rgba(255,255,255,0.1); text-align: center;">
+              <img id="ai-menu-file-preview" src="" style="max-height: 180px; width: 100%; object-fit: contain;">
+              <span id="ai-menu-file-name" style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: #fff; font-size: 11px; padding: 4px;"></span>
+            </div>
+
+            <!-- Paste text fallback -->
+            <div>
+              <label style="font-size: 11.5px; color: #CBD5E1; font-weight: 700; display: block; margin-bottom: 4px;">📝 O Pega el Texto del Menú (Opcional)</label>
+              <textarea id="ai-menu-text-input" placeholder="Ej. Hamburguesa Doble $22.000 (Carne, queso, tocineta)\nPerro Caliente Especial $12.000\nAdicionales: Extra Queso $3.000, Tocineta..." style="width: 100%; height: 75px; background: rgba(18,18,22,0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; padding: 8px 10px; font-size: 11.5px; resize: none;"></textarea>
+            </div>
+
+            <!-- API Key field -->
+            <div>
+              <label style="font-size: 11px; color: #A78BFA; font-weight: 700; display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span>🔑 Clave Gemini API (Opcional)</span>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #38BDF8; text-decoration: underline;">Obtener Gratis</a>
+              </label>
+              <input type="password" id="ai-menu-api-key" placeholder="Pega tu API Key de Gemini si deseas usar tu propia clave..." style="width: 100%; background: rgba(18,18,22,0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 6px 10px; font-size: 11.5px;">
+            </div>
+
+            <button type="button" id="btn-start-ai-scan" onclick="KitchenApp.startAIMenuScan()" style="padding: 13px; border-radius: 12px; background: linear-gradient(135deg, #EC4899 0%, #BE185D 100%); color: #FFF; border: none; font-weight: 900; font-size: 13.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 16px rgba(236,72,153,0.35);">
+              <span>🚀 Analizar y Extraer Menú con IA</span>
+            </button>
+          </div>
+
+          <!-- Right: Status, Progress & Results Preview -->
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 18px; padding: 18px; display: flex; flex-direction: column;">
+            <div id="ai-scan-status-container" style="display: none; text-align: center; padding: 40px 10px;">
+              <div class="spinner" style="margin: 0 auto 16px auto; width: 44px; height: 44px; border: 4px solid rgba(168,85,247,0.2); border-top-color: #A855F7; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+              <h4 id="ai-scan-status-title" style="color: #FFF; font-size: 15px; margin: 0 0 6px 0; font-weight: 800;">🔍 Procesando Imagen con IA...</h4>
+              <p id="ai-scan-status-desc" style="color: var(--text-muted); font-size: 12px; margin: 0;">Extrayendo platos, descripciones, precios y adicionales del menú.</p>
+            </div>
+
+            <div id="ai-scan-empty-state" style="text-align: center; padding: 40px 10px; color: var(--text-muted); margin: auto;">
+              <span style="font-size: 36px; display: block; margin-bottom: 8px; opacity: 0.6;">📋</span>
+              <p style="font-size: 13px; margin: 0 0 4px 0; color: #FFF; font-weight: 700;">Ningún menú escaneado aún</p>
+              <p style="font-size: 11.5px; margin: 0;">Sube una foto o pega el texto a la izquierda y presiona Analizar.</p>
+            </div>
+
+            <div id="ai-scan-results-container" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
+              <!-- Results preview rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal: Llenado Rápido de Precios Faltantes / Notificaciones de Adicionales -->
+  <div class="modal-overlay" id="quick-fill-prices-modal" style="z-index: 4500; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
+    <div class="modal-content" style="background: #16161c; border: 1.5px solid #F59E0B; box-shadow: 0 20px 50px rgba(245,158,11,0.25); margin: auto; max-width: 580px; width: 94%; border-radius: 22px; padding: 20px;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 24px;">⚡</span>
+          <div>
+            <h3 style="color: #ffffff; margin: 0; font-size: 16px; font-weight: 800;">Llenado Rápido de Precios Pendientes</h3>
+            <span id="quick-fill-shop-name" style="font-size: 11.5px; color: #FCD34D; font-weight: 700;">Restaurante</span>
+          </div>
+        </div>
+        <button type="button" class="modal-close" onclick="document.getElementById('quick-fill-prices-modal').classList.remove('active');" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.08); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <p style="font-size: 12px; color: #CBD5E1; margin: 0 0 14px 0; line-height: 1.4;">
+        Estos adicionales o platos fueron detectados en el menú sin precio. Escribe el precio en Pesos (COP) y presiona Guardar para habilitarlos de inmediato en la tienda.
+      </p>
+
+      <div id="quick-fill-items-list" class="premium-scroll" style="display: flex; flex-direction: column; gap: 10px; max-height: 380px; overflow-y: auto; padding-right: 4px;">
+        <!-- Filled dynamically -->
+      </div>
+
+      <div style="margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px; display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" class="btn-neumorphic" onclick="document.getElementById('quick-fill-prices-modal').classList.remove('active');" style="margin: 0; padding: 8px 16px; font-size: 12px;">Cerrar</button>
+        <button type="button" class="btn-neumorphic" onclick="KitchenApp.saveQuickFillPrices()" style="margin: 0; padding: 8px 20px; font-size: 13px; font-weight: 800; background: #F59E0B; color: #1E293B; border-color: #F59E0B; box-shadow: 0 4px 12px rgba(245,158,11,0.4);">
+          💾 Guardar Todos los Precios
+        </button>
+      </div>
     </div>
   </div>
 

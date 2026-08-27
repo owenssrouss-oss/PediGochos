@@ -695,6 +695,11 @@ class AdminController {
       const latDisplay = est.latitude ? parseFloat(est.latitude).toFixed(4) : '7.8145';
       const lngDisplay = est.longitude ? parseFloat(est.longitude).toFixed(4) : '-72.4430';
 
+      const missingPrices = this.getMissingPricesForEstablishment(est);
+      const missingPricesBadge = missingPrices.length > 0
+        ? `<button type="button" onclick="event.stopPropagation(); AdminApp.openQuickFillPricesModal('${est.id}')" style="background: rgba(245, 158, 11, 0.18); color: #B45309; border: 1.5px solid #F59E0B; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(245,158,11,0.25); animation: pulse 2s infinite;" title="Haz clic para llenar precios pendientes">⚠️ ${missingPrices.length} adicionales sin precio</button>`
+        : '';
+
       row.innerHTML = `
         <td class="shop-title-cell" style="font-weight: 700;">
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -708,6 +713,7 @@ class AdminController {
             <span style="background: rgba(16, 185, 129, 0.15); color: #065F46; border: 1px solid rgba(16, 185, 129, 0.35); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
               📍 ${est.location || 'San Antonio'} (${latDisplay}, ${lngDisplay})
             </span>
+            ${missingPricesBadge}
             <button type="button" onclick="event.stopPropagation(); AdminApp.openStoreMapSingle('${est.id}')" style="background: #10B981; color: #FFFFFF; border: none; font-size: 10.5px; font-weight: 800; padding: 3px 10px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(16,185,129,0.3);">
               🗺️ Ver en Mapa
             </button>
@@ -969,6 +975,17 @@ class AdminController {
         disableBtn.style.backgroundColor = '#FEF3C7';
         disableBtn.style.color = '#92400E';
         disableBtn.style.borderColor = '#FCD34D';
+      }
+    }
+
+    const missingPrices = this.getMissingPricesForEstablishment(est);
+    const quickFillBtn = document.getElementById('action-modal-quick-fill-btn');
+    if (quickFillBtn) {
+      if (missingPrices.length > 0) {
+        quickFillBtn.style.display = 'flex';
+        quickFillBtn.innerText = `⚡ Llenar Precios Pendientes (${missingPrices.length} adicionales)`;
+      } else {
+        quickFillBtn.style.display = 'none';
       }
     }
 
@@ -1358,7 +1375,7 @@ class AdminController {
 
   switchModalTab(tabId) {
     this.activeModalTab = tabId;
-    const tabs = ['daily', 'menu', 'tables', 'catalog'];
+    const tabs = ['daily', 'menu', 'ai', 'tables', 'catalog'];
     tabs.forEach(t => {
       const btn = document.getElementById(`tab-btn-${t}`);
       const content = document.getElementById(`tab-content-${t}`);
@@ -1366,11 +1383,16 @@ class AdminController {
       if (content) content.classList.toggle('active', t === tabId);
     });
 
+    const est = this.establishments.find(e => e.id === window.activeShopIdForMenu);
+    if (est) this.auditMissingPrices(est);
+
     if (tabId === 'daily') {
       this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
     } else if (tabId === 'menu') {
       this.renderModalCategories();
       this.renderModalProducts();
+    } else if (tabId === 'ai') {
+      this.initAIMenuTab();
     } else if (tabId === 'tables') {
       this.renderFloorGrid();
     } else if (tabId === 'catalog') {
@@ -4384,6 +4406,475 @@ class AdminController {
       </html>
     `);
     printWin.document.close();
+  }
+
+  // ==========================================
+  // AI MENU SCANNER & MISSING PRICES ENGINE
+  // ==========================================
+
+  initAIMenuTab() {
+    const keyInput = document.getElementById('ai-menu-api-key');
+    if (keyInput) {
+      const savedKey = localStorage.getItem('pedigochos_gemini_api_key') || '';
+      if (savedKey) keyInput.value = savedKey;
+    }
+    this.selectedAIMenuFileBase64 = null;
+    const previewCont = document.getElementById('ai-menu-file-preview-container');
+    if (previewCont) previewCont.classList.add('hidden');
+    const fileInput = document.getElementById('ai-menu-file-input');
+    if (fileInput) fileInput.value = '';
+    const textInput = document.getElementById('ai-menu-text-input');
+    if (textInput) textInput.value = '';
+
+    const emptyState = document.getElementById('ai-scan-empty-state');
+    if (emptyState) emptyState.style.display = 'block';
+    const statusCont = document.getElementById('ai-scan-status-container');
+    if (statusCont) statusCont.style.display = 'none';
+    const resultsCont = document.getElementById('ai-scan-results-container');
+    if (resultsCont) {
+      resultsCont.classList.add('hidden');
+      resultsCont.innerHTML = '';
+    }
+  }
+
+  openAIScannerForShop(shopId) {
+    this.closeEstActionModal();
+    window.activeShopIdForMenu = shopId;
+    this.openMenuTablesModal(shopId);
+    this.switchModalTab('ai');
+  }
+
+  handleAIMenuFileSelected(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const previewCont = document.getElementById('ai-menu-file-preview-container');
+    const previewImg = document.getElementById('ai-menu-file-preview');
+    const nameLabel = document.getElementById('ai-menu-file-name');
+
+    if (nameLabel) nameLabel.innerText = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.selectedAIMenuFileBase64 = e.target.result;
+      if (file.type.startsWith('image/') && previewImg) {
+        previewImg.src = e.target.result;
+        if (previewCont) previewCont.classList.remove('hidden');
+      } else {
+        if (previewCont) previewCont.classList.add('hidden');
+      }
+      this.showToast(`📸 Archivo cargado: ${file.name}`);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async startAIMenuScan() {
+    const shopId = window.activeShopIdForMenu || this.activeShopId;
+    const est = this.establishments.find(e => e.id === shopId);
+    if (!est) {
+      this.showToast('⚠️ Por favor selecciona un comercio primero');
+      return;
+    }
+
+    const textInput = document.getElementById('ai-menu-text-input')?.value?.trim() || '';
+    const fileBase64 = this.selectedAIMenuFileBase64 || '';
+    const apiKey = document.getElementById('ai-menu-api-key')?.value?.trim() || '';
+
+    if (apiKey) {
+      localStorage.setItem('pedigochos_gemini_api_key', apiKey);
+    }
+
+    if (!fileBase64 && !textInput) {
+      this.showToast('⚠️ Sube una foto de la carta o escribe el texto del menú');
+      return;
+    }
+
+    const emptyState = document.getElementById('ai-scan-empty-state');
+    const statusCont = document.getElementById('ai-scan-status-container');
+    const statusTitle = document.getElementById('ai-scan-status-title');
+    const statusDesc = document.getElementById('ai-scan-status-desc');
+    const resultsCont = document.getElementById('ai-scan-results-container');
+
+    if (emptyState) emptyState.style.display = 'none';
+    if (resultsCont) resultsCont.classList.add('hidden');
+    if (statusCont) statusCont.style.display = 'block';
+
+    const steps = [
+      { title: '🔍 Leyendo texto y detectando platos...', desc: 'Analizando imágenes, encabezados y precios con Inteligencia Artificial...' },
+      { title: '🍳 Organizando categorías y modificadores...', desc: 'Estructurando ingredientes, tamaños y opciones adicionales...' },
+      { title: '💵 Auditando precios y detectando adicionales pendientes...', desc: 'Verificando adicionales y notas para el restaurante...' }
+    ];
+
+    let stepIdx = 0;
+    const stepTimer = setInterval(() => {
+      stepIdx = (stepIdx + 1) % steps.length;
+      if (statusTitle) statusTitle.innerText = steps[stepIdx].title;
+      if (statusDesc) statusDesc.innerText = steps[stepIdx].desc;
+    }, 2500);
+
+    try {
+      const response = await fetch('/api/ai/parse-menu', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageBase64: fileBase64,
+          menuText: textInput,
+          apiKey: apiKey || localStorage.getItem('pedigochos_gemini_api_key') || '',
+          establishmentName: est.name,
+          establishmentCategory: est.category
+        })
+      });
+
+      clearInterval(stepTimer);
+      if (statusCont) statusCont.style.display = 'none';
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'No se pudo estructurar el menú');
+      }
+
+      this.currentParsedAIMenu = data.menu;
+      this.renderAIMenuPreview(data.menu, est);
+      this.showToast(`🎉 Menú extraído: ${data.menu.products?.length || 0} platos detectados`);
+    } catch (err) {
+      clearInterval(stepTimer);
+      if (statusCont) statusCont.style.display = 'none';
+      if (emptyState) emptyState.style.display = 'block';
+      console.error('Error starting AI scan:', err);
+      alert(`⚠️ Error al escanear menú con IA:\n${err.message}\n\nPuedes obtener una clave gratuita de Google en https://aistudio.google.com/app/apikey`);
+    }
+  }
+
+  renderAIMenuPreview(menu, est) {
+    const resultsCont = document.getElementById('ai-scan-results-container');
+    if (!resultsCont) return;
+
+    resultsCont.classList.remove('hidden');
+
+    const products = menu.products || [];
+    const categories = menu.categories || [];
+    const missingCount = menu.missing_prices_count || 0;
+
+    let missingBanner = '';
+    if (missingCount > 0) {
+      missingBanner = `
+        <div style="background: rgba(245, 158, 11, 0.15); border: 1.5px solid #F59E0B; border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 20px;">⚠️</span>
+          <div>
+            <strong style="color: #FCD34D; font-size: 12.5px;">${missingCount} adicionales o productos detectados sin precio</strong>
+            <p style="margin: 0; font-size: 11px; color: #CBD5E1;">Puedes ajustarlos aquí mismo o importarlos y completarlos luego con el botón rápido.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    resultsCont.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+        <div>
+          <h4 style="margin: 0; color: #FFF; font-size: 14.5px; font-weight: 800;">🎉 Vista Previa del Menú Extraído</h4>
+          <span style="font-size: 11.5px; color: var(--accent);">${products.length} platos en ${categories.length} categorías</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 11px; color: #CBD5E1; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+            <input type="checkbox" id="ai-replace-menu-checkbox" checked> Reemplazar carta actual
+          </label>
+        </div>
+      </div>
+
+      ${missingBanner}
+
+      <div class="premium-scroll" style="flex: 1; max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; margin-bottom: 12px;">
+        ${products.map((p, pIdx) => {
+          const priceDisplay = p.price > 0 ? `$${p.price.toLocaleString('de-DE')} COP` : '⚠️ Sin Precio';
+          const pBadgeColor = p.price > 0 ? '#10B981' : '#F59E0B';
+          
+          let modifiersBadges = '';
+          if (Array.isArray(p.modifiers) && p.modifiers.length > 0) {
+            modifiersBadges = p.modifiers.map(m => `
+              <div style="margin-top: 4px; padding: 4px 8px; background: rgba(255,255,255,0.04); border-radius: 6px; font-size: 10.5px;">
+                <strong style="color: #93C5FD;">🎛️ ${m.group_name}:</strong>
+                ${(m.options || []).map(opt => `
+                  <span style="color: ${opt.price_pending ? '#FCD34D' : '#FFF'}; margin-right: 6px;">
+                    ${opt.name} (${opt.price_pending ? '⚠️ Sin Precio' : (opt.extra_price > 0 ? `+$${opt.extra_price.toLocaleString('de-DE')}` : '+$0')})
+                  </span>
+                `).join('')}
+              </div>
+            `).join('');
+          }
+
+          return `
+            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                <div>
+                  <div style="font-weight: 800; font-size: 13px; color: #FFF;">${p.name}</div>
+                  <span style="font-size: 10.5px; color: var(--text-muted);">${p.category || 'General'}</span>
+                  ${p.description ? `<p style="font-size: 11px; color: #94A3B8; margin: 2px 0 0 0;">${p.description}</p>` : ''}
+                </div>
+                <div style="text-align: right; flex-shrink: 0;">
+                  <span style="font-size: 12px; font-weight: 800; color: ${pBadgeColor};">${priceDisplay}</span>
+                </div>
+              </div>
+              ${modifiersBadges}
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div style="display: flex; gap: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
+        <button type="button" class="btn-neumorphic" onclick="AdminApp.initAIMenuTab()" style="margin: 0; padding: 8px 14px; font-size: 12px;">🔄 Reintentar</button>
+        <button type="button" onclick="AdminApp.confirmImportAIMenu()" style="flex: 1; padding: 10px 18px; border-radius: 10px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFF; border: none; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(160,185,129,0.35);">
+          <span>💾 Confirmar e Importar Carta Completa</span>
+        </button>
+      </div>
+    `;
+  }
+
+  async confirmImportAIMenu() {
+    if (!this.currentParsedAIMenu || !Array.isArray(this.currentParsedAIMenu.products)) {
+      this.showToast('⚠️ No hay menú procesado para importar');
+      return;
+    }
+
+    const shopId = window.activeShopIdForMenu || this.activeShopId;
+    const est = this.establishments.find(e => e.id === shopId);
+    if (!est) return;
+
+    const replaceExisting = document.getElementById('ai-replace-menu-checkbox')?.checked ?? true;
+
+    // Format new products with unique identifiers
+    const formattedProducts = this.currentParsedAIMenu.products.map(p => {
+      const prodId = 'prod-' + Date.now() + '-' + Math.floor(Math.random() * 100000);
+      let modifiers = [];
+      if (Array.isArray(p.modifiers)) {
+        modifiers = p.modifiers.map((m, mIdx) => ({
+          group_id: `g-${mIdx}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+          group_name: m.group_name || 'Opciones',
+          selection_type: m.selection_type || 'multiple',
+          required: !!m.required,
+          options: (m.options || []).map((opt, oIdx) => ({
+            id: `opt-${mIdx}-${oIdx}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            option_id: `opt-${mIdx}-${oIdx}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            name: opt.name || 'Opción',
+            extra_price: parseFloat(opt.extra_price) || 0,
+            price_pending: opt.price_pending === true || (!opt.extra_price && m.group_name?.toLowerCase().includes('adic'))
+          }))
+        }));
+      }
+
+      return {
+        id: prodId,
+        name: p.name || 'Producto',
+        category: p.category || 'General',
+        description: p.description || '',
+        price: parseFloat(p.price) || 0,
+        price_pending: p.price_pending === true || parseFloat(p.price) <= 0,
+        image: p.image || '/images/burger_royale.jpg',
+        exclusions: (p.exclusions || []).map(e => (typeof e === 'object' ? e : { name: String(e) })),
+        modifiers: modifiers
+      };
+    });
+
+    if (replaceExisting) {
+      est.products = formattedProducts;
+    } else {
+      if (!Array.isArray(est.products)) est.products = [];
+      formattedProducts.forEach(fp => {
+        if (!est.products.some(ep => ep.name.toLowerCase() === fp.name.toLowerCase())) {
+          est.products.push(fp);
+        }
+      });
+    }
+
+    try {
+      const res = await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          products: est.products
+        })
+      });
+
+      if (!res.ok) throw new Error('Error al guardar en el servidor');
+
+      this.showToast(`🎉 ¡Menú de ${est.name} actualizado con éxito!`);
+      this.markPendingChanges();
+      this.renderTable();
+      this.loadModalProducts();
+
+      // Switch to standard menu tab
+      this.switchModalTab('menu');
+
+      // Check if missing prices exist to trigger prompt
+      const missing = this.getMissingPricesForEstablishment(est);
+      if (missing.length > 0) {
+        setTimeout(() => {
+          this.openQuickFillPricesModal(est.id);
+        }, 500);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error al guardar el menú en el servidor: ' + err.message);
+    }
+  }
+
+  getMissingPricesForEstablishment(est) {
+    if (!est || !Array.isArray(est.products)) return [];
+    const missing = [];
+
+    est.products.forEach(p => {
+      if (p.price_pending === true || !p.price || parseFloat(p.price) <= 0) {
+        missing.push({
+          productId: p.id,
+          productName: p.name,
+          category: p.category,
+          type: 'product',
+          name: p.name,
+          currentPrice: p.price || 0
+        });
+      }
+
+      if (Array.isArray(p.modifiers)) {
+        p.modifiers.forEach(m => {
+          if (Array.isArray(m.options)) {
+            m.options.forEach(opt => {
+              const isPending = opt.price_pending === true || (m.group_name?.toLowerCase().includes('adic') && (!opt.extra_price || parseFloat(opt.extra_price) <= 0));
+              if (isPending) {
+                missing.push({
+                  productId: p.id,
+                  productName: p.name,
+                  category: p.category,
+                  groupId: m.group_id,
+                  groupName: m.group_name,
+                  optionId: opt.id || opt.option_id,
+                  type: 'modifier',
+                  name: `${m.group_name} ➔ ${opt.name}`,
+                  currentPrice: opt.extra_price || 0
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+
+    return missing;
+  }
+
+  auditMissingPrices(est) {
+    if (!est) return;
+    const missing = this.getMissingPricesForEstablishment(est);
+    const banner = document.getElementById('missing-prices-alert-banner');
+    const textEl = document.getElementById('missing-prices-alert-text');
+
+    if (banner) {
+      if (missing.length > 0) {
+        banner.classList.remove('hidden');
+        if (textEl) textEl.innerText = `Tienes ${missing.length} adicionales/platos sin precio en ${est.name}`;
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+  }
+
+  openQuickFillPricesModal(shopId) {
+    const targetId = shopId || window.activeShopIdForMenu || this.activeShopId;
+    const est = this.establishments.find(e => e.id === targetId);
+    if (!est) return;
+
+    this.activeShopIdForQuickFill = est.id;
+
+    const nameEl = document.getElementById('quick-fill-shop-name');
+    if (nameEl) nameEl.innerText = `🏪 ${est.name}`;
+
+    const missing = this.getMissingPricesForEstablishment(est);
+    const listCont = document.getElementById('quick-fill-items-list');
+
+    if (listCont) {
+      if (missing.length === 0) {
+        listCont.innerHTML = `
+          <div style="text-align: center; padding: 24px; color: #10B981;">
+            <span style="font-size: 32px; display: block; margin-bottom: 6px;">✅</span>
+            <strong style="font-size: 14px;">¡Todos los productos y adicionales tienen precio!</strong>
+          </div>
+        `;
+      } else {
+        listCont.innerHTML = missing.map((item, idx) => `
+          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); padding: 10px 14px; border-radius: 12px; gap: 12px;">
+            <div style="flex: 1;">
+              <div style="font-weight: 800; font-size: 13px; color: #FFF;">${item.name}</div>
+              <div style="font-size: 11px; color: var(--text-muted);">${item.productName} (${item.category})</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; width: 140px;">
+              <span style="color: #FCD34D; font-weight: 800; font-size: 13px;">$</span>
+              <input type="number" step="500" min="0" placeholder="Ej: 3000" data-idx="${idx}" class="quick-fill-input" value="${item.currentPrice > 0 ? item.currentPrice : ''}" style="width: 100%; padding: 6px 8px; border-radius: 8px; background: rgba(18,18,22,0.9); border: 1.5px solid #F59E0B; color: #FFF; font-weight: 800; font-size: 13px;">
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    this.currentQuickFillItems = missing;
+
+    const modal = document.getElementById('quick-fill-prices-modal');
+    if (modal) modal.classList.add('active');
+    this.checkModalOpenState();
+  }
+
+  async saveQuickFillPrices() {
+    const est = this.establishments.find(e => e.id === this.activeShopIdForQuickFill);
+    if (!est || !Array.isArray(this.currentQuickFillItems)) return;
+
+    const inputs = document.querySelectorAll('.quick-fill-input');
+    inputs.forEach(inp => {
+      const idx = parseInt(inp.getAttribute('data-idx'));
+      const val = parseFloat(inp.value) || 0;
+      const item = this.currentQuickFillItems[idx];
+      if (!item) return;
+
+      const prod = (est.products || []).find(p => p.id === item.productId);
+      if (!prod) return;
+
+      if (item.type === 'product') {
+        prod.price = val;
+        prod.price_pending = false;
+      } else if (item.type === 'modifier') {
+        const modGroup = (prod.modifiers || []).find(m => m.group_id === item.groupId);
+        if (modGroup) {
+          const opt = (modGroup.options || []).find(o => (o.id === item.optionId || o.option_id === item.optionId));
+          if (opt) {
+            opt.extra_price = val;
+            opt.price_pending = false;
+          }
+        }
+      }
+    });
+
+    try {
+      const res = await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          products: est.products
+        })
+      });
+
+      if (!res.ok) throw new Error('Error al guardar precios');
+
+      this.showToast(`✅ Precios actualizados en ${est.name}`);
+      this.markPendingChanges();
+      this.renderTable();
+      this.auditMissingPrices(est);
+      this.loadModalProducts();
+
+      const modal = document.getElementById('quick-fill-prices-modal');
+      if (modal) modal.classList.remove('active');
+      this.checkModalOpenState();
+    } catch (err) {
+      console.error(err);
+      alert('Error al guardar precios: ' + err.message);
+    }
   }
 }
 

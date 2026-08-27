@@ -819,6 +819,177 @@ app.put('/api/settings', (req, res) => {
   res.json({ success: true, settings: db.settings });
 });
 
+// AI Menu Extraction Endpoint (Gemini Multimodal Vision & Text)
+app.post('/api/ai/parse-menu', async (req, res) => {
+  try {
+    const { imageBase64, menuText, apiKey, establishmentName, establishmentCategory } = req.body;
+
+    if (!imageBase64 && !menuText) {
+      return res.status(400).json({ error: 'Se requiere una imagen o texto del menú para analizar.' });
+    }
+
+    const key = (apiKey || process.env.GEMINI_API_KEY || '').trim();
+    if (!key) {
+      return res.status(400).json({ 
+        error: 'Se requiere una clave de API de Gemini (Google AI Studio). Puedes ingresarla en la ventana de escaneo.' 
+      });
+    }
+
+    const systemPrompt = `Eres un asistente experto en digitalización de menús y cartas gastronómicas para restaurantes en la plataforma PediGochos (San Antonio del Táchira / Cúcuta).
+Analiza detalladamente la foto o texto del menú del restaurante "${establishmentName || 'Restaurante'}" (${establishmentCategory || 'General'}) y extrae TODOS los productos, categorías, precios y modificadores/adicionales.
+
+REGLAS ESTRICTAS DE EXTRACCIÓN:
+1. Extrae todas las categorías presentes en el menú (ej: "🍔 Hamburguesas", "🍕 Pizzas", "🌭 Perros Calientes", "🥤 Bebidas", "🍟 Entradas / Adicionales", etc.).
+2. Para cada producto:
+   - "name": Nombre completo del plato (ej: "Hamburguesa Especial", "Pizza Cuatro Estaciones").
+   - "category": Nombre de la categoría a la que pertenece.
+   - "description": Ingredientes, salsas o descripción de preparación.
+   - "price": Precio base en Pesos Colombianos (COP) como número entero sin puntos ni símbolos (ej: 22000). Si dice '22k' o '22 mil' o '22', conviértelo a 22000. Si está en USD (ej: '$5'), conviértelo a su valor equivalente en COP (aprox 20000) o pon el valor numérico. Si el plato NO tiene precio visible, pon 0 y marca "price_pending": true.
+   - "exclusions": Lista de ingredientes que el cliente podría querer excluir (ej: ["Cebolla", "Tomate", "Pepinillos", "Salsa tártara", "Mayonesa"]).
+   - "modifiers": Grupos de opciones y adicionales del producto:
+     * Si tiene Tamaños (Pequeña, Mediana, Grande, etc.), crea un grupo con group_name: "Tamaño", selection_type: "single", required: true y sus opciones con extra_price.
+     * Si tiene Sabores, Tipos de Carne o Tipos de Pan, crea un grupo tipo "single" (ej: "Tipo de Carne": Res, Pollo, Mixta).
+     * Si el menú tiene Adicionales o Extras (Tocineta, Queso extra, Papas fritas, Huevo, etc.), crea un grupo con group_name: "Adicionales", selection_type: "multiple", required: false.
+     * ⚠️ MUY IMPORTANTE: Si un adicional, contorno o extra NO tiene precio visible o dice 'consultar', asígnale extra_price: 0 y marca "price_pending": true para que el sistema notifique al administrador para completarlo en persona.
+3. Devuelve ÚNICAMENTE un objeto JSON válido con esta estructura:
+{
+  "restaurant_name": "Nombre detectado",
+  "categories": [
+    { "id": "hamburguesas", "name": "🍔 Hamburguesas", "icon": "🍔" }
+  ],
+  "products": [
+    {
+      "name": "Hamburguesa Especial",
+      "category": "🍔 Hamburguesas",
+      "description": "Carne artesanal, queso cheddar, tocineta, lechuga y tomate",
+      "price": 18000,
+      "price_pending": false,
+      "image": "/images/burger_royale.jpg",
+      "exclusions": ["Cebolla", "Tomate", "Pepinillos"],
+      "modifiers": [
+        {
+          "group_name": "Tamaño",
+          "selection_type": "single",
+          "required": true,
+          "options": [
+            { "name": "Sencilla", "extra_price": 0 },
+            { "name": "Doble", "extra_price": 6000 }
+          ]
+        },
+        {
+          "group_name": "Adicionales",
+          "selection_type": "multiple",
+          "required": false,
+          "options": [
+            { "name": "Extra Queso", "extra_price": 3000, "price_pending": false },
+            { "name": "Tocineta Crujiente", "extra_price": 0, "price_pending": true }
+          ]
+        }
+      ]
+    }
+  ],
+  "missing_prices_count": 1
+}`;
+
+    const parts = [{ text: systemPrompt }];
+
+    if (imageBase64) {
+      let mimeType = 'image/jpeg';
+      let data = imageBase64;
+      if (imageBase64.includes(';base64,')) {
+        const matches = imageBase64.match(/^data:([^;]+);base64,(.+)$/);
+        if (matches) {
+          mimeType = matches[1];
+          data = matches[2];
+        }
+      }
+      parts.push({
+        inline_data: {
+          mime_type: mimeType,
+          data: data
+        }
+      });
+    }
+
+    if (menuText) {
+      parts.push({
+        text: `Texto o contenido del menú a estructurar:\n${menuText}`
+      });
+    }
+
+    // Attempt Gemini 2.5 Flash / 1.5 Flash models
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+    const geminiRes = await fetch(geminiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: parts }],
+        generationConfig: {
+          response_mime_type: 'application/json',
+          temperature: 0.2
+        }
+      })
+    });
+
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      console.error('Gemini API error:', errText);
+      let userFriendlyError = 'Error al comunicarse con la IA de Google Gemini.';
+      try {
+        const parsedErr = JSON.parse(errText);
+        if (parsedErr.error && parsedErr.error.message) {
+          userFriendlyError = parsedErr.error.message;
+        }
+      } catch (e) {}
+      return res.status(geminiRes.status).json({ error: userFriendlyError });
+    }
+
+    const geminiData = await geminiRes.json();
+    const candidateText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!candidateText) {
+      return res.status(500).json({ error: 'La IA no devolvió contenido parseable' });
+    }
+
+    let parsedResult;
+    try {
+      parsedResult = JSON.parse(candidateText);
+    } catch (e) {
+      const jsonMatch = candidateText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsedResult = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('La respuesta de la IA no contiene formato JSON válido');
+      }
+    }
+
+    // Calculate missing prices count
+    let missingPricesCount = 0;
+    if (parsedResult.products && Array.isArray(parsedResult.products)) {
+      parsedResult.products.forEach(p => {
+        if (p.price_pending === true || !p.price || p.price <= 0) missingPricesCount++;
+        if (p.modifiers && Array.isArray(p.modifiers)) {
+          p.modifiers.forEach(m => {
+            if (m.options && Array.isArray(m.options)) {
+              m.options.forEach(opt => {
+                if (opt.price_pending === true || (m.group_name?.toLowerCase().includes('adic') && (!opt.extra_price || opt.extra_price <= 0))) {
+                  opt.price_pending = true;
+                  missingPricesCount++;
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+    parsedResult.missing_prices_count = missingPricesCount;
+
+    res.json({ success: true, menu: parsedResult });
+  } catch (err) {
+    console.error('Error in /api/ai/parse-menu:', err);
+    res.status(500).json({ error: err.message || 'Error al procesar el menú con IA' });
+  }
+});
+
 // Get all establishments (Sanitized for habitual users)
 app.get('/api/establishments', (req, res) => {
   const db = readDB();
