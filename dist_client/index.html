@@ -886,9 +886,12 @@
       <!-- Action Buttons -->
       <div style="display: flex; gap: 8px; flex-direction: column;">
         <button type="button" onclick="MarketplaceApp.sendCancellationToWhatsAppSupport()" style="width: 100%; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: #FFF; border: none; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 13.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.35);">
-          <span>💬</span> Solicitar a Soporte por WhatsApp
+          <span>💬</span> Enviar a Soporte por WhatsApp
         </button>
-        <button type="button" onclick="MarketplaceApp.closeCancelRequestModal()" style="width: 100%; background: transparent; color: #94A3B8; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer;">
+        <button type="button" onclick="MarketplaceApp.copyCancellationMessage()" style="width: 100%; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #E2E8F0; padding: 10px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <span>📋</span> Copiar Texto para Enviar
+        </button>
+        <button type="button" onclick="MarketplaceApp.closeCancelRequestModal()" style="width: 100%; background: transparent; color: #94A3B8; border: none; padding: 8px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer;">
           Regresar a mi pedido
         </button>
       </div>

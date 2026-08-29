@@ -1795,6 +1795,50 @@ class MarketplaceController {
       });
     }
 
+    // Group 2: Base Ingredients / Exclusions ($0 COP / Incluidos con la Pizza o Producto)
+    if (activeProduct.exclusions && Array.isArray(activeProduct.exclusions) && activeProduct.exclusions.length > 0) {
+      const groupDiv = document.createElement('div');
+      groupDiv.className = 'modifier-group';
+      const colId = `collapsible-base-ingredients-${sideKey}`;
+      const isExplicitlyCollapsed = this.customizerState.collapsedGroups && this.customizerState.collapsedGroups[colId] === true;
+      const listClass = isExplicitlyCollapsed ? 'modifier-options-list collapsed' : 'modifier-options-list';
+      const chevronTransform = isExplicitlyCollapsed ? 'transform: rotate(-90deg);' : 'transform: rotate(0deg);';
+      
+      groupDiv.innerHTML = `
+        <div class="modifier-group-title" onclick="MarketplaceApp.toggleGroupCollapse('${colId}', this)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-weight: 700;">Ingredientes Incluidos${sideLabel}</span>
+          <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px; ${chevronTransform}">▼</span>
+        </div>
+        <div class="${listClass}" id="${colId}"></div>
+      `;
+      const list = groupDiv.querySelector('.modifier-options-list');
+
+      activeProduct.exclusions.forEach(item => {
+        const itemName = typeof item === 'object' && item.name ? item.name : String(item);
+        if (!itemName) return;
+        const key = 'base_' + itemName;
+        const qty = this.customizerState.quantities[sideKey][key] !== undefined ? this.customizerState.quantities[sideKey][key] : 1;
+
+        const optionDiv = document.createElement('div');
+        optionDiv.className = `modifier-option ${qty > 0 ? 'option-single-active' : 'option-excluded'}`;
+
+        optionDiv.innerHTML = `
+          <div class="option-label-container" onclick="MarketplaceApp.toggleBaseIngredient('${itemName.replace(/'/g, "\\'")}', '${sideKey}')">
+            <input type="checkbox" ${qty > 0 ? 'checked' : ''} style="margin: 0;">
+            <span class="option-name" style="margin-left: 8px; ${qty === 0 ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${itemName}</span>
+          </div>
+          <div style="display: flex; align-items: center;">
+            <span class="option-extra-price" style="color: ${qty > 0 ? '#10B981' : '#94A3B8'}; font-weight: 700; font-size: 11.5px;">${qty > 0 ? '$0 (Incluido)' : 'Sin ingrediente'}</span>
+          </div>
+        `;
+        if (list) list.appendChild(optionDiv);
+      });
+
+      if (list && list.children.length > 0) {
+        container.appendChild(groupDiv);
+      }
+    }
+
     // Group 3: Optional Additional Ingredients
     if (activeProduct.modifiers && Array.isArray(activeProduct.modifiers)) {
       let isSmallSizeSelected = false;
@@ -1811,6 +1855,9 @@ class MarketplaceController {
 
       activeProduct.modifiers.forEach(group => {
         if (group && group.selection_type === 'multiple') {
+          const groupNameLower = (group.group_name || '').toLowerCase();
+          if (groupNameLower === 'tamaño') return;
+
           const groupDiv = document.createElement('div');
           groupDiv.className = 'modifier-group';
           const colId = `collapsible-${group.group_id}-${sideKey}`;
@@ -1830,7 +1877,13 @@ class MarketplaceController {
           if (group.options && Array.isArray(group.options)) {
             group.options.forEach(opt => {
               if (!opt) return;
-              const optNameLower = (opt.name || '').toLowerCase();
+              const optNameLower = (opt.name || '').toLowerCase().trim();
+
+              // Strictly filter out duplicate sizes showing inside Adicionales
+              if (optNameLower === 'personal' || optNameLower === 'mediana' || optNameLower === 'grande' || optNameLower === 'pequeña' || optNameLower === 'familiar') {
+                return;
+              }
+
               if (isSmallSizeSelected && optNameLower.includes('borde')) {
                 this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = 0;
                 return;
@@ -1926,6 +1979,15 @@ class MarketplaceController {
       });
     }
     this.renderCustomizerModifiers();
+  }
+
+  toggleBaseIngredient(itemName, sideKey = 'whole') {
+    if (!this.customizerState || !this.customizerState.quantities || !this.customizerState.quantities[sideKey]) return;
+    const key = 'base_' + itemName;
+    const currentQty = this.customizerState.quantities[sideKey][key] !== undefined ? this.customizerState.quantities[sideKey][key] : 1;
+    this.customizerState.quantities[sideKey][key] = (currentQty > 0) ? 0 : 1;
+    this.renderCustomizerModifiers();
+    this.updateCustomizerPrice();
   }
 
   toggleMultipleSelection(optionId, sideKey) {
@@ -4312,14 +4374,14 @@ class MarketplaceController {
     const totalVal = order ? (order.total || order.unit_total_calculated || 0) : 0;
     const totalStr = this.formatPesos(this.normalizeCopPrice(totalVal));
 
-    const message = `Hola Soporte Central PediGochos 👋. Deseo solicitar la cancelación de mi pedido:\n\n` +
+    const message = `¡Hola *${estName}*! 👋 Saludos de Central PediGochos.\n\n` +
+      `El cliente solicita la *CANCELACIÓN* de su pedido:\n\n` +
       `📦 *Pedido:* #${codeStr}\n` +
-      `🏪 *Restaurante:* ${estName}\n` +
       `👤 *Cliente:* ${custName}\n` +
-      `💵 *Total:* ${totalStr}\n` +
-      `📊 *Estado actual:* ${statusStr}\n` +
-      `📝 *Motivo:* ${reason}\n\n` +
-      `¿Por favor me confirman con el restaurante si es posible procesar la cancelación?`;
+      `💵 *Monto:* ${totalStr}\n` +
+      `📊 *Estado en sistema:* ${statusStr}\n` +
+      `📝 *Motivo del cliente:* ${reason}\n\n` +
+      `¿Por favor nos confirman si en cocina aún *NO* han preparado este pedido o si ya es muy tarde para cancelarlo? 🙏`;
 
     const supportPhone = '573227949751';
     const waUrl = `https://wa.me/${supportPhone}?text=${encodeURIComponent(message)}`;
@@ -4327,7 +4389,37 @@ class MarketplaceController {
     window.open(waUrl, '_blank');
 
     this.closeCancelRequestModal();
-    this.showToast('💬 Solicitud enviada a Soporte. Un asesor confirmará con el restaurante.');
+    this.showToast('💬 Mensaje listo para enviar a Soporte PediGochos.');
+  }
+
+  async copyCancellationMessage() {
+    const orderId = this.pendingCancelOrderId || localStorage.getItem('active_order_id');
+    const order = this.pendingCancelOrderObj;
+    const reasonInput = document.getElementById('cancel-request-reason-input');
+    const reason = (reasonInput && reasonInput.value.trim()) ? reasonInput.value.trim() : 'Solicitud directa del cliente';
+
+    const estName = order ? (order.establishmentName || order.restaurant_name || 'Restaurante') : 'Restaurante';
+    const codeStr = orderId ? String(orderId).slice(-6).toUpperCase() : 'N/A';
+    const statusStr = order ? (order.status || 'Pendiente') : 'Pendiente';
+    const custName = order ? (order.deliveryDetails?.name || order.customerName || 'Cliente') : 'Cliente';
+    const totalVal = order ? (order.total || order.unit_total_calculated || 0) : 0;
+    const totalStr = this.formatPesos(this.normalizeCopPrice(totalVal));
+
+    const message = `¡Hola *${estName}*! 👋 Saludos de Central PediGochos.\n\n` +
+      `El cliente solicita la *CANCELACIÓN* de su pedido:\n\n` +
+      `📦 *Pedido:* #${codeStr}\n` +
+      `👤 *Cliente:* ${custName}\n` +
+      `💵 *Monto:* ${totalStr}\n` +
+      `📊 *Estado en sistema:* ${statusStr}\n` +
+      `📝 *Motivo del cliente:* ${reason}\n\n` +
+      `¿Por favor nos confirman si en cocina aún *NO* han preparado este pedido o si ya es muy tarde para cancelarlo? 🙏`;
+
+    try {
+      await navigator.clipboard.writeText(message);
+      this.showToast('📋 ¡Mensaje para el restaurante copiado al portapapeles!');
+    } catch(err) {
+      this.showToast('📋 Mensaje preparado');
+    }
   }
 
   async pollActiveOrder(orderId) {
