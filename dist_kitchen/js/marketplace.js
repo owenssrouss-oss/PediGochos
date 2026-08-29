@@ -1625,11 +1625,30 @@ class MarketplaceController {
   getPizzaCrustOptions(product) {
     const defaultCrusts = [
       { id: 'tradicional', name: 'Borde Tradicional (Sin relleno)', icon: '🥖', description: 'Masa clásica crujiente', price: 0 },
-      { id: 'queso', name: 'Borde de Queso Mozzarella', icon: '🧀', description: 'Relleno de queso derretido', price: 5000 },
-      { id: 'salchicha', name: 'Borde de Salchicha', icon: '🌭', description: 'Relleno de salchicha parrillera', price: 6000 },
-      { id: 'bocadillo_queso', name: 'Borde de Bocadillo con Queso', icon: '🍯', description: 'Dulce de guayaba con queso', price: 6000 },
-      { id: 'queso_crema', name: 'Borde de Queso Crema / Cheddar', icon: '🧀', description: 'Queso crema suave', price: 6000 }
+      { id: 'queso', name: 'Borde de Queso Mozzarella', icon: '🧀', description: 'Relleno de abundante queso fundido', price: 6000 },
+      { id: 'salchicha', name: 'Borde de Salchicha', icon: '🌭', description: 'Relleno de salchicha especial', price: 6000 },
+      { id: 'bocadillo_queso', name: 'Borde de Queso y Bocadillo', icon: '🍯', description: 'Queso fundido con dulce de guayaba', price: 6000 }
     ];
+
+    let isGrande = false;
+    if (product && product.modifiers && this.customizerState && this.customizerState.quantities && this.customizerState.quantities.whole) {
+      const sizeGroup = product.modifiers.find(g => (g.group_name || '').toLowerCase() === 'tamaño');
+      if (sizeGroup && Array.isArray(sizeGroup.options)) {
+        const selectedSizeOpt = sizeGroup.options.find(opt => this.customizerState.quantities.whole['opt_' + opt.option_id] === 1);
+        if (selectedSizeOpt && (selectedSizeOpt.name || '').toLowerCase().includes('grande')) {
+          isGrande = true;
+        }
+      }
+    }
+
+    const calcPrice = (basePrice) => {
+      const norm = this.normalizeCopPrice(basePrice || 0);
+      if (norm <= 0) return 0;
+      if (isGrande) {
+        return norm === 6000 ? 9000 : Math.round(norm * 1.5);
+      }
+      return norm;
+    };
 
     const storeId = product?.restaurant_id || this.customizerState?.product?.restaurant_id;
     const est = (this.establishments || []).find(e => e.id === storeId);
@@ -1639,7 +1658,7 @@ class MarketplaceController {
         name: c.name,
         icon: c.icon || (c.name.toLowerCase().includes('salchicha') ? '🌭' : (c.name.toLowerCase().includes('bocadillo') ? '🍯' : '🧀')),
         description: c.description || '',
-        price: this.normalizeCopPrice(c.price || 0)
+        price: calcPrice(c.price)
       }));
       const hasTrad = list.some(c => (c.name || '').toLowerCase().includes('tradicional'));
       if (!hasTrad) list.unshift(defaultCrusts[0]);
@@ -1654,7 +1673,7 @@ class MarketplaceController {
           name: opt.name,
           icon: opt.name.toLowerCase().includes('salchicha') ? '🌭' : (opt.name.toLowerCase().includes('bocadillo') ? '🍯' : '🧀'),
           description: '',
-          price: this.normalizeCopPrice(opt.extra_price || opt.price || 0)
+          price: calcPrice(opt.extra_price || opt.price || 0)
         }));
         const hasTrad = list.some(c => (c.name || '').toLowerCase().includes('tradicional'));
         if (!hasTrad) list.unshift(defaultCrusts[0]);
@@ -1662,12 +1681,11 @@ class MarketplaceController {
       }
     }
 
-    return defaultCrusts;
+    return defaultCrusts.map(c => ({ ...c, price: calcPrice(c.price) }));
   }
 
   selectPizzaCrust(id, name, price) {
     this.customizerState.selectedCrust = { id, name, price: Number(price) || 0 };
-    // After selection, keep state and re-render
     this.renderCustomizerModifiers();
     this.updateCustomizerPrice();
   }
