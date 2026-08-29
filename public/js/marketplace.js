@@ -1318,6 +1318,10 @@ class MarketplaceController {
     this.updateCartBadge();
     this.showToast(`Agregado: ${product.name}`);
     this.animateFlyToCart(window.event);
+
+    setTimeout(() => {
+      this.checkBeveragesAndPrompt();
+    }, 400);
   }
 
   isArepaOrHeladoProduct(prod) {
@@ -1367,6 +1371,11 @@ class MarketplaceController {
         specialtyA: null,
         specialtyB: null,
         selectedCrust: { id: 'tradicional', name: 'Borde Tradicional (Sin relleno)', price: 0 },
+        baseIncluded: {
+          whole: {},
+          halfA: {},
+          halfB: {}
+        },
         quantities: {
           whole: {},
           halfA: {},
@@ -1376,11 +1385,12 @@ class MarketplaceController {
 
       const initSide = (sideKey, targetProduct = product) => {
         this.customizerState.quantities[sideKey] = {};
-        const isSpecialZeroInit = this.isArepaOrHeladoProduct(targetProduct);
+        this.customizerState.baseIncluded[sideKey] = {};
         if (targetProduct && targetProduct.exclusions && Array.isArray(targetProduct.exclusions)) {
           targetProduct.exclusions.forEach(item => {
             const itemName = typeof item === 'object' && item.name ? item.name : String(item);
-            this.customizerState.quantities[sideKey]['base_' + itemName] = isSpecialZeroInit ? 0 : 1;
+            this.customizerState.quantities[sideKey]['base_' + itemName] = 0;
+            this.customizerState.baseIncluded[sideKey][itemName] = true;
           });
         }
 
@@ -1833,7 +1843,7 @@ class MarketplaceController {
       });
     }
 
-    // Group 2: Base Ingredients / Exclusions ($0 COP / Incluidos con la Pizza o Producto)
+    // Group 2: Base Ingredients / Exclusions ($0 de base incluido, contador en 0 para adicionales)
     if (activeProduct.exclusions && Array.isArray(activeProduct.exclusions) && activeProduct.exclusions.length > 0) {
       const groupDiv = document.createElement('div');
       groupDiv.className = 'modifier-group';
@@ -1855,19 +1865,36 @@ class MarketplaceController {
         const itemName = typeof item === 'object' && item.name ? item.name : String(item);
         if (!itemName) return;
         const key = 'base_' + itemName;
-        const qty = this.customizerState.quantities[sideKey][key] !== undefined ? this.customizerState.quantities[sideKey][key] : 1;
+        const isIncluded = this.customizerState.baseIncluded?.[sideKey]?.[itemName] !== false;
+        const extraQty = this.customizerState.quantities[sideKey][key] || 0;
+        const baseExtraPrice = (typeof item === 'object' && item.price !== undefined) ? item.price : 4000;
 
         const optionDiv = document.createElement('div');
-        optionDiv.className = `modifier-option ${qty > 0 ? 'option-single-active' : 'option-excluded'}`;
+        optionDiv.className = `modifier-option ${isIncluded ? 'option-single-active' : 'option-excluded'}`;
+
+        let rightControlHTML = '';
+        if (!isIncluded) {
+          rightControlHTML = `<span class="option-extra-price" style="color: #94A3B8; font-weight: 700; font-size: 11.5px;">Sin ingrediente</span>`;
+        } else {
+          const extraPriceDisplay = extraQty > 0 ? `<span class="option-extra-price" style="margin-right: 8px; color: #F59E0B; font-weight: 800; font-size: 11.5px;">+${this.formatPesos(extraQty * baseExtraPrice)}</span>` : '';
+          rightControlHTML = `
+            <div style="display: flex; align-items: center;">
+              ${extraPriceDisplay}
+              <div class="option-qty-control" style="display: flex;">
+                <button type="button" class="btn-qty-mini" onclick="event.preventDefault(); event.stopPropagation(); MarketplaceApp.updateBaseIngredientQty('${itemName.replace(/'/g, "\\'")}', '${sideKey}', -1)">-</button>
+                <span class="option-qty-val" style="min-width: 20px; text-align: center; font-weight: 800; font-size: 12px;">${extraQty}</span>
+                <button type="button" class="btn-qty-mini" onclick="event.preventDefault(); event.stopPropagation(); MarketplaceApp.updateBaseIngredientQty('${itemName.replace(/'/g, "\\'")}', '${sideKey}', 1)">+</button>
+              </div>
+            </div>
+          `;
+        }
 
         optionDiv.innerHTML = `
           <div class="option-label-container" onclick="MarketplaceApp.toggleBaseIngredient('${itemName.replace(/'/g, "\\'")}', '${sideKey}')">
-            <input type="checkbox" ${qty > 0 ? 'checked' : ''} style="margin: 0;">
-            <span class="option-name" style="margin-left: 8px; ${qty === 0 ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${itemName}</span>
+            <input type="checkbox" ${isIncluded ? 'checked' : ''} style="margin: 0;">
+            <span class="option-name" style="margin-left: 8px; ${!isIncluded ? 'text-decoration: line-through; opacity: 0.55;' : ''}">${itemName}</span>
           </div>
-          <div style="display: flex; align-items: center;">
-            <span class="option-extra-price" style="color: ${qty > 0 ? '#10B981' : '#94A3B8'}; font-weight: 700; font-size: 11.5px;">${qty > 0 ? '$0 (Incluido)' : 'Sin ingrediente'}</span>
-          </div>
+          ${rightControlHTML}
         `;
         if (list) list.appendChild(optionDiv);
       });
@@ -2020,10 +2047,39 @@ class MarketplaceController {
   }
 
   toggleBaseIngredient(itemName, sideKey = 'whole') {
-    if (!this.customizerState || !this.customizerState.quantities || !this.customizerState.quantities[sideKey]) return;
+    if (!this.customizerState) return;
+    if (!this.customizerState.baseIncluded) this.customizerState.baseIncluded = { whole: {}, halfA: {}, halfB: {} };
+    if (!this.customizerState.baseIncluded[sideKey]) this.customizerState.baseIncluded[sideKey] = {};
+    
+    const current = this.customizerState.baseIncluded[sideKey][itemName] !== false;
+    this.customizerState.baseIncluded[sideKey][itemName] = !current;
+    
+    // If turned off, reset extra quantity to 0
+    if (current === true) {
+      if (!this.customizerState.quantities[sideKey]) this.customizerState.quantities[sideKey] = {};
+      this.customizerState.quantities[sideKey]['base_' + itemName] = 0;
+    }
+    
+    this.renderCustomizerModifiers();
+    this.updateCustomizerPrice();
+  }
+
+  updateBaseIngredientQty(itemName, sideKey = 'whole', delta) {
+    if (!this.customizerState) return;
+    if (!this.customizerState.quantities) this.customizerState.quantities = { whole: {}, halfA: {}, halfB: {} };
+    if (!this.customizerState.quantities[sideKey]) this.customizerState.quantities[sideKey] = {};
+    if (!this.customizerState.baseIncluded) this.customizerState.baseIncluded = { whole: {}, halfA: {}, halfB: {} };
+    if (!this.customizerState.baseIncluded[sideKey]) this.customizerState.baseIncluded[sideKey] = {};
+
     const key = 'base_' + itemName;
-    const currentQty = this.customizerState.quantities[sideKey][key] !== undefined ? this.customizerState.quantities[sideKey][key] : 1;
-    this.customizerState.quantities[sideKey][key] = (currentQty > 0) ? 0 : 1;
+    let current = this.customizerState.quantities[sideKey][key] || 0;
+    current += delta;
+    if (current < 0) current = 0;
+    if (current > 5) current = 5;
+    
+    this.customizerState.quantities[sideKey][key] = current;
+    this.customizerState.baseIncluded[sideKey][itemName] = true;
+    
     this.renderCustomizerModifiers();
     this.updateCustomizerPrice();
   }
@@ -2161,18 +2217,14 @@ class MarketplaceController {
       let sideSum = 0;
       if (!targetProduct) return 0;
 
-      const isSpecialZeroInit = this.isArepaOrHeladoProduct(targetProduct);
       if (targetProduct.exclusions && Array.isArray(targetProduct.exclusions)) {
         targetProduct.exclusions.forEach(item => {
           const itemName = typeof item === 'object' && item.name ? item.name : String(item);
-          const basePrice = (typeof item === 'object' && item.price !== undefined) ? item.price : 500;
-          const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
-          if (isSpecialZeroInit) {
-            sideSum += qty * basePrice;
-          } else {
-            if (qty > 1) {
-              sideSum += (qty - 1) * basePrice;
-            }
+          const basePrice = (typeof item === 'object' && item.price !== undefined) ? item.price : 4000;
+          const isIncluded = this.customizerState.baseIncluded?.[sideKey]?.[itemName] !== false;
+          const extraQty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
+          if (isIncluded && extraQty > 0) {
+            sideSum += extraQty * basePrice;
           }
         });
       }
@@ -2427,30 +2479,20 @@ class MarketplaceController {
       }
       
       // 1. Base ingredients (exclusions and extras)
-      const isSpecialZeroInit = this.isArepaOrHeladoProduct(activeProduct);
       if (activeProduct.exclusions && Array.isArray(activeProduct.exclusions)) {
         activeProduct.exclusions.forEach(item => {
           const itemName = typeof item === 'object' && item.name ? item.name : String(item);
-          const basePrice = (typeof item === 'object' && item.price !== undefined) ? item.price : 500;
-          const qty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
-          if (isSpecialZeroInit) {
-            if (qty > 0) {
-              addOns.push({
-                name: prefix + `${itemName}`,
-                price_per_unit: basePrice,
-                quantity: qty
-              });
-            }
-          } else {
-            if (qty === 0) {
-              exclusions.push({ name: prefix + `Sin ${itemName}` });
-            } else if (qty > 1) {
-              addOns.push({
-                name: prefix + `${itemName} Extra`,
-                price_per_unit: basePrice,
-                quantity: qty - 1
-              });
-            }
+          const basePrice = (typeof item === 'object' && item.price !== undefined) ? item.price : 4000;
+          const isIncluded = this.customizerState.baseIncluded?.[sideKey]?.[itemName] !== false;
+          const extraQty = this.customizerState.quantities[sideKey]['base_' + itemName] || 0;
+          if (!isIncluded) {
+            exclusions.push({ name: prefix + `Sin ${itemName}` });
+          } else if (extraQty > 0) {
+            addOns.push({
+              name: prefix + `${itemName} Extra` + (extraQty > 1 ? ` (x${extraQty})` : ''),
+              price_per_unit: basePrice,
+              quantity: extraQty
+            });
           }
         });
       }
@@ -2557,6 +2599,10 @@ class MarketplaceController {
     this.showToast(`Agregado: ${product.name}`);
     
     this.animateFlyToCart(window.event);
+
+    setTimeout(() => {
+      this.checkBeveragesAndPrompt();
+    }, 400);
   }
 
   animateFlyToCart(event) {
