@@ -179,10 +179,17 @@ async function syncFromSupabase() {
       if (cloudData && Array.isArray(cloudData.establishments) && cloudData.establishments.length > 0) {
         const localData = readDB();
         const localEsts = (localData && Array.isArray(localData.establishments)) ? localData.establishments : [];
-        const cloudEstIds = new Set(cloudData.establishments.map(e => String(e.id).trim()));
         localEsts.forEach(localEst => {
-          if (localEst && localEst.id && !cloudEstIds.has(String(localEst.id).trim())) {
+          if (!localEst || !localEst.id) return;
+          const cloudIndex = cloudData.establishments.findIndex(e => String(e.id).trim() === String(localEst.id).trim());
+          if (cloudIndex === -1) {
             cloudData.establishments.push(localEst);
+          } else {
+            const cloudEst = cloudData.establishments[cloudIndex];
+            // If local establishment has more products or updated products, preserve local version
+            if (Array.isArray(localEst.products) && (!Array.isArray(cloudEst.products) || localEst.products.length >= cloudEst.products.length)) {
+              cloudData.establishments[cloudIndex] = { ...cloudEst, ...localEst, products: localEst.products };
+            }
           }
         });
         cloudData.establishments = deduplicateEstablishments(cloudData.establishments);
