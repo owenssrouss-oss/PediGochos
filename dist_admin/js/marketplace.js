@@ -123,17 +123,23 @@ class MarketplaceController {
 
     if (tableParam) {
       this.currentTableNumber = tableParam;
+      this.tableLockedByQR = true;
       this.orderType = 'mesa';
       try {
         localStorage.setItem('scanned_table_number', tableParam);
+        localStorage.setItem('table_locked_by_qr', 'true');
         if (storeParam) localStorage.setItem('scanned_table_store', storeParam);
       } catch(e) {}
     } else {
       try {
         const savedTable = localStorage.getItem('scanned_table_number');
+        const isLocked = localStorage.getItem('table_locked_by_qr');
         if (savedTable) {
           this.currentTableNumber = savedTable;
           this.orderType = 'mesa';
+          if (isLocked === 'true') {
+            this.tableLockedByQR = true;
+          }
         }
       } catch(e) {}
     }
@@ -2670,20 +2676,34 @@ class MarketplaceController {
     }
 
     if (this.currentTableNumber) {
+      this.tableLockedByQR = true;
       this.setOrderType('mesa');
       const tableInput = document.getElementById('order-table-number');
-      if (tableInput) tableInput.value = this.currentTableNumber;
+      if (tableInput) {
+        tableInput.value = this.currentTableNumber;
+        tableInput.readOnly = true;
+        tableInput.style.background = 'rgba(255,255,255,0.05)';
+        tableInput.style.color = '#10B981';
+        tableInput.style.cursor = 'not-allowed';
+      }
+
+      const delBtn = document.getElementById('type-delivery-btn');
+      if (delBtn) {
+        delBtn.style.opacity = '0.35';
+        delBtn.style.pointerEvents = 'none';
+        delBtn.title = 'Bloqueado por escaneo de Código QR de Mesa';
+      }
 
       const qrBanner = document.getElementById('customer-table-qr-active-banner');
       const qrInfo = document.getElementById('qr-scanned-table-info');
       if (qrBanner) {
         qrBanner.style.display = 'flex';
-        if (qrInfo) qrInfo.innerText = `Mesa #${this.currentTableNumber} asignada por Código QR. Pedido directo a tu mesa.`;
+        if (qrInfo) qrInfo.innerText = `Mesa #${this.currentTableNumber} fijada exclusivamente por Código QR. Pedido a tu mesa.`;
       }
 
       const badge = document.getElementById('customer-selected-table-badge');
       if (badge) {
-        badge.innerText = `✅ Mesa #${this.currentTableNumber} asignada automáticamente por Código QR`;
+        badge.innerText = `🔒 Mesa #${this.currentTableNumber} fijada y bloqueada por Código QR`;
         badge.style.display = 'block';
       }
     } else if (this.orderType === 'delivery') {
@@ -2888,6 +2908,10 @@ class MarketplaceController {
   }
 
   setOrderType(type) {
+    if (this.tableLockedByQR && type === 'delivery') {
+      this.showToast(`🔒 Tu pedido está fijado exclusivamente a la Mesa #${this.currentTableNumber} por escaneo de Código QR.`);
+      return;
+    }
     this.orderType = type;
     const delBtn = document.getElementById('type-delivery-btn');
     const tableBtn = document.getElementById('type-mesa-btn');
@@ -4881,6 +4905,34 @@ class MarketplaceController {
 
     if (input && !input.value && this.currentTableNumber) {
       input.value = this.currentTableNumber;
+    }
+
+    // If table is locked by QR scan, show dedicated fixed table display and lock input
+    if (this.tableLockedByQR && this.currentTableNumber) {
+      container.innerHTML = `
+        <div style="background: rgba(16, 185, 129, 0.12); border: 1.5px solid #10B981; border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 26px;">🪑</span>
+            <div>
+              <div style="font-size: 15px; font-weight: 900; color: #FFF;">Mesa #${this.currentTableNumber}</div>
+              <div style="font-size: 11px; color: #6EE7B7; font-weight: 700;">🔒 Mesa Fija Asignada por Código QR</div>
+            </div>
+          </div>
+          <span style="background: #10B981; color: #121216; font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 6px;">Fijo por QR</span>
+        </div>
+      `;
+      if (input) {
+        input.value = this.currentTableNumber;
+        input.readOnly = true;
+        input.style.background = 'rgba(255,255,255,0.05)';
+        input.style.color = '#10B981';
+        input.style.cursor = 'not-allowed';
+      }
+      if (badge) {
+        badge.innerText = `🔒 Mesa #${this.currentTableNumber} fijada por escaneo de Código QR`;
+        badge.style.display = 'block';
+      }
+      return;
     }
 
     const shopId = this.cart.items[0]?.restaurant_id || (this.selectedEstablishment ? this.selectedEstablishment.id : null);
