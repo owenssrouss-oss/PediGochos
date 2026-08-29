@@ -517,6 +517,9 @@
             <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">Carta y Productos del Restaurante</h3>
           </div>
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button type="button" onclick="KitchenApp.openStoreQRModal()" style="background: linear-gradient(135deg, #FF6B00 0%, #FF8800 100%); border: none; color: #FFF; font-size: 11.5px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(255,107,0,0.35);">
+              <span>📱 Display QR Mesas</span>
+            </button>
             <button type="button" onclick="KitchenApp.openPizzaCrustsManagerModal()" style="background: rgba(245,158,11,0.15); border: 1px solid #F59E0B; color: #FCD34D; font-size: 11.5px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
               <span>🧀 Bordes Pizza</span>
             </button>
@@ -939,19 +942,89 @@
         </div>
 
         <div style="display: flex; gap: 10px; justify-content: flex-end;">
-          <button type="button" onclick="KitchenApp.closeDailyPromoModal()" style="background: transparent; color: #94A3B8; border: 1px solid #475569; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer;">Cancelar</button>
-          <button type="submit" style="background: #FF5E3A; color: #FFF; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer;">🔥 Publicar Promo (24h)</button>
+  <!-- Modal: Generador de Código QR y Display de Mesa Estilo PediGochos -->
+  <div class="modal-overlay" id="admin-store-qr-modal" style="z-index: 3950; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div class="modal-content" style="max-width: 520px; width: 94%; max-height: 94vh; overflow-y: auto; padding: 22px; border-radius: 24px; background: rgba(14, 14, 18, 0.98); border: 1.5px solid rgba(255, 107, 0, 0.35); box-shadow: 0 20px 60px rgba(0,0,0,0.8); margin: auto;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 id="qr-modal-title" style="margin: 0; color: #FFF; font-size: 18px; font-weight: 900; display: flex; align-items: center; gap: 8px;">
+            📱 Display QR Restaurante & Mesas
+          </h3>
+          <p style="margin: 3px 0 0 0; font-size: 12px; color: #94A3B8;">Diseño de alta definición para acrílicos de mesa, displays y stickers.</p>
         </div>
-      </form>
-    </div>
-  </div>
+        <button class="modal-close" onclick="KitchenApp.closeStoreQRModal()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.1); border: none; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Table / Mesa selector option -->
+      <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 12px; margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label style="font-size: 12px; font-weight: 800; color: #FCD34D;">
+            🍽️ Número de Mesa / Ubicación (Opcional):
+          </label>
+          <span style="font-size: 11px; color: #94A3B8;">Dejar vacío para Menú General</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="qr-modal-table-input" oninput="KitchenApp.updateStoreQRDisplay()" placeholder="Ej. 1, 2, Terraza 4, Barra..." style="flex: 1; padding: 9px 12px; border-radius: 8px; background: #09090D; border: 1.5px solid #FF6B00; color: #FFF; font-size: 13px; font-weight: 700;">
+          <button type="button" onclick="document.getElementById('qr-modal-table-input').value=''; KitchenApp.updateStoreQRDisplay();" style="background: #334155; color: #E2E8F0; border: none; padding: 8px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer;">Limpiar</button>
+        </div>
+        <!-- Quick Table Chips -->
+        <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
+          <button type="button" onclick="document.getElementById('qr-modal-table-input').value=''; KitchenApp.updateStoreQRDisplay();" style="font-size: 11px; padding: 4px 8px; border-radius: 6px; background: rgba(255,255,255,0.08); color: #E2E8F0; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">General</button>
+          <button type="button" onclick="document.getElementById('qr-modal-table-input').value='1'; KitchenApp.updateStoreQRDisplay();" style="font-size: 11px; padding: 4px 8px; border-radius: 6px; background: rgba(255,107,0,0.15); color: #FFA000; border: 1px solid rgba(255,107,0,0.3); cursor: pointer;">Mesa 1</button>
+          <button type="button" onclick="document.getElementById('qr-modal-table-input').value='2'; KitchenApp.updateStoreQRDisplay();" style="font-size: 11px; padding: 4px 8px; border-radius: 6px; background: rgba(255,107,0,0.15); color: #FFA000; border: 1px solid rgba(255,107,0,0.3); cursor: pointer;">Mesa 2</button>
+          <button type="button" onclick="document.getElementById('qr-modal-table-input').value='3'; KitchenApp.updateStoreQRDisplay();" style="font-size: 11px; padding: 4px 8px; border-radius: 6px; background: rgba(255,107,0,0.15); color: #FFA000; border: 1px solid rgba(255,107,0,0.3); cursor: pointer;">Mesa 3</button>
+          <button type="button" onclick="document.getElementById('qr-modal-table-input').value='4'; KitchenApp.updateStoreQRDisplay();" style="font-size: 11px; padding: 4px 8px; border-radius: 6px; background: rgba(255,107,0,0.15); color: #FFA000; border: 1px solid rgba(255,107,0,0.3); cursor: pointer;">Mesa 4</button>
+          <button type="button" onclick="document.getElementById('qr-modal-table-input').value='5'; KitchenApp.updateStoreQRDisplay();" style="font-size: 11px; padding: 4px 8px; border-radius: 6px; background: rgba(255,107,0,0.15); color: #FFA000; border: 1px solid rgba(255,107,0,0.3); cursor: pointer;">Mesa 5</button>
+        </div>
+      </div>
+
+      <!-- Live HD Canvas Display Preview -->
+      <div id="printable-qr-card" style="background: #09090D; border-radius: 20px; padding: 16px; text-align: center; color: #FFF; box-shadow: 0 10px 30px rgba(0,0,0,0.6); margin-bottom: 16px; border: 1.5px solid rgba(255,107,0,0.3); position: relative;">
+        <canvas id="qr-display-canvas" width="1200" height="1200" style="width: 100%; max-width: 380px; height: auto; aspect-ratio: 1/1; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.7); display: block; margin: 0 auto; background: #09090D;"></canvas>
+        <div id="qr-hidden-generator" style="display: none;"></div>
+      </div>
+
+      <!-- Direct Link Box -->
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #94A3B8; margin-bottom: 6px;">🔗 Enlace Directo (URL):</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="qr-modal-url-input" readonly style="flex: 1; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #38BDF8; font-size: 12px; font-family: monospace;">
+          <button type="button" onclick="KitchenApp.copyStoreQRUrl()" style="background: #3B82F6; color: #FFF; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+            📋 Copiar
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 8px; flex-direction: column;">
+        <div style="display: flex; gap: 8px;">
+          <button type="button" onclick="KitchenApp.downloadStoreQRImage()" style="flex: 1; background: linear-gradient(135deg, #FF6B00 0%, #FF8800 100%); color: #FFF; border: none; padding: 12px 14px; border-radius: 12px; font-weight: 900; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(255,107,0,0.4);">
+            ⬇️ Descargar Display HD (PNG 1200x1200px)
+          </button>
+          <button type="button" onclick="KitchenApp.printStoreQRAffiche()" style="flex: 1; background: #6366F1; color: #FFF; border: none; padding: 12px 14px; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(99,102,241,0.35);">
+            🖨️ Imprimir Display
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button type="button" onclick="KitchenApp.downloadBatchTableQRs(1, 10)" style="flex: 1; background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1.5px solid #10B981; padding: 9px 12px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+            📦 Descargar Lote Mesas (1 al 10)
+          </button>
+          <button type="button" onclick="KitchenApp.openStoreQRInNewTab()" style="background: #334155; color: #E2E8F0; border: none; padding: 9px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+            🌐 Probar Link
+          </button>
+        </div>
+      </div>
 
     </div>
   </div>
 
-  <script src="/js/sound.js?v=189"></script>
-  <script src="/js/menu-builder.js?v=83"></script>
-  <script src="/js/kitchen.js?v=189"></script>
+  <script src="/js/sound.js?v=196"></script>
+  <script src="/js/qrcode.min.js?v=196"></script>
+  <script src="/js/menu-builder.js?v=196"></script>
+  <script src="/js/kitchen.js?v=196"></script>
   <script>
     if (typeof KitchenApp !== 'undefined') {
       if (!KitchenApp.showToast && typeof KitchenApp.showLocalToast === 'function') {

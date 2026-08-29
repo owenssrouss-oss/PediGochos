@@ -4201,7 +4201,7 @@ class AdminController {
     if (!modal) return;
 
     const titleEl = document.getElementById('qr-modal-title');
-    if (titleEl) titleEl.innerText = `📱 QR & Link: ${est.name}`;
+    if (titleEl) titleEl.innerText = `📱 Display QR: ${est.name}`;
     
     const tableInp = document.getElementById('qr-modal-table-input');
     if (tableInp) tableInp.value = '';
@@ -4229,21 +4229,298 @@ class AdminController {
       directUrl += `&mesa=${encodeURIComponent(tableNum)}`;
     }
 
-    const qrImg = document.getElementById('qr-modal-img');
     const urlInp = document.getElementById('qr-modal-url-input');
-    const cardName = document.getElementById('qr-card-est-name');
-    const cardSub = document.getElementById('qr-card-subtitle');
-
     if (urlInp) urlInp.value = directUrl;
-    if (cardName) cardName.innerText = `${est.logo || '🏪'} ${est.name}`;
-    if (cardSub) {
-      cardSub.innerText = tableNum ? `📍 Mesa #${tableNum} • Escanea para ordenar` : `🍽️ Escanea para ver el menú y ordenar`;
+
+    const canvas = document.getElementById('qr-display-canvas');
+    if (!canvas) return;
+
+    // Generate orange QR code modules
+    this.renderCustomOrangeQR(directUrl, (qrCanvasOrImg) => {
+      this.drawStoreQRDisplayCanvas(canvas, est, tableNum, qrCanvasOrImg);
+    });
+  }
+
+  renderCustomOrangeQR(directUrl, callback) {
+    // 1. Try local QRCode client-side library
+    if (typeof QRCode !== 'undefined') {
+      try {
+        const hiddenDiv = document.getElementById('qr-hidden-generator') || document.createElement('div');
+        hiddenDiv.innerHTML = '';
+        
+        new QRCode(hiddenDiv, {
+          text: directUrl,
+          width: 580,
+          height: 580,
+          colorDark: '#FF6B00',
+          colorLight: '#111116',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+
+        // Give a microtask for canvas/img generation
+        setTimeout(() => {
+          const generatedCanvas = hiddenDiv.querySelector('canvas');
+          const generatedImg = hiddenDiv.querySelector('img');
+          if (generatedCanvas) {
+            callback(generatedCanvas);
+          } else if (generatedImg && generatedImg.src) {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => callback(img);
+            img.src = generatedImg.src;
+          } else {
+            this.fallbackQRServerImage(directUrl, callback);
+          }
+        }, 30);
+        return;
+      } catch (err) {
+        console.warn('QRCode JS error, falling back:', err);
+      }
     }
 
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(directUrl)}&margin=10`;
-    if (qrImg) {
-      qrImg.src = qrApiUrl;
+    this.fallbackQRServerImage(directUrl, callback);
+  }
+
+  fallbackQRServerImage(directUrl, callback) {
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=580x580&data=${encodeURIComponent(directUrl)}&color=FF6B00&bgcolor=111116&margin=0`;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => callback(img);
+    img.onerror = () => {
+      // Offline fallback
+      const altUrl = `https://api.qrserver.com/v1/create-qr-code/?size=580x580&data=${encodeURIComponent(directUrl)}&margin=0`;
+      const fallbackImg = new Image();
+      fallbackImg.crossOrigin = 'anonymous';
+      fallbackImg.onload = () => callback(fallbackImg);
+      fallbackImg.src = altUrl;
+    };
+    img.src = qrApiUrl;
+  }
+
+  drawStoreQRDisplayCanvas(canvas, est, tableNum, qrElement) {
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = 1200;
+    const H = 1200;
+    canvas.width = W;
+    canvas.height = H;
+
+    // 1. Deep Dark Background
+    ctx.fillStyle = '#09090D';
+    ctx.fillRect(0, 0, W, H);
+
+    // 2. Symmetrical Orange Cross Beams (Geometric Ray Pattern)
+    ctx.save();
+    const gradRay = ctx.createLinearGradient(0, 0, W, H);
+    gradRay.addColorStop(0, '#FF7A00');
+    gradRay.addColorStop(0.5, '#FF5500');
+    gradRay.addColorStop(1, '#FF7A00');
+    ctx.fillStyle = gradRay;
+
+    // Top-Left Wedge
+    ctx.beginPath();
+    ctx.moveTo(0, 160);
+    ctx.lineTo(160, 0);
+    ctx.lineTo(600, 600);
+    ctx.closePath();
+    ctx.fill();
+
+    // Bottom-Right Wedge
+    ctx.beginPath();
+    ctx.moveTo(1200, 1040);
+    ctx.lineTo(1040, 1200);
+    ctx.lineTo(600, 600);
+    ctx.closePath();
+    ctx.fill();
+
+    // Top-Right Wedge
+    ctx.beginPath();
+    ctx.moveTo(1040, 0);
+    ctx.lineTo(1200, 160);
+    ctx.lineTo(600, 600);
+    ctx.closePath();
+    ctx.fill();
+
+    // Bottom-Left Wedge
+    ctx.beginPath();
+    ctx.moveTo(0, 1040);
+    ctx.lineTo(160, 1200);
+    ctx.lineTo(600, 600);
+    ctx.closePath();
+    ctx.fill();
+
+    // Side Lateral Wedges
+    ctx.beginPath();
+    ctx.moveTo(0, 420);
+    ctx.lineTo(0, 780);
+    ctx.lineTo(600, 600);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(1200, 420);
+    ctx.lineTo(1200, 780);
+    ctx.lineTo(600, 600);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // 3. Central Glowing Circle Emblem
+    const cx = 600;
+    const cy = 600;
+    const R = 490;
+
+    ctx.save();
+    // Glowing Outer Shadow
+    ctx.shadowColor = 'rgba(255, 107, 0, 0.75)';
+    ctx.shadowBlur = 45;
+
+    // Inner Circle Body
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    const circleGrad = ctx.createRadialGradient(cx, cy, 60, cx, cy, R);
+    circleGrad.addColorStop(0, '#16161D');
+    circleGrad.addColorStop(0.75, '#0E0E14');
+    circleGrad.addColorStop(1, '#08080C');
+    ctx.fillStyle = circleGrad;
+    ctx.fill();
+
+    // Main Outer Orange Stroke
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = '#FF6B00';
+    ctx.stroke();
+    ctx.restore();
+
+    // Inner Accent Ring
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, R - 14, 0, Math.PI * 2);
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = 'rgba(255, 170, 0, 0.8)';
+    ctx.stroke();
+    ctx.restore();
+
+    // 4. Four Cardinal Food Badges
+    const badges = [
+      { x: cx, y: cy - R, icon: '🍔' },
+      { x: cx - R, y: cy, icon: '🍽️' },
+      { x: cx + R, y: cy, icon: '🥟' },
+      { x: cx, y: cy + R, icon: '🥩' }
+    ];
+
+    badges.forEach(b => {
+      ctx.save();
+      // Badge Disc
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, 44, 0, Math.PI * 2);
+      ctx.fillStyle = '#111116';
+      ctx.fill();
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#FF6B00';
+      ctx.shadowColor = 'rgba(255, 107, 0, 0.9)';
+      ctx.shadowBlur = 18;
+      ctx.stroke();
+      ctx.restore();
+
+      // Emoji Icon
+      ctx.save();
+      ctx.font = '40px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(b.icon, b.x, b.y + 2);
+      ctx.restore();
+    });
+
+    // 5. Top Restaurant Name Header
+    ctx.save();
+    const rawName = (est.name || 'RESTAURANTE').toUpperCase();
+    
+    let fontSize = 52;
+    if (rawName.length > 18) fontSize = 42;
+    if (rawName.length > 25) fontSize = 34;
+
+    ctx.font = `900 ${fontSize}px "Arial Black", "Montserrat", "Impact", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    ctx.shadowColor = 'rgba(255, 120, 0, 0.9)';
+    ctx.shadowBlur = 24;
+    
+    const nameGrad = ctx.createLinearGradient(0, 240, 0, 320);
+    nameGrad.addColorStop(0, '#FFA726');
+    nameGrad.addColorStop(0.5, '#FF7A00');
+    nameGrad.addColorStop(1, '#FF5500');
+    ctx.fillStyle = nameGrad;
+    
+    const nameY = tableNum ? 260 : 285;
+    ctx.fillText(rawName, cx, nameY);
+    ctx.restore();
+
+    // Table Pill Badge (if specified)
+    if (tableNum) {
+      ctx.save();
+      const tableText = `📍 MESA ${tableNum.toUpperCase()}`;
+      ctx.font = '900 24px "Montserrat", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      const textWidth = ctx.measureText(tableText).width;
+      const pillW = textWidth + 38;
+      const pillH = 38;
+      const pillX = cx - pillW / 2;
+      const pillY = 302;
+
+      ctx.fillStyle = 'rgba(254, 240, 138, 0.15)';
+      ctx.strokeStyle = '#FCD34D';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(pillX, pillY, pillW, pillH, 19);
+      } else {
+        ctx.rect(pillX, pillY, pillW, pillH);
+      }
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#FDE047';
+      ctx.shadowColor = 'rgba(253, 224, 71, 0.6)';
+      ctx.shadowBlur = 10;
+      ctx.fillText(tableText, cx, pillY + pillH / 2);
+      ctx.restore();
     }
+
+    // 6. Center Vibrant Orange QR Code
+    if (qrElement) {
+      const qrSize = 580;
+      const qrX = cx - qrSize / 2;
+      const qrY = tableNum ? 355 : 340;
+
+      // Dark background panel for QR
+      ctx.save();
+      ctx.fillStyle = '#111116';
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(qrX - 12, qrY - 12, qrSize + 24, qrSize + 24, 22);
+      } else {
+        ctx.rect(qrX - 12, qrY - 12, qrSize + 24, qrSize + 24);
+      }
+      ctx.fill();
+      ctx.restore();
+
+      // Draw QR Image/Canvas
+      ctx.drawImage(qrElement, qrX, qrY, qrSize, qrSize);
+    }
+
+    // 7. Bottom Branding & Call to Action
+    ctx.save();
+    ctx.font = '900 22px "Montserrat", "Arial Black", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFA000';
+    ctx.shadowColor = 'rgba(255, 107, 0, 0.7)';
+    ctx.shadowBlur = 12;
+    ctx.fillText('PEDIGOCHOS • ESCANEA PARA ORDENAR', cx, 985);
+    ctx.restore();
   }
 
   async copyStoreQRUrl() {
@@ -4267,41 +4544,72 @@ class AdminController {
     }
   }
 
-  async downloadStoreQRImage() {
+  downloadStoreQRImage() {
     if (!this.currentQREst) return;
     const est = this.currentQREst;
     const tableNum = (document.getElementById('qr-modal-table-input')?.value || '').trim();
-    const qrImg = document.getElementById('qr-modal-img');
-    if (!qrImg || !qrImg.src) return;
+    const canvas = document.getElementById('qr-display-canvas');
+    if (!canvas) return;
 
-    this.showToast('⏳ Descargando imagen QR...');
+    this.showToast('⏳ Generando Display HD...');
 
     try {
-      const res = await fetch(qrImg.src);
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
+      const dataUrl = canvas.toDataURL('image/png', 1.0);
       const link = document.createElement('a');
-      const filename = `QR_${(est.name || 'restaurante').replace(/[^a-zA-Z0-9]/g, '_')}${tableNum ? '_Mesa_' + tableNum : ''}.png`;
-      link.href = blobUrl;
+      const filename = `Display_QR_${(est.name || 'Restaurante').replace(/[^a-zA-Z0-9]/g, '_')}${tableNum ? '_Mesa_' + tableNum : ''}.png`;
+      link.href = dataUrl;
       link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
-      this.showToast(`✅ ¡Código QR guardado como "${filename}"!`);
+      this.showToast(`✅ ¡Display HD guardado como "${filename}"!`);
     } catch(err) {
-      window.open(qrImg.src, '_blank');
+      console.error(err);
+      window.open(canvas.toDataURL(), '_blank');
     }
+  }
+
+  async downloadBatchTableQRs(from = 1, to = 10) {
+    if (!this.currentQREst) return;
+    const est = this.currentQREst;
+    const origin = window.location.origin;
+
+    this.showToast(`📦 Generando lote de displays para Mesas ${from} al ${to}...`);
+
+    for (let table = from; table <= to; table++) {
+      const directUrl = `${origin}/?store=${encodeURIComponent(est.id)}&mesa=${encodeURIComponent(table)}`;
+      
+      await new Promise((resolve) => {
+        this.renderCustomOrangeQR(directUrl, (qrElem) => {
+          const offCanvas = document.createElement('canvas');
+          this.drawStoreQRDisplayCanvas(offCanvas, est, String(table), qrElem);
+          
+          const dataUrl = offCanvas.toDataURL('image/png', 1.0);
+          const link = document.createElement('a');
+          link.href = dataUrl;
+          link.download = `Display_QR_${(est.name || 'Restaurante').replace(/[^a-zA-Z0-9]/g, '_')}_Mesa_${table}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          setTimeout(resolve, 300);
+        });
+      });
+    }
+
+    this.showToast(`✅ ¡Lote de ${to - from + 1} displays para mesas descargado con éxito!`);
   }
 
   printStoreQRAffiche() {
     if (!this.currentQREst) return;
     const est = this.currentQREst;
     const tableNum = (document.getElementById('qr-modal-table-input')?.value || '').trim();
-    const qrImg = document.getElementById('qr-modal-img');
-    const qrSrc = qrImg ? qrImg.src : '';
+    const canvas = document.getElementById('qr-display-canvas');
+    if (!canvas) return;
 
-    const printWin = window.open('', '_blank', 'width=600,height=750');
+    const dataUrl = canvas.toDataURL('image/png', 1.0);
+
+    const printWin = window.open('', '_blank', 'width=700,height=850');
     if (!printWin) {
       alert('⚠️ Por favor permite las ventanas emergentes para imprimir.');
       return;
@@ -4311,95 +4619,60 @@ class AdminController {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Imprimir QR - ${est.name}</title>
+        <title>Imprimir Display QR - ${est.name}</title>
         <meta charset="utf-8">
         <style>
+          @page {
+            size: auto;
+            margin: 10mm;
+          }
           body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #f8fafc;
+            background: #09090D;
+            color: #FFFFFF;
             margin: 0;
-            padding: 40px 20px;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 90vh;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
-          .card {
-            background: #ffffff;
-            border: 2px dashed #cbd5e1;
+          .display-card {
+            background: #09090D;
             border-radius: 24px;
-            padding: 36px 30px;
+            padding: 20px;
             text-align: center;
-            max-width: 360px;
+            max-width: 480px;
             width: 100%;
             box-sizing: border-box;
           }
-          .logo {
-            font-size: 32px;
-            margin-bottom: 4px;
-          }
-          .brand {
-            font-size: 16px;
-            font-weight: 900;
-            color: #FF5E3A;
-            margin-bottom: 8px;
-          }
-          .name {
-            font-size: 22px;
-            font-weight: 900;
-            color: #0f172a;
-            margin: 6px 0;
-          }
-          .mesa {
-            font-size: 16px;
-            font-weight: 800;
-            color: #10B981;
-            background: #ecfdf5;
-            padding: 4px 12px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-bottom: 12px;
-          }
-          .qr-box {
-            background: #f1f5f9;
-            padding: 14px;
+          .display-card img {
+            width: 100%;
+            height: auto;
             border-radius: 16px;
-            display: inline-block;
-            margin: 12px 0;
-          }
-          .qr-box img {
-            width: 230px;
-            height: 230px;
             display: block;
+            margin: 0 auto;
           }
-          .call-to-action {
-            font-size: 14px;
+          .instructions {
+            margin-top: 14px;
+            font-size: 13px;
             font-weight: 800;
-            color: #1e293b;
-            margin: 8px 0 2px 0;
-          }
-          .sub {
-            font-size: 11px;
-            color: #64748b;
+            color: #FFA000;
           }
         </style>
       </head>
       <body>
-        <div class="card">
-          <div class="logo">${est.logo || '🏪'}</div>
-          <div class="brand">👑 DeliverCity</div>
-          <div class="name">${est.name}</div>
-          ${tableNum ? `<div class="mesa">📍 MESA #${tableNum}</div>` : ''}
-          <div class="qr-box">
-            <img src="${qrSrc}" alt="QR">
-          </div>
-          <div class="call-to-action">📲 Escanea para Ver la Carta</div>
-          <div class="sub">Haz tu pedido fácil y rápido desde tu celular</div>
+        <div class="display-card">
+          <img src="${dataUrl}" alt="Display QR ${est.name}">
+          <div class="instructions">📱 Escanea con tu cámara para ver el menú y pedir</div>
         </div>
         <script>
           window.onload = function() {
             setTimeout(function() {
               window.print();
-            }, 400);
+            }, 500);
           };
         </script>
       </body>
