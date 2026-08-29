@@ -1249,13 +1249,14 @@ class MarketplaceController {
 
   addDirectToCart(product) {
     const cartItemId = 'item-' + Date.now() + '-' + Math.floor(Math.random() * 100000);
+    const store = (this.establishments || []).find(e => e.id === product.restaurant_id) || this.selectedEstablishment || {};
     const cartItem = {
       cart_item_id: cartItemId,
       product_id: product.id,
       product_name: product.name,
-      restaurant_id: this.selectedEstablishment.id,
-      restaurant_name: this.selectedEstablishment.name,
-      delivery_fee: this.selectedEstablishment.delivery_fee || 0,
+      restaurant_id: store.id || product.restaurant_id || '',
+      restaurant_name: store.name || product.restaurant_name || '',
+      delivery_fee: store.delivery_fee || 0,
       quantity: 1,
       selected_specifications: {
         single_selections: [],
