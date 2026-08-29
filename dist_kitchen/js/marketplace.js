@@ -4828,7 +4828,7 @@ class MarketplaceController {
     }
   }
 
-  // Interactive Customer Table Map Layout Renderer
+  // Customer Table Selector (Mesa)
   renderCustomerTableMap() {
     const container = document.getElementById('customer-table-layout-container');
     const badge = document.getElementById('customer-selected-table-badge');
@@ -4837,101 +4837,65 @@ class MarketplaceController {
 
     const shopId = this.cart.items[0]?.restaurant_id;
     const est = this.establishments.find(e => e.id === shopId);
-    const layout = (est && est.layout && Array.isArray(est.layout)) ? est.layout : [];
-    const tableItems = layout.filter(item => item.type === 'table');
+    let tables = (est && Array.isArray(est.tables) && est.tables.length > 0) ? est.tables : [];
+    
+    if (tables.length === 0) {
+      if (est && Array.isArray(est.layout) && est.layout.length > 0) {
+        tables = est.layout.filter(i => i.type === 'table').map(i => ({ id: `t-${i.number}`, name: `Mesa ${i.number}`, number: i.number }));
+      } else {
+        tables = [1, 2, 3, 4, 5, 6].map(n => ({ id: `t-${n}`, name: `Mesa ${n}`, number: n }));
+      }
+    }
 
     container.innerHTML = '';
 
-    if (tableItems.length > 0) {
-      // 10x10 Visual Map Grid
-      const grid = document.createElement('div');
-      grid.style.cssText = 'display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; width: 100%; max-width: 320px; margin: 0 auto; aspect-ratio: 1;';
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'display: flex; flex-direction: column; gap: 8px; width: 100%;';
+    
+    const title = document.createElement('div');
+    title.style.cssText = 'font-size: 12px; color: #94A3B8; font-weight: 700; display: flex; align-items: center; justify-content: space-between;';
+    title.innerHTML = '<span>Toca la mesa donde te encuentras sentado:</span> <span style="font-size: 10.5px; color: #10B981;">🟢 Mesas Disponibles</span>';
+    wrapper.appendChild(title);
 
-      for (let y = 0; y < 10; y++) {
-        for (let x = 0; x < 10; x++) {
-          const item = layout.find(cell => cell.x === x && cell.y === y);
-          const cell = document.createElement('div');
-          cell.style.cssText = 'width: 100%; height: 100%; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.15s ease;';
+    const chipsGrid = document.createElement('div');
+    chipsGrid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; width: 100%;';
 
-          if (item) {
-            if (item.type === 'table') {
-              const isSelected = input && parseInt(input.value, 10) === item.number;
-              cell.className = 'cust-table-cell';
-              cell.style.background = isSelected ? '#10B981' : '#F59E0B';
-              cell.style.color = isSelected ? '#ffffff' : '#1E293B';
-              cell.style.fontWeight = '900';
-              cell.style.cursor = 'pointer';
-              cell.style.boxShadow = isSelected ? '0 0 12px #10B981' : '0 2px 6px rgba(0,0,0,0.3)';
-              cell.innerHTML = `<span style="font-size: 11px; line-height: 1;">🪑</span><span style="font-size: 8.5px; margin-top: 1px;">#${item.number}</span>`;
-              
-              cell.onclick = () => {
-                if (input) input.value = item.number;
-                if (badge) {
-                  badge.innerText = `✅ Mesa #${item.number} Seleccionada en el Plano del Local`;
-                  badge.style.display = 'block';
-                }
-                this.renderCustomerTableMap();
-              };
-            } else if (item.type === 'wall') {
-              cell.style.background = '#334155';
-              cell.style.border = '1px solid rgba(255,255,255,0.06)';
-              cell.innerHTML = '<span style="font-size: 10px;">🧱</span>';
-            }
-          } else {
-            cell.style.background = 'rgba(255,255,255,0.02)';
-            cell.style.border = '1px solid rgba(255,255,255,0.04)';
-          }
-          grid.appendChild(cell);
+    tables.forEach((table, idx) => {
+      const tNum = table.number || (idx + 1);
+      const tName = table.name || `Mesa ${tNum}`;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      const isSelected = input && String(input.value).trim() === String(tNum).trim();
+      btn.style.cssText = `
+        padding: 10px 6px;
+        border-radius: 10px;
+        border: 1.5px solid ${isSelected ? '#10B981' : 'rgba(255,255,255,0.12)'};
+        background: ${isSelected ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'rgba(255,255,255,0.05)'};
+        color: ${isSelected ? '#ffffff' : '#FCD34D'};
+        font-weight: 800;
+        font-size: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        box-shadow: ${isSelected ? '0 0 12px rgba(16, 185, 129, 0.4)' : 'none'};
+        transition: all 0.2s ease;
+      `;
+      btn.innerHTML = `<span>🪑</span> <span>${tName}</span>`;
+      btn.onclick = () => {
+        if (input) input.value = tNum;
+        if (badge) {
+          badge.innerText = `✅ ${tName} Seleccionada para tu Pedido`;
+          badge.style.display = 'block';
         }
-      }
-      container.appendChild(grid);
-    } else {
-      // Default table chips selector fallback
-      const fallbackDiv = document.createElement('div');
-      fallbackDiv.style.cssText = 'display: flex; flex-direction: column; gap: 8px; align-items: center;';
-      
-      const title = document.createElement('span');
-      title.style.cssText = 'font-size: 12px; color: #94A3B8; font-weight: 700;';
-      title.innerText = 'Toca la mesa donde te encuentras sentado:';
-      fallbackDiv.appendChild(title);
+        this.renderCustomerTableMap();
+      };
+      chipsGrid.appendChild(btn);
+    });
 
-      const chipsGrid = document.createElement('div');
-      chipsGrid.style.cssText = 'display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%;';
-
-      for (let num = 1; num <= 8; num++) {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        const isSelected = input && parseInt(input.value, 10) === num;
-        btn.style.cssText = `
-          padding: 10px 6px;
-          border-radius: 10px;
-          border: 1px solid ${isSelected ? '#10B981' : 'rgba(255,255,255,0.1)'};
-          background: ${isSelected ? '#10B981' : 'rgba(255,255,255,0.05)'};
-          color: ${isSelected ? '#ffffff' : '#F59E0B'};
-          font-weight: 800;
-          font-size: 12px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 4px;
-          box-shadow: ${isSelected ? '0 0 10px rgba(16, 185, 129, 0.4)' : 'none'};
-          transition: all 0.2s ease;
-        `;
-        btn.innerHTML = `<span>🪑</span> <span>Mesa ${num}</span>`;
-        btn.onclick = () => {
-          if (input) input.value = num;
-          if (badge) {
-            badge.innerText = `✅ Mesa #${num} Seleccionada`;
-            badge.style.display = 'block';
-          }
-          this.renderCustomerTableMap();
-        };
-        chipsGrid.appendChild(btn);
-      }
-      fallbackDiv.appendChild(chipsGrid);
-      container.appendChild(fallbackDiv);
-    }
+    wrapper.appendChild(chipsGrid);
+    container.appendChild(wrapper);
   }
 
   saveUserOrderToHistory(order) {

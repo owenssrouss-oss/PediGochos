@@ -1806,110 +1806,255 @@ class AdminController {
   }
 
   renderFloorGrid() {
-    const canvas = document.getElementById('floor-grid-canvas');
-    if (!canvas) return;
+    this.renderTablesManager();
+  }
 
-    const est = this.establishments.find(e => e.id === window.activeShopIdForMenu);
+  renderTablesManager() {
+    const grid = document.getElementById('restaurant-tables-manager-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const shopId = window.activeShopIdForMenu || this.activeShopId;
+    const est = this.establishments.find(e => e.id === shopId);
     if (!est) return;
 
-    const layout = est.layout || [];
-    canvas.innerHTML = '';
+    // Ensure est.tables exists
+    if (!Array.isArray(est.tables) || est.tables.length === 0) {
+      if (Array.isArray(est.layout) && est.layout.length > 0) {
+        est.tables = est.layout
+          .filter(i => i.type === 'table')
+          .map(i => ({
+            id: `t-${i.number}`,
+            name: `Mesa ${i.number}`,
+            number: i.number,
+            capacity: 4,
+            status: 'Disponible'
+          }));
+      } else {
+        // Default 6 tables if newly created
+        est.tables = [1, 2, 3, 4, 5, 6].map(n => ({
+          id: `t-${n}`,
+          name: `Mesa ${n}`,
+          number: n,
+          capacity: 4,
+          status: 'Disponible'
+        }));
+      }
+    }
 
-    // Render a 10x10 floor grid
-    for (let y = 0; y < 10; y++) {
-      for (let x = 0; x < 10; x++) {
-        const cell = document.createElement('div');
-        cell.className = 'grid-cell-item';
-        
-        // Find if cell contains anything
-        const item = layout.find(item => item.x === x && item.y === y);
+    // Sort tables by number/name
+    est.tables.sort((a, b) => {
+      const numA = parseInt(a.number || a.name || 0, 10);
+      const numB = parseInt(b.number || b.name || 0, 10);
+      return (isNaN(numA) ? 0 : numA) - (isNaN(numB) ? 0 : numB);
+    });
 
-        // Core Neumorphic styling for grid cells
-        cell.style.width = '100%';
-        cell.style.height = '100%';
-        cell.style.transition = 'all 0.15s ease';
-        cell.style.display = 'flex';
-        cell.style.flexDirection = 'column';
-        cell.style.alignItems = 'center';
-        cell.style.justifyContent = 'center';
-        cell.style.borderRadius = '6px';
-        cell.style.fontSize = '12px';
-        cell.style.cursor = 'pointer';
+    const origin = window.location.origin;
 
-        if (item) {
-          if (item.type === 'wall') {
-            cell.style.background = '#374151';
-            cell.style.border = '1px solid rgba(255,255,255,0.1)';
-            cell.innerHTML = '<span style="font-size: 14px;">🧱</span>';
-          } else if (item.type === 'table') {
-            cell.style.background = 'var(--accent)';
-            cell.style.border = '1px solid var(--accent)';
-            cell.style.color = '#121216';
-            cell.style.fontWeight = '900';
-            cell.innerHTML = `<span style="font-size: 11px; line-height: 1;">🪑</span><span style="font-size: 8.5px; margin-top: 1px; font-weight:800;">#${item.number}</span>`;
-          }
-        } else {
-          cell.style.background = 'rgba(255,255,255,0.02)';
-          cell.style.border = '1px solid rgba(255,255,255,0.04)';
-          
-          // Subtle hover state
-          cell.onmouseover = () => { cell.style.background = 'rgba(255,255,255,0.06)'; };
-          cell.onmouseout = () => { cell.style.background = 'rgba(255,255,255,0.02)'; };
+    est.tables.forEach((table, idx) => {
+      const tNum = table.number || (idx + 1);
+      const tName = table.name || `Mesa ${tNum}`;
+      const directUrl = `${origin}/?store=${encodeURIComponent(est.id)}&mesa=${encodeURIComponent(tNum)}`;
+      const qrBoxId = `table-qr-card-box-${idx}`;
+
+      const card = document.createElement('div');
+      card.className = 'table-qr-card';
+      card.style.cssText = 'background: rgba(18, 18, 24, 0.95); border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.4); position: relative;';
+
+      card.innerHTML = `
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 11px; font-weight: 800; color: #10B981; background: rgba(16,185,129,0.15); border: 1px solid #10B981; padding: 2px 8px; border-radius: 6px;">🟢 Activa</span>
+          <button type="button" onclick="AdminApp.deleteTable('${table.id || tNum}')" title="Eliminar Mesa" style="background: rgba(239,68,68,0.15); border: 1px solid #EF4444; color: #EF4444; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 11px;">✕</button>
+        </div>
+
+        <div style="margin-top: -4px;">
+          <h4 style="margin: 0; color: #FFF; font-size: 16px; font-weight: 900;">🪑 ${tName}</h4>
+          <span style="font-size: 11px; color: var(--text-muted);">Capacidad: ${table.capacity || 4} pers.</span>
+        </div>
+
+        <!-- Live QR Code Element -->
+        <div id="${qrBoxId}" style="width: 130px; height: 130px; background: #111116; border-radius: 12px; padding: 6px; display: flex; align-items: center; justify-content: center; border: 1.5px solid #FF6B00; box-shadow: 0 0 12px rgba(255,107,0,0.25);">
+          <!-- QR Canvas -->
+        </div>
+
+        <div style="font-size: 10px; color: #94A3B8; word-break: break-all; max-width: 100%; font-family: monospace; background: rgba(0,0,0,0.3); padding: 4px 6px; border-radius: 6px;">
+          /?store=${est.id}&mesa=${tNum}
+        </div>
+
+        <div style="display: flex; gap: 6px; width: 100%; margin-top: 4px;">
+          <button type="button" onclick="AdminApp.downloadSingleTableQR('${tNum}', '${est.id}')" style="flex: 1; background: linear-gradient(135deg, #FF6B00 0%, #EA580C 100%); color: #FFF; border: none; padding: 7px 8px; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 3px 8px rgba(255,107,0,0.3);">
+            📥 Descargar
+          </button>
+          <button type="button" onclick="AdminApp.copyTableDirectLink('${directUrl}')" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #FFF; padding: 7px 10px; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer;" title="Copiar Enlace">
+            📋 Copiar
+          </button>
+        </div>
+      `;
+
+      grid.appendChild(card);
+
+      // Generate the QR module inside the card
+      setTimeout(() => {
+        const qrContainer = document.getElementById(qrBoxId);
+        if (qrContainer && typeof QRCode !== 'undefined') {
+          qrContainer.innerHTML = '';
+          new QRCode(qrContainer, {
+            text: directUrl,
+            width: 118,
+            height: 118,
+            colorDark: '#FF6B00',
+            colorLight: '#111116',
+            correctLevel: QRCode.CorrectLevel.M
+          });
         }
+      }, 50);
+    });
+  }
 
-        cell.onclick = () => this.handleCellClick(x, y);
-        canvas.appendChild(cell);
+  addNewTablePrompt() {
+    this.toggleAddTableForm(true);
+  }
+
+  toggleAddTableForm(show) {
+    const form = document.getElementById('add-table-quick-form');
+    if (!form) return;
+    form.style.display = show ? 'block' : 'none';
+    if (show) {
+      const shopId = window.activeShopIdForMenu || this.activeShopId;
+      const est = this.establishments.find(e => e.id === shopId);
+      const tables = est && Array.isArray(est.tables) ? est.tables : [];
+      const maxNum = tables.reduce((max, t) => Math.max(max, parseInt(t.number || 0, 10) || 0), 0);
+      const nextNum = maxNum + 1;
+      const numInput = document.getElementById('new-table-number-input');
+      if (numInput) {
+        numInput.value = nextNum;
+        numInput.focus();
       }
     }
   }
 
-  async handleCellClick(x, y) {
-    const est = this.establishments.find(e => e.id === window.activeShopIdForMenu);
+  async confirmAddNewTable() {
+    const shopId = window.activeShopIdForMenu || this.activeShopId;
+    const est = this.establishments.find(e => e.id === shopId);
     if (!est) return;
 
-    if (!est.layout) est.layout = [];
-
-    // Filter out existing element at coordinates
-    est.layout = est.layout.filter(item => !(item.x === x && item.y === y));
-
-    if (this.activeFloorTool === 'wall') {
-      est.layout.push({ x, y, type: 'wall' });
-    } else if (this.activeFloorTool === 'table') {
-      // Calculate max table number to set next sequential number
-      const maxNum = est.layout.filter(c => c.type === 'table').reduce((max, c) => Math.max(max, c.number || 0), 0);
-      const number = maxNum + 1;
-      est.layout.push({ x, y, type: 'table', number });
+    const numInput = document.getElementById('new-table-number-input');
+    const capInput = document.getElementById('new-table-capacity-input');
+    const val = numInput ? numInput.value.trim() : '';
+    if (!val) {
+      alert('Por favor indica el número o nombre de la mesa.');
+      return;
     }
 
-    // Auto-save layout updates to db.json
+    if (!Array.isArray(est.tables)) est.tables = [];
+
+    const isNum = !isNaN(parseInt(val, 10)) && String(parseInt(val, 10)) === val;
+    const tableNumber = isNum ? parseInt(val, 10) : val;
+    const tableName = isNum ? `Mesa ${val}` : val;
+    const capacity = capInput ? parseInt(capInput.value, 10) || 4 : 4;
+
+    const newTable = {
+      id: `t-${Date.now()}`,
+      name: tableName,
+      number: tableNumber,
+      capacity: capacity,
+      status: 'Disponible'
+    };
+
+    // Check if table already exists
+    const exists = est.tables.some(t => String(t.number) === String(tableNumber) || t.name.toLowerCase() === tableName.toLowerCase());
+    if (exists) {
+      alert(`⚠️ La mesa "${val}" ya existe en el restaurante.`);
+      return;
+    }
+
+    est.tables.push(newTable);
+
+    // Auto-save to server
     try {
-      const res = await fetch(`/api/establishments/${est.id}`, {
+      await fetch(`/api/establishments/${est.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           isOwner: true,
-          layout: est.layout,
-          // Sync legacy tables array from tables defined in layout grid
-          tables: est.layout
-            .filter(item => item.type === 'table')
-            .map(item => ({
-              id: `t-${item.number}`,
-              name: `Mesa ${item.number}`,
-              number: item.number,
-              status: 'Disponible'
-            }))
+          tables: est.tables
         })
       });
-
-      if (res.ok) {
-        this.renderFloorGrid();
-        this.markPendingChanges();
-      } else {
-        console.error('Failed to save layout to server');
-      }
-    } catch (err) {
-      console.error(err);
+      this.showToast(`✅ ${tableName} agregada con su QR generado`);
+      this.toggleAddTableForm(false);
+      this.renderTablesManager();
+    } catch(e) {
+      console.error('Error saving table:', e);
+      this.showToast('Error al guardar la mesa');
     }
+  }
+
+  async deleteTable(tableIdOrNum) {
+    const shopId = window.activeShopIdForMenu || this.activeShopId;
+    const est = this.establishments.find(e => e.id === shopId);
+    if (!est || !Array.isArray(est.tables)) return;
+
+    if (!confirm('¿Seguro que deseas eliminar esta mesa?')) return;
+
+    est.tables = est.tables.filter(t => t.id !== tableIdOrNum && String(t.number) !== String(tableIdOrNum));
+
+    try {
+      await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          tables: est.tables
+        })
+      });
+      this.showToast('🗑️ Mesa eliminada');
+      this.renderTablesManager();
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  copyTableDirectLink(url) {
+    navigator.clipboard.writeText(url).then(() => {
+      this.showToast('📋 Enlace de la mesa copiado');
+    }).catch(() => {
+      prompt('Copia este enlace para la mesa:', url);
+    });
+  }
+
+  downloadSingleTableQR(tableNumberOrName, estId) {
+    const est = this.establishments.find(e => e.id === (estId || window.activeShopIdForMenu || this.activeShopId));
+    if (!est) return;
+
+    const origin = window.location.origin;
+    const directUrl = `${origin}/?store=${encodeURIComponent(est.id)}&mesa=${encodeURIComponent(tableNumberOrName)}`;
+
+    this.renderCustomOrangeQR(directUrl, (qrElement) => {
+      const canvas = document.createElement('canvas');
+      this.drawStoreQRDisplayCanvas(canvas, est, tableNumberOrName, qrElement);
+      
+      const link = document.createElement('a');
+      link.download = `QR_Mesa_${tableNumberOrName}_${est.name.replace(/\s+/g, '_')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      this.showToast(`📥 Descargando QR de Mesa #${tableNumberOrName}`);
+    });
+  }
+
+  downloadAllTablesQRBatch() {
+    const shopId = window.activeShopIdForMenu || this.activeShopId;
+    const est = this.establishments.find(e => e.id === shopId);
+    if (!est || !Array.isArray(est.tables) || est.tables.length === 0) {
+      alert('No hay mesas registradas en este local.');
+      return;
+    }
+
+    this.showToast(`📦 Descargando lote de ${est.tables.length} códigos QR...`);
+    est.tables.forEach((table, idx) => {
+      setTimeout(() => {
+        this.downloadSingleTableQR(table.number || (idx + 1), est.id);
+      }, idx * 600);
+    });
   }
 
   async loadModalProducts() {
