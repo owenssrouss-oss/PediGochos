@@ -1489,7 +1489,7 @@ app.post('/api/reviews', (req, res) => {
     id: 'rev-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
     orderId: orderId || null,
     establishmentId,
-    customerName: customerName || 'Cliente de Rapi Gochos',
+    customerName: customerName || 'Cliente de Pedi Gochos',
     rating: Math.min(5, Math.max(1, parseFloat(rating))),
     comment: comment || '',
     createdAt: new Date().toISOString()

@@ -282,7 +282,7 @@ class DriverController {
       ? `https://www.google.com/maps/search/?api=1&query=${order.deliveryDetails.latitude},${order.deliveryDetails.longitude}`
       : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(custAddress)}`;
 
-    const whatsappUrl = custPhone ? `https://wa.me/${custPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hola ' + custName + ', soy tu repartidor de Rapi Gochos 🛵. Voy en camino con tu pedido.')}` : '#';
+    const whatsappUrl = custPhone ? `https://wa.me/${custPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hola ' + custName + ', soy tu repartidor de Pedi Gochos 🛵. Voy en camino con tu pedido.')}` : '#';
 
     detailsCard.innerHTML = `
       <div class="order-card-3d" style="border: 2px solid #10B981;">

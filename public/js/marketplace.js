@@ -648,7 +648,7 @@ class MarketplaceController {
       grid.innerHTML = `
         <div class="cart-empty-state" style="grid-column: 1 / -1; padding: 36px 20px; text-align: center; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1); border-radius: 20px;">
           <span style="font-size: 42px; display: block; margin-bottom: 10px;">👆</span>
-          <h3 style="font-size: 16px; font-weight: 800; color: #ffffff; margin: 0 0 6px 0;">¡Bienvenido a Rapi Gochos!</h3>
+          <h3 style="font-size: 16px; font-weight: 800; color: #ffffff; margin: 0 0 6px 0;">¡Bienvenido a Pedi Gochos!</h3>
           <p style="font-size: 13px; color: #94A3B8; margin: 0; line-height: 1.4;">Presiona una de las categorías arriba (<strong>Restaurantes, Farmacias, Mercados o Ferreterías</strong>) para ver los comercios disponibles.</p>
         </div>
       `;
@@ -5248,7 +5248,7 @@ class MarketplaceController {
           establishmentId: estId,
           rating,
           comment,
-          customerName: 'Cliente Rapi Gochos'
+          customerName: 'Cliente Pedi Gochos'
         })
       });
 

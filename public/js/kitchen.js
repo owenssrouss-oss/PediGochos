@@ -1422,7 +1422,7 @@ class KitchenController {
         }
       });
 
-      let messageText = `🚴 *Rapi Gochos - SOLICITUD DE DOMICILIO*\n` +
+      let messageText = `🚴 *Pedi Gochos - SOLICITUD DE DOMICILIO*\n` +
         `👤 *Asignado a:* ${driverName}\n\n` +
         `🏬 *Establecimiento:* ${storeName}\n` +
         `👤 *Cliente:* ${clientName}\n` +
