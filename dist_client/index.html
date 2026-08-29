@@ -106,8 +106,8 @@
 
         <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
           <div style="display: flex; gap: 8px;">
-            <button type="button" id="active-order-cancel-btn" onclick="MarketplaceApp.cancelActiveOrder()" style="background: rgba(239, 68, 68, 0.15); border: 1px solid #EF4444; color: #EF4444; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
-              ❌ Cancelar Pedido
+            <button type="button" id="active-order-cancel-btn" onclick="MarketplaceApp.openCancelRequestModal()" style="background: rgba(245, 158, 11, 0.15); border: 1.5px solid #F59E0B; color: #FCD34D; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+              🆘 Solicitar Cancelación
             </button>
             <button type="button" onclick="MarketplaceApp.minimizeActiveOrderTracking()" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
               🔽 Minimizar
@@ -839,6 +839,60 @@
       <div id="reviews-modal-cards-list" class="premium-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px;">
         <!-- Filled dynamically -->
       </div>
+    </div>
+  </div>
+
+  <!-- Modal: Solicitar Cancelación de Pedido con Soporte -->
+  <div class="modal-overlay" id="order-cancel-request-modal" style="z-index: 4600; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+    <div class="modal-content" style="max-width: 480px; width: 92%; padding: 22px; border-radius: 24px; background: rgba(18, 18, 26, 0.98); border: 1.5px solid rgba(245, 158, 11, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.8); margin: auto;">
+      
+      <!-- Modal Header -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="font-size: 28px; background: rgba(245, 158, 11, 0.15); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(245, 158, 11, 0.3);">🆘</div>
+          <div>
+            <h3 style="margin: 0; color: #FFF; font-size: 17px; font-weight: 800;">Solicitud de Cancelación</h3>
+            <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #94A3B8;">Confirmación con el comercio vía Soporte Central</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="MarketplaceApp.closeCancelRequestModal()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.1); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Policy Info Notice -->
+      <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 14px; padding: 12px; margin-bottom: 14px; font-size: 12px; color: #FCA5A5; line-height: 1.4;">
+        ⚠️ <strong>Atención:</strong> Para cancelar, el equipo de soporte debe validar con la cocina del restaurante si tu pedido aún no ha comenzado a prepararse o si el repartidor ya salió.
+      </div>
+
+      <!-- Order Details Summary Card -->
+      <div id="cancel-order-summary-box" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px; margin-bottom: 14px;">
+        <!-- Filled dynamically -->
+      </div>
+
+      <!-- Quick Cancellation Reason Chips -->
+      <div style="margin-bottom: 14px;">
+        <label style="font-size: 12px; font-weight: 800; color: #E2E8F0; display: block; margin-bottom: 8px;">
+          📝 Selecciona el motivo de la cancelación:
+        </label>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px;" id="cancel-reason-chips-container">
+          <button type="button" class="btn-cancel-chip" onclick="MarketplaceApp.selectCancelReason('Me equivoqué al pedir')" style="font-size: 11px; padding: 5px 9px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #E2E8F0; cursor: pointer;">Me equivoqué al pedir</button>
+          <button type="button" class="btn-cancel-chip" onclick="MarketplaceApp.selectCancelReason('Demora en la preparación')" style="font-size: 11px; padding: 5px 9px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #E2E8F0; cursor: pointer;">Demora mucho tiempo</button>
+          <button type="button" class="btn-cancel-chip" onclick="MarketplaceApp.selectCancelReason('Cambio de dirección')" style="font-size: 11px; padding: 5px 9px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #E2E8F0; cursor: pointer;">Cambio de dirección</button>
+          <button type="button" class="btn-cancel-chip" onclick="MarketplaceApp.selectCancelReason('Problema con el método de pago')" style="font-size: 11px; padding: 5px 9px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #E2E8F0; cursor: pointer;">Problema de pago</button>
+          <button type="button" class="btn-cancel-chip" onclick="MarketplaceApp.selectCancelReason('Otro motivo')" style="font-size: 11px; padding: 5px 9px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #E2E8F0; cursor: pointer;">Otro motivo</button>
+        </div>
+        <input type="text" id="cancel-request-reason-input" placeholder="O escribe el motivo aquí..." style="width: 100%; margin-top: 8px; padding: 9px 12px; border-radius: 10px; background: #09090D; border: 1px solid rgba(255,255,255,0.15); color: #FFF; font-size: 12.5px; box-sizing: border-box;">
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 8px; flex-direction: column;">
+        <button type="button" onclick="MarketplaceApp.sendCancellationToWhatsAppSupport()" style="width: 100%; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: #FFF; border: none; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 13.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.35);">
+          <span>💬</span> Solicitar a Soporte por WhatsApp
+        </button>
+        <button type="button" onclick="MarketplaceApp.closeCancelRequestModal()" style="width: 100%; background: transparent; color: #94A3B8; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer;">
+          Regresar a mi pedido
+        </button>
+      </div>
+
     </div>
   </div>
 

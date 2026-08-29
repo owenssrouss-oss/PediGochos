@@ -4200,72 +4200,134 @@ class MarketplaceController {
     }
   }
 
-  cancelActiveOrder() {
-    const activeOrderId = localStorage.getItem('active_order_id');
-    if (!activeOrderId) return;
-    this.cancelUserOrder(activeOrderId);
+  openCancelRequestModal(orderId) {
+    const targetOrderId = orderId || localStorage.getItem('active_order_id');
+    if (!targetOrderId) return;
+
+    let userOrders = this.getUserOrdersHistory();
+    let order = userOrders.find(o => String(o.id) === String(targetOrderId));
+
+    // Try fetching fresh order from server if possible
+    fetch('/api/orders')
+      .then(res => res.json())
+      .then(orders => {
+        const fresh = orders.find(o => String(o.id) === String(targetOrderId));
+        if (fresh) order = fresh;
+        this.renderCancelRequestModalContent(targetOrderId, order);
+      })
+      .catch(() => {
+        this.renderCancelRequestModalContent(targetOrderId, order);
+      });
   }
 
-  async cancelUserOrder(orderId) {
-    if (!confirm('¿Estás seguro de que deseas cancelar este pedido?')) {
+  renderCancelRequestModalContent(orderId, order) {
+    const modal = document.getElementById('order-cancel-request-modal');
+    if (!modal) return;
+
+    this.pendingCancelOrderId = orderId;
+    this.pendingCancelOrderObj = order;
+
+    const status = order ? (order.status || 'Pendiente') : 'Pendiente';
+    if (status === 'Entregado') {
+      alert('✅ Este pedido ya fue entregado con éxito.');
+      return;
+    }
+    if (status === 'Cancelado') {
+      alert('❌ Este pedido ya se encuentra cancelado.');
       return;
     }
 
-    try {
-      const res = await fetch(`/api/orders/${orderId}/status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status: 'Cancelado',
-          reason: 'Cancelado por el cliente'
-        })
-      });
+    const estName = order ? (order.establishmentName || order.restaurant_name || 'Restaurante') : 'Restaurante';
+    const codeStr = String(orderId).slice(-6).toUpperCase();
+    const totalVal = order ? (order.total || order.unit_total_calculated || 0) : 0;
+    const totalStr = this.formatPesos(this.normalizeCopPrice(totalVal));
 
-      if (res.ok) {
-        this.showToast('❌ Pedido cancelado exitosamente');
-        
-        // Update local orders history
-        let userOrders = this.getUserOrdersHistory();
-        const target = userOrders.find(o => String(o.id) === String(orderId));
-        if (target) {
-          target.status = 'Cancelado';
-          target.cancelReason = 'Cancelado por el cliente';
-          localStorage.setItem('user_orders_history', JSON.stringify(userOrders));
-        }
-
-        // If it was the active order in tracking card
-        if (String(localStorage.getItem('active_order_id')) === String(orderId)) {
-          const badge = document.getElementById('active-order-status-badge');
-          const text = document.getElementById('active-order-info-text');
-          const pillStatus = document.getElementById('minimized-pill-status');
-          const cancelBtn = document.getElementById('active-order-cancel-btn');
-          
-          if (badge) {
-            badge.innerText = '❌ Cancelado';
-            badge.style.background = 'rgba(239, 68, 68, 0.2)';
-            badge.style.color = '#ef4444';
-          }
-          if (pillStatus) {
-            pillStatus.innerText = '❌ Cancelado';
-            pillStatus.style.color = '#ef4444';
-          }
-          if (text) text.innerText = '❌ Tu pedido ha sido cancelado.';
-          if (cancelBtn) cancelBtn.style.display = 'none';
-
-          setTimeout(() => {
-            this.dismissActiveOrderTracking();
-          }, 4000);
-        }
-
-        const activeFilter = document.querySelector('.active-order-filter')?.id?.replace('user-order-filter-', '') || 'all';
-        this.renderUserOrdersList(activeFilter);
-      } else {
-        alert('No se pudo cancelar el pedido. El pedido puede estar ya completado o cancelado.');
-      }
-    } catch(err) {
-      console.error('Error cancelling order:', err);
-      alert('Error de conexión al cancelar el pedido.');
+    const summaryBox = document.getElementById('cancel-order-summary-box');
+    if (summaryBox) {
+      summaryBox.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="font-size: 13.5px; font-weight: 900; color: #FFF;">📦 Pedido #${codeStr}</span>
+          <span style="font-size: 11px; font-weight: 800; background: rgba(245, 158, 11, 0.2); color: #FCD34D; border: 1px solid #F59E0B; padding: 2px 7px; border-radius: 6px;">
+            ${status}
+          </span>
+        </div>
+        <div style="font-size: 12px; color: #94A3B8; line-height: 1.5;">
+          🏪 <strong>Restaurante:</strong> <span style="color: #FFF;">${estName}</span><br>
+          💵 <strong>Total:</strong> <span style="color: var(--primary); font-weight: 800;">${totalStr}</span>
+        </div>
+      `;
     }
+
+    // Reset input and chips
+    const reasonInput = document.getElementById('cancel-request-reason-input');
+    if (reasonInput) reasonInput.value = '';
+
+    document.querySelectorAll('.btn-cancel-chip').forEach(btn => {
+      btn.style.background = 'rgba(255,255,255,0.06)';
+      btn.style.borderColor = 'rgba(255,255,255,0.12)';
+      btn.style.color = '#E2E8F0';
+    });
+
+    modal.classList.add('open');
+    modal.style.setProperty('display', 'flex', 'important');
+  }
+
+  closeCancelRequestModal() {
+    const modal = document.getElementById('order-cancel-request-modal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.style.setProperty('display', 'none', 'important');
+    }
+    this.pendingCancelOrderId = null;
+    this.pendingCancelOrderObj = null;
+  }
+
+  selectCancelReason(reasonText) {
+    const reasonInput = document.getElementById('cancel-request-reason-input');
+    if (reasonInput) reasonInput.value = reasonText;
+
+    document.querySelectorAll('.btn-cancel-chip').forEach(btn => {
+      if (btn.innerText.includes(reasonText)) {
+        btn.style.background = 'rgba(245, 158, 11, 0.25)';
+        btn.style.borderColor = '#F59E0B';
+        btn.style.color = '#FCD34D';
+      } else {
+        btn.style.background = 'rgba(255,255,255,0.06)';
+        btn.style.borderColor = 'rgba(255,255,255,0.12)';
+        btn.style.color = '#E2E8F0';
+      }
+    });
+  }
+
+  sendCancellationToWhatsAppSupport() {
+    const orderId = this.pendingCancelOrderId || localStorage.getItem('active_order_id');
+    const order = this.pendingCancelOrderObj;
+    const reasonInput = document.getElementById('cancel-request-reason-input');
+    const reason = (reasonInput && reasonInput.value.trim()) ? reasonInput.value.trim() : 'Solicitud directa del cliente';
+
+    const estName = order ? (order.establishmentName || order.restaurant_name || 'Restaurante') : 'Restaurante';
+    const codeStr = orderId ? String(orderId).slice(-6).toUpperCase() : 'N/A';
+    const statusStr = order ? (order.status || 'Pendiente') : 'Pendiente';
+    const custName = order ? (order.deliveryDetails?.name || order.customerName || 'Cliente') : 'Cliente';
+    const totalVal = order ? (order.total || order.unit_total_calculated || 0) : 0;
+    const totalStr = this.formatPesos(this.normalizeCopPrice(totalVal));
+
+    const message = `Hola Soporte Central PediGochos 👋. Deseo solicitar la cancelación de mi pedido:\n\n` +
+      `📦 *Pedido:* #${codeStr}\n` +
+      `🏪 *Restaurante:* ${estName}\n` +
+      `👤 *Cliente:* ${custName}\n` +
+      `💵 *Total:* ${totalStr}\n` +
+      `📊 *Estado actual:* ${statusStr}\n` +
+      `📝 *Motivo:* ${reason}\n\n` +
+      `¿Por favor me confirman con el restaurante si es posible procesar la cancelación?`;
+
+    const supportPhone = '573227949751';
+    const waUrl = `https://wa.me/${supportPhone}?text=${encodeURIComponent(message)}`;
+
+    window.open(waUrl, '_blank');
+
+    this.closeCancelRequestModal();
+    this.showToast('💬 Solicitud enviada a Soporte. Un asesor confirmará con el restaurante.');
   }
 
   async pollActiveOrder(orderId) {
@@ -4948,8 +5010,8 @@ class MarketplaceController {
         <button type="button" onclick="MarketplaceApp.closeUserOrdersModal(); MarketplaceApp.trackActiveOrder('${ord.id}')" style="background: var(--primary); color: #FFF; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
           🛵 Rastreo en Vivo
         </button>
-        <button type="button" onclick="MarketplaceApp.cancelUserOrder('${ord.id}')" style="background: rgba(239, 68, 68, 0.15); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-          ❌ Cancelar Pedido
+        <button type="button" onclick="MarketplaceApp.openCancelRequestModal('${ord.id}')" style="background: rgba(245, 158, 11, 0.15); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.3); padding: 6px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          🆘 Solicitar Cancelación
         </button>
       ` : '';
 
