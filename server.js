@@ -561,6 +561,45 @@ function normalizeStoreName(name) {
     .trim();
 }
 
+function isEstablishmentOpen(est) {
+  if (!est) return true;
+  if (est.disabled) return false;
+
+  const daysOfWeek = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const todayName = daysOfWeek[new Date().getDay()];
+  if (Array.isArray(est.working_days) && est.working_days.length > 0) {
+    if (!est.working_days.includes(todayName)) {
+      return false;
+    }
+  }
+
+  const openTime = est.open_time || '17:00';
+  const closeTime = est.close_time || '00:00';
+
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  const parseMinutes = (timeStr) => {
+    if (!timeStr) return 0;
+    const parts = timeStr.split(':');
+    let h = parseInt(parts[0], 10) || 0;
+    let m = parseInt(parts[1], 10) || 0;
+    if ((h === 0 && m === 0 && (timeStr === '00:00' || timeStr === '24:00')) || h === 24) {
+      return 1440;
+    }
+    return h * 60 + m;
+  };
+
+  let openMin = parseMinutes(openTime);
+  let closeMin = parseMinutes(closeTime);
+
+  if (openMin <= closeMin) {
+    return currentMinutes >= openMin && currentMinutes <= closeMin;
+  } else {
+    return currentMinutes >= openMin || currentMinutes <= closeMin;
+  }
+}
+
 function deduplicateEstablishments(establishments) {
   if (!Array.isArray(establishments)) return [];
   const seenIds = new Set();
@@ -1219,6 +1258,11 @@ app.post('/api/orders', (req, res) => {
 
   if (!orderDetails.establishmentId || !orderDetails.items || orderDetails.items.length === 0) {
     return res.status(400).json({ error: 'EstablishmentId and items are required' });
+  }
+
+  const targetEst = db.establishments.find(e => e.id === orderDetails.establishmentId);
+  if (targetEst && !isEstablishmentOpen(targetEst)) {
+    return res.status(400).json({ error: `El establecimiento "${targetEst.name}" se encuentra cerrado en este momento. Horario: ${targetEst.open_time} a ${targetEst.close_time}.` });
   }
 
   // Create new order object

@@ -1150,6 +1150,7 @@ class MarketplaceController {
       return;
     }
 
+    const isStoreOpen = this.isEstablishmentOpen(this.selectedEstablishment);
     const dayMap = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
     const todayDay = dayMap[new Date().getDay()];
 
@@ -1172,21 +1173,28 @@ class MarketplaceController {
         }
       }
 
+      const isItemDisabled = !isStoreOpen || isPaused || !isAvailableToday;
+
       const card = document.createElement('div');
-      card.className = `product-card animate-fade-in-up ${isPaused || !isAvailableToday ? 'product-disabled' : ''}`;
-      card.style.cursor = (isPaused || !isAvailableToday) ? 'not-allowed' : 'pointer';
+      card.className = `product-card animate-fade-in-up ${isItemDisabled ? 'product-disabled' : ''}`;
+      card.style.cursor = isItemDisabled ? 'not-allowed' : 'pointer';
       card.style.animationDelay = `${index * 0.05}s`;
-      if (isPaused) {
+      if (!isStoreOpen) {
+        card.style.opacity = '0.6';
+      } else if (isPaused) {
         card.style.opacity = '0.5';
       } else if (!isAvailableToday) {
         card.style.opacity = '0.65';
       }
 
-      if (!isPaused && isAvailableToday) {
+      if (!isItemDisabled) {
         card.setAttribute('onclick', `MarketplaceApp.openCustomizerModalById('${prod.id}')`);
       } else {
         card.onclick = () => {
-          if (isPaused) {
+          if (!isStoreOpen) {
+            const est = this.selectedEstablishment;
+            alert(`🔴 "${est ? est.name : 'Este comercio'}" se encuentra CERRADO en este momento.\nHorario de atención: ${this.formatTime12h(est?.open_time)} a ${this.formatTime12h(est?.close_time)}.\n\nSolo se pueden realizar pedidos cuando el restaurante esté abierto.`);
+          } else if (isPaused) {
             alert(`⚠️ "${prod.name}" no está disponible en este momento.`);
           } else {
             const daysNames = days.map(d => d.toUpperCase()).join(', ');
@@ -1205,11 +1213,13 @@ class MarketplaceController {
         imgHTML = `<div class="product-image-placeholder">${estLogo}</div>`;
       }
 
-      const actionButtonHTML = isPaused
-        ? `<span style="font-size: 10px; color: #ef4444; font-weight: 800;">Agotado</span>`
-        : (!isAvailableToday
-          ? `<span style="font-size: 10px; color: var(--text-muted); font-weight: 700;">No hoy</span>`
-          : `<button class="btn-add-product" onclick="event.stopPropagation(); MarketplaceApp.openCustomizerModalById('${prod.id}')">+</button>`);
+      const actionButtonHTML = !isStoreOpen
+        ? `<span style="font-size: 10px; color: #ef4444; font-weight: 800; background: rgba(239,68,68,0.12); padding: 3px 6px; border-radius: 6px; border: 1px solid rgba(239,68,68,0.3);">🔴 Cerrado</span>`
+        : (isPaused
+          ? `<span style="font-size: 10px; color: #ef4444; font-weight: 800;">Agotado</span>`
+          : (!isAvailableToday
+            ? `<span style="font-size: 10px; color: var(--text-muted); font-weight: 700;">No hoy</span>`
+            : `<button class="btn-add-product" onclick="event.stopPropagation(); MarketplaceApp.openCustomizerModalById('${prod.id}')">+</button>`));
 
       card.innerHTML = `
         <div class="product-info">
@@ -1234,6 +1244,7 @@ class MarketplaceController {
 
   openCustomizerModalById(productId) {
     let product = null;
+    let store = this.selectedEstablishment;
     if (this.selectedEstablishment && Array.isArray(this.selectedEstablishment.products)) {
       product = this.selectedEstablishment.products.find(p => String(p.id) === String(productId));
     }
@@ -1244,11 +1255,17 @@ class MarketplaceController {
           const found = est.products.find(p => String(p.id) === String(productId));
           if (found) {
             this.selectedEstablishment = est;
+            store = est;
             product = found;
             break;
           }
         }
       }
+    }
+
+    if (store && !this.isEstablishmentOpen(store)) {
+      alert(`🔴 "${store.name}" se encuentra CERRADO en este momento.\nHorario de atención: ${this.formatTime12h(store.open_time)} a ${this.formatTime12h(store.close_time)}.\n\nSolo se pueden realizar pedidos cuando el restaurante esté abierto.`);
+      return;
     }
 
     if (product) {
@@ -1264,8 +1281,13 @@ class MarketplaceController {
   }
 
   addDirectToCart(product) {
-    const cartItemId = 'item-' + Date.now() + '-' + Math.floor(Math.random() * 100000);
     const store = (this.establishments || []).find(e => e.id === product.restaurant_id) || this.selectedEstablishment || {};
+    if (store && store.id && !this.isEstablishmentOpen(store)) {
+      alert(`🔴 "${store.name}" se encuentra CERRADO en este momento.\nHorario: ${this.formatTime12h(store.open_time)} a ${this.formatTime12h(store.close_time)}.\n\nSolo se puede pedir cuando el restaurante esté abierto.`);
+      return;
+    }
+
+    const cartItemId = 'item-' + Date.now() + '-' + Math.floor(Math.random() * 100000);
     const cartItem = {
       cart_item_id: cartItemId,
       product_id: product.id,
@@ -1316,6 +1338,12 @@ class MarketplaceController {
     if (!product) return;
     if (typeof product === 'string' || typeof product === 'number') {
       this.openCustomizerModalById(product);
+      return;
+    }
+
+    const store = (this.establishments || []).find(e => e.id === product.restaurant_id) || this.selectedEstablishment;
+    if (store && !this.isEstablishmentOpen(store)) {
+      alert(`🔴 "${store.name}" se encuentra CERRADO en este momento.\nHorario: ${this.formatTime12h(store.open_time)} a ${this.formatTime12h(store.close_time)}.\n\nSolo se puede pedir cuando el restaurante esté abierto.`);
       return;
     }
     console.log('openCustomizerModal called for:', product.name);
@@ -3400,6 +3428,15 @@ class MarketplaceController {
   }
 
   async submitOrder(skipBeveragePrompt = false) {
+    // 0. Verify that all restaurants in cart are currently OPEN
+    for (const item of this.cart.items) {
+      const store = (this.establishments || []).find(e => e.id === item.restaurant_id) || this.selectedEstablishment;
+      if (store && !this.isEstablishmentOpen(store)) {
+        alert(`🔴 No es posible enviar el pedido.\n\nEl restaurante "${store.name}" se encuentra CERRADO en este momento.\nHorario de Atención: ${this.formatTime12h(store.open_time)} a ${this.formatTime12h(store.close_time)}.\n\nSolo se pueden procesar pedidos de restaurantes que se encuentren abiertos.`);
+        return;
+      }
+    }
+
     const acceptTerms = document.getElementById('checkout-accept-terms').checked;
     if (!acceptTerms) {
       alert('Debes aceptar los Términos y Condiciones y autorizar la verificación telefónica para enviar tu pedido.');
