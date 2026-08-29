@@ -682,8 +682,8 @@
         <div style="display: flex; align-items: center; gap: 10px;">
           <span id="upsell-modal-icon" style="font-size: 28px;">🍕🥤</span>
           <div>
-            <h3 id="upsell-modal-title" style="margin: 0; color: #FFF; font-size: 16.5px; font-weight: 900;">¿Deseas Borde Relleno o Bebidas?</h3>
-            <p id="upsell-modal-subtitle" style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted);">Personaliza tu pizza con un delicioso borde y acompaña tu comida con una bebida fría.</p>
+            <h3 id="upsell-modal-title" style="margin: 0; color: #FFF; font-size: 16.5px; font-weight: 900;">¿Desea personalizar el borde?</h3>
+            <p id="upsell-modal-subtitle" style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted);">Personaliza tu pizza con un delicioso borde y acompaña con bebidas frías del restaurante.</p>
           </div>
         </div>
         <button class="modal-close" onclick="MarketplaceApp.closeBeverageModalAndProceed()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.08); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
@@ -693,7 +693,12 @@
         <!-- Filled dynamically with pizza crusts and drinks -->
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
+      <!-- Live Beverage Status Indicator -->
+      <div id="upsell-beverage-status-container" style="margin-top: 14px;">
+        <!-- Filled dynamically: blinking warning or green checkmark -->
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
         <button type="button" id="btn-upsell-continue" onclick="MarketplaceApp.closeBeverageModalAndProceed()" class="btn-checkout" style="padding: 13px; font-size: 14px; font-weight: 800; border-radius: 12px; background: linear-gradient(135deg, #FF5E3A 0%, #EA580C 100%); color: #FFF; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(255, 94, 58, 0.35);">
           <span>👉</span> Continuar con el Pedido
         </button>

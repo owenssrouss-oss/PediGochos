@@ -43,6 +43,28 @@
   z-index: 2 !important;
 }
 
+@keyframes pulseBlink {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
+    border-color: #EF4444;
+    background: rgba(239, 68, 68, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 16px 4px rgba(239, 68, 68, 0.35);
+    border-color: #F87171;
+    background: rgba(239, 68, 68, 0.28);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
+    border-color: #EF4444;
+    background: rgba(239, 68, 68, 0.15);
+  }
+}
+
+.beverage-missing-pulse {
+  animation: pulseBlink 1.8s infinite ease-in-out;
+}
+
 .header-container {
   max-width: 1200px;
   margin: 0 auto;

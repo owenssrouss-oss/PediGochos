@@ -3024,12 +3024,13 @@ class MarketplaceController {
     return drinkNames.some(d => name.includes(d));
   }
 
+
   getAvailableBeveragesFromCartStores() {
-    const storeIds = [...new Set(this.cart.items.map(i => i.restaurant_id))];
+    const storeIds = [...new Set(this.cart.items.map(i => i.restaurant_id || i.restaurantId || i.establishmentId || i.establishment_id || (this.selectedEstablishment ? this.selectedEstablishment.id : null)).filter(Boolean))];
     const drinks = [];
 
     storeIds.forEach(sId => {
-      const est = (this.establishments || []).find(e => e.id === sId);
+      const est = (this.establishments || []).find(e => String(e.id) === String(sId));
       if (est && Array.isArray(est.products)) {
         est.products.forEach(p => {
           if (p && this.isDrinkOrBeverage(p) && !p.is_paused) {
@@ -3043,8 +3044,19 @@ class MarketplaceController {
       }
     });
 
-    // Return at most 5 relevant beverages
-    return drinks.slice(0, 6);
+    if (drinks.length === 0 && this.selectedEstablishment && Array.isArray(this.selectedEstablishment.products)) {
+      this.selectedEstablishment.products.forEach(p => {
+        if (p && this.isDrinkOrBeverage(p) && !p.is_paused) {
+          drinks.push({
+            ...p,
+            restaurant_id: this.selectedEstablishment.id,
+            restaurant_name: this.selectedEstablishment.name
+          });
+        }
+      });
+    }
+
+    return drinks;
   }
 
   getPizzasWithoutSpecialCrustInCart() {
@@ -3099,9 +3111,10 @@ class MarketplaceController {
   checkBeveragesAndPrompt() {
     const pizzasWithoutCrust = this.getPizzasWithoutSpecialCrustInCart();
     const hasBeverages = this.cart.items.some(i => this.isDrinkOrBeverage(i));
-    const availableDrinks = !hasBeverages ? this.getAvailableBeveragesFromCartStores() : [];
+    const availableDrinks = this.getAvailableBeveragesFromCartStores();
 
-    if (pizzasWithoutCrust.length === 0 && availableDrinks.length === 0) {
+    // If no pizzas need crusts AND user already has drinks, skip modal
+    if (pizzasWithoutCrust.length === 0 && hasBeverages) {
       return false;
     }
 
@@ -3109,19 +3122,9 @@ class MarketplaceController {
     const titleEl = document.getElementById('upsell-modal-title');
     const subEl = document.getElementById('upsell-modal-subtitle');
 
-    if (pizzasWithoutCrust.length > 0 && availableDrinks.length > 0) {
-      if (iconEl) iconEl.innerText = '🍕🥤';
-      if (titleEl) titleEl.innerText = '¿Deseas Borde Relleno o Bebidas?';
-      if (subEl) subEl.innerText = 'Personaliza tu pizza con un delicioso borde y acompaña tu comida con una bebida fría.';
-    } else if (pizzasWithoutCrust.length > 0) {
-      if (iconEl) iconEl.innerText = '🧀🍕';
-      if (titleEl) titleEl.innerText = '¿Deseas agregar un Borde a tu Pizza?';
-      if (subEl) subEl.innerText = 'Dale el toque maestro a tu pizza con un borde relleno de queso, salchicha o bocadillo.';
-    } else {
-      if (iconEl) iconEl.innerText = '🥤';
-      if (titleEl) titleEl.innerText = '¿Deseas agregar una bebida?';
-      if (subEl) subEl.innerText = 'Acompaña tu comida con un refresco, jugo o agua fría.';
-    }
+    if (iconEl) iconEl.innerText = '🍕🥤';
+    if (titleEl) titleEl.innerText = '¿Desea personalizar el borde?';
+    if (subEl) subEl.innerText = 'Personaliza tu pizza con un delicioso borde relleno y acompaña tu orden con una bebida fría.';
 
     const listContainer = document.getElementById('beverage-upsell-list');
     if (listContainer) {
@@ -3137,12 +3140,13 @@ class MarketplaceController {
             </div>
             <div style="display: flex; flex-direction: column; gap: 10px;">
               ${pizzasWithoutCrust.map(pizza => {
-                const availCrusts = this.getPizzaCrustOptions({ restaurant_id: pizza.restaurant_id }).filter(c => (c.price || 0) > 0);
+                const restId = pizza.restaurant_id || pizza.restaurantId || pizza.establishmentId;
+                const availCrusts = this.getPizzaCrustOptions({ restaurant_id: restId }).filter(c => (c.price || 0) > 0);
                 return `
                   <div style="background: rgba(0,0,0,0.35); border-radius: 12px; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.08);">
                     <div style="font-weight: 800; font-size: 13px; color: #FFF; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                      <span>🍕 ${pizza.product_name}</span>
-                      <span style="font-size: 11px; color: var(--text-muted);">${pizza.restaurant_name}</span>
+                      <span>🍕 ${pizza.product_name || pizza.name}</span>
+                      <span style="font-size: 11px; color: var(--text-muted);">${pizza.restaurant_name || ''}</span>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px;">
                       ${availCrusts.map(c => `
@@ -3163,9 +3167,12 @@ class MarketplaceController {
       if (availableDrinks.length > 0) {
         html += `
           <div style="background: rgba(59, 130, 246, 0.08); border: 1.5px solid rgba(59, 130, 246, 0.35); border-radius: 16px; padding: 14px;">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-              <span style="font-size: 20px;">🥤</span>
-              <h4 style="margin: 0; color: #93C5FD; font-size: 14px; font-weight: 800;">Bebidas Recomendadas</h4>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">🥤</span>
+                <h4 style="margin: 0; color: #93C5FD; font-size: 14px; font-weight: 800;">Bebidas del Restaurante</h4>
+              </div>
+              <span style="font-size: 11px; color: #93C5FD; font-weight: 700; background: rgba(59,130,246,0.2); padding: 2px 8px; border-radius: 8px;">${availableDrinks.length} disponibles</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 8px;">
               ${availableDrinks.map(drink => {
@@ -3194,6 +3201,32 @@ class MarketplaceController {
       }
 
       listContainer.innerHTML = html;
+    }
+
+    // 3. Live Beverage Status Indicator at the Bottom
+    const statusContainer = document.getElementById('upsell-beverage-status-container');
+    if (statusContainer) {
+      if (hasBeverages) {
+        statusContainer.innerHTML = `
+          <div style="background: rgba(16, 185, 129, 0.15); border: 1.5px solid #10B981; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 18px;">✅</span>
+              <div style="font-size: 12.5px; font-weight: 800; color: #6EE7B7;">Con Bebida Incluida en tu pedido</div>
+            </div>
+            <span style="font-size: 12px; color: #10B981; font-weight: 900; background: rgba(16,185,129,0.2); padding: 3px 8px; border-radius: 6px;">✓ Listo</span>
+          </div>
+        `;
+      } else {
+        statusContainer.innerHTML = `
+          <div class="beverage-missing-pulse" style="border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1.5px solid #EF4444; background: rgba(239, 68, 68, 0.15);">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 18px;">⚠️</span>
+              <div style="font-size: 12px; font-weight: 800; color: #FCA5A5;">Tu pedido aún NO incluye bebidas</div>
+            </div>
+            <span style="font-size: 11px; color: #FCD34D; font-weight: 800;">¡Elige una arriba! 👆</span>
+          </div>
+        `;
+      }
     }
 
     const modal = document.getElementById('beverage-upsell-modal');
