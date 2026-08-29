@@ -123,8 +123,18 @@ class MarketplaceController {
 
     if (tableParam) {
       this.currentTableNumber = tableParam;
+      this.orderType = 'mesa';
       try {
         localStorage.setItem('scanned_table_number', tableParam);
+        if (storeParam) localStorage.setItem('scanned_table_store', storeParam);
+      } catch(e) {}
+    } else {
+      try {
+        const savedTable = localStorage.getItem('scanned_table_number');
+        if (savedTable) {
+          this.currentTableNumber = savedTable;
+          this.orderType = 'mesa';
+        }
       } catch(e) {}
     }
 
@@ -2659,7 +2669,24 @@ class MarketplaceController {
       if (previewEl) previewEl.style.display = 'none';
     }
 
-    if (this.orderType === 'delivery') {
+    if (this.currentTableNumber) {
+      this.setOrderType('mesa');
+      const tableInput = document.getElementById('order-table-number');
+      if (tableInput) tableInput.value = this.currentTableNumber;
+
+      const qrBanner = document.getElementById('customer-table-qr-active-banner');
+      const qrInfo = document.getElementById('qr-scanned-table-info');
+      if (qrBanner) {
+        qrBanner.style.display = 'flex';
+        if (qrInfo) qrInfo.innerText = `Mesa #${this.currentTableNumber} asignada por Código QR. Pedido directo a tu mesa.`;
+      }
+
+      const badge = document.getElementById('customer-selected-table-badge');
+      if (badge) {
+        badge.innerText = `✅ Mesa #${this.currentTableNumber} asignada automáticamente por Código QR`;
+        badge.style.display = 'block';
+      }
+    } else if (this.orderType === 'delivery') {
       setTimeout(() => {
         this.initLeafletMap();
       }, 250);
@@ -4852,8 +4879,12 @@ class MarketplaceController {
     const input = document.getElementById('order-table-number');
     if (!container) return;
 
-    const shopId = this.cart.items[0]?.restaurant_id;
-    const est = this.establishments.find(e => e.id === shopId);
+    if (input && !input.value && this.currentTableNumber) {
+      input.value = this.currentTableNumber;
+    }
+
+    const shopId = this.cart.items[0]?.restaurant_id || (this.selectedEstablishment ? this.selectedEstablishment.id : null);
+    const est = (this.establishments || []).find(e => e.id === shopId) || this.selectedEstablishment;
     let tables = (est && Array.isArray(est.tables) && est.tables.length > 0) ? est.tables : [];
     
     if (tables.length === 0) {
@@ -4864,14 +4895,21 @@ class MarketplaceController {
       }
     }
 
+    // Ensure scanned table is present in the list
+    if (this.currentTableNumber && !tables.some(t => String(t.number) === String(this.currentTableNumber) || t.name === `Mesa ${this.currentTableNumber}`)) {
+      tables = [{ id: `t-${this.currentTableNumber}`, name: isNaN(this.currentTableNumber) ? this.currentTableNumber : `Mesa ${this.currentTableNumber}`, number: this.currentTableNumber }, ...tables];
+    }
+
     container.innerHTML = '';
+
+    const currentVal = input ? String(input.value || this.currentTableNumber || '').trim() : String(this.currentTableNumber || '').trim();
 
     const wrapper = document.createElement('div');
     wrapper.style.cssText = 'display: flex; flex-direction: column; gap: 8px; width: 100%;';
     
     const title = document.createElement('div');
     title.style.cssText = 'font-size: 12px; color: #94A3B8; font-weight: 700; display: flex; align-items: center; justify-content: space-between;';
-    title.innerHTML = '<span>Toca la mesa donde te encuentras sentado:</span> <span style="font-size: 10.5px; color: #10B981;">🟢 Mesas Disponibles</span>';
+    title.innerHTML = '<span>Mesa donde te encuentras sentado:</span> <span style="font-size: 10.5px; color: #10B981;">🟢 Mesas Disponibles</span>';
     wrapper.appendChild(title);
 
     const chipsGrid = document.createElement('div');
@@ -4882,7 +4920,7 @@ class MarketplaceController {
       const tName = table.name || `Mesa ${tNum}`;
       const btn = document.createElement('button');
       btn.type = 'button';
-      const isSelected = input && String(input.value).trim() === String(tNum).trim();
+      const isSelected = String(currentVal).toLowerCase() === String(tNum).toLowerCase() || String(currentVal).toLowerCase() === String(tName).toLowerCase();
       btn.style.cssText = `
         padding: 10px 6px;
         border-radius: 10px;
@@ -4902,6 +4940,8 @@ class MarketplaceController {
       btn.innerHTML = `<span>🪑</span> <span>${tName}</span>`;
       btn.onclick = () => {
         if (input) input.value = tNum;
+        this.currentTableNumber = tNum;
+        try { localStorage.setItem('scanned_table_number', tNum); } catch(e) {}
         if (badge) {
           badge.innerText = `✅ ${tName} Seleccionada para tu Pedido`;
           badge.style.display = 'block';
@@ -4913,6 +4953,11 @@ class MarketplaceController {
 
     wrapper.appendChild(chipsGrid);
     container.appendChild(wrapper);
+
+    if (currentVal && badge) {
+      badge.innerText = `✅ Mesa #${currentVal} Seleccionada para tu Pedido`;
+      badge.style.display = 'block';
+    }
   }
 
   saveUserOrderToHistory(order) {
