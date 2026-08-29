@@ -3062,9 +3062,19 @@ class MarketplaceController {
 
   getPizzasWithoutSpecialCrustInCart() {
     return this.cart.items.filter(item => {
-      const pName = (item.product_name || item.product?.name || '').toLowerCase();
-      const pCat = (item.product?.category || '').toLowerCase();
-      const isPizza = pCat === 'pizzas' || pName.includes('pizza');
+      const pName = (item.product_name || item.product?.name || item.name || '').toLowerCase();
+      const pCat = (item.product?.category || item.category || '').toLowerCase();
+      const rName = (item.restaurant_name || (this.selectedEstablishment ? this.selectedEstablishment.name : '')).toLowerCase();
+      const isDrink = this.isDrinkOrBeverage(item);
+      const isPizza = !isDrink && (
+        pCat.includes('pizza') || 
+        pName.includes('pizza') || 
+        pName.includes('medio metro') || 
+        pName.includes('un metro') || 
+        pName.includes('metro y medio') || 
+        pName.includes('panzerotti') ||
+        (rName.includes('pizza') && !pCat.includes('bebida') && !pCat.includes('frappe') && !pCat.includes('plato'))
+      );
       if (!isPizza) return false;
       const hasSpecialCrust = item.selected_specifications?.single_selections?.some(s => 
         (s.group_name || '').toLowerCase().includes('borde') && 
@@ -3124,8 +3134,8 @@ class MarketplaceController {
     const subEl = document.getElementById('upsell-modal-subtitle');
 
     if (iconEl) iconEl.innerText = '🍕🥤';
-    if (titleEl) titleEl.innerText = '¿Desea personalizar el borde?';
-    if (subEl) subEl.innerText = 'Personaliza tu pizza con un delicioso borde relleno y acompaña tu orden con una bebida fría.';
+    if (titleEl) titleEl.innerText = 'Sugerencias y Personalización';
+    if (subEl) subEl.innerText = 'Personaliza tu pizza con deliciosos bordes rellenos y acompaña tu orden con bebidas frías.';
 
     const listContainer = document.getElementById('beverage-upsell-list');
     if (listContainer) {
@@ -3142,7 +3152,14 @@ class MarketplaceController {
             <div style="display: flex; flex-direction: column; gap: 10px;">
               ${pizzasWithoutCrust.map(pizza => {
                 const restId = pizza.restaurant_id || pizza.restaurantId || pizza.establishmentId;
-                const availCrusts = this.getPizzaCrustOptions({ restaurant_id: restId }).filter(c => (c.price || 0) > 0);
+                let availCrusts = this.getPizzaCrustOptions({ restaurant_id: restId }).filter(c => (c.price || 0) > 0);
+                if (availCrusts.length === 0) {
+                  availCrusts = [
+                    { id: 'queso', name: 'Borde de Queso', icon: '🧀', price: 6000 },
+                    { id: 'salchicha', name: 'Borde de Salchicha', icon: '🌭', price: 6000 },
+                    { id: 'bocadillo_queso', name: 'Borde Queso y Bocadillo', icon: '🍯', price: 6000 }
+                  ];
+                }
                 return `
                   <div style="background: rgba(0,0,0,0.35); border-radius: 12px; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.08);">
                     <div style="font-weight: 800; font-size: 13px; color: #FFF; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
