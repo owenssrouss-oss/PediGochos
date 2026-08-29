@@ -122,25 +122,18 @@ class MarketplaceController {
     const tableParam = urlParams.get('mesa') || urlParams.get('table') || urlParams.get('m');
 
     if (tableParam) {
+      // EXPLICIT Table QR scan (e.g. ?store=...&mesa=1) -> Lock strictly to this table
       this.currentTableNumber = tableParam;
       this.tableLockedByQR = true;
       this.orderType = 'mesa';
-      try {
-        localStorage.setItem('scanned_table_number', tableParam);
-        localStorage.setItem('table_locked_by_qr', 'true');
-        if (storeParam) localStorage.setItem('scanned_table_store', storeParam);
-      } catch(e) {}
     } else {
+      // General Store Menu QR (e.g. ?store=...) or normal browse -> DO NOT lock table! Allow Delivery and free choice
+      this.currentTableNumber = null;
+      this.tableLockedByQR = false;
       try {
-        const savedTable = localStorage.getItem('scanned_table_number');
-        const isLocked = localStorage.getItem('table_locked_by_qr');
-        if (savedTable) {
-          this.currentTableNumber = savedTable;
-          this.orderType = 'mesa';
-          if (isLocked === 'true') {
-            this.tableLockedByQR = true;
-          }
-        }
+        localStorage.removeItem('scanned_table_number');
+        localStorage.removeItem('table_locked_by_qr');
+        localStorage.removeItem('scanned_table_store');
       } catch(e) {}
     }
 
@@ -2703,8 +2696,7 @@ class MarketplaceController {
       if (previewEl) previewEl.style.display = 'none';
     }
 
-    if (this.currentTableNumber) {
-      this.tableLockedByQR = true;
+    if (this.tableLockedByQR && this.currentTableNumber) {
       this.setOrderType('mesa');
       const tableInput = document.getElementById('order-table-number');
       if (tableInput) {
@@ -2734,10 +2726,38 @@ class MarketplaceController {
         badge.innerText = `🔒 Mesa #${this.currentTableNumber} fijada y bloqueada por Código QR`;
         badge.style.display = 'block';
       }
-    } else if (this.orderType === 'delivery') {
-      setTimeout(() => {
-        this.initLeafletMap();
-      }, 250);
+    } else {
+      // General store QR or normal visit: DO NOT lock!
+      const delBtn = document.getElementById('type-delivery-btn');
+      if (delBtn) {
+        delBtn.style.opacity = '1';
+        delBtn.style.pointerEvents = 'auto';
+        delBtn.title = '';
+      }
+
+      const tableInput = document.getElementById('order-table-number');
+      if (tableInput) {
+        tableInput.readOnly = false;
+        tableInput.style.background = '';
+        tableInput.style.color = '';
+        tableInput.style.cursor = 'text';
+      }
+
+      const qrBanner = document.getElementById('customer-table-qr-active-banner');
+      if (qrBanner) {
+        qrBanner.style.display = 'none';
+      }
+
+      const badge = document.getElementById('customer-selected-table-badge');
+      if (badge && !tableInput?.value) {
+        badge.style.display = 'none';
+      }
+
+      if (this.orderType === 'delivery') {
+        setTimeout(() => {
+          this.initLeafletMap();
+        }, 250);
+      }
     }
   }
 
@@ -5030,7 +5050,6 @@ class MarketplaceController {
       btn.onclick = () => {
         if (input) input.value = tNum;
         this.currentTableNumber = tNum;
-        try { localStorage.setItem('scanned_table_number', tNum); } catch(e) {}
         if (badge) {
           badge.innerText = `✅ ${tName} Seleccionada para tu Pedido`;
           badge.style.display = 'block';
