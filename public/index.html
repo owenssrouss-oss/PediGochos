@@ -425,9 +425,9 @@
               Selecciona tu billete para que el domiciliario prepare tu vuelto exacto:
             </div>
 
-            <!-- Quick Denomination Chips -->
+            <!-- Quick Denomination Chips (None active by default, user must explicitly choose) -->
             <div class="cash-denomination-chips" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
-              <button type="button" class="btn-cash-chip active" id="chip-cash-exacto" onclick="MarketplaceApp.selectCashDenomination('exacto')">💵 Pago Exacto</button>
+              <button type="button" class="btn-cash-chip" id="chip-cash-exacto" onclick="MarketplaceApp.selectCashDenomination('exacto')">💵 Pago Exacto</button>
               <button type="button" class="btn-cash-chip" id="chip-cash-20000" onclick="MarketplaceApp.selectCashDenomination(20000)">💵 $20.000</button>
               <button type="button" class="btn-cash-chip" id="chip-cash-50000" onclick="MarketplaceApp.selectCashDenomination(50000)">💵 $50.000</button>
               <button type="button" class="btn-cash-chip" id="chip-cash-100000" onclick="MarketplaceApp.selectCashDenomination(100000)">💵 $100.000</button>
@@ -436,11 +436,10 @@
 
             <!-- Custom Cash Input & Change Display -->
             <div id="custom-cash-container" style="margin-top: 6px;">
-              <input type="text" id="order-cash-amount" value="Pago Exacto (Sin vuelto)" oninput="MarketplaceApp.calculateCashChange()" placeholder="Ej: 50.000 COP, 20 USD, 500 Bs..." style="width: 100%; font-size: 13px; font-weight: 800; padding: 10px 12px; border-radius: 10px; background: #0b1e16; border: 2px solid #10B981; color: #FDE047; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
+              <input type="text" id="order-cash-amount" value="" oninput="MarketplaceApp.calculateCashChange()" placeholder="Toca una opción arriba o escribe el monto (Ej. 50.000 COP, 20 USD, 500 Bs)..." style="width: 100%; font-size: 13px; font-weight: 800; padding: 10px 12px; border-radius: 10px; background: #0b1e16; border: 2px solid #10B981; color: #FDE047; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
             </div>
             
-            <div id="cash-change-preview" style="margin-top: 8px; font-size: 12.5px; font-weight: 900; color: #6EE7B7; background: #042f2e; padding: 8px 12px; border-radius: 8px; border: 1px solid #10B981; display: block;">
-              ✅ <strong>Pago Exacto:</strong> No se requiere cambio para el repartidor.
+            <div id="cash-change-preview" style="margin-top: 8px; font-size: 12.5px; font-weight: 900; color: #6EE7B7; background: #042f2e; padding: 8px 12px; border-radius: 8px; border: 1px solid #10B981; display: none;">
             </div>
           </div>
 

@@ -2589,6 +2589,13 @@ class MarketplaceController {
     this.setActiveMobileTab('cart');
     window.history.pushState({ view: 'modal', modalId: 'cart-modal' }, '');
 
+    const cashInput = document.getElementById('order-cash-amount');
+    if (cashInput && !cashInput.value.trim()) {
+      document.querySelectorAll('.btn-cash-chip').forEach(btn => btn.classList.remove('active'));
+      const previewEl = document.getElementById('cash-change-preview');
+      if (previewEl) previewEl.style.display = 'none';
+    }
+
     if (this.orderType === 'delivery') {
       setTimeout(() => {
         this.initLeafletMap();
