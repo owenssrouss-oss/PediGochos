@@ -4721,41 +4721,74 @@ class AdminController {
   getMissingPricesForEstablishment(est) {
     if (!est || !Array.isArray(est.products)) return [];
     const missing = [];
+    const modifierMap = new Map();
 
     est.products.forEach(p => {
+      // 1. Check if product itself has no price
       if (p.price_pending === true || !p.price || parseFloat(p.price) <= 0) {
         missing.push({
+          type: 'product',
           productId: p.id,
           productName: p.name,
-          category: p.category,
-          type: 'product',
+          category: p.category || 'Carta',
           name: p.name,
-          currentPrice: p.price || 0
+          currentPrice: p.price || 0,
+          productNames: [p.name]
         });
       }
 
+      // 2. Check modifiers/additions and group by modifier name
       if (Array.isArray(p.modifiers)) {
         p.modifiers.forEach(m => {
           if (Array.isArray(m.options)) {
             m.options.forEach(opt => {
               const isPending = opt.price_pending === true || (m.group_name?.toLowerCase().includes('adic') && (!opt.extra_price || parseFloat(opt.extra_price) <= 0));
               if (isPending) {
-                missing.push({
-                  productId: p.id,
-                  productName: p.name,
-                  category: p.category,
-                  groupId: m.group_id,
-                  groupName: m.group_name,
-                  optionId: opt.id || opt.option_id,
-                  type: 'modifier',
-                  name: `${m.group_name} ➔ ${opt.name}`,
-                  currentPrice: opt.extra_price || 0
-                });
+                const groupLabel = (m.group_name || 'Adicionales').trim();
+                const optLabel = (opt.name || 'Opción').trim();
+                const key = `${groupLabel.toLowerCase()}:::${optLabel.toLowerCase()}`;
+
+                if (!modifierMap.has(key)) {
+                  modifierMap.set(key, {
+                    type: 'modifier',
+                    groupName: groupLabel,
+                    optionName: optLabel,
+                    name: `${groupLabel} ➔ ${optLabel}`,
+                    currentPrice: opt.extra_price || 0,
+                    category: p.category || 'Carta',
+                    productNames: [p.name],
+                    targets: [{
+                      productId: p.id,
+                      productName: p.name,
+                      groupId: m.group_id,
+                      optionId: opt.id || opt.option_id
+                    }]
+                  });
+                } else {
+                  const existing = modifierMap.get(key);
+                  if (!existing.productNames.includes(p.name)) {
+                    existing.productNames.push(p.name);
+                  }
+                  existing.targets.push({
+                    productId: p.id,
+                    productName: p.name,
+                    groupId: m.group_id,
+                    optionId: opt.id || opt.option_id
+                  });
+                  if (!existing.currentPrice && opt.extra_price > 0) {
+                    existing.currentPrice = opt.extra_price;
+                  }
+                }
               }
             });
           }
         });
       }
+    });
+
+    // Add all unique grouped modifiers
+    modifierMap.forEach(item => {
+      missing.push(item);
     });
 
     return missing;
@@ -4799,18 +4832,33 @@ class AdminController {
           </div>
         `;
       } else {
-        listCont.innerHTML = missing.map((item, idx) => `
-          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); padding: 10px 14px; border-radius: 12px; gap: 12px;">
-            <div style="flex: 1;">
-              <div style="font-weight: 800; font-size: 13px; color: #FFF;">${item.name}</div>
-              <div style="font-size: 11px; color: var(--text-muted);">${item.productName} (${item.category})</div>
+        listCont.innerHTML = missing.map((item, idx) => {
+          let appliesToText = '';
+          if (item.type === 'product') {
+            appliesToText = `Plato completo (${item.category || 'Carta'})`;
+          } else if (item.productNames && item.productNames.length > 1) {
+            const preview = item.productNames.slice(0, 3).join(', ');
+            const remaining = item.productNames.length - 3;
+            appliesToText = `🔄 Aplica a ${item.productNames.length} platos: ${preview}${remaining > 0 ? ` +${remaining} más` : ''}`;
+          } else if (item.productNames && item.productNames.length === 1) {
+            appliesToText = `Plato: ${item.productNames[0]} (${item.category || 'Carta'})`;
+          } else {
+            appliesToText = item.category || 'Carta';
+          }
+
+          return `
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); padding: 10px 14px; border-radius: 12px; gap: 12px;">
+              <div style="flex: 1;">
+                <div style="font-weight: 800; font-size: 13px; color: #FFF;">${item.name}</div>
+                <div style="font-size: 11px; color: #94A3B8; margin-top: 2px;">${appliesToText}</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px; width: 140px;">
+                <span style="color: #FCD34D; font-weight: 800; font-size: 13px;">$</span>
+                <input type="number" step="500" min="0" placeholder="Ej: 3000" data-idx="${idx}" class="quick-fill-input" value="${item.currentPrice > 0 ? item.currentPrice : ''}" style="width: 100%; padding: 6px 8px; border-radius: 8px; background: rgba(18,18,22,0.9); border: 1.5px solid #F59E0B; color: #FFF; font-weight: 800; font-size: 13px;">
+              </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 6px; width: 140px;">
-              <span style="color: #FCD34D; font-weight: 800; font-size: 13px;">$</span>
-              <input type="number" step="500" min="0" placeholder="Ej: 3000" data-idx="${idx}" class="quick-fill-input" value="${item.currentPrice > 0 ? item.currentPrice : ''}" style="width: 100%; padding: 6px 8px; border-radius: 8px; background: rgba(18,18,22,0.9); border: 1.5px solid #F59E0B; color: #FFF; font-weight: 800; font-size: 13px;">
-            </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       }
     }
 
@@ -4832,21 +4880,51 @@ class AdminController {
       const item = this.currentQuickFillItems[idx];
       if (!item) return;
 
-      const prod = (est.products || []).find(p => p.id === item.productId);
-      if (!prod) return;
-
       if (item.type === 'product') {
-        prod.price = val;
-        prod.price_pending = false;
-      } else if (item.type === 'modifier') {
-        const modGroup = (prod.modifiers || []).find(m => m.group_id === item.groupId);
-        if (modGroup) {
-          const opt = (modGroup.options || []).find(o => (o.id === item.optionId || o.option_id === item.optionId));
-          if (opt) {
-            opt.extra_price = val;
-            opt.price_pending = false;
-          }
+        const prod = (est.products || []).find(p => p.id === item.productId);
+        if (prod) {
+          prod.price = val;
+          prod.price_pending = false;
         }
+      } else if (item.type === 'modifier') {
+        const optNameTarget = (item.optionName || '').trim().toLowerCase();
+        const groupNameTarget = (item.groupName || '').trim().toLowerCase();
+
+        // 1. Update all explicit targets
+        if (Array.isArray(item.targets)) {
+          item.targets.forEach(tgt => {
+            const prod = (est.products || []).find(p => p.id === tgt.productId);
+            if (prod && Array.isArray(prod.modifiers)) {
+              const modGroup = prod.modifiers.find(m => m.group_id === tgt.groupId || (m.group_name || '').trim().toLowerCase() === groupNameTarget);
+              if (modGroup && Array.isArray(modGroup.options)) {
+                const opt = modGroup.options.find(o => (o.id === tgt.optionId || o.option_id === tgt.optionId || (o.name || '').trim().toLowerCase() === optNameTarget));
+                if (opt) {
+                  opt.extra_price = val;
+                  opt.price_pending = false;
+                }
+              }
+            }
+          });
+        }
+
+        // 2. Global bulk update across ALL dishes in the establishment with matching modifier option name
+        (est.products || []).forEach(prod => {
+          if (Array.isArray(prod.modifiers)) {
+            prod.modifiers.forEach(m => {
+              const mNameLower = (m.group_name || '').trim().toLowerCase();
+              if (mNameLower === groupNameTarget || mNameLower.includes('adic') || groupNameTarget.includes('adic')) {
+                if (Array.isArray(m.options)) {
+                  m.options.forEach(opt => {
+                    if ((opt.name || '').trim().toLowerCase() === optNameTarget) {
+                      opt.extra_price = val;
+                      opt.price_pending = false;
+                    }
+                  });
+                }
+              }
+            });
+          }
+        });
       }
     });
 
@@ -4862,7 +4940,7 @@ class AdminController {
 
       if (!res.ok) throw new Error('Error al guardar precios');
 
-      this.showToast(`✅ Precios actualizados en ${est.name}`);
+      this.showToast(`✅ Precios actualizados en todos los platos de ${est.name}`);
       this.markPendingChanges();
       this.renderTable();
       this.auditMissingPrices(est);
