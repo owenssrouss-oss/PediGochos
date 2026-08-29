@@ -1331,6 +1331,23 @@ class MarketplaceController {
     return name.includes('arepa') || name.includes('helado') || name.includes('frappé') || name.includes('paleta') || name.includes('sundae') || name.includes('merengada') || name.includes('batido') || cat.includes('arepa') || cat.includes('helado');
   }
 
+  isPizzaProduct(prod) {
+    if (!prod) return false;
+    const pName = (prod.name || '').toLowerCase();
+    const pCat = (prod.category || prod.category_id || '').toLowerCase();
+    const rName = (prod.restaurant_name || (this.selectedEstablishment ? this.selectedEstablishment.name : '')).toLowerCase();
+    const isDrink = this.isDrinkOrBeverage(prod);
+    if (isDrink) return false;
+
+    return (
+      pCat.includes('pizza') ||
+      pName.includes('pizza') ||
+      pName.includes('panzerotti') ||
+      pName.includes('metro') ||
+      (rName.includes('pizza') && !pCat.includes('bebida') && !pCat.includes('frappe') && !pCat.includes('plato') && !pCat.includes('postre'))
+    );
+  }
+
   openCustomizerModal(product) {
     if (!product) return;
     if (typeof product === 'string' || typeof product === 'number') {
@@ -1461,13 +1478,12 @@ class MarketplaceController {
       if (colAHeader) colAHeader.classList.add('hidden');
       
       // Pizza check
-      const pName = (product.name || '').toLowerCase();
-      const pCat = (product.category || '').toLowerCase();
-      const isPizza = pCat === 'pizzas' || pName.includes('pizza');
+      const isPizza = this.isPizzaProduct(product);
       const pizzaSection = document.getElementById('pizza-halves-section');
       if (pizzaSection) {
         if (isPizza) {
           pizzaSection.classList.remove('hidden');
+          pizzaSection.style.display = 'block';
           this.customizerState.pizzaMode = 'whole';
           const wholeBtn = document.getElementById('pizza-whole-btn');
           const halvesBtn = document.getElementById('pizza-halves-btn');
@@ -1475,6 +1491,7 @@ class MarketplaceController {
           if (halvesBtn) halvesBtn.classList.remove('active');
         } else {
           pizzaSection.classList.add('hidden');
+          pizzaSection.style.display = 'none';
         }
       }
 
@@ -1557,9 +1574,7 @@ class MarketplaceController {
     }
 
     // Pizza Crust / Bordes Selector (for whole or halves)
-    const pName = (product.name || '').toLowerCase();
-    const pCat = (product.category || '').toLowerCase();
-    const isPizza = pCat === 'pizzas' || pName.includes('pizza');
+    const isPizza = this.isPizzaProduct(product);
     const crustSection = document.getElementById('pizza-crust-section');
     if (crustSection) {
       if (isPizza) {
@@ -1747,15 +1762,13 @@ class MarketplaceController {
 
     let activeProduct = product;
     if (isHalves) {
-      const pName = (product.name || '').toLowerCase();
-      const pCat = (product.category || '').toLowerCase();
-      const isPizzaCat = pCat === 'pizzas' || pName.includes('pizza');
+      const isPizzaCat = this.isPizzaProduct(product);
       if (isPizzaCat) {
         const specDiv = document.createElement('div');
         specDiv.className = 'modifier-group';
         
         const estProducts = (this.selectedEstablishment && Array.isArray(this.selectedEstablishment.products)) ? this.selectedEstablishment.products : [];
-        const pizzaProducts = estProducts.filter(p => (p.category || '').toLowerCase() === 'pizzas' || (p.name || '').toLowerCase().includes('pizza'));
+        const pizzaProducts = estProducts.filter(p => this.isPizzaProduct(p));
         const currentSpec = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
         
         let optionsHTML = '<option value="">-- Elige el sabor para esta mitad --</option>';
@@ -1999,10 +2012,13 @@ class MarketplaceController {
     }
 
     if (selectedProduct) {
+      if (!this.customizerState.baseIncluded) this.customizerState.baseIncluded = { whole: {}, halfA: {}, halfB: {} };
+      this.customizerState.baseIncluded[sideKey] = {};
       if (selectedProduct.exclusions && Array.isArray(selectedProduct.exclusions)) {
         selectedProduct.exclusions.forEach(item => {
           const itemName = typeof item === 'object' && item.name ? item.name : String(item);
-          this.customizerState.quantities[sideKey]['base_' + itemName] = 1;
+          this.customizerState.quantities[sideKey]['base_' + itemName] = 0;
+          this.customizerState.baseIncluded[sideKey][itemName] = true;
         });
       }
 
