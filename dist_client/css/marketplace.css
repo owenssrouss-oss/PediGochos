@@ -7,8 +7,40 @@
   border-bottom: 1px solid rgba(0,0,0,0.04);
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1200;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+/* Active Order Tracking Stacking Context Isolation (Fixes map bleeding over header) */
+.active-order-tracking-card {
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+}
+
+#active-order-map-wrapper {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 12px;
+  transform: translateZ(0); /* Hardware layer isolation */
+}
+
+#active-order-tracking-map {
+  position: relative;
+  z-index: 1;
+}
+
+#active-order-tracking-map .leaflet-pane,
+#active-order-tracking-map .leaflet-top,
+#active-order-tracking-map .leaflet-bottom,
+#active-order-tracking-map .leaflet-control,
+#active-order-tracking-map .leaflet-marker-pane,
+#active-order-tracking-map .leaflet-shadow-pane,
+#active-order-tracking-map .leaflet-tile-pane,
+#active-order-tracking-map .leaflet-overlay-pane {
+  z-index: 2 !important;
 }
 
 .header-container {
