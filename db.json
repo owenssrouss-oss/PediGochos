@@ -9384,7 +9384,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, champiñones, queso mozarella, jamón, pollo, chorizo ahumado, cebolla y pimentón.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -9430,7 +9430,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, salami, chorizo ahumado, tocineta, pimentón y anchoas.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -9475,7 +9475,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, jamón y piña.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -9517,7 +9517,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, jamón, champiñón, piña, cebolla y salsa BBQ.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -9562,7 +9562,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, jamón, pollo, champiñones y salsa bechamel.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -9606,7 +9606,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, jamón y pollo.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -9648,7 +9648,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, pollo, tocineta.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -9690,7 +9690,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, tocineta, maíz y salsa de maíz.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -9733,7 +9733,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, pollo, tocineta y salsa miel mostaza.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -9776,7 +9776,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, ciruela, cereza, melocotón y piña.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -9820,7 +9820,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, salami, champiñón, aceitunas negras, chorizo ahumado.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -9864,7 +9864,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, carne molida, chorizo ahumado, maíz, cebolla y pimentón.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -9909,7 +9909,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, jamón, carne molida, pico gallo, orégano y picante.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -9954,7 +9954,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, champiñón, cebolla, aceituna, pimentón, maíz y tomate en rodajas.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -10000,7 +10000,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, salami, pollo, tocineta, pimentón y salsa tártara.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -10045,7 +10045,7 @@
           "category": "Pizzas Tradicionales",
           "price": 20000,
           "description": "Salsa napolitana, mozarella, pollo, champiñón, chorizo ahumado, cebolla y salsa BBQ.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -10090,7 +10090,7 @@
           "category": "Pizzas Gourmet",
           "price": 22000,
           "description": "Salsa napolitana, mozarella, salami, pollo, champiñón, tocineta, chorizo ahumado, maíz, anchoas, cebolla y pimentón.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -10139,7 +10139,7 @@
           "category": "Pizzas Gourmet",
           "price": 22000,
           "description": "Salsa napolitana, queso mozarella, queso parmesano, queso amarillo y queso ahumado.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -10182,7 +10182,7 @@
           "category": "Pizzas Gourmet",
           "price": 22000,
           "description": "Salsa napolitana, mozarella, salchichas, cebolla, papitas, salsa tomate, mayonesa y mostaza.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -10228,7 +10228,7 @@
           "category": "Pizzas Gourmet",
           "price": 22000,
           "description": "Salsa napolitana, mozarella, carne asada de primera, chorizo ahumado y chimichurri.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -10271,7 +10271,7 @@
           "category": "Pizzas Especiales",
           "price": 25000,
           "description": "Queso mozarella, salsa napolitana, albahaca, jamón serrano y queso crema.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -10314,7 +10314,7 @@
           "category": "Pizzas Especiales",
           "price": 25000,
           "description": "Salsa napolitana, queso mozzarella, camarones y anchoas.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozzarella",
@@ -10356,7 +10356,7 @@
           "category": "Pizzas Especiales",
           "price": 25000,
           "description": "Mozarella, croqueta de carne, jamón, tomate, cebolla, salsa tomate, mayonesa y mostaza.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Queso mozarella",
             "Croqueta de carne",
@@ -10402,7 +10402,7 @@
           "category": "Pizzas Especiales",
           "price": 35000,
           "description": "Queso mozarella, carne molida, jamón y salsa bechamel.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Queso mozarella",
             "Carne molida",
@@ -10438,7 +10438,7 @@
           "category": "Pizzas Clásicas",
           "price": 16000,
           "description": "Salsa napolitana, mozarella y jamón.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -10479,7 +10479,7 @@
           "category": "Pizzas Clásicas",
           "price": 16000,
           "description": "Salsa napolitana, mozarella y bocadillo.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_artesanal.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -10520,7 +10520,7 @@
           "category": "Pizzas por Metro",
           "price": 88000,
           "description": "Pizza rectangular de 50cm con 20 porciones. Puedes combinar hasta 2 sabores de la carta.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/medio_metro.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella"
@@ -10578,7 +10578,7 @@
           "category": "Pizzas por Metro",
           "price": 176000,
           "description": "Pizza rectangular gigante de 100cm con 40 porciones. Puedes combinar hasta 4 sabores de la carta.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/un_metro.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella"
@@ -10636,7 +10636,7 @@
           "category": "Pizzas por Metro",
           "price": 260000,
           "description": "Mega pizza rectangular de 150cm con 60 porciones. Ideal para eventos y reuniones grandes. Combina hasta 6 sabores.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/metro_y_medio.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella"
@@ -10648,7 +10648,7 @@
           "category": "Pizzas por Metro",
           "price": 210000,
           "description": "Pizza circular gigante familiar de 50 porciones con los mejores ingredientes de Mak Pizza.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/big_mak.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -10664,7 +10664,7 @@
           "category": "Pizzas por Metro",
           "price": 27000,
           "description": "Divertida pizza infantil con forma de Mickey Mouse, queso mozarella, jamón y salchichas.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_mickey.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -10678,7 +10678,7 @@
           "category": "Pizzas por Metro",
           "price": 41000,
           "description": "Especial para parejas y aniversarios con forma de corazón, queso mozarella, salami/pepperoni y toques especiales.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/pizza_romance.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -10692,7 +10692,7 @@
           "category": "Platos Especiales",
           "price": 24000,
           "description": "Tres lonjas de pan, queso mozarella, jamón, pollo, champiñón y salsa bechamel gratinada.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/sandwich_gratinado.jpg",
           "exclusions": [
             "Tres lonjas de pan",
             "Queso mozarella",
@@ -10709,7 +10709,7 @@
           "category": "Platos Especiales",
           "price": 27000,
           "description": "Calzone horneado relleno con salsa napolitana, queso mozarella, jamón, pollo, champiñón y chorizo ahumado.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/panzerotti.jpg",
           "exclusions": [
             "Salsa napolitana",
             "Queso mozarella",
@@ -10725,7 +10725,7 @@
           "category": "Frappes",
           "price": 10000,
           "description": "Delicioso y refrescante frappé helado de pulpa natural de limón.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/frappes.jpg",
           "exclusions": [
             "Hielo granizado",
             "Sabor limón",
@@ -10738,7 +10738,7 @@
           "category": "Frappes",
           "price": 10000,
           "description": "Delicioso y refrescante frappé helado de pulpa natural de naranja.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/frappes.jpg",
           "exclusions": [
             "Hielo granizado",
             "Sabor naranja",
@@ -10751,7 +10751,7 @@
           "category": "Frappes",
           "price": 10000,
           "description": "Delicioso y refrescante frappé helado de pulpa natural de fresa.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/frappes.jpg",
           "exclusions": [
             "Hielo granizado",
             "Sabor fresa",
@@ -10764,7 +10764,7 @@
           "category": "Frappes",
           "price": 10000,
           "description": "Delicioso y refrescante frappé helado de pulpa natural de cereza.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/frappes.jpg",
           "exclusions": [
             "Hielo granizado",
             "Sabor cereza",
@@ -10777,7 +10777,7 @@
           "category": "Frappes",
           "price": 10000,
           "description": "Delicioso y refrescante frappé helado de pulpa natural de parchita.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/frappes.jpg",
           "exclusions": [
             "Hielo granizado",
             "Sabor parchita",
@@ -10790,23 +10790,35 @@
           "category": "Bebidas",
           "price": 9000,
           "description": "Gaseosa tamaño familiar de 2 Litros bien fría.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/refrescos_2l_1l.jpg",
           "modifiers": [
             {
-              "group_id": "grp-sabor-refresco-2l",
+              "group_id": "grp-sabor-2l",
               "group_name": "Sabor de Refresco",
               "selection_type": "single",
               "is_required": true,
               "options": [
                 {
-                  "option_id": "ref-cocacola-2l",
-                  "name": "Coca-Cola 2L",
+                  "option_id": "opt-pepsi-2l",
+                  "name": "Pepsi 2 Litros",
                   "extra_price": 0,
                   "price": 0
                 },
                 {
-                  "option_id": "ref-pepsi-2l",
-                  "name": "Pepsi 2L",
+                  "option_id": "opt-coca-2l",
+                  "name": "Coca-Cola 2 Litros",
+                  "extra_price": 0,
+                  "price": 0
+                },
+                {
+                  "option_id": "opt-postobon-2l",
+                  "name": "Postobón Manzana 2 Litros",
+                  "extra_price": 0,
+                  "price": 0
+                },
+                {
+                  "option_id": "opt-colombiana-2l",
+                  "name": "Colombiana 2 Litros",
                   "extra_price": 0,
                   "price": 0
                 }
@@ -10820,17 +10832,35 @@
           "category": "Bebidas",
           "price": 7000,
           "description": "Gaseosa de 1 Litro bien fría.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/refrescos_2l_1l.jpg",
           "modifiers": [
             {
-              "group_id": "grp-sabor-refresco-1l",
+              "group_id": "grp-sabor-1l",
               "group_name": "Sabor de Refresco",
               "selection_type": "single",
               "is_required": true,
               "options": [
                 {
-                  "option_id": "ref-pepsi-1l",
-                  "name": "Pepsi 1L",
+                  "option_id": "opt-pepsi-1l",
+                  "name": "Pepsi 1 Litro",
+                  "extra_price": 0,
+                  "price": 0
+                },
+                {
+                  "option_id": "opt-coca-1l",
+                  "name": "Coca-Cola 1 Litro",
+                  "extra_price": 0,
+                  "price": 0
+                },
+                {
+                  "option_id": "opt-postobon-1l",
+                  "name": "Postobón Manzana 1 Litro",
+                  "extra_price": 0,
+                  "price": 0
+                },
+                {
+                  "option_id": "opt-colombiana-1l",
+                  "name": "Colombiana 1 Litro",
                   "extra_price": 0,
                   "price": 0
                 }
@@ -10844,23 +10874,35 @@
           "category": "Bebidas",
           "price": 3500,
           "description": "Gaseosa personal bien fría.",
-          "image": "/images/burger_royale.jpg",
+          "image": "/images/mak_pizza/refresco_personal.jpg",
           "modifiers": [
             {
-              "group_id": "grp-sabor-refresco-pers",
+              "group_id": "grp-sabor-pers",
               "group_name": "Sabor de Refresco",
               "selection_type": "single",
               "is_required": true,
               "options": [
                 {
-                  "option_id": "ref-pepsi-pers",
+                  "option_id": "opt-pepsi-pers",
                   "name": "Pepsi Personal",
                   "extra_price": 0,
                   "price": 0
                 },
                 {
-                  "option_id": "ref-cocacola-pers",
+                  "option_id": "opt-coca-pers",
                   "name": "Coca-Cola Personal",
+                  "extra_price": 0,
+                  "price": 0
+                },
+                {
+                  "option_id": "opt-postobon-pers",
+                  "name": "Postobón Manzana Personal",
+                  "extra_price": 0,
+                  "price": 0
+                },
+                {
+                  "option_id": "opt-colombiana-pers",
+                  "name": "Colombiana Personal",
                   "extra_price": 0,
                   "price": 0
                 }
