@@ -2923,11 +2923,43 @@ class MarketplaceController {
 
   isDrinkOrBeverage(item) {
     if (!item) return false;
-    const cat = (item.category || '').toLowerCase();
-    const name = (item.name || '').toLowerCase();
-    const desc = (item.description || '').toLowerCase();
-    const drinkKeywords = ['bebida', 'bebidas', 'refresco', 'gaseosa', 'jugo', 'jugos', 'agua', 'coca', 'pepsi', 'cerveza', 'malta', 'soda', 'nestea', 'hit', 'postobon', 'colombiana', 'manzana', 'cuatro', 'monster', 'red bull', 'té', 'te frio', 'limonada', 'batido', 'smoothie', 'frescolita', 'chinotto', 'speed', 'polar', 'cafe', 'café', 'milo'];
-    return drinkKeywords.some(k => cat.includes(k) || name.includes(k) || desc.includes(k));
+    const cat = (item.category || '').toLowerCase().trim();
+    const name = (item.name || '').toLowerCase().trim();
+
+    // 1. Definitively exclude all solid foods, pizzas, meals and snacks
+    const nonDrinkKeywords = [
+      'pizza', 'pizzas', 'hamburguesa', 'burger', 'perro', 'hot dog', 'hotdog',
+      'salchipapa', 'shawarma', 'pepito', 'arepa', 'empanada', 'taco', 'burrito',
+      'pollo', 'carne', 'sandwich', 'sándwich', 'panzerotti', 'pasticho', 'pastiche',
+      'gratinado', 'plato', 'entrada', 'almuerzo', 'sopa', 'caldo', 'arroz',
+      'pasta', 'lasagna', 'postre', 'tequeño', 'croqueta', 'nugget', 'costilla',
+      'alitas', 'papas', 'porcion', 'porción', 'torta', 'helado'
+    ];
+    if (nonDrinkKeywords.some(w => cat.includes(w) || name.includes(w))) {
+      return false;
+    }
+
+    // 2. Exact positive drink categories
+    const drinkCategories = [
+      'bebida', 'bebidas', 'refresco', 'refrescos', 'gaseosa', 'gaseosas',
+      'jugo', 'jugos', 'frappe', 'frappes', 'licor', 'licores', 'cerveza',
+      'cervezas', 'coctel', 'cocteles', 'cafeteria', 'café', 'cafes', 'malteada', 'malteadas'
+    ];
+    if (drinkCategories.some(c => cat.includes(c))) {
+      return true;
+    }
+
+    // 3. Positive drink names
+    const drinkNames = [
+      'refresco', 'gaseosa', 'jugo', 'frappe', 'frappé', 'agua mineral', 'agua pura', 'botella de agua',
+      'coca-cola', 'coca cola', 'cocacola', 'pepsi', 'frescolita', 'chinotto', '7up', 'seven up',
+      'hit ', 'postobon', 'sprite', 'fanta', 'quatro', 'cuatro', 'nestea', 'lipton',
+      'monster', 'red bull', 'redbull', 'cerveza', 'polar', 'solera', 'heineken', 'corona',
+      'aguila', 'pilsen', 'poker', 'costeña', 'club colombia', 'malta', 'maltin',
+      'limonada', 'smoothie', 'batido', 'malteada', 'te frio', 'té frío', 'iced tea',
+      'mocaccino', 'capuccino', 'cappuccino', 'espresso', 'latte', 'milo'
+    ];
+    return drinkNames.some(d => name.includes(d));
   }
 
   getAvailableBeveragesFromCartStores() {
@@ -2949,7 +2981,8 @@ class MarketplaceController {
       }
     });
 
-    return drinks;
+    // Return at most 5 relevant beverages
+    return drinks.slice(0, 6);
   }
 
   getPizzasWithoutSpecialCrustInCart() {
