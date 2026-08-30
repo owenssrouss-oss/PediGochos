@@ -5334,6 +5334,14 @@ class AdminController {
     const modal = document.getElementById('quick-fill-prices-modal');
     if (modal) modal.classList.remove('active');
     this.checkModalOpenState();
+
+    const menuModal = document.getElementById('menu-tables-modal');
+    if (!menuModal || !menuModal.classList.contains('active')) {
+      const tableCard = document.getElementById('keys-table-body')?.closest('.admin-card');
+      if (tableCard) {
+        tableCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
   }
 
   async deleteSpecificMissingModifier(idx) {
@@ -5450,6 +5458,7 @@ class AdminController {
           localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
         } catch(e) {}
         document.getElementById('quick-fill-prices-modal')?.classList.remove('active');
+        this.checkModalOpenState();
         this.showToast(`✅ Se eliminaron todos los adicionales sin precio.`);
 
         if (typeof this.loadModalProducts === 'function') this.loadModalProducts();
@@ -5464,6 +5473,14 @@ class AdminController {
           this.auditMissingPrices(est);
         }
         this.markPendingChanges();
+
+        const menuModal = document.getElementById('menu-tables-modal');
+        if (!menuModal || !menuModal.classList.contains('active')) {
+          const tableCard = document.getElementById('keys-table-body')?.closest('.admin-card');
+          if (tableCard) {
+            tableCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
       } else {
         alert('Error al guardar cambios.');
       }
@@ -5548,11 +5565,19 @@ class AdminController {
       this.markPendingChanges();
       this.renderTable();
       this.auditMissingPrices(est);
-      this.loadModalProducts();
+      if (typeof this.loadModalProducts === 'function') this.loadModalProducts();
 
       const modal = document.getElementById('quick-fill-prices-modal');
       if (modal) modal.classList.remove('active');
       this.checkModalOpenState();
+
+      const menuModal = document.getElementById('menu-tables-modal');
+      if (!menuModal || !menuModal.classList.contains('active')) {
+        const tableCard = document.getElementById('keys-table-body')?.closest('.admin-card');
+        if (tableCard) {
+          tableCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
     } catch (err) {
       console.error(err);
       alert('Error al guardar precios: ' + err.message);
@@ -5764,6 +5789,14 @@ class AdminController {
     const modal = document.getElementById('clear-modifiers-modal');
     if (modal) modal.classList.remove('active');
     if (typeof this.checkModalOpenState === 'function') this.checkModalOpenState();
+
+    const menuModal = document.getElementById('menu-tables-modal');
+    if (!menuModal || !menuModal.classList.contains('active')) {
+      const tableCard = document.getElementById('keys-table-body')?.closest('.admin-card');
+      if (tableCard) {
+        tableCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
   }
 
   renderClearModifiersDishList() {
