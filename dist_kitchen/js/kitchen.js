@@ -2991,6 +2991,9 @@ class KitchenController {
         })
       });
       if (res.ok) {
+        try {
+          localStorage.setItem('pedigochos_kitchen_establishments', JSON.stringify(this.establishments));
+        } catch(e) {}
         this.showLocalToast('✅ Especificaciones guardadas con éxito.');
         this.closeProductSpecsModal();
         this.loadModalProducts();
@@ -5175,6 +5178,9 @@ class KitchenController {
       });
 
       if (res.ok) {
+        try {
+          localStorage.setItem('pedigochos_kitchen_establishments', JSON.stringify(this.establishments));
+        } catch(e) {}
         this.closeClearModifiersModal();
         if (typeof this.showLocalToast === 'function') {
           this.showLocalToast(`✅ Se limpiaron los adicionales de ${modifiedCount} platos.`);
@@ -5228,6 +5234,9 @@ class KitchenController {
       });
 
       if (res.ok) {
+        try {
+          localStorage.setItem('pedigochos_kitchen_establishments', JSON.stringify(this.establishments));
+        } catch(e) {}
         this.closeClearModifiersModal();
         if (typeof this.showLocalToast === 'function') {
           this.showLocalToast(`✅ Se eliminaron los adicionales de todos los platos (${modifiedCount}).`);

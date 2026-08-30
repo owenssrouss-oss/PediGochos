@@ -2528,6 +2528,9 @@ class AdminController {
         this.establishments.forEach(est => {
           est.disabled = Boolean(est.disabled);
         });
+        try {
+          localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
+        } catch(e) {}
       }
       await this.loadOrders();
       this.renderTable();
@@ -3100,10 +3103,13 @@ class AdminController {
       });
 
       if (res.ok) {
+        try {
+          localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
+        } catch(e) {}
         this.showToast('✅ Especificaciones guardadas correctamente.');
         this.closeProductSpecsModal();
-        if (typeof window.loadProducts === 'function') {
-          await window.loadProducts();
+        if (typeof this.loadModalProducts === 'function') {
+          this.loadModalProducts();
         }
         if (typeof this.renderDailySpecialsTab === 'function') {
           this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
@@ -5372,10 +5378,12 @@ class AdminController {
       });
 
       if (res.ok) {
+        try {
+          localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
+        } catch(e) {}
         this.showToast(`✅ "${item.name}" eliminado de los platos.`);
         this.openQuickFillPricesModal(est.id);
 
-        if (typeof window.loadProducts === 'function') await window.loadProducts();
         if (typeof this.loadModalProducts === 'function') this.loadModalProducts();
         if (typeof this.renderModalProducts === 'function') this.renderModalProducts();
         if (typeof this.renderDailySpecialsTab === 'function') {
@@ -5387,6 +5395,7 @@ class AdminController {
         if (typeof this.auditMissingPrices === 'function') {
           this.auditMissingPrices(est);
         }
+        this.markPendingChanges();
       } else {
         alert('Error al guardar cambios.');
       }
@@ -5437,10 +5446,12 @@ class AdminController {
       });
 
       if (res.ok) {
+        try {
+          localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
+        } catch(e) {}
         document.getElementById('quick-fill-prices-modal')?.classList.remove('active');
         this.showToast(`✅ Se eliminaron todos los adicionales sin precio.`);
 
-        if (typeof window.loadProducts === 'function') await window.loadProducts();
         if (typeof this.loadModalProducts === 'function') this.loadModalProducts();
         if (typeof this.renderModalProducts === 'function') this.renderModalProducts();
         if (typeof this.renderDailySpecialsTab === 'function') {
@@ -5452,6 +5463,7 @@ class AdminController {
         if (typeof this.auditMissingPrices === 'function') {
           this.auditMissingPrices(est);
         }
+        this.markPendingChanges();
       } else {
         alert('Error al guardar cambios.');
       }
@@ -5863,6 +5875,9 @@ class AdminController {
       });
 
       if (res.ok) {
+        try {
+          localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
+        } catch(e) {}
         this.closeClearModifiersModal();
         if (typeof this.showToast === 'function') {
           this.showToast(`✅ Se limpiaron los adicionales de ${modifiedCount} platos.`);
@@ -5919,6 +5934,9 @@ class AdminController {
       });
 
       if (res.ok) {
+        try {
+          localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
+        } catch(e) {}
         this.closeClearModifiersModal();
         if (typeof this.showToast === 'function') {
           this.showToast(`✅ Se eliminaron los adicionales de todos los platos (${modifiedCount}).`);

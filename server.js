@@ -186,9 +186,9 @@ async function syncFromSupabase() {
             cloudData.establishments.push(localEst);
           } else {
             const cloudEst = cloudData.establishments[cloudIndex];
-            // If local establishment has more products or updated products, preserve local version
-            if (Array.isArray(localEst.products) && (!Array.isArray(cloudEst.products) || localEst.products.length >= cloudEst.products.length)) {
-              cloudData.establishments[cloudIndex] = { ...cloudEst, ...localEst, products: localEst.products };
+            // Only use local products if cloud has no products defined
+            if (!Array.isArray(cloudEst.products) || cloudEst.products.length === 0) {
+              cloudEst.products = localEst.products || [];
             }
           }
         });
@@ -355,10 +355,9 @@ async function syncFromPostgres() {
         establishments.forEach(est => {
           const localMatch = localEsts.find(l => String(l.id).trim() === String(est.id).trim());
           if (localMatch) {
-            const localProdCount = Array.isArray(localMatch.products) ? localMatch.products.length : 0;
-            const pgProdCount = Array.isArray(est.products) ? est.products.length : 0;
-            if (localProdCount >= pgProdCount) {
-              est.products = localMatch.products;
+            // Only use local products if Postgres has no products defined
+            if (!Array.isArray(est.products) || est.products.length === 0) {
+              est.products = localMatch.products || [];
             }
             if (localMatch.linkKey && !est.linkKey) est.linkKey = localMatch.linkKey;
             if (localMatch.open_time && !est.open_time) est.open_time = localMatch.open_time;
