@@ -2684,6 +2684,7 @@ class KitchenController {
       modal.style.display = 'none';
       modal.classList.remove('active');
     }
+    if (typeof this.checkModalOpenState === 'function') this.checkModalOpenState();
   }
 
   renderSpecsIngredients() {
@@ -4140,6 +4141,13 @@ class KitchenController {
 
     const modal = document.getElementById('quick-fill-prices-modal');
     if (modal) modal.classList.add('active');
+    if (typeof this.checkModalOpenState === 'function') this.checkModalOpenState();
+  }
+
+  closeQuickFillPricesModal() {
+    const modal = document.getElementById('quick-fill-prices-modal');
+    if (modal) modal.classList.remove('active');
+    if (typeof this.checkModalOpenState === 'function') this.checkModalOpenState();
   }
 
   async deleteSpecificMissingModifier(idx) {
@@ -4563,7 +4571,7 @@ class KitchenController {
     const tableInp = document.getElementById('qr-modal-table-input');
     const tableNum = tableInp ? tableInp.value.trim() : '';
 
-    const origin = window.location.origin;
+    const origin = (window.location.hostname === 'localhost' || window.location.protocol === 'capacitor:' || window.location.hostname === '127.0.0.1') ? 'https://pedigochos.onrender.com' : window.location.origin;
     let directUrl = `${origin}/?store=${encodeURIComponent(est.id)}`;
     if (tableNum) {
       directUrl += `&mesa=${encodeURIComponent(tableNum)}`;
@@ -4590,8 +4598,8 @@ class KitchenController {
           text: directUrl,
           width: 580,
           height: 580,
-          colorDark: '#FF6B00',
-          colorLight: '#111116',
+          colorDark: '#000000',
+          colorLight: '#FFFFFF',
           correctLevel: QRCode.CorrectLevel.M
         });
 
@@ -4619,7 +4627,7 @@ class KitchenController {
   }
 
   fallbackQRServerImage(directUrl, callback) {
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=580x580&data=${encodeURIComponent(directUrl)}&color=FF6B00&bgcolor=111116&margin=0`;
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=580x580&data=${encodeURIComponent(directUrl)}&color=000000&bgcolor=FFFFFF&margin=0`;
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => callback(img);
@@ -4825,22 +4833,27 @@ class KitchenController {
       ctx.restore();
     }
 
-    // 6. Center Vibrant Orange QR Code
+    // 6. Center High-Contrast QR Code Box with Glowing Orange Accent Frame
     if (qrElement) {
       const qrSize = 580;
       const qrX = cx - qrSize / 2;
       const qrY = tableNum ? 355 : 340;
 
-      // Dark background panel for QR
+      // Clean pure white plate for max scanner readability with glowing orange border
       ctx.save();
-      ctx.fillStyle = '#111116';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.shadowColor = 'rgba(255, 107, 0, 0.85)';
+      ctx.shadowBlur = 30;
       ctx.beginPath();
       if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(qrX - 12, qrY - 12, qrSize + 24, qrSize + 24, 22);
+        ctx.roundRect(qrX - 16, qrY - 16, qrSize + 32, qrSize + 32, 24);
       } else {
-        ctx.rect(qrX - 12, qrY - 12, qrSize + 24, qrSize + 24);
+        ctx.rect(qrX - 16, qrY - 16, qrSize + 32, qrSize + 32);
       }
       ctx.fill();
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = '#FF6B00';
+      ctx.stroke();
       ctx.restore();
 
       // Draw QR Image/Canvas
@@ -4908,7 +4921,7 @@ class KitchenController {
   async downloadBatchTableQRs(from = 1, to = 10) {
     const est = this.currentQREst || (this.establishments || []).find(e => e.id === this.selectedId);
     if (!est) return;
-    const origin = window.location.origin;
+    const origin = (window.location.hostname === 'localhost' || window.location.protocol === 'capacitor:' || window.location.hostname === '127.0.0.1') ? 'https://pedigochos.onrender.com' : window.location.origin;
 
     this.showToast(`📦 Generando lote de displays para Mesas ${from} al ${to}...`);
 
@@ -4921,6 +4934,7 @@ class KitchenController {
           this.drawStoreQRDisplayCanvas(offCanvas, est, String(table), qrElem);
           
           const dataUrl = offCanvas.toDataURL('image/png', 1.0);
+          const link = document.createElement('a');
           const link = document.createElement('a');
           link.href = dataUrl;
           link.download = `Display_QR_${(est.name || 'Restaurante').replace(/[^a-zA-Z0-9]/g, '_')}_Mesa_${table}.png`;
@@ -5043,6 +5057,13 @@ class KitchenController {
 
     const modal = document.getElementById('clear-modifiers-modal');
     if (modal) modal.classList.add('active');
+    if (typeof this.checkModalOpenState === 'function') this.checkModalOpenState();
+  }
+
+  closeClearModifiersModal() {
+    const modal = document.getElementById('clear-modifiers-modal');
+    if (modal) modal.classList.remove('active');
+    if (typeof this.checkModalOpenState === 'function') this.checkModalOpenState();
   }
 
   renderClearModifiersDishList() {
@@ -5154,7 +5175,7 @@ class KitchenController {
       });
 
       if (res.ok) {
-        document.getElementById('clear-modifiers-modal')?.classList.remove('active');
+        this.closeClearModifiersModal();
         if (typeof this.showLocalToast === 'function') {
           this.showLocalToast(`✅ Se limpiaron los adicionales de ${modifiedCount} platos.`);
         } else {
@@ -5166,6 +5187,7 @@ class KitchenController {
         if (typeof this.renderDailySpecialsTab === 'function') {
           this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
         }
+        if (typeof this.checkModalOpenState === 'function') this.checkModalOpenState();
       } else {
         alert('Error al guardar cambios en el servidor.');
       }
@@ -5206,7 +5228,7 @@ class KitchenController {
       });
 
       if (res.ok) {
-        document.getElementById('clear-modifiers-modal')?.classList.remove('active');
+        this.closeClearModifiersModal();
         if (typeof this.showLocalToast === 'function') {
           this.showLocalToast(`✅ Se eliminaron los adicionales de todos los platos (${modifiedCount}).`);
         } else {
@@ -5218,6 +5240,7 @@ class KitchenController {
         if (typeof this.renderDailySpecialsTab === 'function') {
           this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
         }
+        if (typeof this.checkModalOpenState === 'function') this.checkModalOpenState();
       } else {
         alert('Error al guardar cambios en el servidor.');
       }

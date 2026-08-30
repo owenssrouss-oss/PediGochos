@@ -621,8 +621,16 @@ body.modal-open {
 #est-action-modal { z-index: 2000 !important; }
 #edit-est-modal { z-index: 2100 !important; }
 #menu-tables-modal { z-index: 3000 !important; }
+#admin-all-stores-map-modal { z-index: 3800 !important; }
+#admin-register-driver-modal { z-index: 3900 !important; }
+#admin-store-qr-modal { z-index: 3950 !important; }
 #product-modal { z-index: 4000 !important; }
+#daily-options-modal { z-index: 4100 !important; }
+#pizza-crusts-manager-modal { z-index: 4400 !important; }
 #admin-create-master-product-modal { z-index: 4500 !important; }
+#quick-fill-prices-modal { z-index: 4700 !important; }
+#clear-modifiers-modal { z-index: 4800 !important; }
+#product-specs-modal { z-index: 4900 !important; }
 
 .modal-content {
   position: relative !important;

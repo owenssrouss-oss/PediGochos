@@ -1006,14 +1006,18 @@ class AdminController {
     const est = this.establishments.find(e => e.id === targetId);
     if (!est) return;
     this.closeEstActionModal();
-    const url = '/kitchen.html?key=' + encodeURIComponent(est.linkKey || '');
+    const isApp = window.Capacitor !== undefined || window.location.protocol === 'capacitor:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const baseUrl = isApp ? 'https://pedigochos.onrender.com' : window.location.origin;
+    const url = `${baseUrl}/kitchen.html?key=${encodeURIComponent(est.linkKey || '')}`;
     window.open(url, '_blank') || (window.location.href = url);
   }
 
   viewShopMenu() {
     if (!this.activeShopId) return;
     this.closeEstActionModal();
-    const url = '/?shop=' + this.activeShopId;
+    const isApp = window.Capacitor !== undefined || window.location.protocol === 'capacitor:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const baseUrl = isApp ? 'https://pedigochos.onrender.com' : window.location.origin;
+    const url = `${baseUrl}/?store=${encodeURIComponent(this.activeShopId)}`;
     window.open(url, '_blank') || (window.location.href = url);
   }
 
@@ -1850,7 +1854,7 @@ class AdminController {
       return (isNaN(numA) ? 0 : numA) - (isNaN(numB) ? 0 : numB);
     });
 
-    const origin = window.location.origin;
+    const origin = (window.location.hostname === 'localhost' || window.location.protocol === 'capacitor:' || window.location.hostname === '127.0.0.1') ? 'https://pedigochos.onrender.com' : window.location.origin;
 
     est.tables.forEach((table, idx) => {
       const tNum = table.number || (idx + 1);
@@ -1873,8 +1877,8 @@ class AdminController {
           <span style="font-size: 11px; color: var(--text-muted);">Capacidad: ${table.capacity || 4} pers.</span>
         </div>
 
-        <!-- Live QR Code Element -->
-        <div id="${qrBoxId}" style="width: 130px; height: 130px; background: #111116; border-radius: 12px; padding: 6px; display: flex; align-items: center; justify-content: center; border: 1.5px solid #FF6B00; box-shadow: 0 0 12px rgba(255,107,0,0.25);">
+        <!-- Live QR Code Element with High Contrast -->
+        <div id="${qrBoxId}" style="width: 130px; height: 130px; background: #FFFFFF; border-radius: 12px; padding: 6px; display: flex; align-items: center; justify-content: center; border: 2px solid #FF6B00; box-shadow: 0 0 14px rgba(255,107,0,0.35);">
           <!-- QR Canvas -->
         </div>
 
@@ -1903,8 +1907,8 @@ class AdminController {
             text: directUrl,
             width: 118,
             height: 118,
-            colorDark: '#FF6B00',
-            colorLight: '#111116',
+            colorDark: '#000000',
+            colorLight: '#FFFFFF',
             correctLevel: QRCode.CorrectLevel.M
           });
         }
@@ -2027,7 +2031,7 @@ class AdminController {
     const est = this.establishments.find(e => e.id === (estId || window.activeShopIdForMenu || this.activeShopId));
     if (!est) return;
 
-    const origin = window.location.origin;
+    const origin = (window.location.hostname === 'localhost' || window.location.protocol === 'capacitor:' || window.location.hostname === '127.0.0.1') ? 'https://pedigochos.onrender.com' : window.location.origin;
     const directUrl = `${origin}/?store=${encodeURIComponent(est.id)}&mesa=${encodeURIComponent(tableNumberOrName)}`;
 
     this.renderCustomOrangeQR(directUrl, (qrElement) => {
@@ -4391,7 +4395,7 @@ class AdminController {
     const tableInp = document.getElementById('qr-modal-table-input');
     const tableNum = tableInp ? tableInp.value.trim() : '';
 
-    const origin = window.location.origin;
+    const origin = (window.location.hostname === 'localhost' || window.location.protocol === 'capacitor:' || window.location.hostname === '127.0.0.1') ? 'https://pedigochos.onrender.com' : window.location.origin;
     let directUrl = `${origin}/?store=${encodeURIComponent(est.id)}`;
     if (tableNum) {
       directUrl += `&mesa=${encodeURIComponent(tableNum)}`;
@@ -4403,7 +4407,7 @@ class AdminController {
     const canvas = document.getElementById('qr-display-canvas');
     if (!canvas) return;
 
-    // Generate orange QR code modules
+    // Generate QR code modules
     this.renderCustomOrangeQR(directUrl, (qrCanvasOrImg) => {
       this.drawStoreQRDisplayCanvas(canvas, est, tableNum, qrCanvasOrImg);
     });
@@ -4420,8 +4424,8 @@ class AdminController {
           text: directUrl,
           width: 580,
           height: 580,
-          colorDark: '#FF6B00',
-          colorLight: '#111116',
+          colorDark: '#000000',
+          colorLight: '#FFFFFF',
           correctLevel: QRCode.CorrectLevel.M
         });
 
@@ -4450,7 +4454,7 @@ class AdminController {
   }
 
   fallbackQRServerImage(directUrl, callback) {
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=580x580&data=${encodeURIComponent(directUrl)}&color=FF6B00&bgcolor=111116&margin=0`;
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=580x580&data=${encodeURIComponent(directUrl)}&color=000000&bgcolor=FFFFFF&margin=0`;
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => callback(img);
@@ -4657,22 +4661,27 @@ class AdminController {
       ctx.restore();
     }
 
-    // 6. Center Vibrant Orange QR Code
+    // 6. Center High-Contrast QR Code Box with Glowing Orange Accent Frame
     if (qrElement) {
       const qrSize = 580;
       const qrX = cx - qrSize / 2;
       const qrY = tableNum ? 355 : 340;
 
-      // Dark background panel for QR
+      // Clean pure white plate for max scanner readability with glowing orange border
       ctx.save();
-      ctx.fillStyle = '#111116';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.shadowColor = 'rgba(255, 107, 0, 0.85)';
+      ctx.shadowBlur = 30;
       ctx.beginPath();
       if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(qrX - 12, qrY - 12, qrSize + 24, qrSize + 24, 22);
+        ctx.roundRect(qrX - 16, qrY - 16, qrSize + 32, qrSize + 32, 24);
       } else {
-        ctx.rect(qrX - 12, qrY - 12, qrSize + 24, qrSize + 24);
+        ctx.rect(qrX - 16, qrY - 16, qrSize + 32, qrSize + 32);
       }
       ctx.fill();
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = '#FF6B00';
+      ctx.stroke();
       ctx.restore();
 
       // Draw QR Image/Canvas
@@ -4740,7 +4749,7 @@ class AdminController {
   async downloadBatchTableQRs(from = 1, to = 10) {
     if (!this.currentQREst) return;
     const est = this.currentQREst;
-    const origin = window.location.origin;
+    const origin = (window.location.hostname === 'localhost' || window.location.protocol === 'capacitor:' || window.location.hostname === '127.0.0.1') ? 'https://pedigochos.onrender.com' : window.location.origin;
 
     this.showToast(`📦 Generando lote de displays para Mesas ${from} al ${to}...`);
 
@@ -5315,6 +5324,12 @@ class AdminController {
     this.checkModalOpenState();
   }
 
+  closeQuickFillPricesModal() {
+    const modal = document.getElementById('quick-fill-prices-modal');
+    if (modal) modal.classList.remove('active');
+    this.checkModalOpenState();
+  }
+
   async deleteSpecificMissingModifier(idx) {
     const est = this.establishments.find(e => e.id === this.activeShopIdForQuickFill);
     if (!est || !Array.isArray(this.currentQuickFillItems)) return;
@@ -5716,6 +5731,8 @@ class AdminController {
       return;
     }
 
+    this.activeShopId = est.id;
+    window.activeShopIdForMenu = est.id;
     this.activeShopIdForClearModifiers = est.id;
 
     const nameEl = document.getElementById('clear-modifiers-shop-name');
@@ -5728,6 +5745,12 @@ class AdminController {
 
     const modal = document.getElementById('clear-modifiers-modal');
     if (modal) modal.classList.add('active');
+    if (typeof this.checkModalOpenState === 'function') this.checkModalOpenState();
+  }
+
+  closeClearModifiersModal() {
+    const modal = document.getElementById('clear-modifiers-modal');
+    if (modal) modal.classList.remove('active');
     if (typeof this.checkModalOpenState === 'function') this.checkModalOpenState();
   }
 
@@ -5840,19 +5863,22 @@ class AdminController {
       });
 
       if (res.ok) {
-        document.getElementById('clear-modifiers-modal')?.classList.remove('active');
+        this.closeClearModifiersModal();
         if (typeof this.showToast === 'function') {
           this.showToast(`✅ Se limpiaron los adicionales de ${modifiedCount} platos.`);
         } else {
           alert(`✅ Se limpiaron los adicionales de ${modifiedCount} platos.`);
         }
 
-        if (typeof window.loadProducts === 'function') await window.loadProducts();
+        if (typeof this.loadModalProducts === 'function') this.loadModalProducts();
         if (typeof this.renderModalProducts === 'function') this.renderModalProducts();
         if (typeof this.renderDailySpecialsTab === 'function') {
           this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
         }
+        if (typeof this.renderTable === 'function') this.renderTable();
+        if (typeof this.auditMissingPrices === 'function') this.auditMissingPrices(est);
         this.markPendingChanges();
+        this.checkModalOpenState();
       } else {
         alert('Error al guardar cambios en el servidor.');
       }
@@ -5893,19 +5919,22 @@ class AdminController {
       });
 
       if (res.ok) {
-        document.getElementById('clear-modifiers-modal')?.classList.remove('active');
+        this.closeClearModifiersModal();
         if (typeof this.showToast === 'function') {
           this.showToast(`✅ Se eliminaron los adicionales de todos los platos (${modifiedCount}).`);
         } else {
           alert(`✅ Se eliminaron los adicionales de todos los platos (${modifiedCount}).`);
         }
 
-        if (typeof window.loadProducts === 'function') await window.loadProducts();
+        if (typeof this.loadModalProducts === 'function') this.loadModalProducts();
         if (typeof this.renderModalProducts === 'function') this.renderModalProducts();
         if (typeof this.renderDailySpecialsTab === 'function') {
           this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
         }
+        if (typeof this.renderTable === 'function') this.renderTable();
+        if (typeof this.auditMissingPrices === 'function') this.auditMissingPrices(est);
         this.markPendingChanges();
+        this.checkModalOpenState();
       } else {
         alert('Error al guardar cambios en el servidor.');
       }

@@ -617,6 +617,16 @@ body {
   animation: alarmIconBounce 0.4s infinite alternate;
 }
 
+/* Stacking Order Hierarchy */
+#menu-tables-modal { z-index: 3000 !important; }
+#admin-store-qr-modal { z-index: 3950 !important; }
+#product-modal { z-index: 4000 !important; }
+#daily-options-modal { z-index: 4100 !important; }
+#pizza-crusts-manager-modal { z-index: 4400 !important; }
+#quick-fill-prices-modal { z-index: 4700 !important; }
+#clear-modifiers-modal { z-index: 4800 !important; }
+#product-specs-modal { z-index: 4900 !important; }
+
 /* =========================================================
    TALLER DE LOCAL & MENÚ: SISTEMA DE PESTAÑAS Y RESPONSIVE
    ========================================================= */

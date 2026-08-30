@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Cocina Pedi Gochos - KDS Panel</title>
-  <link rel="stylesheet" href="/css/common.css?v=220">
-  <link rel="stylesheet" href="/css/kitchen.css?v=220">
-  <link rel="stylesheet" href="/css/menu-builder.css?v=220">
+  <link rel="stylesheet" href="/css/common.css?v=222">
+  <link rel="stylesheet" href="/css/kitchen.css?v=222">
+  <link rel="stylesheet" href="/css/menu-builder.css?v=222">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#FF5E3A">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -815,7 +815,7 @@
             <span id="clear-modifiers-shop-name" style="font-size: 11.5px; color: #FCA5A5; font-weight: 700;">Restaurante</span>
           </div>
         </div>
-        <button type="button" class="modal-close" onclick="document.getElementById('clear-modifiers-modal').classList.remove('active');" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.08); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+        <button type="button" class="modal-close" onclick="KitchenApp.closeClearModifiersModal()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.08); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
       </div>
 
       <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 12px 0;">
@@ -856,7 +856,7 @@
           🔥 Limpiar de TODOS los platos
         </button>
         <div style="display: flex; gap: 8px;">
-          <button type="button" class="btn-neumorphic" onclick="document.getElementById('clear-modifiers-modal').classList.remove('active');" style="margin: 0; padding: 8px 14px; font-size: 12px; height: auto;">Cancelar</button>
+          <button type="button" class="btn-neumorphic" onclick="KitchenApp.closeClearModifiersModal()" style="margin: 0; padding: 8px 14px; font-size: 12px; height: auto;">Cancelar</button>
           <button type="button" class="btn-neumorphic" onclick="KitchenApp.executeClearModifiersSelected()" style="background: #EF4444; color: #FFFFFF; border: none; font-weight: 800; margin: 0; padding: 8px 18px; font-size: 12px; height: auto; box-shadow: 0 4px 12px rgba(239,68,68,0.4);">
             🗑️ Eliminar de Seleccionados
           </button>
@@ -877,7 +877,7 @@
             <span id="quick-fill-shop-name" style="font-size: 11.5px; color: #FCD34D; font-weight: 700;">Restaurante</span>
           </div>
         </div>
-        <button type="button" class="modal-close" onclick="document.getElementById('quick-fill-prices-modal').classList.remove('active');" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.08); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+        <button type="button" class="modal-close" onclick="KitchenApp.closeQuickFillPricesModal()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.08); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
       </div>
 
       <p style="font-size: 12px; color: #CBD5E1; margin: 0 0 14px 0; line-height: 1.4;">
@@ -898,7 +898,7 @@
           </button>
         </div>
         <div style="display: flex; gap: 10px;">
-          <button type="button" class="btn-neumorphic" onclick="document.getElementById('quick-fill-prices-modal').classList.remove('active');" style="margin: 0; padding: 8px 14px; font-size: 12px;">Cerrar</button>
+          <button type="button" class="btn-neumorphic" onclick="KitchenApp.closeQuickFillPricesModal()" style="margin: 0; padding: 8px 14px; font-size: 12px;">Cerrar</button>
           <button type="button" class="btn-neumorphic" onclick="KitchenApp.saveQuickFillPrices()" style="margin: 0; padding: 8px 18px; font-size: 12.5px; font-weight: 800; background: #F59E0B; color: #1E293B; border-color: #F59E0B; box-shadow: 0 4px 12px rgba(245,158,11,0.4);">
             💾 Guardar Precios
           </button>
@@ -1111,10 +1111,10 @@
     </div>
   </div>
 
-  <script src="/js/sound.js?v=220"></script>
-  <script src="/js/qrcode.min.js?v=220"></script>
-  <script src="/js/menu-builder.js?v=220"></script>
-  <script src="/js/kitchen.js?v=220"></script>
+  <script src="/js/sound.js?v=222"></script>
+  <script src="/js/qrcode.min.js?v=222"></script>
+  <script src="/js/menu-builder.js?v=222"></script>
+  <script src="/js/kitchen.js?v=222"></script>
   <script>
     if (typeof KitchenApp !== 'undefined') {
       if (!KitchenApp.showToast && typeof KitchenApp.showLocalToast === 'function') {
@@ -1442,7 +1442,7 @@
     // Register Service Worker for PWA installability with immediate update check
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js?v=220').then((reg) => {
+        navigator.serviceWorker.register('/sw.js?v=222').then((reg) => {
           console.log('ServiceWorker registered successfully', reg.scope);
           reg.update();
         }).catch((err) => {

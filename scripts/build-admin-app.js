@@ -19,9 +19,14 @@ foldersToCopy.forEach(folder => {
   }
 });
 
-// Copy admin.html as index.html
+// Copy admin.html as index.html and kitchen.html
 const adminHtml = fs.readFileSync(path.join(publicDir, 'admin.html'), 'utf8');
 fs.writeFileSync(path.join(distDir, 'index.html'), adminHtml);
+fs.writeFileSync(path.join(distDir, 'admin.html'), adminHtml);
+
+if (fs.existsSync(path.join(publicDir, 'kitchen.html'))) {
+  fs.copyFileSync(path.join(publicDir, 'kitchen.html'), path.join(distDir, 'kitchen.html'));
+}
 
 // Copy manifest and sw if needed
 if (fs.existsSync(path.join(publicDir, 'manifest.json'))) {
