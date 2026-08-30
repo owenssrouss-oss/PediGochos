@@ -697,7 +697,8 @@ class AdminController {
 
       const missingPrices = this.getMissingPricesForEstablishment(est);
       const missingPricesBadge = missingPrices.length > 0
-        ? `<button type="button" onclick="event.stopPropagation(); AdminApp.openQuickFillPricesModal('${est.id}')" style="background: rgba(245, 158, 11, 0.18); color: #B45309; border: 1.5px solid #F59E0B; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(245,158,11,0.25); animation: pulse 2s infinite;" title="Haz clic para llenar precios pendientes">⚠️ ${missingPrices.length} adicionales sin precio</button>`
+        ? `<button type="button" onclick="event.stopPropagation(); AdminApp.openQuickFillPricesModal('${est.id}')" style="background: rgba(245, 158, 11, 0.18); color: #B45309; border: 1.5px solid #F59E0B; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(245,158,11,0.25); animation: pulse 2s infinite;" title="Haz clic para llenar precios pendientes">⚠️ ${missingPrices.length} adicionales sin precio</button>
+           <button type="button" onclick="event.stopPropagation(); AdminApp.openClearModifiersModal('${est.id}')" style="background: rgba(239, 68, 68, 0.15); color: #DC2626; border: 1px solid rgba(239, 68, 68, 0.4); font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(239,68,68,0.2);" title="Eliminar o limpiar adicionales de este restaurante">🗑️ Limpiar Adicionales</button>`
         : '';
 
       row.innerHTML = `
@@ -5287,14 +5288,19 @@ class AdminController {
           }
 
           return `
-            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); padding: 10px 14px; border-radius: 12px; gap: 12px;">
-              <div style="flex: 1;">
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); padding: 10px 14px; border-radius: 12px; gap: 12px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 180px;">
                 <div style="font-weight: 800; font-size: 13px; color: #FFF;">${item.name}</div>
                 <div style="font-size: 11px; color: #94A3B8; margin-top: 2px;">${appliesToText}</div>
               </div>
-              <div style="display: flex; align-items: center; gap: 6px; width: 140px;">
-                <span style="color: #FCD34D; font-weight: 800; font-size: 13px;">$</span>
-                <input type="number" step="500" min="0" placeholder="Ej: 3000" data-idx="${idx}" class="quick-fill-input" value="${item.currentPrice > 0 ? item.currentPrice : ''}" style="width: 100%; padding: 6px 8px; border-radius: 8px; background: rgba(18,18,22,0.9); border: 1.5px solid #F59E0B; color: #FFF; font-weight: 800; font-size: 13px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 4px; width: 130px;">
+                  <span style="color: #FCD34D; font-weight: 800; font-size: 13px;">$</span>
+                  <input type="number" step="500" min="0" placeholder="Ej: 3000" data-idx="${idx}" class="quick-fill-input" value="${item.currentPrice > 0 ? item.currentPrice : ''}" style="width: 100%; padding: 6px 8px; border-radius: 8px; background: rgba(18,18,22,0.9); border: 1.5px solid #F59E0B; color: #FFF; font-weight: 800; font-size: 13px;">
+                </div>
+                <button type="button" onclick="event.stopPropagation(); AdminApp.deleteSpecificMissingModifier(${idx})" class="btn-neumorphic" style="margin: 0; padding: 6px 9px; height: 32px; color: #EF4444; border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.12); font-size: 12px; cursor: pointer;" title="Eliminar este adicional sin precio de los platos">
+                  🗑️
+                </button>
               </div>
             </div>
           `;
@@ -5307,6 +5313,137 @@ class AdminController {
     const modal = document.getElementById('quick-fill-prices-modal');
     if (modal) modal.classList.add('active');
     this.checkModalOpenState();
+  }
+
+  async deleteSpecificMissingModifier(idx) {
+    const est = this.establishments.find(e => e.id === this.activeShopIdForQuickFill);
+    if (!est || !Array.isArray(this.currentQuickFillItems)) return;
+
+    const item = this.currentQuickFillItems[idx];
+    if (!item) return;
+
+    if (!confirm(`¿Eliminar "${item.name}" de todos los platos donde aparece?`)) return;
+
+    if (item.type === 'product') {
+      est.products = (est.products || []).filter(p => p.id !== item.productId);
+    } else if (item.type === 'modifier') {
+      const optNameTarget = (item.optionName || '').trim().toLowerCase();
+      const groupNameTarget = (item.groupName || '').trim().toLowerCase();
+
+      (est.products || []).forEach(prod => {
+        if (Array.isArray(prod.modifiers)) {
+          prod.modifiers.forEach(group => {
+            if (Array.isArray(group.options)) {
+              group.options = group.options.filter(o => {
+                const isTarget = item.targets && item.targets.some(t => t.productId === prod.id && (t.optionId === o.id || t.optionId === o.option_id));
+                const nameMatch = (o.name || '').trim().toLowerCase() === optNameTarget;
+                return !isTarget && !nameMatch;
+              });
+            }
+          });
+          prod.modifiers = prod.modifiers.filter(group => Array.isArray(group.options) && group.options.length > 0);
+        }
+      });
+    }
+
+    try {
+      const res = await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          products: est.products
+        })
+      });
+
+      if (res.ok) {
+        this.showToast(`✅ "${item.name}" eliminado de los platos.`);
+        this.openQuickFillPricesModal(est.id);
+
+        if (typeof window.loadProducts === 'function') await window.loadProducts();
+        if (typeof this.loadModalProducts === 'function') this.loadModalProducts();
+        if (typeof this.renderModalProducts === 'function') this.renderModalProducts();
+        if (typeof this.renderDailySpecialsTab === 'function') {
+          this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
+        }
+        if (typeof this.renderTable === 'function') {
+          this.renderTable();
+        }
+        if (typeof this.auditMissingPrices === 'function') {
+          this.auditMissingPrices(est);
+        }
+      } else {
+        alert('Error al guardar cambios.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error al eliminar adicional.');
+    }
+  }
+
+  async deleteMissingModifiersAll() {
+    const est = this.establishments.find(e => e.id === this.activeShopIdForQuickFill);
+    if (!est || !Array.isArray(this.currentQuickFillItems) || this.currentQuickFillItems.length === 0) return;
+
+    if (!confirm(`¿Eliminar TODOS los ${this.currentQuickFillItems.length} adicionales/platos sin precio de "${est.name}"?`)) return;
+
+    const missingModifiers = this.currentQuickFillItems.filter(i => i.type === 'modifier');
+    const missingProducts = this.currentQuickFillItems.filter(i => i.type === 'product').map(p => p.productId);
+
+    if (missingProducts.length > 0) {
+      est.products = (est.products || []).filter(p => !missingProducts.includes(p.id));
+    }
+
+    const optNamesToDelete = new Set(missingModifiers.map(m => (m.optionName || '').trim().toLowerCase()));
+
+    (est.products || []).forEach(prod => {
+      if (Array.isArray(prod.modifiers)) {
+        prod.modifiers.forEach(group => {
+          if (Array.isArray(group.options)) {
+            group.options = group.options.filter(o => {
+              const nameKey = (o.name || '').trim().toLowerCase();
+              const isUnpriced = optNamesToDelete.has(nameKey) || o.price_pending === true || !o.extra_price || o.extra_price === 0;
+              return !optNamesToDelete.has(nameKey) && !isUnpriced;
+            });
+          }
+        });
+        prod.modifiers = prod.modifiers.filter(group => Array.isArray(group.options) && group.options.length > 0);
+      }
+    });
+
+    try {
+      const res = await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          products: est.products
+        })
+      });
+
+      if (res.ok) {
+        document.getElementById('quick-fill-prices-modal')?.classList.remove('active');
+        this.showToast(`✅ Se eliminaron todos los adicionales sin precio.`);
+
+        if (typeof window.loadProducts === 'function') await window.loadProducts();
+        if (typeof this.loadModalProducts === 'function') this.loadModalProducts();
+        if (typeof this.renderModalProducts === 'function') this.renderModalProducts();
+        if (typeof this.renderDailySpecialsTab === 'function') {
+          this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
+        }
+        if (typeof this.renderTable === 'function') {
+          this.renderTable();
+        }
+        if (typeof this.auditMissingPrices === 'function') {
+          this.auditMissingPrices(est);
+        }
+      } else {
+        alert('Error al guardar cambios.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error al eliminar adicionales.');
+    }
   }
 
   async saveQuickFillPrices() {
