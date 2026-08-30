@@ -15013,6 +15013,547 @@
       "location_lng": null,
       "open_time": "17:00",
       "close_time": "00:00"
+    },
+    {
+      "id": "cafe-plaza-1788116700000",
+      "name": "Café Plaza",
+      "category": "comidas",
+      "category_name": "Comidas Rápidas & Café",
+      "logo": "☕",
+      "image": "/images/cafe_plaza_logo.jpg",
+      "banner": "/images/cafe_plaza_menu_1.jpg",
+      "description": "Hamburguesas especiales, perros calientes, pepitos gigantes, salchipapas, club house, sandwiches y bebidas frías.",
+      "rating": 4.9,
+      "delivery_fee": 5000,
+      "prep_time": "25-35 min",
+      "delivery_time": "30-45 min",
+      "phone": "0414-7000000",
+      "address": "San Antonio del Táchira",
+      "location": "San Antonio",
+      "open_time": "17:00",
+      "close_time": "00:00",
+      "is_active": true,
+      "is_paused": false,
+      "tables_count": 10,
+      "tables": [
+        {
+          "table_number": 1,
+          "qr_link": "https://pedigochos.onrender.com/?store=cafe-plaza-1788116700000&mesa=1"
+        },
+        {
+          "table_number": 2,
+          "qr_link": "https://pedigochos.onrender.com/?store=cafe-plaza-1788116700000&mesa=2"
+        },
+        {
+          "table_number": 3,
+          "qr_link": "https://pedigochos.onrender.com/?store=cafe-plaza-1788116700000&mesa=3"
+        },
+        {
+          "table_number": 4,
+          "qr_link": "https://pedigochos.onrender.com/?store=cafe-plaza-1788116700000&mesa=4"
+        },
+        {
+          "table_number": 5,
+          "qr_link": "https://pedigochos.onrender.com/?store=cafe-plaza-1788116700000&mesa=5"
+        },
+        {
+          "table_number": 6,
+          "qr_link": "https://pedigochos.onrender.com/?store=cafe-plaza-1788116700000&mesa=6"
+        },
+        {
+          "table_number": 7,
+          "qr_link": "https://pedigochos.onrender.com/?store=cafe-plaza-1788116700000&mesa=7"
+        },
+        {
+          "table_number": 8,
+          "qr_link": "https://pedigochos.onrender.com/?store=cafe-plaza-1788116700000&mesa=8"
+        },
+        {
+          "table_number": 9,
+          "qr_link": "https://pedigochos.onrender.com/?store=cafe-plaza-1788116700000&mesa=9"
+        },
+        {
+          "table_number": 10,
+          "qr_link": "https://pedigochos.onrender.com/?store=cafe-plaza-1788116700000&mesa=10"
+        }
+      ],
+      "products": [
+        {
+          "id": "cp-hamb-1",
+          "name": "Hamburguesa Normal",
+          "category": "Hamburguesas",
+          "price": 8000,
+          "description": "Carne de res, vegetales frescos y salsas de la casa.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Carne de res",
+            "Vegetales",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-hamb-2",
+          "name": "Hamburguesa Especial (Carne, Chorizo, Tocineta)",
+          "category": "Hamburguesas",
+          "price": 10000,
+          "description": "Carne de res, chorizo ahumado, tocineta crujiente, vegetales y salsas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Carne de res",
+            "Chorizo",
+            "Tocineta",
+            "Vegetales",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-hamb-3",
+          "name": "Hamburguesa Especial (Lomito, Chorizo, Tocineta)",
+          "category": "Hamburguesas",
+          "price": 12000,
+          "description": "Lomito tierno, chorizo ahumado, tocineta crujiente, vegetales y salsas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Lomito",
+            "Chorizo",
+            "Tocineta",
+            "Vegetales",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-hamb-4",
+          "name": "Hamburguesa Especial Doble Lomito",
+          "category": "Hamburguesas",
+          "price": 13000,
+          "description": "Doble porción de lomito tierno, chorizo, tocineta, vegetales y salsas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Lomito",
+            "Chorizo",
+            "Tocineta",
+            "Vegetales",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-hamb-5",
+          "name": "Hamburguesa Especial Súper Pollo",
+          "category": "Hamburguesas",
+          "price": 15000,
+          "description": "Croqueta de pollo o pollo a la plancha, chorizo, tocineta y papas fritas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Pollo",
+            "Chorizo",
+            "Tocineta",
+            "Papas fritas",
+            "Vegetales",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-hamb-6",
+          "name": "Hamburguesa Especial Súper Carne",
+          "category": "Hamburguesas",
+          "price": 17000,
+          "description": "Croqueta de carne o carne a la plancha, chorizo, tocineta y papas fritas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Carne",
+            "Chorizo",
+            "Tocineta",
+            "Papas fritas",
+            "Vegetales",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-hamb-7",
+          "name": "Hamburguesa Café Plaza",
+          "category": "Hamburguesas",
+          "price": 20000,
+          "description": "Croqueta de carne, croqueta de pollo, chuleta, chorizo, tocineta, lomito o carne mechada y papas fritas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Carne",
+            "Pollo",
+            "Chuleta",
+            "Chorizo",
+            "Tocineta",
+            "Lomito / Mechada",
+            "Papas fritas"
+          ]
+        },
+        {
+          "id": "cp-enrr-1",
+          "name": "Enrrollado Café Plaza",
+          "category": "Enrrollados",
+          "price": 16000,
+          "description": "Pan árabe, lomito, chorizo, tocineta, maíz, jamón, queso, huevos, vegetales y papas fritas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Pan árabe",
+            "Lomito",
+            "Chorizo",
+            "Tocineta",
+            "Maíz",
+            "Jamón",
+            "Queso",
+            "Huevos",
+            "Vegetales",
+            "Papas fritas"
+          ]
+        },
+        {
+          "id": "cp-perro-1",
+          "name": "Perro Normal (Cebolla y Papa)",
+          "category": "Perros",
+          "price": 4000,
+          "description": "Salchicha, cebolla picadita, papas ralladas y salsas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Salchicha",
+            "Cebolla",
+            "Papas ralladas",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-perro-2",
+          "name": "Perro Normal (Jamón y Queso)",
+          "category": "Perros",
+          "price": 6000,
+          "description": "Salchicha, jamón, queso fundido, papas ralladas y salsas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Salchicha",
+            "Jamón",
+            "Queso",
+            "Papas ralladas",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-perro-3",
+          "name": "Perro Morocho",
+          "category": "Perros",
+          "price": 7000,
+          "description": "Doble salchicha con tocineta crujiente, papas ralladas y salsas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Doble salchicha",
+            "Tocineta",
+            "Papas ralladas",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-perro-4",
+          "name": "Perro Americano",
+          "category": "Perros",
+          "price": 8000,
+          "description": "Salchicha americana con tocineta, papas ralladas y salsas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Salchicha americana",
+            "Tocineta",
+            "Papas ralladas",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-perro-5",
+          "name": "Perro Especial",
+          "category": "Perros",
+          "price": 10000,
+          "description": "Salchicha americana, lomito tierno y tocineta crujiente.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Salchicha americana",
+            "Lomito",
+            "Tocineta",
+            "Papas ralladas",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-perro-6",
+          "name": "Perro Café Plaza",
+          "category": "Perros",
+          "price": 12000,
+          "description": "Salchicha americana, pollo, tocineta y carne mechada con papas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Salchicha americana",
+            "Pollo",
+            "Tocineta",
+            "Carne mechada",
+            "Papas ralladas",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-salchi-1",
+          "name": "Salchipapa Especial",
+          "category": "Salchipapas",
+          "price": 15000,
+          "description": "Salchicha, chorizo ahumado y papas a la francesa con salsas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Salchicha",
+            "Chorizo ahumado",
+            "Papas a la francesa",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-salchi-2",
+          "name": "Salchipapa Súper",
+          "category": "Salchipapas",
+          "price": 25000,
+          "description": "Salchicha, maíz tierno, chorizo ahumado, papas a la francesa, jamón, queso, pollo y carne.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Salchicha",
+            "Maíz",
+            "Chorizo ahumado",
+            "Papas a la francesa",
+            "Jamón",
+            "Queso",
+            "Pollo",
+            "Carne"
+          ]
+        },
+        {
+          "id": "cp-pep-1",
+          "name": "Pepito Especial (40 cm)",
+          "category": "Pepitos",
+          "price": 25000,
+          "description": "Pan de 40 cm, chuleta, chorizo ahumado, tocineta, vegetales y lomito.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Chuleta",
+            "Chorizo ahumado",
+            "Tocineta",
+            "Vegetales",
+            "Lomito",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-pep-2",
+          "name": "Pepito Café Plaza (60 cm)",
+          "category": "Pepitos",
+          "price": 35000,
+          "description": "Pan de 60 cm, chuleta, chorizo ahumado, tocineta, vegetales, maíz y lomito.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Chuleta",
+            "Chorizo ahumado",
+            "Tocineta",
+            "Vegetales",
+            "Maíz",
+            "Lomito",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-chori-1",
+          "name": "Choripán Especial",
+          "category": "Choripán",
+          "price": 10000,
+          "description": "Chorizo español, queso amarillo, vegetales y carne mechada.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Chorizo español",
+            "Queso amarillo",
+            "Vegetales",
+            "Carne mechada",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-chori-2",
+          "name": "Choripán Café Plaza",
+          "category": "Choripán",
+          "price": 15000,
+          "description": "Chorizo español, queso amarillo, vegetales, carne mechada, lomito y papas fritas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Chorizo español",
+            "Queso amarillo",
+            "Vegetales",
+            "Carne mechada",
+            "Lomito",
+            "Papas fritas"
+          ]
+        },
+        {
+          "id": "cp-club-1",
+          "name": "Club House Súper",
+          "category": "Club House",
+          "price": 20000,
+          "description": "Pechuga de pollo, chorizo, tocineta, lomito, jamón, queso y papas fritas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Pechuga de pollo",
+            "Chorizo",
+            "Tocineta",
+            "Lomito",
+            "Jamón",
+            "Queso",
+            "Papas fritas"
+          ]
+        },
+        {
+          "id": "cp-sand-1",
+          "name": "Sandwich Clásico",
+          "category": "Sandwich",
+          "price": 12000,
+          "description": "Atún, jamón, queso y vegetales frescos.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Atún",
+            "Jamón",
+            "Queso",
+            "Vegetales",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-sand-2",
+          "name": "Sandwich de Pollo",
+          "category": "Sandwich",
+          "price": 15000,
+          "description": "Pollo desmechado, jamón, queso y vegetales frescos.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Pollo",
+            "Jamón",
+            "Queso",
+            "Vegetales",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-sand-3",
+          "name": "Sandwich Súper",
+          "category": "Sandwich",
+          "price": 17000,
+          "description": "Pollo a la plancha o atún, tocineta, jamón, queso y vegetales.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Pollo / Atún",
+            "Tocineta",
+            "Jamón",
+            "Queso",
+            "Vegetales",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-inf-1",
+          "name": "Nuggets de Pollo Infantil",
+          "category": "Menú Infantil",
+          "price": 12000,
+          "description": "Nuggets de pollo crujientes con papas a la francesa y salsas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Papas a la francesa",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-inf-2",
+          "name": "Mini Burger Infantil",
+          "category": "Menú Infantil",
+          "price": 12000,
+          "description": "Mini hamburguesa con carne, queso fundido y papas a la francesa.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Carne",
+            "Queso",
+            "Papas a la francesa"
+          ]
+        },
+        {
+          "id": "cp-inf-3",
+          "name": "Pinchos de Pollo Infantil",
+          "category": "Menú Infantil",
+          "price": 15000,
+          "description": "Pinchos de pollo jugosos acompañados de papas fritas.",
+          "image": "/images/burger_royale.jpg",
+          "exclusions": [
+            "Papas fritas",
+            "Salsas"
+          ]
+        },
+        {
+          "id": "cp-beb-1",
+          "name": "Agua Mineral",
+          "category": "Bebidas",
+          "price": 2000,
+          "description": "Botella de agua mineral fresca.",
+          "image": "/images/burger_royale.jpg"
+        },
+        {
+          "id": "cp-beb-2",
+          "name": "Jugo del Valle Pequeño",
+          "category": "Bebidas",
+          "price": 2500,
+          "description": "Jugo del Valle presentación personal pequeña.",
+          "image": "/images/burger_royale.jpg"
+        },
+        {
+          "id": "cp-beb-3",
+          "name": "Jugo del Valle Grande",
+          "category": "Bebidas",
+          "price": 6000,
+          "description": "Jugo del Valle presentación grande.",
+          "image": "/images/burger_royale.jpg"
+        },
+        {
+          "id": "cp-beb-4",
+          "name": "Maxi Pequeña",
+          "category": "Bebidas",
+          "price": 2000,
+          "description": "Gaseosa Maxi presentación personal.",
+          "image": "/images/burger_royale.jpg"
+        },
+        {
+          "id": "cp-beb-5",
+          "name": "Maxi Grande",
+          "category": "Bebidas",
+          "price": 4000,
+          "description": "Gaseosa Maxi presentación familiar.",
+          "image": "/images/burger_royale.jpg"
+        },
+        {
+          "id": "cp-beb-6",
+          "name": "Jugos Naturales",
+          "category": "Bebidas",
+          "price": 8000,
+          "description": "Jugos naturales preparados al instante (Mora, Fresa, Mango, Maracuyá, Guanábana, etc.).",
+          "image": "/images/burger_royale.jpg"
+        },
+        {
+          "id": "cp-beb-7",
+          "name": "Gaseosa Pepsi o Postobón 1.5 Litros",
+          "category": "Bebidas",
+          "price": 6000,
+          "description": "Gaseosa 1.5 Litros (Pepsi, Manzana, Colombiana, etc.).",
+          "image": "/images/burger_royale.jpg"
+        },
+        {
+          "id": "cp-beb-8",
+          "name": "Gaseosa Pepsi o Postobón 2 Litros",
+          "category": "Bebidas",
+          "price": 8000,
+          "description": "Gaseosa familiar 2 Litros (Pepsi, Manzana, Colombiana, etc.).",
+          "image": "/images/burger_royale.jpg"
+        }
+      ]
     }
   ],
   "orders": [
