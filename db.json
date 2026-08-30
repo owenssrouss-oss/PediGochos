@@ -6067,9 +6067,9 @@
     },
     {
       "id": "sabor-venezolano-arepas-1784413922154",
-      "name": "Sabor Venezolano arepas",
+      "name": "Arepera Sabor Venezolano - La Ventana del Táchira",
       "category": "comidas",
-      "description": "Arepas rellenas , caldos, desayunos",
+      "description": "Auténticas arepas rellenas (2 y 4 contornos), hamburguesas, caldos criollos, desayunos, jugos y bebidas.",
       "logo": "🫓",
       "bannerType": "gradient",
       "banner": "linear-gradient(135deg, #F3555D, #FFA68B)",
@@ -6081,749 +6081,2498 @@
       "layout": [],
       "products": [
         {
-          "id": "p-1784414001780-55",
-          "name": "Arepas Rellenas 2 Contornos",
-          "image": "https://images.unsplash.com/photo-1582234372722-50d7ccc30e5b?w=500",
-          "price": 7.5,
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844140017800.371087699323718",
-                  "name": "Jamón",
-                  "option_id": "opt-17844140017800.7587676482722273",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844140017800.6269919135442978",
-                  "name": "Queso Blanco",
-                  "option_id": "opt-17844140017800.24987378591010523",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844140017800.24098845267716895",
-                  "name": "Queso amarillo",
-                  "option_id": "opt-17844140017800.2540280842173511",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844140017800.35905442500323825",
-                  "name": "Salchicha",
-                  "option_id": "opt-17844140017800.1166917583925251",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844140017800.5762407936650218",
-                  "name": "Huevos de Codorniz",
-                  "option_id": "opt-17844140017800.9556677037818241",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844140017800.2513912399234096",
-                  "name": "Ensalada",
-                  "option_id": "opt-17844140017800.05711824626668405",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844140017800.12995426973972168",
-                  "name": "Carne Mechada",
-                  "option_id": "opt-17844140017800.24516332573361843",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844140017800.7295382825420714",
-                  "name": "Pollo Mechado",
-                  "option_id": "opt-17844140017800.5190086957009414",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844140017800.08577566508295931",
-                  "name": "Mollejas",
-                  "option_id": "opt-17844140017800.06994108169655522",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844140017800.7884989029966379",
-                  "name": "Chorizo ahumado",
-                  "option_id": "opt-17844140017800.02574917819302247",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844140017800.03624202691369727",
-                  "name": "Pernil de Cochino",
-                  "option_id": "opt-17844140017800.2434248055660736",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784414001780",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
+          "id": "sv-arepa-2-contornos",
+          "name": "Arepa Rellena 2 Contornos",
+          "category": "Arepas Rellenas",
+          "price": 7500,
+          "description": "Deliciosa arepa caliente y tostada con 2 contornos a tu elección entre carne mechada, pollo, pernil, queso blanco, amarillo, huevos de codorniz y más.",
+          "image": "https://images.unsplash.com/photo-1582234372722-50d7ccc30e5b?w=600",
+          "available_days": [
+            "todos"
           ],
           "exclusions": [
             {
-              "name": "Jamón"
+              "id": "ex-mantequilla",
+              "name": "Sin Mantequilla",
+              "price": 0
             },
             {
-              "name": "Queso Blanco"
-            },
-            {
-              "name": "Queso amarillo"
-            },
-            {
-              "name": "Salchicha"
-            },
-            {
-              "name": "Huevos de Codorniz"
-            },
-            {
-              "name": "Ensalada"
-            },
-            {
-              "name": "Carne Mechada"
-            },
-            {
-              "name": "Pollo Mechado"
-            },
-            {
-              "name": "Mollejas"
-            },
-            {
-              "name": "Chorizo ahumado"
-            },
-            {
-              "name": "Pernil de Cochino"
+              "id": "ex-sal",
+              "name": "Sin Sal",
+              "price": 0
             }
           ],
-          "description": "Jamón, Queso Blanco, Queso amarillo, Salchicha, Huevos de Codorniz, Ensalada, Carne Mechada, Pollo Mechado, Mollejas, Chorizo ahumado, Pernil de Cochino."
-        },
-        {
-          "id": "p-1784414017508-76",
-          "name": "Arepas Rellenas 4 Contornos",
-          "image": "https://images.unsplash.com/photo-1582234372722-50d7ccc30e5b?w=500",
-          "price": 12.5,
           "modifiers": [
             {
+              "group_id": "grp-contorno-1",
+              "group_name": "Primer Contorno (Obligatorio)",
+              "title": "Primer Contorno (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
               "options": [
                 {
-                  "id": "opt-17844140175080.8941247848477464",
+                  "id": "opt-c1-0",
+                  "option_id": "opt-c1-0",
                   "name": "Jamón",
-                  "option_id": "opt-17844140175080.7322328862055868",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140175080.4854884688316208",
+                  "id": "opt-c1-1",
+                  "option_id": "opt-c1-1",
                   "name": "Queso Blanco",
-                  "option_id": "opt-17844140175080.07711054586748689",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140175080.046398832768746456",
-                  "name": "Queso amarillo",
-                  "option_id": "opt-17844140175080.6974158799256434",
+                  "id": "opt-c1-2",
+                  "option_id": "opt-c1-2",
+                  "name": "Queso Amarillo",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140175080.5237486692207671",
+                  "id": "opt-c1-3",
+                  "option_id": "opt-c1-3",
                   "name": "Salchicha",
-                  "option_id": "opt-17844140175080.3810354506991285",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140175080.10020738610793822",
+                  "id": "opt-c1-4",
+                  "option_id": "opt-c1-4",
                   "name": "Huevos de Codorniz",
-                  "option_id": "opt-17844140175080.7530952809072945",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140175080.16441416625744232",
+                  "id": "opt-c1-5",
+                  "option_id": "opt-c1-5",
                   "name": "Ensalada",
-                  "option_id": "opt-17844140175080.577846856924989",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140175080.3921107095458277",
+                  "id": "opt-c1-6",
+                  "option_id": "opt-c1-6",
                   "name": "Carne Mechada",
-                  "option_id": "opt-17844140175080.5748455673641877",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140175080.21782053722637174",
+                  "id": "opt-c1-7",
+                  "option_id": "opt-c1-7",
                   "name": "Pollo Mechado",
-                  "option_id": "opt-17844140175080.017881966658693238",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140175080.6677928282285266",
+                  "id": "opt-c1-8",
+                  "option_id": "opt-c1-8",
                   "name": "Mollejas",
-                  "option_id": "opt-17844140175080.458508985572991",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140175080.5675791209063925",
-                  "name": "Chorizo ahumado",
-                  "option_id": "opt-17844140175080.22196850742042196",
+                  "id": "opt-c1-9",
+                  "option_id": "opt-c1-9",
+                  "name": "Chorizo Ahumado",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140175080.40816798433770674",
+                  "id": "opt-c1-10",
+                  "option_id": "opt-c1-10",
                   "name": "Pernil de Cochino",
-                  "option_id": "opt-17844140175080.889108065602056",
+                  "price": 0,
                   "extra_price": 0
                 }
-              ],
-              "group_id": "g-extras-1784414017508",
+              ]
+            },
+            {
+              "group_id": "grp-contorno-2",
+              "group_name": "Segundo Contorno (Obligatorio)",
+              "title": "Segundo Contorno (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "opt-c2-0",
+                  "option_id": "opt-c2-0",
+                  "name": "Jamón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-c2-1",
+                  "option_id": "opt-c2-1",
+                  "name": "Queso Blanco",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-c2-2",
+                  "option_id": "opt-c2-2",
+                  "name": "Queso Amarillo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-c2-3",
+                  "option_id": "opt-c2-3",
+                  "name": "Salchicha",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-c2-4",
+                  "option_id": "opt-c2-4",
+                  "name": "Huevos de Codorniz",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-c2-5",
+                  "option_id": "opt-c2-5",
+                  "name": "Ensalada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-c2-6",
+                  "option_id": "opt-c2-6",
+                  "name": "Carne Mechada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-c2-7",
+                  "option_id": "opt-c2-7",
+                  "name": "Pollo Mechado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-c2-8",
+                  "option_id": "opt-c2-8",
+                  "name": "Mollejas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-c2-9",
+                  "option_id": "opt-c2-9",
+                  "name": "Chorizo Ahumado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-c2-10",
+                  "option_id": "opt-c2-10",
+                  "name": "Pernil de Cochino",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-arepa-salsas",
+              "group_name": "Salsas y Toques (Opcional)",
+              "title": "Salsas y Toques (Opcional)",
+              "selection_type": "multiple",
               "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
+              "options": [
+                {
+                  "id": "salsa-tartara",
+                  "option_id": "salsa-tartara",
+                  "name": "Salsa Tártara",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-ajo",
+                  "option_id": "salsa-ajo",
+                  "name": "Salsa de Ajo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-guasacaca",
+                  "option_id": "salsa-guasacaca",
+                  "name": "Guasacaca",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-rosada",
+                  "option_id": "salsa-rosada",
+                  "name": "Salsa Rosada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-mayonesa",
+                  "option_id": "salsa-mayonesa",
+                  "name": "Mayonesa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-ketchup",
+                  "option_id": "salsa-ketchup",
+                  "name": "Kétchup",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-mostaza",
+                  "option_id": "salsa-mostaza",
+                  "name": "Mostaza",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-picante",
+                  "option_id": "salsa-picante",
+                  "name": "Picante de la Casa",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-arepa-extras",
+              "group_name": "Adicionales Extra (Opcional)",
+              "title": "Adicionales Extra (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                {
+                  "id": "extra-contorno",
+                  "option_id": "extra-contorno",
+                  "name": "Contorno Extra",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "extra-queso-amarillo",
+                  "option_id": "extra-queso-amarillo",
+                  "name": "Queso Amarillo Extra",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "extra-queso-blanco",
+                  "option_id": "extra-queso-blanco",
+                  "name": "Queso Blanco Extra",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "extra-huevos-codorniz",
+                  "option_id": "extra-huevos-codorniz",
+                  "name": "Huevos de Codorniz Extra",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "extra-tocineta",
+                  "option_id": "extra-tocineta",
+                  "name": "Tocineta Extra",
+                  "price": 3000,
+                  "extra_price": 3000
+                }
+              ]
             }
+          ]
+        },
+        {
+          "id": "sv-arepa-4-contornos",
+          "name": "Arepa Rellena 4 Contornos (Bien Resuelta)",
+          "category": "Arepas Rellenas",
+          "price": 12500,
+          "description": "Súper arepa bien resuelta con 4 contornos a tu gusto combinando carnes, quesos, embutidos y ensalada criolla.",
+          "image": "https://images.unsplash.com/photo-1582234372722-50d7ccc30e5b?w=600",
+          "available_days": [
+            "todos"
           ],
           "exclusions": [
             {
-              "name": "Jamón"
+              "id": "ex-mantequilla",
+              "name": "Sin Mantequilla",
+              "price": 0
             },
             {
-              "name": "Queso Blanco"
-            },
-            {
-              "name": "Queso amarillo"
-            },
-            {
-              "name": "Salchicha"
-            },
-            {
-              "name": "Huevos de Codorniz"
-            },
-            {
-              "name": "Ensalada"
-            },
-            {
-              "name": "Carne Mechada"
-            },
-            {
-              "name": "Pollo Mechado"
-            },
-            {
-              "name": "Mollejas"
-            },
-            {
-              "name": "Chorizo ahumado"
-            },
-            {
-              "name": "Pernil de Cochino"
+              "id": "ex-sal",
+              "name": "Sin Sal",
+              "price": 0
             }
           ],
-          "description": "Jamón, Queso Blanco, Queso amarillo, Salchicha, Huevos de Codorniz, Ensalada, Carne Mechada, Pollo Mechado, Mollejas, Chorizo ahumado, Pernil de Cochino."
+          "modifiers": [
+            {
+              "group_id": "grp-4c-1",
+              "group_name": "Primer Contorno (Obligatorio)",
+              "title": "Primer Contorno (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "opt-4c1-0",
+                  "option_id": "opt-4c1-0",
+                  "name": "Jamón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c1-1",
+                  "option_id": "opt-4c1-1",
+                  "name": "Queso Blanco",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c1-2",
+                  "option_id": "opt-4c1-2",
+                  "name": "Queso Amarillo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c1-3",
+                  "option_id": "opt-4c1-3",
+                  "name": "Salchicha",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c1-4",
+                  "option_id": "opt-4c1-4",
+                  "name": "Huevos de Codorniz",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c1-5",
+                  "option_id": "opt-4c1-5",
+                  "name": "Ensalada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c1-6",
+                  "option_id": "opt-4c1-6",
+                  "name": "Carne Mechada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c1-7",
+                  "option_id": "opt-4c1-7",
+                  "name": "Pollo Mechado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c1-8",
+                  "option_id": "opt-4c1-8",
+                  "name": "Mollejas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c1-9",
+                  "option_id": "opt-4c1-9",
+                  "name": "Chorizo Ahumado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c1-10",
+                  "option_id": "opt-4c1-10",
+                  "name": "Pernil de Cochino",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-4c-2",
+              "group_name": "Segundo Contorno (Obligatorio)",
+              "title": "Segundo Contorno (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "opt-4c2-0",
+                  "option_id": "opt-4c2-0",
+                  "name": "Jamón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c2-1",
+                  "option_id": "opt-4c2-1",
+                  "name": "Queso Blanco",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c2-2",
+                  "option_id": "opt-4c2-2",
+                  "name": "Queso Amarillo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c2-3",
+                  "option_id": "opt-4c2-3",
+                  "name": "Salchicha",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c2-4",
+                  "option_id": "opt-4c2-4",
+                  "name": "Huevos de Codorniz",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c2-5",
+                  "option_id": "opt-4c2-5",
+                  "name": "Ensalada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c2-6",
+                  "option_id": "opt-4c2-6",
+                  "name": "Carne Mechada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c2-7",
+                  "option_id": "opt-4c2-7",
+                  "name": "Pollo Mechado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c2-8",
+                  "option_id": "opt-4c2-8",
+                  "name": "Mollejas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c2-9",
+                  "option_id": "opt-4c2-9",
+                  "name": "Chorizo Ahumado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c2-10",
+                  "option_id": "opt-4c2-10",
+                  "name": "Pernil de Cochino",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-4c-3",
+              "group_name": "Tercer Contorno (Obligatorio)",
+              "title": "Tercer Contorno (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "opt-4c3-0",
+                  "option_id": "opt-4c3-0",
+                  "name": "Jamón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c3-1",
+                  "option_id": "opt-4c3-1",
+                  "name": "Queso Blanco",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c3-2",
+                  "option_id": "opt-4c3-2",
+                  "name": "Queso Amarillo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c3-3",
+                  "option_id": "opt-4c3-3",
+                  "name": "Salchicha",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c3-4",
+                  "option_id": "opt-4c3-4",
+                  "name": "Huevos de Codorniz",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c3-5",
+                  "option_id": "opt-4c3-5",
+                  "name": "Ensalada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c3-6",
+                  "option_id": "opt-4c3-6",
+                  "name": "Carne Mechada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c3-7",
+                  "option_id": "opt-4c3-7",
+                  "name": "Pollo Mechado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c3-8",
+                  "option_id": "opt-4c3-8",
+                  "name": "Mollejas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c3-9",
+                  "option_id": "opt-4c3-9",
+                  "name": "Chorizo Ahumado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c3-10",
+                  "option_id": "opt-4c3-10",
+                  "name": "Pernil de Cochino",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-4c-4",
+              "group_name": "Cuarto Contorno (Obligatorio)",
+              "title": "Cuarto Contorno (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "opt-4c4-0",
+                  "option_id": "opt-4c4-0",
+                  "name": "Jamón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c4-1",
+                  "option_id": "opt-4c4-1",
+                  "name": "Queso Blanco",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c4-2",
+                  "option_id": "opt-4c4-2",
+                  "name": "Queso Amarillo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c4-3",
+                  "option_id": "opt-4c4-3",
+                  "name": "Salchicha",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c4-4",
+                  "option_id": "opt-4c4-4",
+                  "name": "Huevos de Codorniz",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c4-5",
+                  "option_id": "opt-4c4-5",
+                  "name": "Ensalada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c4-6",
+                  "option_id": "opt-4c4-6",
+                  "name": "Carne Mechada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c4-7",
+                  "option_id": "opt-4c4-7",
+                  "name": "Pollo Mechado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c4-8",
+                  "option_id": "opt-4c4-8",
+                  "name": "Mollejas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c4-9",
+                  "option_id": "opt-4c4-9",
+                  "name": "Chorizo Ahumado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "opt-4c4-10",
+                  "option_id": "opt-4c4-10",
+                  "name": "Pernil de Cochino",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-4c-salsas",
+              "group_name": "Salsas y Toques (Opcional)",
+              "title": "Salsas y Toques (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                {
+                  "id": "salsa-tartara",
+                  "option_id": "salsa-tartara",
+                  "name": "Salsa Tártara",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-ajo",
+                  "option_id": "salsa-ajo",
+                  "name": "Salsa de Ajo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-guasacaca",
+                  "option_id": "salsa-guasacaca",
+                  "name": "Guasacaca",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-rosada",
+                  "option_id": "salsa-rosada",
+                  "name": "Salsa Rosada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-mayonesa",
+                  "option_id": "salsa-mayonesa",
+                  "name": "Mayonesa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-ketchup",
+                  "option_id": "salsa-ketchup",
+                  "name": "Kétchup",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-mostaza",
+                  "option_id": "salsa-mostaza",
+                  "name": "Mostaza",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-picante",
+                  "option_id": "salsa-picante",
+                  "name": "Picante de la Casa",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-4c-extras",
+              "group_name": "Adicionales Extra (Opcional)",
+              "title": "Adicionales Extra (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                {
+                  "id": "extra-contorno",
+                  "option_id": "extra-contorno",
+                  "name": "Contorno Extra",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "extra-queso-amarillo",
+                  "option_id": "extra-queso-amarillo",
+                  "name": "Queso Amarillo Extra",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "extra-queso-blanco",
+                  "option_id": "extra-queso-blanco",
+                  "name": "Queso Blanco Extra",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "extra-huevos-codorniz",
+                  "option_id": "extra-huevos-codorniz",
+                  "name": "Huevos de Codorniz Extra",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "extra-tocineta",
+                  "option_id": "extra-tocineta",
+                  "name": "Tocineta Extra",
+                  "price": 3000,
+                  "extra_price": 3000
+                }
+              ]
+            }
+          ]
         },
         {
-          "id": "p-1784414079113-84",
+          "id": "sv-hamburguesa-normal",
           "name": "Hamburguesa Normal",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 7,
+          "category": "Hamburguesas",
+          "price": 9000,
+          "description": "Croqueta de carne, huevo, jamón, queso, papitas crujientes, cebolla, tomate y salsas de la casa.",
+          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [
+            {
+              "id": "ex-cebolla",
+              "name": "Sin Cebolla",
+              "price": 0
+            },
+            {
+              "id": "ex-tomate",
+              "name": "Sin Tomate",
+              "price": 0
+            },
+            {
+              "id": "ex-papitas",
+              "name": "Sin Papitas",
+              "price": 0
+            },
+            {
+              "id": "ex-huevo",
+              "name": "Sin Huevo",
+              "price": 0
+            },
+            {
+              "id": "ex-jamon",
+              "name": "Sin Jamón",
+              "price": 0
+            },
+            {
+              "id": "ex-queso",
+              "name": "Sin Queso",
+              "price": 0
+            },
+            {
+              "id": "ex-salsas",
+              "name": "Sin Salsas",
+              "price": 0
+            }
+          ],
           "modifiers": [
             {
+              "group_id": "grp-bg-salsas",
+              "group_name": "Salsas de la Casa",
+              "title": "Salsas de la Casa",
+              "selection_type": "multiple",
+              "required": false,
               "options": [
                 {
-                  "id": "opt-17844140791130.34058714351853925",
-                  "name": "Croqueta",
-                  "option_id": "opt-17844140791130.6475176807520144",
+                  "id": "salsa-tartara",
+                  "option_id": "salsa-tartara",
+                  "name": "Salsa Tártara",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140791130.34957416704889266",
-                  "name": "huevo",
-                  "option_id": "opt-17844140791130.6974008947834174",
+                  "id": "salsa-ajo",
+                  "option_id": "salsa-ajo",
+                  "name": "Salsa de Ajo",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140791130.07242614016000004",
-                  "name": "jamón",
-                  "option_id": "opt-17844140791130.16564250795321434",
+                  "id": "salsa-guasacaca",
+                  "option_id": "salsa-guasacaca",
+                  "name": "Guasacaca",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140791130.5915133520330781",
-                  "name": "queso",
-                  "option_id": "opt-17844140791130.23739940987766606",
+                  "id": "salsa-rosada",
+                  "option_id": "salsa-rosada",
+                  "name": "Salsa Rosada",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140791130.03273483372679831",
-                  "name": "papitas",
-                  "option_id": "opt-17844140791130.39008503104284464",
+                  "id": "salsa-mayonesa",
+                  "option_id": "salsa-mayonesa",
+                  "name": "Mayonesa",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140791130.4201856791975208",
-                  "name": "cebolla",
-                  "option_id": "opt-17844140791130.30935945231702433",
+                  "id": "salsa-ketchup",
+                  "option_id": "salsa-ketchup",
+                  "name": "Kétchup",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140791130.9485171368880145",
-                  "name": "tomate",
-                  "option_id": "opt-17844140791130.3381868779938094",
+                  "id": "salsa-mostaza",
+                  "option_id": "salsa-mostaza",
+                  "name": "Mostaza",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140791130.8264505768676602",
-                  "name": "salsas",
-                  "option_id": "opt-17844140791130.7173570973600992",
+                  "id": "salsa-picante",
+                  "option_id": "salsa-picante",
+                  "name": "Picante de la Casa",
+                  "price": 0,
                   "extra_price": 0
                 }
-              ],
-              "group_id": "g-extras-1784414079113",
+              ]
+            },
+            {
+              "group_id": "grp-bg-extras",
+              "group_name": "Adicionales Extra (Opcional)",
+              "title": "Adicionales Extra (Opcional)",
+              "selection_type": "multiple",
               "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
+              "options": [
+                {
+                  "id": "extra-carne-mechada",
+                  "option_id": "extra-carne-mechada",
+                  "name": "Porción Carne Mechada Extra",
+                  "price": 4000,
+                  "extra_price": 4000
+                },
+                {
+                  "id": "extra-pollo-mechado",
+                  "option_id": "extra-pollo-mechado",
+                  "name": "Porción Pollo Mechado Extra",
+                  "price": 4000,
+                  "extra_price": 4000
+                },
+                {
+                  "id": "extra-croqueta-carne",
+                  "option_id": "extra-croqueta-carne",
+                  "name": "Croqueta de Carne Extra",
+                  "price": 3500,
+                  "extra_price": 3500
+                },
+                {
+                  "id": "extra-tocineta-bg",
+                  "option_id": "extra-tocineta-bg",
+                  "name": "Tocineta Crujiente",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "extra-queso-bg",
+                  "option_id": "extra-queso-bg",
+                  "name": "Queso Extra",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "extra-huevo-bg",
+                  "option_id": "extra-huevo-bg",
+                  "name": "Huevo Extra",
+                  "price": 2000,
+                  "extra_price": 2000
+                },
+                {
+                  "id": "extra-papitas-bg",
+                  "option_id": "extra-papitas-bg",
+                  "name": "Papitas Rapi-Papas Extra",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
             }
+          ]
+        },
+        {
+          "id": "sv-hamburguesa-carne-mechada",
+          "name": "Hamburguesa Carne Mechada",
+          "category": "Hamburguesas",
+          "price": 12000,
+          "description": "Croqueta de carne, jugosa carne mechada criolla, huevo, jamón, queso, papitas, cebolla, tomate y salsas.",
+          "image": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=600",
+          "available_days": [
+            "todos"
           ],
           "exclusions": [
             {
-              "name": "Croqueta"
+              "id": "ex-cebolla",
+              "name": "Sin Cebolla",
+              "price": 0
             },
             {
-              "name": "huevo"
+              "id": "ex-tomate",
+              "name": "Sin Tomate",
+              "price": 0
             },
             {
-              "name": "jamón"
+              "id": "ex-papitas",
+              "name": "Sin Papitas",
+              "price": 0
             },
             {
-              "name": "queso"
-            },
-            {
-              "name": "papitas"
-            },
-            {
-              "name": "cebolla"
-            },
-            {
-              "name": "tomate"
-            },
-            {
-              "name": "salsas"
+              "id": "ex-salsas",
+              "name": "Sin Salsas",
+              "price": 0
             }
           ],
-          "description": "Croqueta, huevo, jamón, queso, papitas, cebolla, tomate y salsas."
-        },
-        {
-          "id": "p-1784414094871-62",
-          "name": "Hamburguesa H. Carne Mechada",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 12,
           "modifiers": [
             {
+              "group_id": "grp-bg-salsas",
+              "group_name": "Salsas de la Casa",
+              "title": "Salsas de la Casa",
+              "selection_type": "multiple",
+              "required": false,
               "options": [
                 {
-                  "id": "opt-17844140948710.6415560430919897",
-                  "name": "Croqueta",
-                  "option_id": "opt-17844140948710.04319857948610473",
+                  "id": "salsa-tartara",
+                  "option_id": "salsa-tartara",
+                  "name": "Salsa Tártara",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140948710.3091293073819621",
-                  "name": "Carne Mechada",
-                  "option_id": "opt-17844140948710.9649303454661807",
+                  "id": "salsa-ajo",
+                  "option_id": "salsa-ajo",
+                  "name": "Salsa de Ajo",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140948710.23869318651505644",
-                  "name": "huevo",
-                  "option_id": "opt-17844140948710.8339633696709151",
+                  "id": "salsa-guasacaca",
+                  "option_id": "salsa-guasacaca",
+                  "name": "Guasacaca",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140948710.3103261285615878",
-                  "name": "jamón",
-                  "option_id": "opt-17844140948710.5216152837374513",
+                  "id": "salsa-rosada",
+                  "option_id": "salsa-rosada",
+                  "name": "Salsa Rosada",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140948710.9715781689193711",
-                  "name": "queso",
-                  "option_id": "opt-17844140948710.3098153850771783",
+                  "id": "salsa-mayonesa",
+                  "option_id": "salsa-mayonesa",
+                  "name": "Mayonesa",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140948710.19562830107376228",
-                  "name": "papitas",
-                  "option_id": "opt-17844140948710.5834148290576331",
+                  "id": "salsa-ketchup",
+                  "option_id": "salsa-ketchup",
+                  "name": "Kétchup",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140948710.0043091410732777335",
-                  "name": "cebolla",
-                  "option_id": "opt-17844140948710.1185132840914439",
+                  "id": "salsa-mostaza",
+                  "option_id": "salsa-mostaza",
+                  "name": "Mostaza",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844140948710.6843432699962397",
-                  "name": "tomate",
-                  "option_id": "opt-17844140948710.09207090982551791",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844140948710.7912812375734096",
-                  "name": "salsas",
-                  "option_id": "opt-17844140948710.4715318916038159",
+                  "id": "salsa-picante",
+                  "option_id": "salsa-picante",
+                  "name": "Picante de la Casa",
+                  "price": 0,
                   "extra_price": 0
                 }
-              ],
-              "group_id": "g-extras-1784414094871",
+              ]
+            },
+            {
+              "group_id": "grp-bg-extras",
+              "group_name": "Adicionales Extra (Opcional)",
+              "title": "Adicionales Extra (Opcional)",
+              "selection_type": "multiple",
               "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
+              "options": [
+                {
+                  "id": "extra-carne-mechada",
+                  "option_id": "extra-carne-mechada",
+                  "name": "Porción Carne Mechada Extra",
+                  "price": 4000,
+                  "extra_price": 4000
+                },
+                {
+                  "id": "extra-pollo-mechado",
+                  "option_id": "extra-pollo-mechado",
+                  "name": "Porción Pollo Mechado Extra",
+                  "price": 4000,
+                  "extra_price": 4000
+                },
+                {
+                  "id": "extra-croqueta-carne",
+                  "option_id": "extra-croqueta-carne",
+                  "name": "Croqueta de Carne Extra",
+                  "price": 3500,
+                  "extra_price": 3500
+                },
+                {
+                  "id": "extra-tocineta-bg",
+                  "option_id": "extra-tocineta-bg",
+                  "name": "Tocineta Crujiente",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "extra-queso-bg",
+                  "option_id": "extra-queso-bg",
+                  "name": "Queso Extra",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "extra-huevo-bg",
+                  "option_id": "extra-huevo-bg",
+                  "name": "Huevo Extra",
+                  "price": 2000,
+                  "extra_price": 2000
+                },
+                {
+                  "id": "extra-papitas-bg",
+                  "option_id": "extra-papitas-bg",
+                  "name": "Papitas Rapi-Papas Extra",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
             }
+          ]
+        },
+        {
+          "id": "sv-hamburguesa-pollo-mechado",
+          "name": "Hamburguesa Pollo Mechado",
+          "category": "Hamburguesas",
+          "price": 12000,
+          "description": "Croqueta de carne, pollo mechado sazonado, huevo, jamón, queso, papitas, cebolla, tomate y salsas.",
+          "image": "https://images.unsplash.com/photo-1521305916504-4a1121188589?w=600",
+          "available_days": [
+            "todos"
           ],
           "exclusions": [
             {
-              "name": "Croqueta"
+              "id": "ex-cebolla",
+              "name": "Sin Cebolla",
+              "price": 0
             },
             {
-              "name": "Carne Mechada"
+              "id": "ex-tomate",
+              "name": "Sin Tomate",
+              "price": 0
             },
             {
-              "name": "huevo"
+              "id": "ex-papitas",
+              "name": "Sin Papitas",
+              "price": 0
             },
             {
-              "name": "jamón"
-            },
-            {
-              "name": "queso"
-            },
-            {
-              "name": "papitas"
-            },
-            {
-              "name": "cebolla"
-            },
-            {
-              "name": "tomate"
-            },
-            {
-              "name": "salsas"
+              "id": "ex-salsas",
+              "name": "Sin Salsas",
+              "price": 0
             }
           ],
-          "description": "Croqueta, Carne Mechada, huevo, jamón, queso, papitas, cebolla, tomate y salsas."
-        },
-        {
-          "id": "p-1784414113934-24",
-          "name": "Hamburguesa H. Pollo Mechado",
-          "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
-          "price": 13,
           "modifiers": [
             {
+              "group_id": "grp-bg-salsas",
+              "group_name": "Salsas de la Casa",
+              "title": "Salsas de la Casa",
+              "selection_type": "multiple",
+              "required": false,
               "options": [
                 {
-                  "id": "opt-17844141139340.217089884213867",
-                  "name": "Croqueta",
-                  "option_id": "opt-17844141139340.7662168045499888",
+                  "id": "salsa-tartara",
+                  "option_id": "salsa-tartara",
+                  "name": "Salsa Tártara",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844141139340.11092993344625168",
-                  "name": "Pollo mechado",
-                  "option_id": "opt-17844141139340.7606124131331948",
+                  "id": "salsa-ajo",
+                  "option_id": "salsa-ajo",
+                  "name": "Salsa de Ajo",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844141139340.452028845735152",
-                  "name": "huevo",
-                  "option_id": "opt-17844141139340.06599165526988571",
+                  "id": "salsa-guasacaca",
+                  "option_id": "salsa-guasacaca",
+                  "name": "Guasacaca",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844141139340.9367840814249291",
-                  "name": "jamón",
-                  "option_id": "opt-17844141139340.9915146783692619",
+                  "id": "salsa-rosada",
+                  "option_id": "salsa-rosada",
+                  "name": "Salsa Rosada",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844141139340.6311275528049266",
-                  "name": "queso",
-                  "option_id": "opt-17844141139340.6649308603540195",
+                  "id": "salsa-mayonesa",
+                  "option_id": "salsa-mayonesa",
+                  "name": "Mayonesa",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844141139340.6766701894340778",
-                  "name": "papitas",
-                  "option_id": "opt-17844141139340.9132134632870937",
+                  "id": "salsa-ketchup",
+                  "option_id": "salsa-ketchup",
+                  "name": "Kétchup",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844141139340.20105269841463147",
-                  "name": "cebolla",
-                  "option_id": "opt-17844141139340.0513502406398868",
+                  "id": "salsa-mostaza",
+                  "option_id": "salsa-mostaza",
+                  "name": "Mostaza",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844141139340.12466322193341006",
-                  "name": "tomate",
-                  "option_id": "opt-17844141139340.03267308877570063",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-17844141139340.9477496157929675",
-                  "name": "salsas",
-                  "option_id": "opt-17844141139340.18021324853441956",
+                  "id": "salsa-picante",
+                  "option_id": "salsa-picante",
+                  "name": "Picante de la Casa",
+                  "price": 0,
                   "extra_price": 0
                 }
-              ],
-              "group_id": "g-extras-1784414113934",
+              ]
+            },
+            {
+              "group_id": "grp-bg-extras",
+              "group_name": "Adicionales Extra (Opcional)",
+              "title": "Adicionales Extra (Opcional)",
+              "selection_type": "multiple",
               "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
+              "options": [
+                {
+                  "id": "extra-carne-mechada",
+                  "option_id": "extra-carne-mechada",
+                  "name": "Porción Carne Mechada Extra",
+                  "price": 4000,
+                  "extra_price": 4000
+                },
+                {
+                  "id": "extra-pollo-mechado",
+                  "option_id": "extra-pollo-mechado",
+                  "name": "Porción Pollo Mechado Extra",
+                  "price": 4000,
+                  "extra_price": 4000
+                },
+                {
+                  "id": "extra-croqueta-carne",
+                  "option_id": "extra-croqueta-carne",
+                  "name": "Croqueta de Carne Extra",
+                  "price": 3500,
+                  "extra_price": 3500
+                },
+                {
+                  "id": "extra-tocineta-bg",
+                  "option_id": "extra-tocineta-bg",
+                  "name": "Tocineta Crujiente",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "extra-queso-bg",
+                  "option_id": "extra-queso-bg",
+                  "name": "Queso Extra",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "extra-huevo-bg",
+                  "option_id": "extra-huevo-bg",
+                  "name": "Huevo Extra",
+                  "price": 2000,
+                  "extra_price": 2000
+                },
+                {
+                  "id": "extra-papitas-bg",
+                  "option_id": "extra-papitas-bg",
+                  "name": "Papitas Rapi-Papas Extra",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
             }
+          ]
+        },
+        {
+          "id": "sv-hamburguesa-doble",
+          "name": "Hamburguesa Doble Especial",
+          "category": "Hamburguesas",
+          "price": 15000,
+          "description": "Doble croqueta de carne, doble jamón, doble queso y doble huevo con papitas crujientes, vegetales frescos y salsas.",
+          "image": "https://images.unsplash.com/photo-1583032015879-c636f3c17cb4?w=600",
+          "available_days": [
+            "todos"
           ],
           "exclusions": [
             {
-              "name": "Croqueta"
+              "id": "ex-cebolla",
+              "name": "Sin Cebolla",
+              "price": 0
             },
             {
-              "name": "Pollo mechado"
+              "id": "ex-tomate",
+              "name": "Sin Tomate",
+              "price": 0
             },
             {
-              "name": "huevo"
+              "id": "ex-papitas",
+              "name": "Sin Papitas",
+              "price": 0
             },
             {
-              "name": "jamón"
-            },
-            {
-              "name": "queso"
-            },
-            {
-              "name": "papitas"
-            },
-            {
-              "name": "cebolla"
-            },
-            {
-              "name": "tomate"
-            },
-            {
-              "name": "salsas"
+              "id": "ex-salsas",
+              "name": "Sin Salsas",
+              "price": 0
             }
           ],
-          "description": "Croqueta, Pollo mechado, huevo, jamón, queso, papitas, cebolla, tomate y salsas."
-        },
-        {
-          "id": "p-1784414134118-29",
-          "name": "Hamburguesa H. Doble",
-          "image": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=500",
-          "price": 15,
           "modifiers": [
             {
+              "group_id": "grp-bg-salsas",
+              "group_name": "Salsas de la Casa",
+              "title": "Salsas de la Casa",
+              "selection_type": "multiple",
+              "required": false,
               "options": [
                 {
-                  "id": "opt-17844141341180.2702195111933188",
-                  "name": "Doble: Croqueta",
-                  "option_id": "opt-17844141341180.30591472296621425",
+                  "id": "salsa-tartara",
+                  "option_id": "salsa-tartara",
+                  "name": "Salsa Tártara",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844141341180.46600578828060346",
-                  "name": "Jamón",
-                  "option_id": "opt-17844141341180.35441801892362024",
+                  "id": "salsa-ajo",
+                  "option_id": "salsa-ajo",
+                  "name": "Salsa de Ajo",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844141341180.7718887710828559",
-                  "name": "Queso",
-                  "option_id": "opt-17844141341180.7483079210326681",
+                  "id": "salsa-guasacaca",
+                  "option_id": "salsa-guasacaca",
+                  "name": "Guasacaca",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844141341180.10936193359377999",
-                  "name": "Huevo",
-                  "option_id": "opt-17844141341180.5482805575920844",
+                  "id": "salsa-rosada",
+                  "option_id": "salsa-rosada",
+                  "name": "Salsa Rosada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-mayonesa",
+                  "option_id": "salsa-mayonesa",
+                  "name": "Mayonesa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-ketchup",
+                  "option_id": "salsa-ketchup",
+                  "name": "Kétchup",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-mostaza",
+                  "option_id": "salsa-mostaza",
+                  "name": "Mostaza",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-picante",
+                  "option_id": "salsa-picante",
+                  "name": "Picante de la Casa",
+                  "price": 0,
                   "extra_price": 0
                 }
-              ],
-              "group_id": "g-extras-1784414134118",
+              ]
+            },
+            {
+              "group_id": "grp-bg-extras",
+              "group_name": "Adicionales Extra (Opcional)",
+              "title": "Adicionales Extra (Opcional)",
+              "selection_type": "multiple",
               "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
+              "options": [
+                {
+                  "id": "extra-carne-mechada",
+                  "option_id": "extra-carne-mechada",
+                  "name": "Porción Carne Mechada Extra",
+                  "price": 4000,
+                  "extra_price": 4000
+                },
+                {
+                  "id": "extra-pollo-mechado",
+                  "option_id": "extra-pollo-mechado",
+                  "name": "Porción Pollo Mechado Extra",
+                  "price": 4000,
+                  "extra_price": 4000
+                },
+                {
+                  "id": "extra-croqueta-carne",
+                  "option_id": "extra-croqueta-carne",
+                  "name": "Croqueta de Carne Extra",
+                  "price": 3500,
+                  "extra_price": 3500
+                },
+                {
+                  "id": "extra-tocineta-bg",
+                  "option_id": "extra-tocineta-bg",
+                  "name": "Tocineta Crujiente",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "extra-queso-bg",
+                  "option_id": "extra-queso-bg",
+                  "name": "Queso Extra",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "extra-huevo-bg",
+                  "option_id": "extra-huevo-bg",
+                  "name": "Huevo Extra",
+                  "price": 2000,
+                  "extra_price": 2000
+                },
+                {
+                  "id": "extra-papitas-bg",
+                  "option_id": "extra-papitas-bg",
+                  "name": "Papitas Rapi-Papas Extra",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
             }
+          ]
+        },
+        {
+          "id": "sv-caldo-comer-aqui",
+          "name": "Caldo Criollo (Comer en el Local)",
+          "category": "Caldos Criollos",
+          "price": 9000,
+          "description": "Caldo caliente y reconfortante servido en plato hondo con arepa caliente y cilantro fresco.",
+          "image": "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600",
+          "available_days": [
+            "todos"
           ],
           "exclusions": [
             {
-              "name": "Doble: Croqueta"
+              "id": "ex-cilantro",
+              "name": "Sin Cilantro",
+              "price": 0
             },
             {
-              "name": "Jamón"
+              "id": "ex-cebollin",
+              "name": "Sin Cebollín",
+              "price": 0
             },
             {
-              "name": "Queso"
-            },
-            {
-              "name": "Huevo"
+              "id": "ex-arepa",
+              "name": "Sin Arepa",
+              "price": 0
             }
           ],
-          "description": "Doble: Croqueta, Jamón, Queso y Huevo."
-        },
-        {
-          "id": "p-1784414304222-88",
-          "name": "Caldos Carne / Pollo / Huevo ",
-          "image": "https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=500",
-          "price": 10,
           "modifiers": [
             {
+              "group_id": "grp-tipo-caldo",
+              "group_name": "Elige el Tipo de Caldo (Obligatorio)",
+              "title": "Elige el Tipo de Caldo (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
               "options": [
                 {
-                  "id": "opt-17844143042220.3275149421867143",
-                  "name": "Carne",
-                  "option_id": "opt-17844143042220.16931294149934584",
+                  "id": "caldo-carne",
+                  "option_id": "caldo-carne",
+                  "name": "Caldo de Carne",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844143042220.3061138265151767",
-                  "name": "huevo",
-                  "option_id": "opt-17844143042220.29066684955945077",
+                  "id": "caldo-pollo",
+                  "option_id": "caldo-pollo",
+                  "name": "Caldo de Pollo",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-17844143042220.16766856539455377",
-                  "name": "pollo",
-                  "option_id": "opt-17844143042220.671768330677139",
+                  "id": "caldo-huevo",
+                  "option_id": "caldo-huevo",
+                  "name": "Caldo de Huevo",
+                  "price": 0,
                   "extra_price": 0
+                },
+                {
+                  "id": "caldo-mixto",
+                  "option_id": "caldo-mixto",
+                  "name": "Mixto Carne y Pollo",
+                  "price": 2000,
+                  "extra_price": 2000
                 }
-              ],
-              "group_id": "g-extras-1784414304222",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "name": "Pollo"
+              ]
             },
             {
-              "name": "huevo"
+              "group_id": "grp-caldo-extras",
+              "group_name": "Adicionales para tu Caldo (Opcional)",
+              "title": "Adicionales para tu Caldo (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                {
+                  "id": "extra-arepa-caldo",
+                  "option_id": "extra-arepa-caldo",
+                  "name": "Arepa Adicional",
+                  "price": 2000,
+                  "extra_price": 2000
+                },
+                {
+                  "id": "extra-huevo-caldo",
+                  "option_id": "extra-huevo-caldo",
+                  "name": "Huevo Adicional",
+                  "price": 2000,
+                  "extra_price": 2000
+                },
+                {
+                  "id": "extra-queso-caldo",
+                  "option_id": "extra-queso-caldo",
+                  "name": "Queso Blanco en Cubos",
+                  "price": 2500,
+                  "extra_price": 2500
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-caldo-para-llevar",
+          "name": "Caldo Criollo (Para Llevar / Delivery)",
+          "category": "Caldos Criollos",
+          "price": 10000,
+          "description": "Caldo caliente empacado en envase térmico especial sellado con arepa para llevar o pedir a domicilio.",
+          "image": "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [
+            {
+              "id": "ex-cilantro",
+              "name": "Sin Cilantro",
+              "price": 0
             },
             {
-              "name": "carne"
-            }
-          ],
-          "description": "Pollo, huevo,carne"
-        },
-        {
-          "id": "p-1784414371901-49",
-          "name": "Desayunos Sandwich Sencillo",
-          "image": "https://images.unsplash.com/photo-1567234669003-dce7a7a88821?w=500",
-          "price": 5,
-          "modifiers": [
-            {
-              "options": [
-                {
-                  "id": "opt-17844143719010.5319047017146139",
-                  "name": "Jamón y queso",
-                  "option_id": "opt-17844143719010.9309145382057236",
-                  "extra_price": 0
-                }
-              ],
-              "group_id": "g-extras-1784414371901",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
-            }
-          ],
-          "exclusions": [
-            {
-              "name": "Jamón"
+              "id": "ex-cebollin",
+              "name": "Sin Cebollín",
+              "price": 0
             },
             {
-              "name": "queso"
+              "id": "ex-arepa",
+              "name": "Sin Arepa",
+              "price": 0
             }
           ],
-          "description": "Jamón y queso "
-        },
-        {
-          "id": "p-1784414398484-5",
-          "name": "Desayunos Sandwich De Pollo",
-          "image": "https://images.unsplash.com/photo-1567234669003-dce7a7a88821?w=500",
-          "price": 7.5,
           "modifiers": [
             {
+              "group_id": "grp-tipo-caldo-ll",
+              "group_name": "Elige el Tipo de Caldo (Obligatorio)",
+              "title": "Elige el Tipo de Caldo (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
               "options": [
                 {
-                  "id": "opt-17844143984840.42618910398616805",
-                  "name": "Pollo",
-                  "option_id": "opt-17844143984840.9369798307054955",
+                  "id": "caldo-carne",
+                  "option_id": "caldo-carne",
+                  "name": "Caldo de Carne",
+                  "price": 0,
                   "extra_price": 0
+                },
+                {
+                  "id": "caldo-pollo",
+                  "option_id": "caldo-pollo",
+                  "name": "Caldo de Pollo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "caldo-huevo",
+                  "option_id": "caldo-huevo",
+                  "name": "Caldo de Huevo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "caldo-mixto",
+                  "option_id": "caldo-mixto",
+                  "name": "Mixto Carne y Pollo",
+                  "price": 2000,
+                  "extra_price": 2000
                 }
-              ],
-              "group_id": "g-extras-1784414398484",
+              ]
+            },
+            {
+              "group_id": "grp-caldo-extras-ll",
+              "group_name": "Adicionales para tu Caldo (Opcional)",
+              "title": "Adicionales para tu Caldo (Opcional)",
+              "selection_type": "multiple",
               "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
+              "options": [
+                {
+                  "id": "extra-arepa-caldo",
+                  "option_id": "extra-arepa-caldo",
+                  "name": "Arepa Adicional",
+                  "price": 2000,
+                  "extra_price": 2000
+                },
+                {
+                  "id": "extra-huevo-caldo",
+                  "option_id": "extra-huevo-caldo",
+                  "name": "Huevo Adicional",
+                  "price": 2000,
+                  "extra_price": 2000
+                },
+                {
+                  "id": "extra-queso-caldo",
+                  "option_id": "extra-queso-caldo",
+                  "name": "Queso Blanco en Cubos",
+                  "price": 2500,
+                  "extra_price": 2500
+                }
+              ]
             }
-          ],
-          "exclusions": [
-            {
-              "name": "Pollo"
-            }
-          ],
-          "description": "Pollo"
+          ]
         },
         {
-          "id": "p-1784415024244-62",
-          "name": "Desayunos Huevos Revueltos Con Arepa Y Café",
-          "image": "https://images.unsplash.com/photo-1582234372722-50d7ccc30e5b?w=500",
-          "price": 6.5,
-          "exclusions": [
-            {
-              "name": "Combo"
-            }
+          "id": "sv-sandwich-sencillo",
+          "name": "Sandwich Sencillo",
+          "category": "Desayunos",
+          "price": 5000,
+          "description": "Pan tostado con jamón, queso blanco/amarillo y salsas.",
+          "image": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600",
+          "available_days": [
+            "todos"
           ],
-          "description": "Combo "
-        },
-        {
-          "id": "p-1784415057419-20",
-          "name": "Agua Panela / Jugo De Naranja",
-          "image": "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=500",
-          "price": 2,
+          "exclusions": [],
           "modifiers": [
             {
+              "group_id": "grp-sw-salsas",
+              "group_name": "Salsas (Opcional)",
+              "title": "Salsas (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
               "options": [
                 {
-                  "id": "opt-17844150574190.9396664317539326",
-                  "name": "Naranjada",
-                  "option_id": "opt-17844150574190.4814643878710092",
+                  "id": "salsa-tartara",
+                  "option_id": "salsa-tartara",
+                  "name": "Salsa Tártara",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-ajo",
+                  "option_id": "salsa-ajo",
+                  "name": "Salsa de Ajo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-guasacaca",
+                  "option_id": "salsa-guasacaca",
+                  "name": "Guasacaca",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-rosada",
+                  "option_id": "salsa-rosada",
+                  "name": "Salsa Rosada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-mayonesa",
+                  "option_id": "salsa-mayonesa",
+                  "name": "Mayonesa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-ketchup",
+                  "option_id": "salsa-ketchup",
+                  "name": "Kétchup",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-mostaza",
+                  "option_id": "salsa-mostaza",
+                  "name": "Mostaza",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-picante",
+                  "option_id": "salsa-picante",
+                  "name": "Picante de la Casa",
+                  "price": 0,
                   "extra_price": 0
                 }
-              ],
-              "group_id": "g-extras-1784415057419",
-              "required": false,
-              "group_name": "Adicionales",
-              "selection_type": "multiple"
+              ]
             }
-          ],
-          "exclusions": [
-            {
-              "name": "Naranjada"
-            }
-          ],
-          "description": "Naranjada"
+          ]
         },
         {
-          "id": "p-1784427708949-21",
-          "name": "Hsbs",
-          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1784427706909_735.jpg",
-          "price": 4664,
-          "exclusions": [
-            {
-              "name": "Ssb"
-            }
+          "id": "sv-sandwich-pollo",
+          "name": "Sandwich de Pollo",
+          "category": "Desayunos",
+          "price": 7500,
+          "description": "Pan tostado con pollo mechado jugoso sazonado, queso y vegetales.",
+          "image": "https://images.unsplash.com/photo-1553909489-cd47e0907980?w=600",
+          "available_days": [
+            "todos"
           ],
-          "description": "Ssb"
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-swp-salsas",
+              "group_name": "Salsas (Opcional)",
+              "title": "Salsas (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                {
+                  "id": "salsa-tartara",
+                  "option_id": "salsa-tartara",
+                  "name": "Salsa Tártara",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-ajo",
+                  "option_id": "salsa-ajo",
+                  "name": "Salsa de Ajo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-guasacaca",
+                  "option_id": "salsa-guasacaca",
+                  "name": "Guasacaca",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-rosada",
+                  "option_id": "salsa-rosada",
+                  "name": "Salsa Rosada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-mayonesa",
+                  "option_id": "salsa-mayonesa",
+                  "name": "Mayonesa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-ketchup",
+                  "option_id": "salsa-ketchup",
+                  "name": "Kétchup",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-mostaza",
+                  "option_id": "salsa-mostaza",
+                  "name": "Mostaza",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "salsa-picante",
+                  "option_id": "salsa-picante",
+                  "name": "Picante de la Casa",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-desayuno-revueltos",
+          "name": "Huevos Revueltos con Arepa y Café",
+          "category": "Desayunos",
+          "price": 8500,
+          "description": "Huevos revueltos preparados al momento, acompañados de arepa caliente con mantequilla y café colado.",
+          "image": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-cafe-tipo",
+              "group_name": "Tipo de Café (Obligatorio)",
+              "title": "Tipo de Café (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "cafe-negro",
+                  "option_id": "cafe-negro",
+                  "name": "Café Negro / Tinto",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "cafe-con-leche",
+                  "option_id": "cafe-con-leche",
+                  "name": "Café con Leche",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "cafe-guayoyo",
+                  "option_id": "cafe-guayoyo",
+                  "name": "Guayoyo Suave",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-desayuno-pericos",
+          "name": "Huevos Pericos con Arepa y Café",
+          "category": "Desayunos",
+          "price": 8500,
+          "description": "Tradicionales huevos pericos criollos (con tomate y cebolla picadita), arepa caliente y café.",
+          "image": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-cafe-tipo-p",
+              "group_name": "Tipo de Café (Obligatorio)",
+              "title": "Tipo de Café (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "cafe-negro",
+                  "option_id": "cafe-negro",
+                  "name": "Café Negro / Tinto",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "cafe-con-leche",
+                  "option_id": "cafe-con-leche",
+                  "name": "Café con Leche",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "cafe-guayoyo",
+                  "option_id": "cafe-guayoyo",
+                  "name": "Guayoyo Suave",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-bebida-v-peq",
+          "name": "Agua Panela / Jugo de Naranja (Vaso Pequeño)",
+          "category": "Jugos y Bebidas Naturales",
+          "price": 2000,
+          "description": "Bebida natural refrescante servida en vaso pequeño.",
+          "image": "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-sabor-v-peq",
+              "group_name": "Elige tu Bebida (Obligatorio)",
+              "title": "Elige tu Bebida (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "aguapanela-limon",
+                  "option_id": "aguapanela-limon",
+                  "name": "Agua Panela con Limón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "jugo-naranja",
+                  "option_id": "jugo-naranja",
+                  "name": "Jugo de Naranja Natural",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-bebida-v-grd",
+          "name": "Agua Panela / Jugo de Naranja (Vaso Grande)",
+          "category": "Jugos y Bebidas Naturales",
+          "price": 2500,
+          "description": "Bebida natural refrescante servida en vaso grande.",
+          "image": "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-sabor-v-grd",
+              "group_name": "Elige tu Bebida (Obligatorio)",
+              "title": "Elige tu Bebida (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "aguapanela-limon",
+                  "option_id": "aguapanela-limon",
+                  "name": "Agua Panela con Limón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "jugo-naranja",
+                  "option_id": "jugo-naranja",
+                  "name": "Jugo de Naranja Natural",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-bebida-tina",
+          "name": "Agua Panela / Jugo de Naranja (Tina)",
+          "category": "Jugos y Bebidas Naturales",
+          "price": 4000,
+          "description": "Porción generosa en tina para calmar la sed.",
+          "image": "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-sabor-tina",
+              "group_name": "Elige tu Bebida (Obligatorio)",
+              "title": "Elige tu Bebida (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "aguapanela-limon",
+                  "option_id": "aguapanela-limon",
+                  "name": "Agua Panela con Limón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "jugo-naranja",
+                  "option_id": "jugo-naranja",
+                  "name": "Jugo de Naranja Natural",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-bebida-jarra-peq",
+          "name": "Agua Panela / Jugo de Naranja (Jarra Pequeña)",
+          "category": "Jugos y Bebidas Naturales",
+          "price": 5000,
+          "description": "Jarra pequeña para compartir entre 2 personas.",
+          "image": "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-sabor-jarra-p",
+              "group_name": "Elige tu Bebida (Obligatorio)",
+              "title": "Elige tu Bebida (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "aguapanela-limon",
+                  "option_id": "aguapanela-limon",
+                  "name": "Agua Panela con Limón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "jugo-naranja",
+                  "option_id": "jugo-naranja",
+                  "name": "Jugo de Naranja Natural",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-bebida-jarra-grd",
+          "name": "Agua Panela / Jugo de Naranja (Jarra Grande)",
+          "category": "Jugos y Bebidas Naturales",
+          "price": 8000,
+          "description": "Jarra grande familiar ideal para toda la mesa.",
+          "image": "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-sabor-jarra-g",
+              "group_name": "Elige tu Bebida (Obligatorio)",
+              "title": "Elige tu Bebida (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "aguapanela-limon",
+                  "option_id": "aguapanela-limon",
+                  "name": "Agua Panela con Limón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "jugo-naranja",
+                  "option_id": "jugo-naranja",
+                  "name": "Jugo de Naranja Natural",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-cafe-pequeno",
+          "name": "Café Pequeño",
+          "category": "Jugos y Bebidas Naturales",
+          "price": 1500,
+          "description": "Taza de café caliente recién colado.",
+          "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-cafe-p-tipo",
+              "group_name": "Tipo de Café (Obligatorio)",
+              "title": "Tipo de Café (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "cafe-negro",
+                  "option_id": "cafe-negro",
+                  "name": "Café Negro / Tinto",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "cafe-con-leche",
+                  "option_id": "cafe-con-leche",
+                  "name": "Café con Leche",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "cafe-guayoyo",
+                  "option_id": "cafe-guayoyo",
+                  "name": "Guayoyo Suave",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "cafe-cortado",
+                  "option_id": "cafe-cortado",
+                  "name": "Cortado",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-cafe-grande",
+          "name": "Café Grande",
+          "category": "Jugos y Bebidas Naturales",
+          "price": 2500,
+          "description": "Taza grande de café caliente recién colado.",
+          "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-cafe-g-tipo",
+              "group_name": "Tipo de Café (Obligatorio)",
+              "title": "Tipo de Café (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "cafe-negro",
+                  "option_id": "cafe-negro",
+                  "name": "Café Negro / Tinto",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "cafe-con-leche",
+                  "option_id": "cafe-con-leche",
+                  "name": "Café con Leche",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "cafe-guayoyo",
+                  "option_id": "cafe-guayoyo",
+                  "name": "Guayoyo Suave",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "cafe-cortado",
+                  "option_id": "cafe-cortado",
+                  "name": "Cortado",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-maxi-pequeno",
+          "name": "Maxi Pequeño 400 ml",
+          "category": "Refrescos y Maltas",
+          "price": 3000,
+          "description": "Refresco Maxi personal de 400 ml bien frío.",
+          "image": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-sabor-maxi-p",
+              "group_name": "Sabor de Refresco (Obligatorio)",
+              "title": "Sabor de Refresco (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "maxi-colombiana",
+                  "option_id": "maxi-colombiana",
+                  "name": "Colombiana",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "maxi-manzana",
+                  "option_id": "maxi-manzana",
+                  "name": "Manzana",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "maxi-pepsi",
+                  "option_id": "maxi-pepsi",
+                  "name": "Pepsi",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "maxi-7up",
+                  "option_id": "maxi-7up",
+                  "name": "7Up",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "maxi-uva",
+                  "option_id": "maxi-uva",
+                  "name": "Uva",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "maxi-naranja",
+                  "option_id": "maxi-naranja",
+                  "name": "Naranja",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-maxi-grande",
+          "name": "Maxi Grande 1000 ml (1 Litro)",
+          "category": "Refrescos y Maltas",
+          "price": 5000,
+          "description": "Refresco Maxi de 1 Litro (1000 ml) para compartir.",
+          "image": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-sabor-maxi-g",
+              "group_name": "Sabor de Refresco (Obligatorio)",
+              "title": "Sabor de Refresco (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "maxi-colombiana",
+                  "option_id": "maxi-colombiana",
+                  "name": "Colombiana",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "maxi-manzana",
+                  "option_id": "maxi-manzana",
+                  "name": "Manzana",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "maxi-pepsi",
+                  "option_id": "maxi-pepsi",
+                  "name": "Pepsi",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "maxi-7up",
+                  "option_id": "maxi-7up",
+                  "name": "7Up",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "maxi-uva",
+                  "option_id": "maxi-uva",
+                  "name": "Uva",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "maxi-naranja",
+                  "option_id": "maxi-naranja",
+                  "name": "Naranja",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-refresco-2-5l",
+          "name": "Refresco Grande 2.5 Litros",
+          "category": "Refrescos y Maltas",
+          "price": 10000,
+          "description": "Refresco tamaño familiar de 2.5 Litros bien frío.",
+          "image": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-sabor-2-5l",
+              "group_name": "Sabor de Refresco (Obligatorio)",
+              "title": "Sabor de Refresco (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "coca-cola-2-5",
+                  "option_id": "coca-cola-2-5",
+                  "name": "Coca Cola",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "pepsi-2-5",
+                  "option_id": "pepsi-2-5",
+                  "name": "Pepsi",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "colombiana-2-5",
+                  "option_id": "colombiana-2-5",
+                  "name": "Colombiana",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "manzana-2-5",
+                  "option_id": "manzana-2-5",
+                  "name": "Manzana",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "quatro-2-5",
+                  "option_id": "quatro-2-5",
+                  "name": "Quatro",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-coca-cola-1l",
+          "name": "Refresco 1 Litro Coca Cola",
+          "category": "Refrescos y Maltas",
+          "price": 6500,
+          "description": "Botella de Coca Cola Original 1 Litro bien fría.",
+          "image": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": []
+        },
+        {
+          "id": "sv-refresco-1l-sabores",
+          "name": "Refresco 1 Litro Sabores",
+          "category": "Refrescos y Maltas",
+          "price": 4500,
+          "description": "Botella de 1 Litro de tus sabores favoritos.",
+          "image": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-sabor-1l",
+              "group_name": "Sabor de Refresco (Obligatorio)",
+              "title": "Sabor de Refresco (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "colombiana-1l",
+                  "option_id": "colombiana-1l",
+                  "name": "Colombiana",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "manzana-1l",
+                  "option_id": "manzana-1l",
+                  "name": "Manzana",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "pepsi-1l",
+                  "option_id": "pepsi-1l",
+                  "name": "Pepsi",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "hit-1l",
+                  "option_id": "hit-1l",
+                  "name": "Hit",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "sprite-1l",
+                  "option_id": "sprite-1l",
+                  "name": "Sprite",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-refresco-botella",
+          "name": "Refresco Botella / Personal",
+          "category": "Refrescos y Maltas",
+          "price": 3000,
+          "description": "Botella personal individual bien fría.",
+          "image": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-sabor-botella",
+              "group_name": "Sabor de Refresco (Obligatorio)",
+              "title": "Sabor de Refresco (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "coca-cola-bot",
+                  "option_id": "coca-cola-bot",
+                  "name": "Coca Cola",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "pepsi-bot",
+                  "option_id": "pepsi-bot",
+                  "name": "Pepsi",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "colombiana-bot",
+                  "option_id": "colombiana-bot",
+                  "name": "Colombiana",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "manzana-bot",
+                  "option_id": "manzana-bot",
+                  "name": "Manzana",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "sprite-bot",
+                  "option_id": "sprite-bot",
+                  "name": "Sprite",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sv-malta-polar",
+          "name": "Malta Polar Retornable",
+          "category": "Refrescos y Maltas",
+          "price": 3500,
+          "description": "Auténtica Malta Polar venezolana retornable, bien fría.",
+          "image": "https://images.unsplash.com/photo-1584365685547-9a5fb6f3a70c?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": []
         }
       ],
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-08-05T15:22:37.769444+00:00",
-      "location": "San Antonio",
+      "location": "Frente al CICPC San Antonio del Táchira",
       "latitude": null,
       "longitude": null,
       "location_lat": null,
