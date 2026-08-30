@@ -914,18 +914,18 @@ class KitchenController {
           }
           if (Array.isArray(specs.exclusions)) {
             specs.exclusions.forEach(exc => {
-              if (exc && exc.name) specParts.push(`- Sin ${exc.name}`);
+              if (exc && exc.name) specParts.push(`<span class="item-spec-exclusion-badge">🚫 Sin ${exc.name}</span>`);
             });
           }
           if (specs.special_notes && String(specs.special_notes).trim()) {
-            specParts.push(`Nota: "${String(specs.special_notes).trim()}"`);
+            specParts.push(`<span class="item-spec-note-badge">💬 NOTA: "${String(specs.special_notes).trim()}"</span>`);
           }
           if (specParts.length > 0) {
-            specsHTML = `<div class="order-item-specs" style="font-size: 11.5px; line-height: 1.4; color: #FBBF24; margin-top: 2px;">${specParts.join('<br>')}</div>`;
+            specsHTML = `<div class="order-item-specs" style="font-size: 13px; line-height: 1.5; color: #FBBF24; margin-top: 4px;">${specParts.join('<br>')}</div>`;
           }
         } else if (item.specifications) {
           const formattedSpecs = item.specifications.split(' | ').join('<br>');
-          specsHTML = `<div class="order-item-specs" style="font-size: 11.5px; line-height: 1.4; color: #FBBF24; margin-top: 2px;">${formattedSpecs}</div>`;
+          specsHTML = `<div class="order-item-specs" style="font-size: 13px; line-height: 1.5; color: #FBBF24; margin-top: 4px;">${formattedSpecs}</div>`;
         }
         
         itemsListHTML += `
@@ -996,13 +996,13 @@ class KitchenController {
       // Collect all kitchen observations (exclusions, customer notes, item notes)
       const allObservations = [];
       if (order.notes && String(order.notes).trim()) {
-        allObservations.push(`📝 <strong>Nota General:</strong> ${String(order.notes).trim()}`);
+        allObservations.push(`📝 <strong style="color: #FCD34D; font-size: 14px;">Nota General:</strong> <span class="blinking-kitchen-note-text" style="color: #FFFFFF; font-weight: 800; font-size: 14.5px; background: rgba(245, 158, 11, 0.25); border: 1.5px solid #F59E0B; padding: 3px 9px; border-radius: 7px; display: inline-block; margin-top: 2px;">"${String(order.notes).trim()}"</span>`);
       }
       if (order.deliveryDetails?.notes && String(order.deliveryDetails.notes).trim()) {
-        allObservations.push(`📍 <strong>Nota de Entrega:</strong> ${String(order.deliveryDetails.notes).trim()}`);
+        allObservations.push(`📍 <strong style="color: #38BDF8; font-size: 14px;">Nota de Entrega:</strong> <span class="blinking-kitchen-note-text" style="color: #FFFFFF; font-weight: 800; font-size: 14.5px; background: rgba(56, 189, 248, 0.22); border: 1.5px solid #38BDF8; padding: 3px 9px; border-radius: 7px; display: inline-block; margin-top: 2px;">"${String(order.deliveryDetails.notes).trim()}"</span>`);
       }
       if (order.customerNotes && String(order.customerNotes).trim()) {
-        allObservations.push(`👤 <strong>Cliente:</strong> ${String(order.customerNotes).trim()}`);
+        allObservations.push(`👤 <strong style="color: #FCD34D; font-size: 14px;">Cliente:</strong> <span class="blinking-kitchen-note-text" style="color: #FFFFFF; font-weight: 800; font-size: 14.5px; background: rgba(245, 158, 11, 0.25); border: 1.5px solid #F59E0B; padding: 3px 9px; border-radius: 7px; display: inline-block; margin-top: 2px;">"${String(order.customerNotes).trim()}"</span>`);
       }
 
       order.items.forEach(item => {
@@ -1011,20 +1011,20 @@ class KitchenController {
           const specs = item.selected_specifications;
           if (Array.isArray(specs.exclusions) && specs.exclusions.length > 0) {
             const excList = specs.exclusions.map(e => e.name).join(', ');
-            itemObs.push(`🚫 <strong style="color: #EF4444;">SIN:</strong> ${excList}`);
+            itemObs.push(`🚫 <strong style="color: #EF4444; font-size: 14px;">SIN:</strong> <span style="color: #FCA5A5; font-weight: 900; font-size: 14px; background: rgba(239, 68, 68, 0.2); padding: 2px 7px; border-radius: 5px; border: 1px solid rgba(239,68,68,0.4);">${excList}</span>`);
           }
           if (specs.special_notes && String(specs.special_notes).trim()) {
-            itemObs.push(`💬 "${String(specs.special_notes).trim()}"`);
+            itemObs.push(`💬 <span class="blinking-kitchen-note-text" style="color: #FFF; font-weight: 900; font-size: 14.5px; background: rgba(245, 158, 11, 0.3); border: 1.5px solid #F59E0B; padding: 3px 9px; border-radius: 7px; display: inline-block;">"${String(specs.special_notes).trim()}"</span>`);
           }
         }
         if (Array.isArray(item.exclusions) && item.exclusions.length > 0) {
-          itemObs.push(`🚫 <strong style="color: #EF4444;">SIN:</strong> ${item.exclusions.join(', ')}`);
+          itemObs.push(`🚫 <strong style="color: #EF4444; font-size: 14px;">SIN:</strong> <span style="color: #FCA5A5; font-weight: 900; font-size: 14px; background: rgba(239, 68, 68, 0.2); padding: 2px 7px; border-radius: 5px; border: 1px solid rgba(239,68,68,0.4);">${item.exclusions.join(', ')}</span>`);
         }
         if (item.notes && String(item.notes).trim()) {
-          itemObs.push(`💬 ${String(item.notes).trim()}`);
+          itemObs.push(`💬 <span class="blinking-kitchen-note-text" style="color: #FFF; font-weight: 900; font-size: 14.5px; background: rgba(245, 158, 11, 0.3); border: 1.5px solid #F59E0B; padding: 3px 9px; border-radius: 7px; display: inline-block;">"${String(item.notes).trim()}"</span>`);
         }
         if (itemObs.length > 0) {
-          allObservations.push(`🍽️ <strong>${item.quantity}x ${item.name}:</strong> ${itemObs.join(' | ')}`);
+          allObservations.push(`🍽️ <strong style="font-size: 14px; color: #FFFFFF;">${item.quantity}x ${item.name}:</strong><br><div style="margin-top: 4px; padding-left: 8px;">${itemObs.join('<br>')}</div>`);
         }
       });
 
@@ -1036,7 +1036,7 @@ class KitchenController {
               <span class="blinking-obs-badge">⚠️ ¡OBSERVACIONES DE PREPARACIÓN!</span>
             </div>
             <div class="obs-content">
-              ${allObservations.map(obs => `<div style="margin-bottom: 3px;">${obs}</div>`).join('')}
+              ${allObservations.map(obs => `<div style="margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px dashed rgba(255,255,255,0.15);">${obs}</div>`).join('')}
             </div>
           </div>
         `;
@@ -4937,7 +4937,6 @@ class KitchenController {
           this.drawStoreQRDisplayCanvas(offCanvas, est, String(table), qrElem);
           
           const dataUrl = offCanvas.toDataURL('image/png', 1.0);
-          const link = document.createElement('a');
           const link = document.createElement('a');
           link.href = dataUrl;
           link.download = `Display_QR_${(est.name || 'Restaurante').replace(/[^a-zA-Z0-9]/g, '_')}_Mesa_${table}.png`;
