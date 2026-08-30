@@ -2421,29 +2421,38 @@ class KitchenController {
 
     filtered.forEach(prod => {
       const card = document.createElement('div');
-      card.className = 'product-card';
+      card.className = 'admin-product-card-item';
       card.style.background = 'rgba(255, 255, 255, 0.03)';
-      card.style.border = '1px solid rgba(255, 255, 255, 0.05)';
-      card.style.borderRadius = '14px';
-      card.style.padding = '8px';
+      card.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+      card.style.borderRadius = '16px';
+      card.style.padding = '12px';
       card.style.display = 'flex';
       card.style.flexDirection = 'column';
-      card.style.gap = '6px';
+      card.style.gap = '10px';
       card.style.position = 'relative';
-      card.style.cursor = 'pointer';
-      card.onclick = () => this.openProductSpecsModal(prod.id);
 
       const imgUrl = prod.image || '/images/burger_royale.jpg';
+      const formattedPrice = this.formatPesos ? this.formatPesos(prod.price || 0) : `$${parseFloat(prod.price || 0).toLocaleString('es-CO')}`;
 
       card.innerHTML = `
-        <img src="${imgUrl}" alt="${prod.name}" style="width: 100%; aspect-ratio: 1.2/1; object-fit: cover; border-radius: 10px;" onerror="this.src='/images/burger_royale.jpg'">
-        <div style="padding: 0;">
-          <h4 style="color: #ffffff; font-size: 11px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${prod.name}</h4>
-          <p style="font-size: 10px; color: var(--text-muted); line-height: 1.2; margin: 4px 0 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${prod.description || 'Sin descripción.'}</p>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <img src="${imgUrl}" alt="${prod.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 12px; flex-shrink: 0; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06);" onerror="this.src='/images/burger_royale.jpg'">
+          <div style="flex: 1; min-width: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;">
+              <h4 style="color: #ffffff; font-size: 13.5px; margin: 0; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${prod.name}</h4>
+              <span style="color: #10B981; font-weight: 800; font-size: 13px; white-space: nowrap;">${formattedPrice}</span>
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted); line-height: 1.3; margin: 4px 0 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${prod.description || 'Sin descripción.'}</p>
+          </div>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
-          <span style="color: var(--accent); font-weight: 700; font-size: 11px;">$${parseFloat(prod.price).toFixed(2)}</span>
-          <button onclick="event.stopPropagation(); deleteProductFromModal('${prod.id}')" style="background: rgba(239, 68, 68, 0.9); border: none; border-radius: 50%; color: #fff; width: 20px; height: 20px; font-size: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700;">✕</button>
+
+        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; margin-top: auto;">
+          <button type="button" class="btn-neumorphic" onclick="event.stopPropagation(); KitchenApp.openProductSpecsModal('${prod.id}')" style="margin: 0; padding: 6px 14px; font-size: 11.5px; font-weight: 700; height: auto; display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); color: #FFF;">
+            <span>✏️</span> Editar
+          </button>
+          <button type="button" class="btn-neumorphic" onclick="event.stopPropagation(); deleteProductFromModal('${prod.id}')" style="margin: 0; padding: 6px 10px; font-size: 11.5px; color: #EF4444; border-color: rgba(239,68,68,0.3); height: auto;" title="Eliminar producto">
+            <span>🗑️</span>
+          </button>
         </div>
       `;
       grid.appendChild(card);
@@ -2617,7 +2626,8 @@ class KitchenController {
 
   // Specifications/Ingredients editor modal
   openProductSpecsModal(productId) {
-    const est = this.establishments.find(e => e.id === this.selectedId);
+    const shopId = this.selectedId || this.activeShopId;
+    const est = this.establishments.find(e => e.id === shopId);
     if (!est) return;
 
     const prod = est.products.find(p => p.id === productId);
@@ -2625,18 +2635,24 @@ class KitchenController {
 
     this.activeSpecsProductId = productId;
     
-    document.getElementById('specs-modal-title').innerText = `⚙️ Especificaciones: ${prod.name}`;
-    document.getElementById('specs-product-id').value = productId;
+    const titleEl = document.getElementById('specs-modal-title');
+    if (titleEl) titleEl.innerText = `⚙️ Especificaciones: ${prod.name}`;
+    const idEl = document.getElementById('specs-product-id');
+    if (idEl) idEl.value = productId;
 
     // Load general product details
-    document.getElementById('specs-product-name').value = prod.name || '';
-    document.getElementById('specs-product-category').value = prod.category || '';
-    document.getElementById('specs-product-price').value = prod.price !== undefined ? prod.price : '';
-    document.getElementById('specs-product-description').value = prod.description || '';
+    const nameEl = document.getElementById('specs-product-name');
+    if (nameEl) nameEl.value = prod.name || '';
+    const catEl = document.getElementById('specs-product-category');
+    if (catEl) catEl.value = prod.category || '';
+    const priceEl = document.getElementById('specs-product-price');
+    if (priceEl) priceEl.value = prod.price !== undefined ? prod.price : '';
+    const descEl = document.getElementById('specs-product-description');
+    if (descEl) descEl.value = prod.description || '';
 
     this.specsIngredients = prod.exclusions ? prod.exclusions.map(e => ({
-      name: e.name,
-      price: e.price !== undefined ? e.price : 500
+      name: typeof e === 'object' && e.name ? e.name : String(e),
+      price: typeof e === 'object' && e.price !== undefined ? e.price : 500
     })) : [];
     this.renderSpecsIngredients();
 
@@ -2649,22 +2665,25 @@ class KitchenController {
     const fileInput = document.getElementById('specs-product-image-file');
     if (fileInput) fileInput.value = '';
 
-    // Switch container view (embed specs inside floor plan grid slot)
-    document.getElementById('floor-plan-grid-container').style.display = 'none';
-    document.getElementById('floor-specs-editor-container').style.display = 'block';
-
     // Set available days pills
     if (typeof window.setSelectedDaysToContainer === 'function') {
       window.setSelectedDaysToContainer('specs-available-days-pills', prod.available_days || ['todos']);
     }
 
-    // Switch tab to tables so editor is visible
-    this.switchModalTab('tables');
+    // Open dedicated standalone modal
+    const modal = document.getElementById('product-specs-modal');
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+    }
   }
 
   closeProductSpecsModal() {
-    document.getElementById('floor-specs-editor-container').style.display = 'none';
-    document.getElementById('floor-plan-grid-container').style.display = 'flex';
+    const modal = document.getElementById('product-specs-modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active');
+    }
   }
 
   renderSpecsIngredients() {
@@ -2976,6 +2995,9 @@ class KitchenController {
         this.loadModalProducts();
         if (typeof this.renderDailySpecialsTab === 'function') {
           this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
+        }
+        if (typeof this.renderModalProducts === 'function') {
+          this.renderModalProducts();
         }
       }
     } catch (err) {

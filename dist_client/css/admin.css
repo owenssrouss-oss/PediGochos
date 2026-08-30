@@ -638,49 +638,55 @@ body.modal-open {
 .designer-tabs-bar {
   display: flex;
   gap: 8px;
-  background: rgba(15, 23, 42, 0.85);
-  padding: 6px;
+  background: rgba(15, 23, 42, 0.95);
+  padding: 6px 8px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   overflow-x: auto;
   white-space: nowrap;
   margin-bottom: 16px;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  min-height: 48px;
+  align-items: center;
 }
 
 .designer-tabs-bar::-webkit-scrollbar {
   height: 4px;
 }
 .designer-tabs-bar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.25);
   border-radius: 4px;
 }
 
 .designer-tab-btn {
-  background: transparent;
-  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: #94a3b8;
-  padding: 8px 14px;
-  border-radius: 10px;
+  padding: 9px 15px;
+  border-radius: 12px;
   font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   transition: all 0.2s ease;
-  flex-shrink: 0;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  min-width: max-content !important;
 }
 
 .designer-tab-btn:hover {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .designer-tab-btn.active {
-  background: var(--accent, #10b981);
-  color: #0f172a;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  background: linear-gradient(135deg, #FF5E3A 0%, #EA580C 100%) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 94, 58, 0.5) !important;
+  box-shadow: 0 4px 14px rgba(255, 94, 58, 0.4) !important;
 }
 
 .designer-tab-content {
@@ -890,34 +896,40 @@ body.modal-open {
 
 /* Mobile responsive full viewport overrides */
 @media (max-width: 768px) {
-  #menu-tables-modal {
+  #menu-tables-modal,
+  #product-specs-modal {
     padding: 0 !important;
   }
 
-  #menu-tables-modal .modal-content {
+  #menu-tables-modal .modal-content,
+  #product-specs-modal .modal-content {
     width: 100% !important;
     max-width: 100% !important;
     min-height: 100vh !important;
     min-height: 100dvh !important;
     height: 100% !important;
     border-radius: 0 !important;
-    padding: 12px 10px !important;
+    padding: 14px 12px !important;
     margin: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .designer-tabs-bar {
-    margin-bottom: 10px;
-    padding: 4px;
+    margin-bottom: 12px;
+    padding: 6px 8px;
+    gap: 8px;
+    min-height: 50px;
   }
 
   .designer-tab-btn {
-    padding: 6px 10px;
-    font-size: 11.5px;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+    flex-shrink: 0 !important;
   }
 
   #modal-products-catalog-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 8px !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
   }
 
   .daily-specials-grid {
