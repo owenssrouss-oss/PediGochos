@@ -227,6 +227,20 @@
         <div class="establishments-list-delivercity" id="establishments-grid">
           <!-- Dynamically filled -->
         </div>
+
+        <!-- Banner Inferior: Inscribe tu Restaurante Gratis -->
+        <section class="merchant-onboarding-section" style="margin: 32px 0 24px 0;">
+          <div style="background: linear-gradient(135deg, rgba(255, 107, 0, 0.15) 0%, rgba(245, 158, 11, 0.08) 100%); border: 1.5px solid rgba(255, 107, 0, 0.35); border-radius: 20px; padding: 24px 18px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); backdrop-filter: blur(10px);">
+            <span style="display: inline-block; font-size: 32px; margin-bottom: 8px;">🏪🚀</span>
+            <h3 style="color: #FFFFFF; font-size: 18px; font-weight: 800; margin: 0 0 6px 0;">¿Tienes un Restaurante o Negocio de Comida?</h3>
+            <p style="color: #CBD5E1; font-size: 13px; margin: 0 auto 16px auto; max-width: 480px; line-height: 1.45;">
+              Inscribe tu local hoy mismo totalmente <strong style="color: #FCD34D;">GRATIS</strong>. Obtén tu catálogo virtual, código QR y empieza a recibir pedidos a domicilio.
+            </p>
+            <button type="button" onclick="MarketplaceApp.openMerchantRegistrationModal()" class="btn-register-restaurant-cta" style="background: linear-gradient(135deg, #FF6B00 0%, #F59E0B 100%); color: #FFFFFF; border: none; padding: 14px 28px; border-radius: 14px; font-size: 14px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 18px rgba(255, 107, 0, 0.45); display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.2s;">
+              <span>📝</span> ¡Inscribe tu Restaurante Gratis!
+            </button>
+          </div>
+        </section>
       </section>
     </section>
 
@@ -260,6 +274,13 @@
           <h3 class="section-title" id="internal-section-title">Nuestros Productos</h3>
           <div class="products-grid" id="products-grid">
             <!-- Dynamically filled -->
+          </div>
+
+          <!-- Bottom merchant link inside store -->
+          <div style="margin: 36px 0 20px 0; text-align: center;">
+            <button type="button" onclick="MarketplaceApp.openMerchantRegistrationModal()" style="background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,107,0,0.4); color: #FCA5A5; padding: 10px 18px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s;">
+              🏪 ¿Tienes un negocio de comida? Inscríbelo gratis aquí
+            </button>
           </div>
         </div>
       </div>
@@ -910,6 +931,63 @@
         <button type="button" onclick="MarketplaceApp.closeCancelRequestModal()" style="width: 100%; background: transparent; color: #94A3B8; border: none; padding: 8px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer;">
           Regresar a mi pedido
         </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal Inscripción de Restaurantes / Comercios -->
+  <div class="modal-overlay" id="merchant-register-modal" style="display: none; z-index: 5000; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);">
+    <div class="modal-content" style="max-width: 440px; width: 92%; background: #13141C; border: 1.5px solid rgba(255, 107, 0, 0.35); border-radius: 24px; padding: 22px 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); color: #FFF; position: relative;">
+      
+      <!-- Close button -->
+      <button class="btn-close" onclick="MarketplaceApp.closeMerchantRegistrationModal()" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.08); border: none; color: #FFF; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: 800;">✕</button>
+
+      <div style="text-align: center; margin-bottom: 18px;">
+        <span style="font-size: 38px; display: inline-block; margin-bottom: 4px;">🏪✨</span>
+        <h3 style="font-size: 19px; font-weight: 900; color: #FFFFFF; margin: 0 0 4px 0;">¡Inscribe tu Restaurante!</h3>
+        <p style="font-size: 12px; color: #94A3B8; margin: 0;">Registro y Catálogo Virtual 100% <strong>GRATUITO</strong></p>
+      </div>
+
+      <!-- Registration Form Fields -->
+      <form id="merchant-register-form" onsubmit="event.preventDefault(); MarketplaceApp.sendMerchantRegistrationWhatsApp();">
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 11.5px; font-weight: 800; color: #E2E8F0; display: block; margin-bottom: 4px;">🏢 Nombre del Restaurante / Negocio *</label>
+          <input type="text" id="reg-merchant-name" required placeholder="Ej: Arepera Los Gochos" style="width: 100%; padding: 10px 12px; border-radius: 10px; background: #0A0A0F; border: 1px solid rgba(255,255,255,0.15); color: #FFF; font-size: 13px; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 11.5px; font-weight: 800; color: #E2E8F0; display: block; margin-bottom: 4px;">📍 Ciudad / Ubicación *</label>
+          <input type="text" id="reg-merchant-location" required placeholder="Ej: San Antonio del Táchira / Ureña" style="width: 100%; padding: 10px 12px; border-radius: 10px; background: #0A0A0F; border: 1px solid rgba(255,255,255,0.15); color: #FFF; font-size: 13px; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 11.5px; font-weight: 800; color: #E2E8F0; display: block; margin-bottom: 4px;">🍔 Tipo de Comida / Categoría</label>
+          <input type="text" id="reg-merchant-category" placeholder="Ej: Arepas, Hamburguesas, Pizza, Desayunos..." style="width: 100%; padding: 10px 12px; border-radius: 10px; background: #0A0A0F; border: 1px solid rgba(255,255,255,0.15); color: #FFF; font-size: 13px; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <label style="font-size: 11.5px; font-weight: 800; color: #E2E8F0; display: block; margin-bottom: 4px;">📱 WhatsApp de Contacto / Encargado *</label>
+          <input type="tel" id="reg-merchant-phone" required placeholder="Ej: +58 414 1234567 / +57 320 1234567" style="width: 100%; padding: 10px 12px; border-radius: 10px; background: #0A0A0F; border: 1px solid rgba(255,255,255,0.15); color: #FFF; font-size: 13px; box-sizing: border-box;">
+        </div>
+
+        <!-- Submit Buttons -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button type="submit" style="width: 100%; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: #FFF; border: none; padding: 13px; border-radius: 14px; font-weight: 900; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 18px rgba(37, 211, 102, 0.35);">
+            <span>💬</span> Enviar Solicitud por WhatsApp
+          </button>
+          
+          <button type="button" onclick="MarketplaceApp.closeMerchantRegistrationModal()" style="width: 100%; background: transparent; color: #94A3B8; border: none; padding: 6px; font-size: 12px; cursor: pointer;">
+            Cancelar
+          </button>
+        </div>
+      </form>
+
+      <!-- Already registered link -->
+      <div style="margin-top: 14px; text-align: center; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 10px;">
+        <p style="font-size: 11.5px; color: #64748B; margin: 0;">
+          ¿Ya tienes tu local registrado? <a href="/kitchen.html" style="color: #F59E0B; font-weight: 800; text-decoration: none;">Abrir Cocina / KDS 🍳</a>
+        </p>
       </div>
 
     </div>

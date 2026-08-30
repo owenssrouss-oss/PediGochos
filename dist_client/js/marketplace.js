@@ -5553,6 +5553,54 @@ class MarketplaceController {
     const modal = document.getElementById('reviews-list-modal');
     if (modal) modal.classList.remove('active');
   }
+
+  openMerchantRegistrationModal() {
+    const modal = document.getElementById('merchant-register-modal');
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+    }
+  }
+
+  closeMerchantRegistrationModal() {
+    const modal = document.getElementById('merchant-register-modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active');
+    }
+  }
+
+  sendMerchantRegistrationWhatsApp() {
+    const nameInput = document.getElementById('reg-merchant-name');
+    const locInput = document.getElementById('reg-merchant-location');
+    const catInput = document.getElementById('reg-merchant-category');
+    const phoneInput = document.getElementById('reg-merchant-phone');
+
+    const name = nameInput ? nameInput.value.trim() : '';
+    const location = locInput ? locInput.value.trim() : '';
+    const category = catInput ? catInput.value.trim() : '';
+    const phone = phoneInput ? phoneInput.value.trim() : '';
+
+    if (!name || !location || !phone) {
+      this.showToast('⚠️ Por favor completa los campos obligatorios.');
+      return;
+    }
+
+    const message = 
+      `👋 *¡Hola PediGochos! Quiero Inscribir mi Restaurante GRATIS* 🏪🚀\n\n` +
+      `🏢 *Nombre del Negocio:* ${name}\n` +
+      `📍 *Ubicación / Ciudad:* ${location}\n` +
+      `🍔 *Tipo de Comida / Categoría:* ${category || 'Restaurante / Comidas'}\n` +
+      `📱 *WhatsApp de Contacto:* ${phone}\n\n` +
+      `¿Podrían indicarme los pasos para registrar nuestro menú y activar nuestro código QR y catálogo virtual? 🙏✨`;
+
+    const supportPhone = '573227949751';
+    const waUrl = `https://wa.me/${supportPhone}?text=${encodeURIComponent(message)}`;
+
+    window.open(waUrl, '_blank');
+    this.closeMerchantRegistrationModal();
+    this.showToast('✅ Solicitud lista para enviar por WhatsApp');
+  }
 }
 
 const MarketplaceApp = new MarketplaceController();
