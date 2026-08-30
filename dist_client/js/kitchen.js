@@ -4876,6 +4876,217 @@ class KitchenController {
     `);
     printWin.document.close();
   }
+
+  // --- Limpieza y Eliminación Selectiva / Masiva de Adicionales ---
+  clearCurrentProductModifiers() {
+    if (!confirm('¿Eliminar todos los grupos de opciones y adicionales de este plato?')) return;
+    this.specsGroups = [];
+    this.renderSpecsGroups();
+  }
+
+  openClearModifiersModal(shopId) {
+    const targetId = shopId || this.selectedId || this.activeShopId;
+    const est = this.establishments.find(e => e.id === targetId);
+    if (!est) {
+      alert('Por favor selecciona o abre un restaurante primero.');
+      return;
+    }
+
+    this.activeShopIdForClearModifiers = est.id;
+
+    const nameEl = document.getElementById('clear-modifiers-shop-name');
+    if (nameEl) nameEl.innerText = `🏪 ${est.name}`;
+
+    const searchInp = document.getElementById('clear-modifiers-search-input');
+    if (searchInp) searchInp.value = '';
+
+    this.renderClearModifiersDishList();
+
+    const modal = document.getElementById('clear-modifiers-modal');
+    if (modal) modal.classList.add('active');
+  }
+
+  renderClearModifiersDishList() {
+    const est = this.establishments.find(e => e.id === this.activeShopIdForClearModifiers);
+    const listCont = document.getElementById('clear-modifiers-dish-list');
+    if (!est || !listCont) return;
+
+    const searchVal = (document.getElementById('clear-modifiers-search-input')?.value || '').toLowerCase().trim();
+    const products = est.products || [];
+
+    const filtered = products.filter(p => {
+      if (!searchVal) return true;
+      return (p.name || '').toLowerCase().includes(searchVal) || (p.category || '').toLowerCase().includes(searchVal);
+    });
+
+    if (filtered.length === 0) {
+      listCont.innerHTML = `
+        <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 13px;">
+          No se encontraron platos con el criterio de búsqueda.
+        </div>
+      `;
+      return;
+    }
+
+    listCont.innerHTML = filtered.map(prod => {
+      const groupsCount = Array.isArray(prod.modifiers) ? prod.modifiers.length : 0;
+      let totalOptions = 0;
+      if (groupsCount > 0) {
+        prod.modifiers.forEach(g => {
+          totalOptions += Array.isArray(g.options) ? g.options.length : 0;
+        });
+      }
+
+      const hasModifiers = groupsCount > 0;
+      const statusBadge = hasModifiers
+        ? `<span style="background: rgba(239, 68, 68, 0.15); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 7px; border-radius: 6px; font-size: 10.5px; font-weight: 800;">🎛️ ${groupsCount} grupo${groupsCount > 1 ? 's' : ''} (${totalOptions} opciones)</span>`
+        : `<span style="color: #64748B; font-size: 11px; font-style: italic;">(Sin adicionales)</span>`;
+
+      const formattedPrice = this.formatPesos ? this.formatPesos(prod.price || 0) : `$${(prod.price || 0).toLocaleString('es-CO')}`;
+
+      return `
+        <label style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 10px 14px; border-radius: 12px; gap: 12px; cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
+          <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
+            <input type="checkbox" class="clear-mod-dish-checkbox" value="${prod.id}" ${hasModifiers ? 'checked' : ''} style="width: 18px; height: 18px; accent-color: #EF4444; cursor: pointer; flex-shrink: 0;">
+            <img src="${prod.image || '/images/burger_royale.jpg'}" alt="${prod.name}" style="width: 38px; height: 38px; border-radius: 8px; object-fit: cover; background: #111; flex-shrink: 0;" onerror="this.src='/images/burger_royale.jpg'">
+            <div style="min-width: 0; flex: 1;">
+              <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <strong style="color: #FFF; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${prod.name}</strong>
+                <span style="color: #94A3B8; font-size: 11px;">(${prod.category || 'Carta'})</span>
+              </div>
+              <div style="font-size: 11px; color: #10B981; font-weight: 700; margin-top: 2px;">${formattedPrice}</div>
+            </div>
+          </div>
+          <div style="flex-shrink: 0;">
+            ${statusBadge}
+          </div>
+        </label>
+      `;
+    }).join('');
+  }
+
+  filterClearModifiersList() {
+    this.renderClearModifiersDishList();
+  }
+
+  toggleAllClearModifiersCheckboxes(checked) {
+    const checkboxes = document.querySelectorAll('.clear-mod-dish-checkbox');
+    checkboxes.forEach(cb => { cb.checked = checked; });
+  }
+
+  async executeClearModifiersSelected() {
+    const est = this.establishments.find(e => e.id === this.activeShopIdForClearModifiers);
+    if (!est) return;
+
+    const checkboxes = document.querySelectorAll('.clear-mod-dish-checkbox:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+
+    if (selectedIds.length === 0) {
+      alert('Por favor selecciona al menos 1 plato para eliminar sus adicionales.');
+      return;
+    }
+
+    const clearExclusions = document.getElementById('clear-scope-exclusions')?.checked || false;
+    const msg = clearExclusions
+      ? `¿Estás seguro de eliminar los adicionales Y las exclusiones de los ${selectedIds.length} platos seleccionados?`
+      : `¿Estás seguro de eliminar todos los adicionales de los ${selectedIds.length} platos seleccionados?`;
+
+    if (!confirm(msg)) return;
+
+    let modifiedCount = 0;
+    (est.products || []).forEach(p => {
+      if (selectedIds.includes(p.id)) {
+        p.modifiers = [];
+        if (clearExclusions) {
+          p.exclusions = [];
+        }
+        modifiedCount++;
+      }
+    });
+
+    try {
+      const res = await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          products: est.products
+        })
+      });
+
+      if (res.ok) {
+        document.getElementById('clear-modifiers-modal')?.classList.remove('active');
+        if (typeof this.showLocalToast === 'function') {
+          this.showLocalToast(`✅ Se limpiaron los adicionales de ${modifiedCount} platos.`);
+        } else {
+          alert(`✅ Se limpiaron los adicionales de ${modifiedCount} platos.`);
+        }
+
+        if (typeof this.loadModalProducts === 'function') this.loadModalProducts();
+        if (typeof this.renderModalProducts === 'function') this.renderModalProducts();
+        if (typeof this.renderDailySpecialsTab === 'function') {
+          this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
+        }
+      } else {
+        alert('Error al guardar cambios en el servidor.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de conexión al eliminar adicionales.');
+    }
+  }
+
+  async executeClearModifiersAll() {
+    const est = this.establishments.find(e => e.id === this.activeShopIdForClearModifiers);
+    if (!est) return;
+
+    const clearExclusions = document.getElementById('clear-scope-exclusions')?.checked || false;
+    const msg = clearExclusions
+      ? `⚠️ ATENCIÓN: ¿Estás seguro de eliminar los ADICIONALES y EXCLUSIONES de TODOS los platos de "${est.name}"?`
+      : `⚠️ ATENCIÓN: ¿Estás seguro de eliminar TODOS los grupos de adicionales de TODOS los platos de "${est.name}"?`;
+
+    if (!confirm(msg)) return;
+
+    let modifiedCount = 0;
+    (est.products || []).forEach(p => {
+      p.modifiers = [];
+      if (clearExclusions) {
+        p.exclusions = [];
+      }
+      modifiedCount++;
+    });
+
+    try {
+      const res = await fetch(`/api/establishments/${est.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isOwner: true,
+          products: est.products
+        })
+      });
+
+      if (res.ok) {
+        document.getElementById('clear-modifiers-modal')?.classList.remove('active');
+        if (typeof this.showLocalToast === 'function') {
+          this.showLocalToast(`✅ Se eliminaron los adicionales de todos los platos (${modifiedCount}).`);
+        } else {
+          alert(`✅ Se eliminaron los adicionales de todos los platos (${modifiedCount}).`);
+        }
+
+        if (typeof this.loadModalProducts === 'function') this.loadModalProducts();
+        if (typeof this.renderModalProducts === 'function') this.renderModalProducts();
+        if (typeof this.renderDailySpecialsTab === 'function') {
+          this.renderDailySpecialsTab(this.selectedDailyDay || 'todos');
+        }
+      } else {
+        alert('Error al guardar cambios en el servidor.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de conexión al eliminar adicionales.');
+    }
+  }
 }
 
 const KitchenApp = new KitchenController();

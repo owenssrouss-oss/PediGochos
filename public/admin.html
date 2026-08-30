@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Pedi Gochos - Panel de Administración Central</title>
-  <link rel="stylesheet" href="/css/common.css?v=218">
-  <link rel="stylesheet" href="/css/admin.css?v=218">
-  <link rel="stylesheet" href="/css/kitchen.css?v=218">
-  <link rel="stylesheet" href="/css/menu-builder.css?v=218">
+  <link rel="stylesheet" href="/css/common.css?v=219">
+  <link rel="stylesheet" href="/css/admin.css?v=219">
+  <link rel="stylesheet" href="/css/kitchen.css?v=219">
+  <link rel="stylesheet" href="/css/menu-builder.css?v=219">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/supabase-helper.js"></script>
@@ -891,6 +891,9 @@
             <h3 style="color: #ffffff; font-size: 15px; margin: 0; font-weight: 700;">Carta y Productos del Restaurante</h3>
           </div>
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button type="button" onclick="AdminApp.openClearModifiersModal()" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #FCA5A5; font-size: 11.5px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="Eliminar adicionales de platos">
+              <span>🗑️ Limpiar Adicionales</span>
+            </button>
             <button type="button" onclick="AdminApp.openPizzaCrustsManagerModal()" style="background: rgba(245,158,11,0.15); border: 1px solid #F59E0B; color: #FCD34D; font-size: 11.5px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
               <span>🧀 Bordes Pizza</span>
             </button>
@@ -1159,9 +1162,12 @@
 
         <!-- Modifier Groups Section -->
         <div style="margin-bottom: 14px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
             <h4 style="color: var(--accent); margin: 0; font-size: 12.5px; font-weight: 700;">🎛️ Opciones y Adicionales</h4>
-            <button type="button" class="btn-neumorphic" onclick="addModifierGroup()" style="margin: 0; padding: 5px 10px; font-size: 11px; height: 28px; background: rgba(255,255,255,0.05); color:#fff; border-color: rgba(255,255,255,0.1);">➕ Nuevo Grupo</button>
+            <div style="display: flex; gap: 6px;">
+              <button type="button" class="btn-neumorphic" onclick="AdminApp.clearCurrentProductModifiers()" style="margin: 0; padding: 5px 10px; font-size: 11px; height: 28px; background: rgba(239,68,68,0.15); color:#FCA5A5; border-color: rgba(239,68,68,0.3);" title="Quitar todos los adicionales de este plato">🗑️ Quitar Todos</button>
+              <button type="button" class="btn-neumorphic" onclick="addModifierGroup()" style="margin: 0; padding: 5px 10px; font-size: 11px; height: 28px; background: rgba(255,255,255,0.05); color:#fff; border-color: rgba(255,255,255,0.1);">➕ Nuevo Grupo</button>
+            </div>
           </div>
           
           <div id="specs-groups-container" style="display: flex; flex-direction: column; gap: 12px; max-height: 240px; overflow-y: auto; padding-right: 4px;" class="premium-scroll">
@@ -1177,6 +1183,70 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal: Limpieza / Eliminación Selectiva o Masiva de Adicionales -->
+  <div class="modal-overlay" id="clear-modifiers-modal" style="z-index: 4600; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
+    <div class="modal-content" style="background: #16161c; border: 1.5px solid rgba(239, 68, 68, 0.4); box-shadow: 0 20px 50px rgba(239, 68, 68, 0.25); margin: auto; max-width: 680px; width: 95%; max-height: 90vh; border-radius: 22px; padding: 20px; display: flex; flex-direction: column;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 24px;">🗑️</span>
+          <div>
+            <h3 style="color: #ffffff; margin: 0; font-size: 16px; font-weight: 800;">Limpieza y Eliminación de Adicionales</h3>
+            <span id="clear-modifiers-shop-name" style="font-size: 11.5px; color: #FCA5A5; font-weight: 700;">Restaurante</span>
+          </div>
+        </div>
+        <button type="button" class="modal-close" onclick="document.getElementById('clear-modifiers-modal').classList.remove('active');" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.08); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 12px 0;">
+        Selecciona los platos a los que deseas quitarles sus grupos de adicionales y opciones (`modifiers`), o utiliza el botón para limpiar todos los platos en 1 solo clic.
+      </p>
+
+      <!-- Search & Bulk Selection Toolbar -->
+      <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px;">
+          <input type="text" id="clear-modifiers-search-input" oninput="AdminApp.filterClearModifiersList()" placeholder="🔍 Buscar plato..." style="width: 100%; background: rgba(18,18,22,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 7px 10px; font-size: 12px;">
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <button type="button" class="btn-neumorphic" onclick="AdminApp.toggleAllClearModifiersCheckboxes(true)" style="margin: 0; padding: 6px 10px; font-size: 11px; height: auto;">☑️ Marcar Todos</button>
+          <button type="button" class="btn-neumorphic" onclick="AdminApp.toggleAllClearModifiersCheckboxes(false)" style="margin: 0; padding: 6px 10px; font-size: 11px; height: auto;">⬜ Desmarcar</button>
+        </div>
+      </div>
+
+      <!-- Dish List with Checkboxes -->
+      <div id="clear-modifiers-dish-list" style="flex: 1; overflow-y: auto; max-height: 360px; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; margin-bottom: 14px;" class="premium-scroll">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Scope Options -->
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px;">
+        <label style="display: flex; align-items: center; gap: 8px; color: #FFF; font-size: 12px; cursor: pointer;">
+          <input type="checkbox" id="clear-scope-modifiers" checked disabled style="width: 16px; height: 16px; accent-color: #EF4444;">
+          <span><strong>Eliminar Grupos de Adicionales / Opciones</strong> (quitar listas de extras, salsas, etc.)</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; color: #CBD5E1; font-size: 12px; cursor: pointer;">
+          <input type="checkbox" id="clear-scope-exclusions" style="width: 16px; height: 16px; accent-color: #EF4444;">
+          <span>Limpiar también lista de ingredientes base / exclusiones</span>
+        </label>
+      </div>
+
+      <!-- Modal Footer Action Buttons -->
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px; flex-wrap: wrap;">
+        <button type="button" class="btn-neumorphic" onclick="AdminApp.executeClearModifiersAll()" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #FCA5A5; font-weight: 800; margin: 0; padding: 8px 14px; font-size: 12px; height: auto;">
+          🔥 Limpiar de TODOS los platos
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-neumorphic" onclick="document.getElementById('clear-modifiers-modal').classList.remove('active');" style="margin: 0; padding: 8px 14px; font-size: 12px; height: auto;">Cancelar</button>
+          <button type="button" class="btn-neumorphic" onclick="AdminApp.executeClearModifiersSelected()" style="background: #EF4444; color: #FFFFFF; border: none; font-weight: 800; margin: 0; padding: 8px 18px; font-size: 12px; height: auto; box-shadow: 0 4px 12px rgba(239,68,68,0.4);">
+            🗑️ Eliminar de Seleccionados
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -2342,14 +2412,14 @@
     🚨
   </button>
 
-  <script src="/js/sound.js?v=218"></script>
-  <script src="/js/qrcode.min.js?v=218"></script>
-  <script src="/js/admin.js?v=218"></script>
-  <script src="/js/menu-builder.js?v=218"></script>
+  <script src="/js/sound.js?v=219"></script>
+  <script src="/js/qrcode.min.js?v=219"></script>
+  <script src="/js/admin.js?v=219"></script>
+  <script src="/js/menu-builder.js?v=219"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js?v=218').then((reg) => {
+        navigator.serviceWorker.register('/sw.js?v=219').then((reg) => {
           reg.update();
         }).catch(() => {});
       });
