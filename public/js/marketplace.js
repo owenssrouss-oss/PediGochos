@@ -1420,7 +1420,8 @@ class MarketplaceController {
           whole: {},
           halfA: {},
           halfB: {}
-        }
+        },
+        collapsedGroups: {}
       };
 
       const initSide = (sideKey, targetProduct = product) => {
@@ -1436,13 +1437,7 @@ class MarketplaceController {
 
         if (targetProduct && targetProduct.modifiers && Array.isArray(targetProduct.modifiers)) {
           targetProduct.modifiers.forEach(group => {
-            if (group && group.selection_type === 'single' && Array.isArray(group.options)) {
-              group.options.forEach((opt, idx) => {
-                if (opt && opt.option_id) {
-                  this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (idx === 0) ? 1 : 0;
-                }
-              });
-            } else if (group && Array.isArray(group.options)) {
+            if (group && Array.isArray(group.options)) {
               group.options.forEach(opt => {
                 if (opt && opt.option_id) {
                   this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = 0;
@@ -1826,56 +1821,102 @@ class MarketplaceController {
       return;
     }
 
-    // Group 1: Required / Single Selections (like bread type)
+    // Group 1: Required / Single Selections (Sequential Step-by-Step Accordion)
     if (activeProduct.modifiers && Array.isArray(activeProduct.modifiers)) {
-      activeProduct.modifiers.forEach(group => {
-        if (group && group.selection_type === 'single') {
-          const groupNameLower = (group.group_name || '').toLowerCase();
-          if (ignoreSize && groupNameLower === 'tamaño') {
-            return;
-          }
-          const groupDiv = document.createElement('div');
-          groupDiv.className = 'modifier-group';
-          const colId = `collapsible-${group.group_id}-${sideKey}`;
-          const isExplicitlyCollapsed = this.customizerState.collapsedGroups && this.customizerState.collapsedGroups[colId] === true;
-          const listClass = isExplicitlyCollapsed ? 'modifier-options-list collapsed' : 'modifier-options-list';
-          const chevronTransform = isExplicitlyCollapsed ? 'transform: rotate(-90deg);' : 'transform: rotate(0deg);';
-          
-          groupDiv.innerHTML = `
-            <div class="modifier-group-title" onclick="MarketplaceApp.toggleGroupCollapse('${colId}', this)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-weight: 700;">${group.group_name || ''}${sideLabel}</span>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="required-badge">Requerido</span>
-                <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 12px; ${chevronTransform}">▼</span>
-              </div>
-            </div>
-            <div class="${listClass}" id="${colId}"></div>
-          `;
-          const list = groupDiv.querySelector('.modifier-options-list');
-          
-          if (group.options && Array.isArray(group.options)) {
-            group.options.forEach(opt => {
-              if (!opt) return;
-              const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
-              const extraPriceText = (opt.extra_price || 0) > 0 ? `+ ${this.formatPesos(opt.extra_price)}` : '';
-              
-              const optionDiv = document.createElement('div');
-              optionDiv.className = `modifier-option ${qty === 1 ? 'option-single-active' : ''}`;
-              
-              optionDiv.innerHTML = `
-                <div class="option-label-container" onclick="MarketplaceApp.setSingleSelection('${group.group_id}', '${opt.option_id}', '${sideKey}')">
-                  <input type="radio" name="radio_${group.group_id}_${sideKey}" ${qty === 1 ? 'checked' : ''} style="margin: 0;">
-                  <span class="option-name" style="margin-left: 8px;">${opt.name || ''}</span>
-                </div>
-                <div style="display: flex; align-items: center;">
-                  <span class="option-extra-price">${extraPriceText}</span>
-                </div>
-              `;
-              if (list) list.appendChild(optionDiv);
-            });
-          }
-          container.appendChild(groupDiv);
+      const singleGroups = activeProduct.modifiers.filter(g => {
+        if (!g || g.selection_type !== 'single') return false;
+        const gNameLower = (g.group_name || '').toLowerCase();
+        if (ignoreSize && gNameLower === 'tamaño') return false;
+        return true;
+      });
+
+      // Determine first uncompleted group index
+      let firstPendingIndex = -1;
+      singleGroups.forEach((group, gIdx) => {
+        const hasSelection = Array.isArray(group.options) && group.options.some(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
+        if (!hasSelection && firstPendingIndex === -1) {
+          firstPendingIndex = gIdx;
         }
+      });
+
+      singleGroups.forEach((group, gIdx) => {
+        const colId = `collapsible-${group.group_id}-${sideKey}`;
+        const selectedOpt = Array.isArray(group.options) ? group.options.find(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1) : null;
+        const isCompleted = !!selectedOpt;
+        const isCurrentStep = (gIdx === firstPendingIndex) || (firstPendingIndex === -1 && gIdx === 0 && !isCompleted);
+
+        // Determine if group is collapsed:
+        let isCollapsed = false;
+        if (this.customizerState.collapsedGroups && this.customizerState.collapsedGroups[colId] !== undefined) {
+          isCollapsed = this.customizerState.collapsedGroups[colId] === true;
+        } else {
+          // Default sequential accordion state:
+          // Completed groups are collapsed, Current step is open, Future steps are collapsed!
+          if (isCompleted) {
+            isCollapsed = true;
+          } else if (isCurrentStep) {
+            isCollapsed = false;
+          } else {
+            isCollapsed = true;
+          }
+        }
+
+        const groupDiv = document.createElement('div');
+        groupDiv.className = `modifier-group ${isCurrentStep ? 'step-active' : (isCompleted ? 'step-completed' : '')}`;
+        const listClass = isCollapsed ? 'modifier-options-list collapsed' : 'modifier-options-list';
+        const chevronTransform = isCollapsed ? 'transform: rotate(-90deg);' : 'transform: rotate(0deg);';
+        
+        let badgeHTML = '';
+        if (isCompleted) {
+          badgeHTML = `<span class="step-completed-badge" title="${selectedOpt.name}">✅ ${selectedOpt.name}</span>`;
+        } else if (isCurrentStep) {
+          badgeHTML = `<span class="step-active-badge">👉 Paso ${gIdx + 1}: Elige aquí</span>`;
+        } else {
+          badgeHTML = `<span class="step-pending-badge">Paso ${gIdx + 1}</span>`;
+        }
+
+        groupDiv.innerHTML = `
+          <div class="modifier-group-title" onclick="MarketplaceApp.toggleGroupCollapse('${colId}', this)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 4px 2px;">
+            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; padding-right: 6px;">
+              <span style="font-weight: 800; font-size: 13px; color: ${isCurrentStep ? '#EA580C' : (isCompleted ? '#0F172A' : '#475569')};">${group.group_name || ''}${sideLabel}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+              ${badgeHTML}
+              <span class="collapse-chevron" style="transition: transform 0.2s; font-size: 11px; color: #64748B; ${chevronTransform}">▼</span>
+            </div>
+          </div>
+          <div class="${listClass}" id="${colId}"></div>
+        `;
+        const list = groupDiv.querySelector('.modifier-options-list');
+        
+        if (group.options && Array.isArray(group.options)) {
+          group.options.forEach(opt => {
+            if (!opt) return;
+            const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
+            const extraPriceText = (opt.extra_price || opt.price || 0) > 0 ? `+ ${this.formatPesos(opt.extra_price || opt.price)}` : '';
+            
+            const optionDiv = document.createElement('div');
+            optionDiv.className = `modifier-option ${qty === 1 ? 'option-single-active' : ''}`;
+            optionDiv.style.cssText = 'cursor: pointer; transition: all 0.2s ease;';
+            
+            optionDiv.onclick = (e) => {
+              e.preventDefault();
+              MarketplaceApp.setSingleSelection(group.group_id, opt.option_id, sideKey);
+            };
+
+            optionDiv.innerHTML = `
+              <div class="option-label-container" style="display: flex; align-items: center; flex: 1; min-width: 0; pointer-events: none;">
+                <input type="radio" name="radio_${group.group_id}_${sideKey}" ${qty === 1 ? 'checked' : ''} style="margin: 0; accent-color: #EA580C; width: 18px; height: 18px; flex-shrink: 0;">
+                <span class="option-name" style="margin-left: 10px; font-weight: 700; font-size: 13.5px; color: ${qty === 1 ? '#EA580C' : '#1E293B'}; white-space: normal; line-height: 1.35;">${opt.name || ''}</span>
+              </div>
+              <div style="display: flex; align-items: center; flex-shrink: 0; margin-left: 8px;">
+                <span class="option-extra-price" style="font-weight: 800; color: #EA580C; font-size: 12.5px;">${extraPriceText}</span>
+              </div>
+            `;
+            if (list) list.appendChild(optionDiv);
+          });
+        }
+        container.appendChild(groupDiv);
       });
     }
 
@@ -2076,13 +2117,67 @@ class MarketplaceController {
     }
     if (!product) return;
 
+    if (!this.customizerState.collapsedGroups) {
+      this.customizerState.collapsedGroups = {};
+    }
+
     const group = product.modifiers ? product.modifiers.find(g => g.group_id === groupId) : null;
     if (group && group.options) {
       group.options.forEach(opt => {
         this.customizerState.quantities[sideKey]['opt_' + opt.option_id] = (opt.option_id === optionId) ? 1 : 0;
       });
     }
+
+    // Collapse current group upon selection
+    const currentColId = `collapsible-${groupId}-${sideKey}`;
+    this.customizerState.collapsedGroups[currentColId] = true;
+
+    // Find next uncompleted single selection group in sequential order
+    const singleGroups = (product.modifiers || []).filter(g => g.selection_type === 'single');
+    const currentGroupIdx = singleGroups.findIndex(g => g.group_id === groupId);
+
+    let nextGroupToOpen = null;
+    for (let i = currentGroupIdx + 1; i < singleGroups.length; i++) {
+      const nextG = singleGroups[i];
+      const hasSel = Array.isArray(nextG.options) && nextG.options.some(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
+      if (!hasSel) {
+        nextGroupToOpen = nextG;
+        break;
+      }
+    }
+
+    // If none found ahead, check if any earlier group is still unanswered
+    if (!nextGroupToOpen) {
+      for (let i = 0; i < singleGroups.length; i++) {
+        const checkG = singleGroups[i];
+        const hasSel = Array.isArray(checkG.options) && checkG.options.some(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
+        if (!hasSel) {
+          nextGroupToOpen = checkG;
+          break;
+        }
+      }
+    }
+
+    let nextColId = null;
+    if (nextGroupToOpen) {
+      nextColId = `collapsible-${nextGroupToOpen.group_id}-${sideKey}`;
+      this.customizerState.collapsedGroups[nextColId] = false;
+    }
+
     this.renderCustomizerModifiers();
+    this.updateCustomizerPrice();
+
+    if (nextColId) {
+      setTimeout(() => {
+        const nextListEl = document.getElementById(nextColId);
+        if (nextListEl) {
+          const groupCard = nextListEl.closest('.modifier-group');
+          if (groupCard) {
+            groupCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }
+      }, 70);
+    }
   }
 
   toggleBaseIngredient(itemName, sideKey = 'whole') {
@@ -2501,6 +2596,47 @@ class MarketplaceController {
       if (sideKey === 'halfB') return '[Mitad 2] ';
       return '';
     };
+
+    // Strict Validation: Ensure all required single selection steps are completed
+    const validateSide = (sideKey) => {
+      let activeProduct = product;
+      if (isHalves) {
+        activeProduct = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
+      }
+      if (!activeProduct) return true;
+
+      if (activeProduct.modifiers && Array.isArray(activeProduct.modifiers)) {
+        for (const group of activeProduct.modifiers) {
+          if (group && group.selection_type === 'single') {
+            const isSize = (group.group_name || '').toLowerCase() === 'tamaño';
+            if (isHalves && isSize) continue;
+
+            const hasSelection = Array.isArray(group.options) && group.options.some(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
+            if (!hasSelection) {
+              const colId = `collapsible-${group.group_id}-${sideKey}`;
+              if (!this.customizerState.collapsedGroups) this.customizerState.collapsedGroups = {};
+              this.customizerState.collapsedGroups[colId] = false;
+              this.renderCustomizerModifiers();
+              setTimeout(() => {
+                const el = document.getElementById(colId);
+                if (el) {
+                  el.closest('.modifier-group')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }, 60);
+              this.showToast(`⚠️ Por favor elige: ${group.group_name}`);
+              return false;
+            }
+          }
+        }
+      }
+      return true;
+    };
+
+    if (isHalves) {
+      if (!validateSide('halfA') || !validateSide('halfB')) return;
+    } else {
+      if (!validateSide('whole')) return;
+    }
 
     const processSide = (sideKey) => {
       const prefix = formatSidePrefix(sideKey);
