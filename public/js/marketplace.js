@@ -2318,7 +2318,8 @@ class MarketplaceController {
 
     let allValid = true;
     
-    const contornosMatch = product.name.match(/(\d+)\s+Contornos/i);
+    const pName = product.name || '';
+    const contornosMatch = pName.match(/(\d+)\s+Contornos/i);
     const maxContornosAllowed = contornosMatch ? parseInt(contornosMatch[1], 10) : null;
     
     const checkSide = (sideKey) => {
@@ -2326,30 +2327,53 @@ class MarketplaceController {
       if (isHalves) {
         currentProduct = sideKey === 'halfA' ? this.customizerState.specialtyA : this.customizerState.specialtyB;
       }
-      if (!currentProduct || !currentProduct.modifiers) return;
+      if (!currentProduct || !currentProduct.modifiers || !Array.isArray(currentProduct.modifiers)) return;
 
-      let selectedContornosCount = 0;
+      let singleContornosCount = 0;
+      let multipleContornosCount = 0;
+      let hasSingleContornoGroups = false;
+
       currentProduct.modifiers.forEach(group => {
         const isSizeGroup = (group.group_name || '').toLowerCase() === 'tamaño';
         if (isHalves && isSizeGroup) return;
 
-        if (group.selection_type === 'multiple') {
-          group.options.forEach(opt => {
-            const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
-            if (qty > 0) {
-              selectedContornosCount += qty;
-            }
-          });
-        }
-        
-        if (group.is_required && group.selection_type === 'single') {
-          const active = group.options.some(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
-          if (!active) allValid = false;
+        const isRequired = group.required === true || group.is_required === true;
+        const gNameLower = (group.group_name || group.title || '').toLowerCase();
+        const isContorno = gNameLower.includes('contorno');
+
+        if (group.selection_type === 'single') {
+          const hasOptionSelected = Array.isArray(group.options) && group.options.some(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
+          if (isContorno) {
+            hasSingleContornoGroups = true;
+            if (hasOptionSelected) singleContornosCount++;
+          }
+          if (isRequired && !hasOptionSelected) {
+            allValid = false;
+          }
+        } else if (group.selection_type === 'multiple') {
+          if (Array.isArray(group.options)) {
+            group.options.forEach(opt => {
+              const qty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
+              if (qty > 0 && isContorno) {
+                multipleContornosCount += qty;
+              }
+            });
+          }
+          if (isRequired) {
+            const hasOptionSelected = Array.isArray(group.options) && group.options.some(opt => (this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0) > 0);
+            if (!hasOptionSelected) allValid = false;
+          }
         }
       });
       
-      if (maxContornosAllowed !== null && selectedContornosCount !== maxContornosAllowed) {
-        allValid = false;
+      if (maxContornosAllowed !== null) {
+        if (hasSingleContornoGroups) {
+          if (singleContornosCount < maxContornosAllowed) {
+            allValid = false;
+          }
+        } else if (multipleContornosCount < maxContornosAllowed) {
+          allValid = false;
+        }
       }
     };
     
@@ -2467,27 +2491,43 @@ class MarketplaceController {
     const maxContornosAllowed = contornosMatch ? parseInt(contornosMatch[1], 10) : null;
     
     const sideKey = isHalves ? 'halfA' : 'whole';
-    let selectedContornosCount = 0;
+    let singleContornosCount = 0;
+    let multipleContornosCount = 0;
+    let hasSingleContornoGroups = false;
+
     const activeProduct = isHalves ? this.customizerState.specialtyA : product;
     if (activeProduct && activeProduct.modifiers && Array.isArray(activeProduct.modifiers)) {
       activeProduct.modifiers.forEach(group => {
-        if (group && group.selection_type === 'multiple' && Array.isArray(group.options)) {
-          group.options.forEach(opt => {
-            if (opt && opt.option_id) {
-              const selectedQty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
-              if (selectedQty > 0) {
-                selectedContornosCount += selectedQty;
+        const gNameLower = (group.group_name || group.title || '').toLowerCase();
+        const isContorno = gNameLower.includes('contorno');
+
+        if (group.selection_type === 'single') {
+          if (isContorno) {
+            hasSingleContornoGroups = true;
+            const hasSel = Array.isArray(group.options) && group.options.some(opt => this.customizerState.quantities[sideKey]['opt_' + opt.option_id] === 1);
+            if (hasSel) singleContornosCount++;
+          }
+        } else if (group.selection_type === 'multiple') {
+          if (Array.isArray(group.options)) {
+            group.options.forEach(opt => {
+              if (opt && opt.option_id) {
+                const selectedQty = this.customizerState.quantities[sideKey]['opt_' + opt.option_id] || 0;
+                if (selectedQty > 0 && isContorno) {
+                  multipleContornosCount += selectedQty;
+                }
               }
-            }
-          });
+            });
+          }
         }
       });
     }
 
+    const totalContornosSelected = hasSingleContornoGroups ? singleContornosCount : multipleContornosCount;
+
     const btn = document.getElementById('btn-confirm-add');
     if (btn) {
-      if (maxContornosAllowed !== null && selectedContornosCount !== maxContornosAllowed) {
-        btn.innerText = `Elige exactamente ${maxContornosAllowed} Contorno(s) (${selectedContornosCount}/${maxContornosAllowed})`;
+      if (maxContornosAllowed !== null && totalContornosSelected < maxContornosAllowed) {
+        btn.innerText = `Elige ${maxContornosAllowed} Contorno(s) (${totalContornosSelected}/${maxContornosAllowed})`;
         btn.disabled = true;
       } else {
         btn.innerText = `🛒 Agregar al Carrito • ${this.formatPesos(combinedTotal)}`;
