@@ -21818,6 +21818,43 @@
       "cancellation_reason": "Prueba interna del administrador",
       "createdAt": "2026-08-30T23:20:37.141Z",
       "updatedAt": "2026-08-30T23:25:37.141Z"
+    },
+    {
+      "id": "ord-test-mcachapa-hace20h",
+      "orderCode": "4829",
+      "establishmentId": "m-ster-cachapa-1785973083758",
+      "establishmentName": "Míster Cachapa",
+      "items": [
+        {
+          "id": "p-1785976944291-98",
+          "name": "Cachapa sencilla",
+          "price": 17000,
+          "quantity": 1,
+          "specifications": "Solo queso",
+          "unit_total_calculated": 17000,
+          "subtotal_combined": 17000,
+          "selected_specifications": {
+            "single_selections": [],
+            "add_ons": [],
+            "exclusions": [],
+            "special_notes": "Pedido de prueba en admin"
+          }
+        }
+      ],
+      "total": 17000,
+      "orderType": "delivery",
+      "customerName": "Cliente Prueba (Admin)",
+      "tableNumber": null,
+      "deliveryDetails": {
+        "phone": "+58 414 0000000",
+        "address": "San Antonio del Táchira - Pedido de Prueba",
+        "code": "4829"
+      },
+      "status": "Cancelado",
+      "cancelReason": "Cancelado por el cliente / Prueba administrativa",
+      "paymentStatus": "Cancelado",
+      "createdAt": "2026-08-30T05:23:27.534Z",
+      "updatedAt": "2026-08-30T05:35:27.534Z"
     }
   ],
   "drivers": [
