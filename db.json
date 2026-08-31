@@ -414,7 +414,8 @@
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": false
     },
     {
       "id": "patacon-fire-1786157840794",
@@ -2005,7 +2006,8 @@
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": false
     },
     {
       "id": "burger-grill-puente-sucre--1784935634396",
@@ -2081,7 +2083,8 @@
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": true
     },
     {
       "id": "latinos-burguer-1786162629597",
@@ -3300,7 +3303,8 @@
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": false
     },
     {
       "id": "la-casa-de-los-batidos-1786157702318",
@@ -6002,7 +6006,8 @@
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": false
     },
     {
       "id": "luchos-burguer-1784912818841",
@@ -6063,7 +6068,8 @@
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": false
     },
     {
       "id": "sabor-venezolano-arepas-1784413922154",
@@ -8572,13 +8578,15 @@
       "prep_time": null,
       "delivery_time": null,
       "created_at": "2026-08-05T15:22:37.769444+00:00",
-      "location": "Frente al CICPC San Antonio del Táchira",
+      "location": "San Antonio",
       "latitude": null,
       "longitude": null,
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": false,
+      "address": "Frente al CICPC San Antonio del Táchira"
     },
     {
       "id": "m-ster-cachapa-1785973083758",
@@ -10524,7 +10532,8 @@
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": true
     },
     {
       "id": "tanos-resto-bar-1786032587502",
@@ -11037,12 +11046,13 @@
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": true
     },
     {
       "id": "mak-pizza-1784350135697",
       "name": "Mak Pizza",
-      "category": "pizzas",
+      "category": "comidas",
       "description": "¡Simplemente la mejor pizza! Pizzas tradicionales, gourmet, especiales, por metro, frappes y los más deliciosos bordes rellenos.",
       "logo": "🍕",
       "bannerType": "gradient",
@@ -12703,7 +12713,8 @@
           "description": "Combinación perfecta de queso mozzarella y dulce de guayaba"
         }
       ],
-      "image": "/images/mak_pizza_logo.png"
+      "image": "/images/mak_pizza_logo.png",
+      "disabled": false
     },
     {
       "id": "carritos-de-manuel-1784411690116",
@@ -14772,7 +14783,8 @@
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": false
     },
     {
       "id": "boby-burgers-1784410785941",
@@ -15428,7 +15440,8 @@
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": false
     },
     {
       "id": "gema-pop-1785968399832",
@@ -15662,7 +15675,8 @@
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": false
     },
     {
       "id": "frutyheladosgourmet-1786228530112",
@@ -20144,7 +20158,8 @@
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": false
     },
     {
       "id": "boki-arepas-1784927442087",
@@ -20218,7 +20233,8 @@
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": true
     },
     {
       "id": "zeus-burger-1786252888630",
@@ -20858,7 +20874,8 @@
       "location_lat": null,
       "location_lng": null,
       "open_time": "17:00",
-      "close_time": "00:00"
+      "close_time": "00:00",
+      "disabled": true
     },
     {
       "id": "cafe-plaza-1788116700000",
@@ -21399,7 +21416,8 @@
           "description": "Gaseosa familiar 2 Litros (Pepsi, Manzana, Colombiana, etc.).",
           "image": "/images/burger_royale.jpg"
         }
-      ]
+      ],
+      "disabled": false
     }
   ],
   "orders": [

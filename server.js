@@ -1427,6 +1427,7 @@ app.put('/api/establishments/:id', (req, res) => {
   }
   
   writeDB(db);
+  saveChangesToCloud().catch(err => console.error('Cloud backup error on establishment update:', err));
 
   // Broadcast WebSocket update if connected clients exist
   const updatePayload = JSON.stringify({

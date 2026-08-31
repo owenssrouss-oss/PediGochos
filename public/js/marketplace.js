@@ -722,7 +722,15 @@ class MarketplaceController {
     if (titleEl) titleEl.innerHTML = displayTitle;
 
     // Get session seed for fair play rotation
-    const rawList = filtered || this.establishments.filter(e => !e.disabled && e.category === this.currentCategory && (e.location === this.currentLocation || !e.location));
+    const rawList = filtered || this.establishments.filter(e => {
+      if (e.disabled === true) return false;
+      if (e.category !== this.currentCategory) return false;
+      if (!this.currentLocation || this.currentLocation === 'all') return true;
+      if (!e.location) return true;
+      const normEstLoc = (e.location || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const normUserLoc = (this.currentLocation || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return normEstLoc.includes(normUserLoc) || normUserLoc.includes(normEstLoc);
+    });
     const list = this.shuffleWithSeed(rawList, this.getSessionSeed());
 
     // Render Featured Horizontal Carousel
@@ -860,8 +868,16 @@ class MarketplaceController {
     section.classList.remove('hidden');
     container.innerHTML = '';
 
-    // Shuffle featured items with session seed (excluding disabled stores)
-    const activeEsts = (this.establishments || []).filter(e => !e.disabled);
+    // Shuffle featured items with session seed (strictly excluding disabled stores)
+    const activeEsts = (this.establishments || []).filter(e => {
+      if (e.disabled === true) return false;
+      if (e.category !== 'comidas') return false;
+      if (!this.currentLocation || this.currentLocation === 'all') return true;
+      if (!e.location) return true;
+      const normEstLoc = (e.location || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const normUserLoc = (this.currentLocation || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return normEstLoc.includes(normUserLoc) || normUserLoc.includes(normEstLoc);
+    });
     const featuredShuffled = this.shuffleWithSeed(activeEsts, this.getSessionSeed()).slice(0, 6);
 
     featuredShuffled.forEach(est => {
