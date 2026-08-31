@@ -54,15 +54,10 @@ class AdminController {
     this.orders = [];
     this.isAuthenticated = false;
 
-    // Load cached establishments immediately so UI is never blank
+    // Clear any stale cached establishments - server is authoritative
     try {
-      const cached = localStorage.getItem('pedigochos_admin_establishments');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          this.establishments = this.enforceVerifiedGps(parsed);
-        }
-      }
+      localStorage.removeItem('pedigochos_admin_establishments');
+      localStorage.removeItem('pedigochos_disabled_stores');
     } catch(e) {}
   }
 
@@ -403,9 +398,6 @@ class AdminController {
         localStorage.setItem('owner_authenticated_permanently', 'true');
         localStorage.setItem('is_platform_owner', 'true');
         localStorage.setItem('owner_password', password);
-        try {
-          localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
-        } catch(e) {}
 
         // Load orders for statistics
         await this.loadOrders();
@@ -462,9 +454,6 @@ class AdminController {
         const raw = await res.json();
         if (Array.isArray(raw) && raw.length > 0) {
           this.establishments = this.enforceVerifiedGps(raw);
-          try {
-            localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
-          } catch(e) {}
           this.renderTable();
           return true;
         }
@@ -2528,9 +2517,6 @@ class AdminController {
         this.establishments.forEach(est => {
           est.disabled = Boolean(est.disabled);
         });
-        try {
-          localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
-        } catch(e) {}
       }
       await this.loadOrders();
       this.renderTable();
@@ -3103,9 +3089,6 @@ class AdminController {
       });
 
       if (res.ok) {
-        try {
-          localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
-        } catch(e) {}
         this.showToast('✅ Especificaciones guardadas correctamente.');
         this.closeProductSpecsModal();
         if (typeof this.loadModalProducts === 'function') {
@@ -5386,9 +5369,6 @@ class AdminController {
       });
 
       if (res.ok) {
-        try {
-          localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
-        } catch(e) {}
         this.showToast(`✅ "${item.name}" eliminado de los platos.`);
         this.openQuickFillPricesModal(est.id);
 
@@ -5454,9 +5434,6 @@ class AdminController {
       });
 
       if (res.ok) {
-        try {
-          localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
-        } catch(e) {}
         document.getElementById('quick-fill-prices-modal')?.classList.remove('active');
         this.checkModalOpenState();
         this.showToast(`✅ Se eliminaron todos los adicionales sin precio.`);
@@ -5908,9 +5885,6 @@ class AdminController {
       });
 
       if (res.ok) {
-        try {
-          localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
-        } catch(e) {}
         this.closeClearModifiersModal();
         if (typeof this.showToast === 'function') {
           this.showToast(`✅ Se limpiaron los adicionales de ${modifiedCount} platos.`);
@@ -5967,9 +5941,6 @@ class AdminController {
       });
 
       if (res.ok) {
-        try {
-          localStorage.setItem('pedigochos_admin_establishments', JSON.stringify(this.establishments));
-        } catch(e) {}
         this.closeClearModifiersModal();
         if (typeof this.showToast === 'function') {
           this.showToast(`✅ Se eliminaron los adicionales de todos los platos (${modifiedCount}).`);

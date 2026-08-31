@@ -376,17 +376,18 @@ async function syncFromPostgres() {
             if (localMatch.working_days && (!est.working_days || est.working_days.length === 0)) est.working_days = localMatch.working_days;
           }
 
-          // Bulletproof Disabled State Preservation: Never un-disable a disabled store
-          const isLocallyDisabled = disabledMap[est.id] === true || (localMatch && localMatch.disabled === true) || est.disabled === true;
-          if (isLocallyDisabled) {
-            est.disabled = true;
-            disabledMap[est.id] = true;
-          } else if (disabledMap[est.id] === false || (localMatch && localMatch.disabled === false)) {
-            est.disabled = false;
-            disabledMap[est.id] = false;
+          // Respect authoritative disabled state from disabledMap / establishment record
+          if (disabledMap[est.id] !== undefined) {
+            est.disabled = Boolean(disabledMap[est.id]);
           } else if (est.disabled !== undefined) {
             est.disabled = Boolean(est.disabled);
             disabledMap[est.id] = est.disabled;
+          } else if (localMatch && localMatch.disabled !== undefined) {
+            est.disabled = Boolean(localMatch.disabled);
+            disabledMap[est.id] = est.disabled;
+          } else {
+            est.disabled = false;
+            disabledMap[est.id] = false;
           }
 
           // Preserve user-saved GPS

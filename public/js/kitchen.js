@@ -35,15 +35,10 @@ class KitchenController {
     this.reconnectTimer = null;
     this.timeInterval = null;
 
-    // Load cached establishments immediately
+    // Clear stale cached establishments - server is authoritative
     try {
-      const cached = localStorage.getItem('pedigochos_kitchen_establishments');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          this.establishments = parsed;
-        }
-      }
+      localStorage.removeItem('pedigochos_kitchen_establishments');
+      localStorage.removeItem('pedigochos_disabled_stores');
     } catch(e) {}
   }
 
@@ -339,12 +334,6 @@ class KitchenController {
       const res = await fetch('/api/establishments');
       if (res.ok) {
         this.establishments = await res.json();
-        try {
-          localStorage.setItem('pedigochos_kitchen_establishments', JSON.stringify(this.establishments));
-        } catch(e) {}
-      } else if (!this.establishments || this.establishments.length === 0) {
-        const cached = localStorage.getItem('pedigochos_kitchen_establishments');
-        if (cached) this.establishments = JSON.parse(cached);
       }
       
       const select = document.getElementById('merchant-shop-select');
@@ -359,12 +348,6 @@ class KitchenController {
       }
     } catch (e) {
       console.warn('loadEstablishments warning:', e);
-      if (!this.establishments || this.establishments.length === 0) {
-        try {
-          const cached = localStorage.getItem('pedigochos_kitchen_establishments');
-          if (cached) this.establishments = JSON.parse(cached);
-        } catch(err) {}
-      }
     }
   }
 
@@ -399,9 +382,6 @@ class KitchenController {
         localStorage.setItem('admin_key_' + est.id, keyInput);
         if (Array.isArray(data.establishments)) {
           this.establishments = data.establishments;
-          try {
-            localStorage.setItem('pedigochos_kitchen_establishments', JSON.stringify(data.establishments));
-          } catch(e) {}
         }
         
         // Show active shop info in header
@@ -3012,9 +2992,6 @@ class KitchenController {
         })
       });
       if (res.ok) {
-        try {
-          localStorage.setItem('pedigochos_kitchen_establishments', JSON.stringify(this.establishments));
-        } catch(e) {}
         this.showLocalToast('✅ Especificaciones guardadas con éxito.');
         this.closeProductSpecsModal();
         this.loadModalProducts();
@@ -5198,9 +5175,6 @@ class KitchenController {
       });
 
       if (res.ok) {
-        try {
-          localStorage.setItem('pedigochos_kitchen_establishments', JSON.stringify(this.establishments));
-        } catch(e) {}
         this.closeClearModifiersModal();
         if (typeof this.showLocalToast === 'function') {
           this.showLocalToast(`✅ Se limpiaron los adicionales de ${modifiedCount} platos.`);
@@ -5254,9 +5228,6 @@ class KitchenController {
       });
 
       if (res.ok) {
-        try {
-          localStorage.setItem('pedigochos_kitchen_establishments', JSON.stringify(this.establishments));
-        } catch(e) {}
         this.closeClearModifiersModal();
         if (typeof this.showLocalToast === 'function') {
           this.showLocalToast(`✅ Se eliminaron los adicionales de todos los platos (${modifiedCount}).`);
