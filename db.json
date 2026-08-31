@@ -6096,18 +6096,7 @@
           "available_days": [
             "todos"
           ],
-          "exclusions": [
-            {
-              "id": "ex-mantequilla",
-              "name": "Sin Mantequilla",
-              "price": 0
-            },
-            {
-              "id": "ex-sal",
-              "name": "Sin Sal",
-              "price": 0
-            }
-          ],
+          "exclusions": [],
           "modifiers": [
             {
               "group_id": "grp-contorno-1",
@@ -6402,18 +6391,7 @@
           "available_days": [
             "todos"
           ],
-          "exclusions": [
-            {
-              "id": "ex-mantequilla",
-              "name": "Sin Mantequilla",
-              "price": 0
-            },
-            {
-              "id": "ex-sal",
-              "name": "Sin Sal",
-              "price": 0
-            }
-          ],
+          "exclusions": [],
           "modifiers": [
             {
               "group_id": "grp-4c-1",
