@@ -67,12 +67,11 @@ class KitchenController {
         if (keyInp) keyInp.value = est.linkKey;
         await this.verifyAndLinkKeyDirect();
       } else {
-        await this.checkSupabaseSession();
-        this.checkLocalSession();
+        this.showLoginScreen();
       }
     } else {
-      await this.checkSupabaseSession();
-      this.checkLocalSession();
+      // By default: Always show the login screen so the user can enter the correct kitchen
+      this.showLoginScreen();
     }
 
     // Set up auto-stop listeners and audio unlock for persistent alarm
@@ -464,40 +463,62 @@ class KitchenController {
     }
   }
 
+  showLoginScreen() {
+    this.closeWS();
+    this.selectedId = '';
+    this.orders = [];
+
+    // Clear auto-login identifiers
+    localStorage.removeItem('active_merchant_shop_id');
+    localStorage.removeItem('active_kitchen_establishment_id');
+
+    // Show login overlay
+    const overlay = document.getElementById('no-shop-overlay');
+    if (overlay) {
+      overlay.classList.remove('hidden');
+      overlay.style.display = 'flex';
+    }
+
+    // Hide active shop info in header
+    const activeShopInfo = document.getElementById('active-shop-info');
+    if (activeShopInfo) activeShopInfo.classList.add('hidden');
+
+    const select = document.getElementById('merchant-shop-select');
+    if (select) select.value = '';
+
+    const keyInp = document.getElementById('auth-link-key');
+    if (keyInp) keyInp.value = '';
+
+    const errorMsg = document.getElementById('auth-error-msg');
+    if (errorMsg) errorMsg.classList.add('hidden');
+
+    this.renderOrders();
+    this.updatePricesButtonVisibility(false);
+  }
+
   async logoutMerchant() {
     this.closeWS();
     
-    // Clear storage
-    const savedShopId = localStorage.getItem('active_merchant_shop_id');
-    if (savedShopId) {
-      localStorage.removeItem('admin_key_' + savedShopId);
-      localStorage.removeItem('active_merchant_shop_id');
+    // Clear all storage keys
+    localStorage.removeItem('active_merchant_shop_id');
+    localStorage.removeItem('active_kitchen_establishment_id');
+    
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('admin_key_')) {
+        keysToRemove.push(k);
+      }
     }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
     
     // Clear Google session
     if (typeof SupabaseApp !== 'undefined') {
       await SupabaseApp.logout();
     }
     
-    this.selectedId = '';
-    
-    // Hide active shop info in header
-    const activeShopInfo = document.getElementById('active-shop-info');
-    if (activeShopInfo) activeShopInfo.classList.add('hidden');
-    
-    // Reset hidden select element value
-    const select = document.getElementById('merchant-shop-select');
-    if (select) select.value = '';
-    
-    // Show login overlay
-    document.getElementById('no-shop-overlay').classList.remove('hidden');
-    document.getElementById('auth-error-msg').classList.add('hidden');
-    document.getElementById('auth-link-key').value = '';
-    
-    // Reset page view
-    this.orders = [];
-    this.renderOrders();
-    this.updatePricesButtonVisibility(false);
+    this.showLoginScreen();
+    this.showToast('🚪 Sesión de cocina cerrada. Ingresa la clave de tu restaurante.');
   }
 
   switchEstablishment(id) {
