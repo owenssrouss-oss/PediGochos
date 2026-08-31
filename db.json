@@ -15666,9 +15666,9 @@
     },
     {
       "id": "frutyheladosgourmet-1786228530112",
-      "name": "FrutyHeladosGourmet",
+      "name": "Fruty Del Bosque - Frutihelados Gourmet",
       "category": "comidas",
-      "description": "Obleas, ensaladas, malteadas, bebidas frías, bebidas calientes, jugos",
+      "description": "Crea tu Sundae, Barquillas, Fresas con Crema, Ensaladas de Frutas, Malteadas, Frappes, Brownies, Sandwiches y Bebidas.",
       "logo": "🍰",
       "bannerType": "gradient",
       "banner": "linear-gradient(135deg, #FF8C00, #FF4500)",
@@ -15680,362 +15680,4459 @@
       "layout": [],
       "products": [
         {
-          "id": "p-1786228661922-39",
-          "name": "Oblea Exploradora",
-          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1786228661234_107.png",
-          "price": 5,
-          "category": "Obleas",
+          "id": "fruty-sundae-explorador-mini",
+          "name": "Sundae Explorador Mini (2 Toppings + 1 Sirope)",
+          "category": "Crea tu Sundae",
+          "price": 10000,
+          "description": "Delicioso helado suave con 2 toppings a tu gusto y 1 sirope especial. Elige base de Vainilla o Yogurt Griego.",
+          "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
           "modifiers": [
             {
-              "group_id": "g-base-exploradora",
-              "group_name": "Base Untable (Obligatorio)",
+              "group_id": "grp-base-mini",
+              "group_name": "1. Elige tu Base de Helado (Obligatorio)",
+              "title": "1. Elige tu Base de Helado (Obligatorio)",
               "selection_type": "single",
               "required": true,
               "options": [
                 {
-                  "id": "opt-base-arequipe",
-                  "name": "🍯 Arequipe Tradicional",
-                  "option_id": "opt-base-arequipe",
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-base-nutella",
-                  "name": "🍫 Nutella / Chocolate",
-                  "option_id": "opt-base-nutella",
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            },
+            {
+              "group_id": "grp-top1-mini",
+              "group_name": "2. Primer Topping (Obligatorio)",
+              "title": "2. Primer Topping (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "top-m1-0",
+                  "option_id": "top-m1-0",
+                  "name": "Galleta Oreo Picada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-1",
+                  "option_id": "top-m1-1",
+                  "name": "Flips de Chocolate / Arequipe",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-2",
+                  "option_id": "top-m1-2",
+                  "name": "Pirulin",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-3",
+                  "option_id": "top-m1-3",
+                  "name": "Samba de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-4",
+                  "option_id": "top-m1-4",
+                  "name": "Cri Cri (Chocolate con Arroz Inflado)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-5",
+                  "option_id": "top-m1-5",
+                  "name": "Cocosette",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-6",
+                  "option_id": "top-m1-6",
+                  "name": "Trozos de Brownie",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-7",
+                  "option_id": "top-m1-7",
+                  "name": "Trozos de Chocorramo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-8",
+                  "option_id": "top-m1-8",
+                  "name": "Fresas Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-9",
+                  "option_id": "top-m1-9",
+                  "name": "Moras Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-10",
+                  "option_id": "top-m1-10",
+                  "name": "Kiwi Picado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-11",
+                  "option_id": "top-m1-11",
+                  "name": "Melocotón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-12",
+                  "option_id": "top-m1-12",
+                  "name": "Galleta María",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-13",
+                  "option_id": "top-m1-13",
+                  "name": "Lluvia de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-14",
+                  "option_id": "top-m1-14",
+                  "name": "Lluvia de Colores / Chispas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-15",
+                  "option_id": "top-m1-15",
+                  "name": "Maní Tostado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-16",
+                  "option_id": "top-m1-16",
+                  "name": "Nueces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-17",
+                  "option_id": "top-m1-17",
+                  "name": "Gomitas Dulces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-18",
+                  "option_id": "top-m1-18",
+                  "name": "Masmelos (Marshmallows)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m1-19",
+                  "option_id": "top-m1-19",
+                  "name": "Queso Blanco Rallado",
+                  "price": 0,
                   "extra_price": 0
                 }
               ]
             },
             {
-              "group_id": "g-topping-exploradora",
-              "group_name": "Topping Favorito (1 Incluido)",
+              "group_id": "grp-top2-mini",
+              "group_name": "3. Segundo Topping (Obligatorio)",
+              "title": "3. Segundo Topping (Obligatorio)",
               "selection_type": "single",
               "required": true,
               "options": [
                 {
-                  "id": "opt-top-choc",
-                  "name": "🍫 Lluvia de Chocolate",
-                  "option_id": "opt-top-choc",
+                  "id": "top-m2-0",
+                  "option_id": "top-m2-0",
+                  "name": "Galleta Oreo Picada",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-top-color",
-                  "name": "🌈 Chispas de Colores",
-                  "option_id": "opt-top-color",
+                  "id": "top-m2-1",
+                  "option_id": "top-m2-1",
+                  "name": "Flips de Chocolate / Arequipe",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-top-mani",
-                  "name": "🥜 Maní Tostado",
-                  "option_id": "opt-top-mani",
+                  "id": "top-m2-2",
+                  "option_id": "top-m2-2",
+                  "name": "Pirulin",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-top-coco",
-                  "name": "🥥 Coco Rallado",
-                  "option_id": "opt-top-coco",
+                  "id": "top-m2-3",
+                  "option_id": "top-m2-3",
+                  "name": "Samba de Fresa",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-top-queso",
-                  "name": "🧀 Queso Rallado",
-                  "option_id": "opt-top-queso",
+                  "id": "top-m2-4",
+                  "option_id": "top-m2-4",
+                  "name": "Cri Cri (Chocolate con Arroz Inflado)",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-top-fresa",
-                  "name": "🍓 Fresas Picadas",
-                  "option_id": "opt-top-fresa",
+                  "id": "top-m2-5",
+                  "option_id": "top-m2-5",
+                  "name": "Cocosette",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-top-oreo",
-                  "name": "🍪 Galleta Oreo",
-                  "option_id": "opt-top-oreo",
+                  "id": "top-m2-6",
+                  "option_id": "top-m2-6",
+                  "name": "Trozos de Brownie",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-top-gomitas",
-                  "name": "🍬 Gomitas",
-                  "option_id": "opt-top-gomitas",
+                  "id": "top-m2-7",
+                  "option_id": "top-m2-7",
+                  "name": "Trozos de Chocorramo",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-top-lechecond",
-                  "name": "🥛 Leche Condensada",
-                  "option_id": "opt-top-lechecond",
+                  "id": "top-m2-8",
+                  "option_id": "top-m2-8",
+                  "name": "Fresas Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m2-9",
+                  "option_id": "top-m2-9",
+                  "name": "Moras Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m2-10",
+                  "option_id": "top-m2-10",
+                  "name": "Kiwi Picado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m2-11",
+                  "option_id": "top-m2-11",
+                  "name": "Melocotón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m2-12",
+                  "option_id": "top-m2-12",
+                  "name": "Galleta María",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m2-13",
+                  "option_id": "top-m2-13",
+                  "name": "Lluvia de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m2-14",
+                  "option_id": "top-m2-14",
+                  "name": "Lluvia de Colores / Chispas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m2-15",
+                  "option_id": "top-m2-15",
+                  "name": "Maní Tostado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m2-16",
+                  "option_id": "top-m2-16",
+                  "name": "Nueces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m2-17",
+                  "option_id": "top-m2-17",
+                  "name": "Gomitas Dulces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m2-18",
+                  "option_id": "top-m2-18",
+                  "name": "Masmelos (Marshmallows)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-m2-19",
+                  "option_id": "top-m2-19",
+                  "name": "Queso Blanco Rallado",
+                  "price": 0,
                   "extra_price": 0
                 }
               ]
             },
             {
-              "group_id": "g-extras-exploradora",
-              "group_name": "Adicionales Extra (Opcional)",
+              "group_id": "grp-syr-mini",
+              "group_name": "4. Elige tu Sirope / Salsa (Obligatorio)",
+              "title": "4. Elige tu Sirope / Salsa (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "syr-ms-0",
+                  "option_id": "syr-ms-0",
+                  "name": "Sirope de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-ms-1",
+                  "option_id": "syr-ms-1",
+                  "name": "Sirope de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-ms-2",
+                  "option_id": "syr-ms-2",
+                  "name": "Sirope de Arequipe / Caramelo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-ms-3",
+                  "option_id": "syr-ms-3",
+                  "name": "Sirope de Mora Artesanal",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-ms-4",
+                  "option_id": "syr-ms-4",
+                  "name": "Leche Condensada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-ms-5",
+                  "option_id": "syr-ms-5",
+                  "name": "Sirope de Maracuyá / Parchita",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-ms-6",
+                  "option_id": "syr-ms-6",
+                  "name": "Nutella",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-ext-mini",
+              "group_name": "Toppings y Extras Adicionales (Opcional)",
+              "title": "Toppings y Extras Adicionales (Opcional)",
               "selection_type": "multiple",
               "required": false,
               "options": [
                 {
-                  "id": "opt-ext-queso",
-                  "name": "🧀 Extra Queso",
-                  "option_id": "opt-ext-queso",
+                  "id": "ext-oreo",
+                  "option_id": "ext-oreo",
+                  "name": "Extra Galleta Oreo",
+                  "price": 2000,
                   "extra_price": 2000
                 },
                 {
-                  "id": "opt-ext-fruta",
-                  "name": "🍓 Extra Fruta Fresca",
-                  "option_id": "opt-ext-fruta",
+                  "id": "ext-pirulin",
+                  "option_id": "ext-pirulin",
+                  "name": "Extra Pirulin (2 und)",
+                  "price": 2500,
                   "extra_price": 2500
                 },
                 {
-                  "id": "opt-ext-nutella",
-                  "name": "🍫 Extra Nutella",
-                  "option_id": "opt-ext-nutella",
-                  "extra_price": 3000
-                },
-                {
-                  "id": "opt-ext-helado",
-                  "name": "🍦 Bola de Helado",
-                  "option_id": "opt-ext-helado",
-                  "extra_price": 4000
-                }
-              ]
-            }
-          ],
-          "exclusions": [],
-          "category_id": "101bcf58-2e2e-481b-bb77-eda9c950e79c",
-          "description": "Elige tu base favorita (Arequipe o Nutella) y tu topping preferido."
-        },
-        {
-          "id": "p-1786228709944-40",
-          "name": "Oblea Clásica",
-          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1786228708995_530.png",
-          "price": 10,
-          "category": "Obleas",
-          "modifiers": [
-            {
-              "group_id": "g-base-clasica",
-              "group_name": "Base Untable (Obligatorio)",
-              "selection_type": "single",
-              "required": true,
-              "options": [
-                {
-                  "id": "opt-base-arequipe-c",
-                  "name": "🍯 Arequipe Tradicional",
-                  "option_id": "opt-base-arequipe-c",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-base-nutella-c",
-                  "name": "🍫 Nutella / Chocolate",
-                  "option_id": "opt-base-nutella-c",
-                  "extra_price": 0
-                }
-              ]
-            },
-            {
-              "group_id": "g-extras-clasica",
-              "group_name": "Adicionales Extra (Opcional)",
-              "selection_type": "multiple",
-              "required": false,
-              "options": [
-                {
-                  "id": "opt-ext-queso-c",
-                  "name": "🧀 Extra Queso",
-                  "option_id": "opt-ext-queso-c",
-                  "extra_price": 2000
-                },
-                {
-                  "id": "opt-ext-nutella-c",
-                  "name": "🍫 Extra Nutella",
-                  "option_id": "opt-ext-nutella-c",
-                  "extra_price": 3000
-                },
-                {
-                  "id": "opt-ext-helado-c",
-                  "name": "🍦 Bola de Helado",
-                  "option_id": "opt-ext-helado-c",
-                  "extra_price": 4000
-                }
-              ]
-            }
-          ],
-          "exclusions": [],
-          "category_id": "101bcf58-2e2e-481b-bb77-eda9c950e79c",
-          "description": "Arequipe o Nutella + queso + crema."
-        },
-        {
-          "id": "p-1786228736540-92",
-          "name": "Oblea Mora Encantada",
-          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1786228735878_562.png",
-          "price": 12,
-          "category": "Obleas",
-          "modifiers": [
-            {
-              "group_id": "g-base-mora",
-              "group_name": "Base Untable (Obligatorio)",
-              "selection_type": "single",
-              "required": true,
-              "options": [
-                {
-                  "id": "opt-base-arequipe-m",
-                  "name": "🍯 Arequipe Tradicional",
-                  "option_id": "opt-base-arequipe-m",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-base-nutella-m",
-                  "name": "🍫 Nutella / Chocolate",
-                  "option_id": "opt-base-nutella-m",
-                  "extra_price": 0
-                }
-              ]
-            },
-            {
-              "group_id": "g-extras-mora",
-              "group_name": "Adicionales Extra (Opcional)",
-              "selection_type": "multiple",
-              "required": false,
-              "options": [
-                {
-                  "id": "opt-ext-mora-m",
-                  "name": "🍇 Extra Dulce de Mora",
-                  "option_id": "opt-ext-mora-m",
-                  "extra_price": 2000
-                },
-                {
-                  "id": "opt-ext-queso-m",
-                  "name": "🧀 Extra Queso",
-                  "option_id": "opt-ext-queso-m",
-                  "extra_price": 2000
-                },
-                {
-                  "id": "opt-ext-helado-m",
-                  "name": "🍦 Bola de Helado",
-                  "option_id": "opt-ext-helado-m",
-                  "extra_price": 4000
-                }
-              ]
-            }
-          ],
-          "exclusions": [],
-          "category_id": "101bcf58-2e2e-481b-bb77-eda9c950e79c",
-          "description": "Arequipe o Nutella + mora + crema + queso."
-        },
-        {
-          "id": "p-1786228817513-20",
-          "name": "Oblea Fresa Delicia",
-          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1786228816887_990.png",
-          "price": 13,
-          "category": "Obleas",
-          "modifiers": [
-            {
-              "group_id": "g-base-fresa",
-              "group_name": "Base Untable (Obligatorio)",
-              "selection_type": "single",
-              "required": true,
-              "options": [
-                {
-                  "id": "opt-base-arequipe-f",
-                  "name": "🍯 Arequipe Tradicional",
-                  "option_id": "opt-base-arequipe-f",
-                  "extra_price": 0
-                },
-                {
-                  "id": "opt-base-nutella-f",
-                  "name": "🍫 Nutella / Chocolate",
-                  "option_id": "opt-base-nutella-f",
-                  "extra_price": 0
-                }
-              ]
-            },
-            {
-              "group_id": "g-extras-fresa",
-              "group_name": "Adicionales Extra (Opcional)",
-              "selection_type": "multiple",
-              "required": false,
-              "options": [
-                {
-                  "id": "opt-ext-fresa-f",
-                  "name": "🍓 Extra Fresas Frescas",
-                  "option_id": "opt-ext-fresa-f",
+                  "id": "ext-brownie",
+                  "option_id": "ext-brownie",
+                  "name": "Extra Trozos de Brownie",
+                  "price": 2500,
                   "extra_price": 2500
                 },
                 {
-                  "id": "opt-ext-queso-f",
-                  "name": "🧀 Extra Queso",
-                  "option_id": "opt-ext-queso-f",
-                  "extra_price": 2000
+                  "id": "ext-fruta",
+                  "option_id": "ext-fruta",
+                  "name": "Extra Fresas / Fruta",
+                  "price": 2500,
+                  "extra_price": 2500
                 },
                 {
-                  "id": "opt-ext-helado-f",
-                  "name": "🍦 Bola de Helado",
-                  "option_id": "opt-ext-helado-f",
-                  "extra_price": 4000
+                  "id": "ext-nutella",
+                  "option_id": "ext-nutella",
+                  "name": "Extra Nutella",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "ext-queso",
+                  "option_id": "ext-queso",
+                  "name": "Extra Queso Rallado",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-helado",
+                  "option_id": "ext-helado",
+                  "name": "Bola de Helado Extra",
+                  "price": 3500,
+                  "extra_price": 3500
                 }
               ]
             }
-          ],
-          "exclusions": [],
-          "category_id": "101bcf58-2e2e-481b-bb77-eda9c950e79c",
-          "description": "Arequipe o Nutella + fresa + crema + queso."
+          ]
         },
         {
-          "id": "p-1786228857447-83",
-          "name": "Oblea Banano Encantado",
-          "image": "https://bvdwxgfixirisqaavskj.supabase.co/storage/v1/object/public/menu_images/uploads/prod_1786228856880_253.png",
-          "price": 12,
-          "category": "Obleas",
+          "id": "fruty-sundae-aventurero",
+          "name": "Sundae Aventurero (2 Toppings + 1 Sirope)",
+          "category": "Crea tu Sundae",
+          "price": 12000,
+          "description": "Porción aventurera con helado artesanal, 2 toppings generosos y 1 sirope a tu elección.",
+          "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
           "modifiers": [
             {
-              "group_id": "g-base-banano",
-              "group_name": "Base Untable (Obligatorio)",
+              "group_id": "grp-base-ave",
+              "group_name": "1. Elige tu Base de Helado (Obligatorio)",
+              "title": "1. Elige tu Base de Helado (Obligatorio)",
               "selection_type": "single",
               "required": true,
               "options": [
                 {
-                  "id": "opt-base-arequipe-b",
-                  "name": "🍯 Arequipe Tradicional",
-                  "option_id": "opt-base-arequipe-b",
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
                   "extra_price": 0
                 },
                 {
-                  "id": "opt-base-nutella-b",
-                  "name": "🍫 Nutella / Chocolate",
-                  "option_id": "opt-base-nutella-b",
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            },
+            {
+              "group_id": "grp-top1-ave",
+              "group_name": "2. Primer Topping (Obligatorio)",
+              "title": "2. Primer Topping (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "top-a1-0",
+                  "option_id": "top-a1-0",
+                  "name": "Galleta Oreo Picada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-1",
+                  "option_id": "top-a1-1",
+                  "name": "Flips de Chocolate / Arequipe",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-2",
+                  "option_id": "top-a1-2",
+                  "name": "Pirulin",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-3",
+                  "option_id": "top-a1-3",
+                  "name": "Samba de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-4",
+                  "option_id": "top-a1-4",
+                  "name": "Cri Cri (Chocolate con Arroz Inflado)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-5",
+                  "option_id": "top-a1-5",
+                  "name": "Cocosette",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-6",
+                  "option_id": "top-a1-6",
+                  "name": "Trozos de Brownie",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-7",
+                  "option_id": "top-a1-7",
+                  "name": "Trozos de Chocorramo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-8",
+                  "option_id": "top-a1-8",
+                  "name": "Fresas Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-9",
+                  "option_id": "top-a1-9",
+                  "name": "Moras Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-10",
+                  "option_id": "top-a1-10",
+                  "name": "Kiwi Picado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-11",
+                  "option_id": "top-a1-11",
+                  "name": "Melocotón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-12",
+                  "option_id": "top-a1-12",
+                  "name": "Galleta María",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-13",
+                  "option_id": "top-a1-13",
+                  "name": "Lluvia de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-14",
+                  "option_id": "top-a1-14",
+                  "name": "Lluvia de Colores / Chispas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-15",
+                  "option_id": "top-a1-15",
+                  "name": "Maní Tostado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-16",
+                  "option_id": "top-a1-16",
+                  "name": "Nueces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-17",
+                  "option_id": "top-a1-17",
+                  "name": "Gomitas Dulces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-18",
+                  "option_id": "top-a1-18",
+                  "name": "Masmelos (Marshmallows)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a1-19",
+                  "option_id": "top-a1-19",
+                  "name": "Queso Blanco Rallado",
+                  "price": 0,
                   "extra_price": 0
                 }
               ]
             },
             {
-              "group_id": "g-extras-banano",
-              "group_name": "Adicionales Extra (Opcional)",
+              "group_id": "grp-top2-ave",
+              "group_name": "3. Segundo Topping (Obligatorio)",
+              "title": "3. Segundo Topping (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "top-a2-0",
+                  "option_id": "top-a2-0",
+                  "name": "Galleta Oreo Picada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-1",
+                  "option_id": "top-a2-1",
+                  "name": "Flips de Chocolate / Arequipe",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-2",
+                  "option_id": "top-a2-2",
+                  "name": "Pirulin",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-3",
+                  "option_id": "top-a2-3",
+                  "name": "Samba de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-4",
+                  "option_id": "top-a2-4",
+                  "name": "Cri Cri (Chocolate con Arroz Inflado)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-5",
+                  "option_id": "top-a2-5",
+                  "name": "Cocosette",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-6",
+                  "option_id": "top-a2-6",
+                  "name": "Trozos de Brownie",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-7",
+                  "option_id": "top-a2-7",
+                  "name": "Trozos de Chocorramo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-8",
+                  "option_id": "top-a2-8",
+                  "name": "Fresas Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-9",
+                  "option_id": "top-a2-9",
+                  "name": "Moras Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-10",
+                  "option_id": "top-a2-10",
+                  "name": "Kiwi Picado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-11",
+                  "option_id": "top-a2-11",
+                  "name": "Melocotón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-12",
+                  "option_id": "top-a2-12",
+                  "name": "Galleta María",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-13",
+                  "option_id": "top-a2-13",
+                  "name": "Lluvia de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-14",
+                  "option_id": "top-a2-14",
+                  "name": "Lluvia de Colores / Chispas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-15",
+                  "option_id": "top-a2-15",
+                  "name": "Maní Tostado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-16",
+                  "option_id": "top-a2-16",
+                  "name": "Nueces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-17",
+                  "option_id": "top-a2-17",
+                  "name": "Gomitas Dulces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-18",
+                  "option_id": "top-a2-18",
+                  "name": "Masmelos (Marshmallows)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-a2-19",
+                  "option_id": "top-a2-19",
+                  "name": "Queso Blanco Rallado",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-syr-ave",
+              "group_name": "4. Elige tu Sirope / Salsa (Obligatorio)",
+              "title": "4. Elige tu Sirope / Salsa (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "syr-as-0",
+                  "option_id": "syr-as-0",
+                  "name": "Sirope de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-as-1",
+                  "option_id": "syr-as-1",
+                  "name": "Sirope de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-as-2",
+                  "option_id": "syr-as-2",
+                  "name": "Sirope de Arequipe / Caramelo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-as-3",
+                  "option_id": "syr-as-3",
+                  "name": "Sirope de Mora Artesanal",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-as-4",
+                  "option_id": "syr-as-4",
+                  "name": "Leche Condensada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-as-5",
+                  "option_id": "syr-as-5",
+                  "name": "Sirope de Maracuyá / Parchita",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-as-6",
+                  "option_id": "syr-as-6",
+                  "name": "Nutella",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-ext-ave",
+              "group_name": "Toppings y Extras Adicionales (Opcional)",
+              "title": "Toppings y Extras Adicionales (Opcional)",
               "selection_type": "multiple",
               "required": false,
               "options": [
                 {
-                  "id": "opt-ext-banano-b",
-                  "name": "🍌 Extra Banano",
-                  "option_id": "opt-ext-banano-b",
+                  "id": "ext-oreo",
+                  "option_id": "ext-oreo",
+                  "name": "Extra Galleta Oreo",
+                  "price": 2000,
                   "extra_price": 2000
                 },
                 {
-                  "id": "opt-ext-queso-b",
-                  "name": "🧀 Extra Queso",
-                  "option_id": "opt-ext-queso-b",
-                  "extra_price": 2000
+                  "id": "ext-pirulin",
+                  "option_id": "ext-pirulin",
+                  "name": "Extra Pirulin (2 und)",
+                  "price": 2500,
+                  "extra_price": 2500
                 },
                 {
-                  "id": "opt-ext-helado-b",
-                  "name": "🍦 Bola de Helado",
-                  "option_id": "opt-ext-helado-b",
-                  "extra_price": 4000
+                  "id": "ext-brownie",
+                  "option_id": "ext-brownie",
+                  "name": "Extra Trozos de Brownie",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-fruta",
+                  "option_id": "ext-fruta",
+                  "name": "Extra Fresas / Fruta",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-nutella",
+                  "option_id": "ext-nutella",
+                  "name": "Extra Nutella",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "ext-queso",
+                  "option_id": "ext-queso",
+                  "name": "Extra Queso Rallado",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-helado",
+                  "option_id": "ext-helado",
+                  "name": "Bola de Helado Extra",
+                  "price": 3500,
+                  "extra_price": 3500
                 }
               ]
             }
+          ]
+        },
+        {
+          "id": "fruty-sundae-mundo-magico",
+          "name": "Sundae Mundo Mágico (4 Toppings + 1 Sirope)",
+          "category": "Crea tu Sundae",
+          "price": 15000,
+          "description": "Súper Sundae con 4 toppings combinados a tu gusto y 1 delicioso sirope.",
+          "image": "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=600",
+          "available_days": [
+            "todos"
           ],
           "exclusions": [],
-          "category_id": "101bcf58-2e2e-481b-bb77-eda9c950e79c",
-          "description": "Arequipe o Nutella + banano + crema + queso."
+          "modifiers": [
+            {
+              "group_id": "grp-base-mag",
+              "group_name": "1. Elige tu Base de Helado (Obligatorio)",
+              "title": "1. Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            },
+            {
+              "group_id": "grp-top1-mag",
+              "group_name": "2. Primer Topping (Obligatorio)",
+              "title": "2. Primer Topping (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "top-mg1-0",
+                  "option_id": "top-mg1-0",
+                  "name": "Galleta Oreo Picada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-1",
+                  "option_id": "top-mg1-1",
+                  "name": "Flips de Chocolate / Arequipe",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-2",
+                  "option_id": "top-mg1-2",
+                  "name": "Pirulin",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-3",
+                  "option_id": "top-mg1-3",
+                  "name": "Samba de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-4",
+                  "option_id": "top-mg1-4",
+                  "name": "Cri Cri (Chocolate con Arroz Inflado)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-5",
+                  "option_id": "top-mg1-5",
+                  "name": "Cocosette",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-6",
+                  "option_id": "top-mg1-6",
+                  "name": "Trozos de Brownie",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-7",
+                  "option_id": "top-mg1-7",
+                  "name": "Trozos de Chocorramo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-8",
+                  "option_id": "top-mg1-8",
+                  "name": "Fresas Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-9",
+                  "option_id": "top-mg1-9",
+                  "name": "Moras Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-10",
+                  "option_id": "top-mg1-10",
+                  "name": "Kiwi Picado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-11",
+                  "option_id": "top-mg1-11",
+                  "name": "Melocotón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-12",
+                  "option_id": "top-mg1-12",
+                  "name": "Galleta María",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-13",
+                  "option_id": "top-mg1-13",
+                  "name": "Lluvia de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-14",
+                  "option_id": "top-mg1-14",
+                  "name": "Lluvia de Colores / Chispas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-15",
+                  "option_id": "top-mg1-15",
+                  "name": "Maní Tostado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-16",
+                  "option_id": "top-mg1-16",
+                  "name": "Nueces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-17",
+                  "option_id": "top-mg1-17",
+                  "name": "Gomitas Dulces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-18",
+                  "option_id": "top-mg1-18",
+                  "name": "Masmelos (Marshmallows)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg1-19",
+                  "option_id": "top-mg1-19",
+                  "name": "Queso Blanco Rallado",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-top2-mag",
+              "group_name": "3. Segundo Topping (Obligatorio)",
+              "title": "3. Segundo Topping (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "top-mg2-0",
+                  "option_id": "top-mg2-0",
+                  "name": "Galleta Oreo Picada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-1",
+                  "option_id": "top-mg2-1",
+                  "name": "Flips de Chocolate / Arequipe",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-2",
+                  "option_id": "top-mg2-2",
+                  "name": "Pirulin",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-3",
+                  "option_id": "top-mg2-3",
+                  "name": "Samba de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-4",
+                  "option_id": "top-mg2-4",
+                  "name": "Cri Cri (Chocolate con Arroz Inflado)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-5",
+                  "option_id": "top-mg2-5",
+                  "name": "Cocosette",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-6",
+                  "option_id": "top-mg2-6",
+                  "name": "Trozos de Brownie",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-7",
+                  "option_id": "top-mg2-7",
+                  "name": "Trozos de Chocorramo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-8",
+                  "option_id": "top-mg2-8",
+                  "name": "Fresas Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-9",
+                  "option_id": "top-mg2-9",
+                  "name": "Moras Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-10",
+                  "option_id": "top-mg2-10",
+                  "name": "Kiwi Picado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-11",
+                  "option_id": "top-mg2-11",
+                  "name": "Melocotón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-12",
+                  "option_id": "top-mg2-12",
+                  "name": "Galleta María",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-13",
+                  "option_id": "top-mg2-13",
+                  "name": "Lluvia de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-14",
+                  "option_id": "top-mg2-14",
+                  "name": "Lluvia de Colores / Chispas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-15",
+                  "option_id": "top-mg2-15",
+                  "name": "Maní Tostado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-16",
+                  "option_id": "top-mg2-16",
+                  "name": "Nueces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-17",
+                  "option_id": "top-mg2-17",
+                  "name": "Gomitas Dulces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-18",
+                  "option_id": "top-mg2-18",
+                  "name": "Masmelos (Marshmallows)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg2-19",
+                  "option_id": "top-mg2-19",
+                  "name": "Queso Blanco Rallado",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-top3-mag",
+              "group_name": "4. Tercer Topping (Obligatorio)",
+              "title": "4. Tercer Topping (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "top-mg3-0",
+                  "option_id": "top-mg3-0",
+                  "name": "Galleta Oreo Picada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-1",
+                  "option_id": "top-mg3-1",
+                  "name": "Flips de Chocolate / Arequipe",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-2",
+                  "option_id": "top-mg3-2",
+                  "name": "Pirulin",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-3",
+                  "option_id": "top-mg3-3",
+                  "name": "Samba de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-4",
+                  "option_id": "top-mg3-4",
+                  "name": "Cri Cri (Chocolate con Arroz Inflado)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-5",
+                  "option_id": "top-mg3-5",
+                  "name": "Cocosette",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-6",
+                  "option_id": "top-mg3-6",
+                  "name": "Trozos de Brownie",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-7",
+                  "option_id": "top-mg3-7",
+                  "name": "Trozos de Chocorramo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-8",
+                  "option_id": "top-mg3-8",
+                  "name": "Fresas Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-9",
+                  "option_id": "top-mg3-9",
+                  "name": "Moras Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-10",
+                  "option_id": "top-mg3-10",
+                  "name": "Kiwi Picado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-11",
+                  "option_id": "top-mg3-11",
+                  "name": "Melocotón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-12",
+                  "option_id": "top-mg3-12",
+                  "name": "Galleta María",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-13",
+                  "option_id": "top-mg3-13",
+                  "name": "Lluvia de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-14",
+                  "option_id": "top-mg3-14",
+                  "name": "Lluvia de Colores / Chispas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-15",
+                  "option_id": "top-mg3-15",
+                  "name": "Maní Tostado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-16",
+                  "option_id": "top-mg3-16",
+                  "name": "Nueces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-17",
+                  "option_id": "top-mg3-17",
+                  "name": "Gomitas Dulces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-18",
+                  "option_id": "top-mg3-18",
+                  "name": "Masmelos (Marshmallows)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg3-19",
+                  "option_id": "top-mg3-19",
+                  "name": "Queso Blanco Rallado",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-top4-mag",
+              "group_name": "5. Cuarto Topping (Obligatorio)",
+              "title": "5. Cuarto Topping (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "top-mg4-0",
+                  "option_id": "top-mg4-0",
+                  "name": "Galleta Oreo Picada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-1",
+                  "option_id": "top-mg4-1",
+                  "name": "Flips de Chocolate / Arequipe",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-2",
+                  "option_id": "top-mg4-2",
+                  "name": "Pirulin",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-3",
+                  "option_id": "top-mg4-3",
+                  "name": "Samba de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-4",
+                  "option_id": "top-mg4-4",
+                  "name": "Cri Cri (Chocolate con Arroz Inflado)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-5",
+                  "option_id": "top-mg4-5",
+                  "name": "Cocosette",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-6",
+                  "option_id": "top-mg4-6",
+                  "name": "Trozos de Brownie",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-7",
+                  "option_id": "top-mg4-7",
+                  "name": "Trozos de Chocorramo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-8",
+                  "option_id": "top-mg4-8",
+                  "name": "Fresas Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-9",
+                  "option_id": "top-mg4-9",
+                  "name": "Moras Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-10",
+                  "option_id": "top-mg4-10",
+                  "name": "Kiwi Picado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-11",
+                  "option_id": "top-mg4-11",
+                  "name": "Melocotón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-12",
+                  "option_id": "top-mg4-12",
+                  "name": "Galleta María",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-13",
+                  "option_id": "top-mg4-13",
+                  "name": "Lluvia de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-14",
+                  "option_id": "top-mg4-14",
+                  "name": "Lluvia de Colores / Chispas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-15",
+                  "option_id": "top-mg4-15",
+                  "name": "Maní Tostado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-16",
+                  "option_id": "top-mg4-16",
+                  "name": "Nueces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-17",
+                  "option_id": "top-mg4-17",
+                  "name": "Gomitas Dulces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-18",
+                  "option_id": "top-mg4-18",
+                  "name": "Masmelos (Marshmallows)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-mg4-19",
+                  "option_id": "top-mg4-19",
+                  "name": "Queso Blanco Rallado",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-syr-mag",
+              "group_name": "6. Elige tu Sirope / Salsa (Obligatorio)",
+              "title": "6. Elige tu Sirope / Salsa (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "syr-mgs-0",
+                  "option_id": "syr-mgs-0",
+                  "name": "Sirope de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-mgs-1",
+                  "option_id": "syr-mgs-1",
+                  "name": "Sirope de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-mgs-2",
+                  "option_id": "syr-mgs-2",
+                  "name": "Sirope de Arequipe / Caramelo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-mgs-3",
+                  "option_id": "syr-mgs-3",
+                  "name": "Sirope de Mora Artesanal",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-mgs-4",
+                  "option_id": "syr-mgs-4",
+                  "name": "Leche Condensada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-mgs-5",
+                  "option_id": "syr-mgs-5",
+                  "name": "Sirope de Maracuyá / Parchita",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-mgs-6",
+                  "option_id": "syr-mgs-6",
+                  "name": "Nutella",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-ext-mag",
+              "group_name": "Toppings y Extras Adicionales (Opcional)",
+              "title": "Toppings y Extras Adicionales (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                {
+                  "id": "ext-oreo",
+                  "option_id": "ext-oreo",
+                  "name": "Extra Galleta Oreo",
+                  "price": 2000,
+                  "extra_price": 2000
+                },
+                {
+                  "id": "ext-pirulin",
+                  "option_id": "ext-pirulin",
+                  "name": "Extra Pirulin (2 und)",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-brownie",
+                  "option_id": "ext-brownie",
+                  "name": "Extra Trozos de Brownie",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-fruta",
+                  "option_id": "ext-fruta",
+                  "name": "Extra Fresas / Fruta",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-nutella",
+                  "option_id": "ext-nutella",
+                  "name": "Extra Nutella",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "ext-queso",
+                  "option_id": "ext-queso",
+                  "name": "Extra Queso Rallado",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-helado",
+                  "option_id": "ext-helado",
+                  "name": "Bola de Helado Extra",
+                  "price": 3500,
+                  "extra_price": 3500
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-gran-explorador",
+          "name": "Sundae Gran Explorador (5 Toppings + 1 Sirope)",
+          "category": "Crea tu Sundae",
+          "price": 19000,
+          "description": "El Sundae más grande y resuelto: 5 toppings a tu elección con sirope artesanal y base cremosa.",
+          "image": "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-gran",
+              "group_name": "1. Elige tu Base de Helado (Obligatorio)",
+              "title": "1. Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            },
+            {
+              "group_id": "grp-top1-gran",
+              "group_name": "2. Primer Topping (Obligatorio)",
+              "title": "2. Primer Topping (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "top-g1-0",
+                  "option_id": "top-g1-0",
+                  "name": "Galleta Oreo Picada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-1",
+                  "option_id": "top-g1-1",
+                  "name": "Flips de Chocolate / Arequipe",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-2",
+                  "option_id": "top-g1-2",
+                  "name": "Pirulin",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-3",
+                  "option_id": "top-g1-3",
+                  "name": "Samba de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-4",
+                  "option_id": "top-g1-4",
+                  "name": "Cri Cri (Chocolate con Arroz Inflado)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-5",
+                  "option_id": "top-g1-5",
+                  "name": "Cocosette",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-6",
+                  "option_id": "top-g1-6",
+                  "name": "Trozos de Brownie",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-7",
+                  "option_id": "top-g1-7",
+                  "name": "Trozos de Chocorramo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-8",
+                  "option_id": "top-g1-8",
+                  "name": "Fresas Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-9",
+                  "option_id": "top-g1-9",
+                  "name": "Moras Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-10",
+                  "option_id": "top-g1-10",
+                  "name": "Kiwi Picado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-11",
+                  "option_id": "top-g1-11",
+                  "name": "Melocotón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-12",
+                  "option_id": "top-g1-12",
+                  "name": "Galleta María",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-13",
+                  "option_id": "top-g1-13",
+                  "name": "Lluvia de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-14",
+                  "option_id": "top-g1-14",
+                  "name": "Lluvia de Colores / Chispas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-15",
+                  "option_id": "top-g1-15",
+                  "name": "Maní Tostado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-16",
+                  "option_id": "top-g1-16",
+                  "name": "Nueces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-17",
+                  "option_id": "top-g1-17",
+                  "name": "Gomitas Dulces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-18",
+                  "option_id": "top-g1-18",
+                  "name": "Masmelos (Marshmallows)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g1-19",
+                  "option_id": "top-g1-19",
+                  "name": "Queso Blanco Rallado",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-top2-gran",
+              "group_name": "3. Segundo Topping (Obligatorio)",
+              "title": "3. Segundo Topping (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "top-g2-0",
+                  "option_id": "top-g2-0",
+                  "name": "Galleta Oreo Picada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-1",
+                  "option_id": "top-g2-1",
+                  "name": "Flips de Chocolate / Arequipe",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-2",
+                  "option_id": "top-g2-2",
+                  "name": "Pirulin",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-3",
+                  "option_id": "top-g2-3",
+                  "name": "Samba de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-4",
+                  "option_id": "top-g2-4",
+                  "name": "Cri Cri (Chocolate con Arroz Inflado)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-5",
+                  "option_id": "top-g2-5",
+                  "name": "Cocosette",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-6",
+                  "option_id": "top-g2-6",
+                  "name": "Trozos de Brownie",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-7",
+                  "option_id": "top-g2-7",
+                  "name": "Trozos de Chocorramo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-8",
+                  "option_id": "top-g2-8",
+                  "name": "Fresas Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-9",
+                  "option_id": "top-g2-9",
+                  "name": "Moras Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-10",
+                  "option_id": "top-g2-10",
+                  "name": "Kiwi Picado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-11",
+                  "option_id": "top-g2-11",
+                  "name": "Melocotón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-12",
+                  "option_id": "top-g2-12",
+                  "name": "Galleta María",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-13",
+                  "option_id": "top-g2-13",
+                  "name": "Lluvia de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-14",
+                  "option_id": "top-g2-14",
+                  "name": "Lluvia de Colores / Chispas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-15",
+                  "option_id": "top-g2-15",
+                  "name": "Maní Tostado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-16",
+                  "option_id": "top-g2-16",
+                  "name": "Nueces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-17",
+                  "option_id": "top-g2-17",
+                  "name": "Gomitas Dulces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-18",
+                  "option_id": "top-g2-18",
+                  "name": "Masmelos (Marshmallows)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g2-19",
+                  "option_id": "top-g2-19",
+                  "name": "Queso Blanco Rallado",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-top3-gran",
+              "group_name": "4. Tercer Topping (Obligatorio)",
+              "title": "4. Tercer Topping (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "top-g3-0",
+                  "option_id": "top-g3-0",
+                  "name": "Galleta Oreo Picada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-1",
+                  "option_id": "top-g3-1",
+                  "name": "Flips de Chocolate / Arequipe",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-2",
+                  "option_id": "top-g3-2",
+                  "name": "Pirulin",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-3",
+                  "option_id": "top-g3-3",
+                  "name": "Samba de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-4",
+                  "option_id": "top-g3-4",
+                  "name": "Cri Cri (Chocolate con Arroz Inflado)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-5",
+                  "option_id": "top-g3-5",
+                  "name": "Cocosette",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-6",
+                  "option_id": "top-g3-6",
+                  "name": "Trozos de Brownie",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-7",
+                  "option_id": "top-g3-7",
+                  "name": "Trozos de Chocorramo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-8",
+                  "option_id": "top-g3-8",
+                  "name": "Fresas Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-9",
+                  "option_id": "top-g3-9",
+                  "name": "Moras Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-10",
+                  "option_id": "top-g3-10",
+                  "name": "Kiwi Picado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-11",
+                  "option_id": "top-g3-11",
+                  "name": "Melocotón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-12",
+                  "option_id": "top-g3-12",
+                  "name": "Galleta María",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-13",
+                  "option_id": "top-g3-13",
+                  "name": "Lluvia de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-14",
+                  "option_id": "top-g3-14",
+                  "name": "Lluvia de Colores / Chispas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-15",
+                  "option_id": "top-g3-15",
+                  "name": "Maní Tostado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-16",
+                  "option_id": "top-g3-16",
+                  "name": "Nueces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-17",
+                  "option_id": "top-g3-17",
+                  "name": "Gomitas Dulces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-18",
+                  "option_id": "top-g3-18",
+                  "name": "Masmelos (Marshmallows)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g3-19",
+                  "option_id": "top-g3-19",
+                  "name": "Queso Blanco Rallado",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-top4-gran",
+              "group_name": "5. Cuarto Topping (Obligatorio)",
+              "title": "5. Cuarto Topping (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "top-g4-0",
+                  "option_id": "top-g4-0",
+                  "name": "Galleta Oreo Picada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-1",
+                  "option_id": "top-g4-1",
+                  "name": "Flips de Chocolate / Arequipe",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-2",
+                  "option_id": "top-g4-2",
+                  "name": "Pirulin",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-3",
+                  "option_id": "top-g4-3",
+                  "name": "Samba de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-4",
+                  "option_id": "top-g4-4",
+                  "name": "Cri Cri (Chocolate con Arroz Inflado)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-5",
+                  "option_id": "top-g4-5",
+                  "name": "Cocosette",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-6",
+                  "option_id": "top-g4-6",
+                  "name": "Trozos de Brownie",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-7",
+                  "option_id": "top-g4-7",
+                  "name": "Trozos de Chocorramo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-8",
+                  "option_id": "top-g4-8",
+                  "name": "Fresas Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-9",
+                  "option_id": "top-g4-9",
+                  "name": "Moras Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-10",
+                  "option_id": "top-g4-10",
+                  "name": "Kiwi Picado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-11",
+                  "option_id": "top-g4-11",
+                  "name": "Melocotón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-12",
+                  "option_id": "top-g4-12",
+                  "name": "Galleta María",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-13",
+                  "option_id": "top-g4-13",
+                  "name": "Lluvia de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-14",
+                  "option_id": "top-g4-14",
+                  "name": "Lluvia de Colores / Chispas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-15",
+                  "option_id": "top-g4-15",
+                  "name": "Maní Tostado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-16",
+                  "option_id": "top-g4-16",
+                  "name": "Nueces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-17",
+                  "option_id": "top-g4-17",
+                  "name": "Gomitas Dulces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-18",
+                  "option_id": "top-g4-18",
+                  "name": "Masmelos (Marshmallows)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g4-19",
+                  "option_id": "top-g4-19",
+                  "name": "Queso Blanco Rallado",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-top5-gran",
+              "group_name": "6. Quinto Topping (Obligatorio)",
+              "title": "6. Quinto Topping (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "top-g5-0",
+                  "option_id": "top-g5-0",
+                  "name": "Galleta Oreo Picada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-1",
+                  "option_id": "top-g5-1",
+                  "name": "Flips de Chocolate / Arequipe",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-2",
+                  "option_id": "top-g5-2",
+                  "name": "Pirulin",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-3",
+                  "option_id": "top-g5-3",
+                  "name": "Samba de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-4",
+                  "option_id": "top-g5-4",
+                  "name": "Cri Cri (Chocolate con Arroz Inflado)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-5",
+                  "option_id": "top-g5-5",
+                  "name": "Cocosette",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-6",
+                  "option_id": "top-g5-6",
+                  "name": "Trozos de Brownie",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-7",
+                  "option_id": "top-g5-7",
+                  "name": "Trozos de Chocorramo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-8",
+                  "option_id": "top-g5-8",
+                  "name": "Fresas Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-9",
+                  "option_id": "top-g5-9",
+                  "name": "Moras Frescas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-10",
+                  "option_id": "top-g5-10",
+                  "name": "Kiwi Picado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-11",
+                  "option_id": "top-g5-11",
+                  "name": "Melocotón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-12",
+                  "option_id": "top-g5-12",
+                  "name": "Galleta María",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-13",
+                  "option_id": "top-g5-13",
+                  "name": "Lluvia de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-14",
+                  "option_id": "top-g5-14",
+                  "name": "Lluvia de Colores / Chispas",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-15",
+                  "option_id": "top-g5-15",
+                  "name": "Maní Tostado",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-16",
+                  "option_id": "top-g5-16",
+                  "name": "Nueces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-17",
+                  "option_id": "top-g5-17",
+                  "name": "Gomitas Dulces",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-18",
+                  "option_id": "top-g5-18",
+                  "name": "Masmelos (Marshmallows)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "top-g5-19",
+                  "option_id": "top-g5-19",
+                  "name": "Queso Blanco Rallado",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-syr-gran",
+              "group_name": "7. Elige tu Sirope / Salsa (Obligatorio)",
+              "title": "7. Elige tu Sirope / Salsa (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "syr-gs-0",
+                  "option_id": "syr-gs-0",
+                  "name": "Sirope de Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-gs-1",
+                  "option_id": "syr-gs-1",
+                  "name": "Sirope de Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-gs-2",
+                  "option_id": "syr-gs-2",
+                  "name": "Sirope de Arequipe / Caramelo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-gs-3",
+                  "option_id": "syr-gs-3",
+                  "name": "Sirope de Mora Artesanal",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-gs-4",
+                  "option_id": "syr-gs-4",
+                  "name": "Leche Condensada",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-gs-5",
+                  "option_id": "syr-gs-5",
+                  "name": "Sirope de Maracuyá / Parchita",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "syr-gs-6",
+                  "option_id": "syr-gs-6",
+                  "name": "Nutella",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-ext-gran",
+              "group_name": "Toppings y Extras Adicionales (Opcional)",
+              "title": "Toppings y Extras Adicionales (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                {
+                  "id": "ext-oreo",
+                  "option_id": "ext-oreo",
+                  "name": "Extra Galleta Oreo",
+                  "price": 2000,
+                  "extra_price": 2000
+                },
+                {
+                  "id": "ext-pirulin",
+                  "option_id": "ext-pirulin",
+                  "name": "Extra Pirulin (2 und)",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-brownie",
+                  "option_id": "ext-brownie",
+                  "name": "Extra Trozos de Brownie",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-fruta",
+                  "option_id": "ext-fruta",
+                  "name": "Extra Fresas / Fruta",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-nutella",
+                  "option_id": "ext-nutella",
+                  "name": "Extra Nutella",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "ext-queso",
+                  "option_id": "ext-queso",
+                  "name": "Extra Queso Rallado",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-helado",
+                  "option_id": "ext-helado",
+                  "name": "Bola de Helado Extra",
+                  "price": 3500,
+                  "extra_price": 3500
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-oreo",
+          "name": "Sundae Oreo Del Bosque",
+          "category": "Creaciones Del Bosque",
+          "price": 12000,
+          "description": "Helado cremoso con abundante galleta Oreo troceada, sirope de chocolate y toque crujiente.",
+          "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-so",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            },
+            {
+              "group_id": "grp-ext-so",
+              "group_name": "Toppings y Extras (Opcional)",
+              "title": "Toppings y Extras (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                {
+                  "id": "ext-oreo",
+                  "option_id": "ext-oreo",
+                  "name": "Extra Galleta Oreo",
+                  "price": 2000,
+                  "extra_price": 2000
+                },
+                {
+                  "id": "ext-pirulin",
+                  "option_id": "ext-pirulin",
+                  "name": "Extra Pirulin (2 und)",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-brownie",
+                  "option_id": "ext-brownie",
+                  "name": "Extra Trozos de Brownie",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-fruta",
+                  "option_id": "ext-fruta",
+                  "name": "Extra Fresas / Fruta",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-nutella",
+                  "option_id": "ext-nutella",
+                  "name": "Extra Nutella",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "ext-queso",
+                  "option_id": "ext-queso",
+                  "name": "Extra Queso Rallado",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-helado",
+                  "option_id": "ext-helado",
+                  "name": "Bola de Helado Extra",
+                  "price": 3500,
+                  "extra_price": 3500
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-flips",
+          "name": "Sundae Flips Del Bosque",
+          "category": "Creaciones Del Bosque",
+          "price": 12000,
+          "description": "Helado cremoso con crujientes almohaditas de Flips de chocolate y dulce de leche con sirope de arequipe.",
+          "image": "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-sf",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            },
+            {
+              "group_id": "grp-ext-sf",
+              "group_name": "Toppings y Extras (Opcional)",
+              "title": "Toppings y Extras (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                {
+                  "id": "ext-oreo",
+                  "option_id": "ext-oreo",
+                  "name": "Extra Galleta Oreo",
+                  "price": 2000,
+                  "extra_price": 2000
+                },
+                {
+                  "id": "ext-pirulin",
+                  "option_id": "ext-pirulin",
+                  "name": "Extra Pirulin (2 und)",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-brownie",
+                  "option_id": "ext-brownie",
+                  "name": "Extra Trozos de Brownie",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-fruta",
+                  "option_id": "ext-fruta",
+                  "name": "Extra Fresas / Fruta",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-nutella",
+                  "option_id": "ext-nutella",
+                  "name": "Extra Nutella",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "ext-queso",
+                  "option_id": "ext-queso",
+                  "name": "Extra Queso Rallado",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-helado",
+                  "option_id": "ext-helado",
+                  "name": "Bola de Helado Extra",
+                  "price": 3500,
+                  "extra_price": 3500
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-pirulin",
+          "name": "Sundae Pirulin Del Bosque",
+          "category": "Creaciones Del Bosque",
+          "price": 13500,
+          "description": "Helado cremoso coronado con barquillos Pirulin rellenos de chocolate y avellana.",
+          "image": "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-sp",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            },
+            {
+              "group_id": "grp-ext-sp",
+              "group_name": "Toppings y Extras (Opcional)",
+              "title": "Toppings y Extras (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                {
+                  "id": "ext-oreo",
+                  "option_id": "ext-oreo",
+                  "name": "Extra Galleta Oreo",
+                  "price": 2000,
+                  "extra_price": 2000
+                },
+                {
+                  "id": "ext-pirulin",
+                  "option_id": "ext-pirulin",
+                  "name": "Extra Pirulin (2 und)",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-brownie",
+                  "option_id": "ext-brownie",
+                  "name": "Extra Trozos de Brownie",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-fruta",
+                  "option_id": "ext-fruta",
+                  "name": "Extra Fresas / Fruta",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-nutella",
+                  "option_id": "ext-nutella",
+                  "name": "Extra Nutella",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "ext-queso",
+                  "option_id": "ext-queso",
+                  "name": "Extra Queso Rallado",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-helado",
+                  "option_id": "ext-helado",
+                  "name": "Bola de Helado Extra",
+                  "price": 3500,
+                  "extra_price": 3500
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-samba",
+          "name": "Sundae Samba",
+          "category": "Más Sabores Del Bosque",
+          "price": 13500,
+          "description": "Helado cremoso con galleta Samba Savoy de fresa y chocolate crujiente.",
+          "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-ss",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-oblea",
+          "name": "Sundae Oblea",
+          "category": "Más Sabores Del Bosque",
+          "price": 18000,
+          "description": "Helado con crujientes trozos de oblea artesanal, arequipe, queso rallado y leche condensada.",
+          "image": "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-sobl",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-tres-leches",
+          "name": "Sundae Tres Leches",
+          "category": "Más Sabores Del Bosque",
+          "price": 17000,
+          "description": "Helado cremoso sobre bizcochuelo tres leches bañado en almíbar de leche y canela.",
+          "image": "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-s3l",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-parfait",
+          "name": "Sundae Parfait",
+          "category": "Más Sabores Del Bosque",
+          "price": 16000,
+          "description": "Capas de helado suave, granola crujiente, trozos de frutas frescas y sirope de mora.",
+          "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-sparf",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-maracumango",
+          "name": "Sundae Maracumango",
+          "category": "Más Sabores Del Bosque",
+          "price": 16000,
+          "description": "Combinación tropical de pulpa natural de maracuyá (parchita), trozos de mango y helado.",
+          "image": "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-smm",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-cri-cri",
+          "name": "Sundae Cri Cri",
+          "category": "Más Sabores Del Bosque",
+          "price": 13500,
+          "description": "Helado cremoso con auténtico chocolate Cri Cri con arroz tostado inflado y sirope.",
+          "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-scricri",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-mora-roche",
+          "name": "Sundae Mora-Roche",
+          "category": "Más Sabores Del Bosque",
+          "price": 12000,
+          "description": "Helado cremoso con dulce artesanal de mora y toque crocante de avellanas.",
+          "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-smr",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-parchi-roche",
+          "name": "Sundae Parchi-Roche",
+          "category": "Más Sabores Del Bosque",
+          "price": 12000,
+          "description": "Helado cremoso con sirope de parchita y crujiente de chocolate y avellana.",
+          "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-spr",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-oreo-kripis",
+          "name": "Sundae Oreo-Kripis",
+          "category": "Más Sabores Del Bosque",
+          "price": 12000,
+          "description": "Helado con galleta Oreo troceada y arroz inflado kripis achocolatado.",
+          "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-sok",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-cocosette",
+          "name": "Sundae Cocosette",
+          "category": "Más Sabores Del Bosque",
+          "price": 12000,
+          "description": "Helado con crujiente galleta Cocosette de coco y salsa de dulce de leche.",
+          "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-scoco",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-brownie",
+          "name": "Sundae Brownie",
+          "category": "Más Sabores Del Bosque",
+          "price": 12000,
+          "description": "Helado cremoso con trocitos suaves de brownie de chocolate recién horneado.",
+          "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-sbrw",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-chocorramo",
+          "name": "Sundae Chocorramo",
+          "category": "Más Sabores Del Bosque",
+          "price": 12000,
+          "description": "Helado con esponjoso ponqué Chocorramo y chocolate líquido.",
+          "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-schoco",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sundae-napolitano",
+          "name": "Sundae Napolitano",
+          "category": "Más Sabores Del Bosque",
+          "price": 13000,
+          "description": "Combinación tradicional de tres sabores con barquillitas y sirope.",
+          "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-snap",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-cono-sencillo",
+          "name": "Cono Sencillo",
+          "category": "Barquillas Del Bosque",
+          "price": 4500,
+          "description": "Barquilla crujiente con helado cremoso.",
+          "image": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-cono-sencillo",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla-barq",
+                  "option_id": "base-vainilla-barq",
+                  "name": "🍦 Base Vainilla",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego-barq",
+                  "option_id": "base-yogurt-griego-barq",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 1000,
+                  "extra_price": 1000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-cono-cubierto",
+          "name": "Cono Cubierto",
+          "category": "Barquillas Del Bosque",
+          "price": 6000,
+          "description": "Barquilla con cobertura crujiente de chocolate.",
+          "image": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-cono-cubierto",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla-barq",
+                  "option_id": "base-vainilla-barq",
+                  "name": "🍦 Base Vainilla",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego-barq",
+                  "option_id": "base-yogurt-griego-barq",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 1000,
+                  "extra_price": 1000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-cono-pastelado",
+          "name": "Cono Pastelado",
+          "category": "Barquillas Del Bosque",
+          "price": 7000,
+          "description": "Barquilla bañada en chocolate pastelado crujiente.",
+          "image": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-cono-pastelado",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla-barq",
+                  "option_id": "base-vainilla-barq",
+                  "name": "🍦 Base Vainilla",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego-barq",
+                  "option_id": "base-yogurt-griego-barq",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 1000,
+                  "extra_price": 1000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-cono-relleno",
+          "name": "Cono Relleno",
+          "category": "Barquillas Del Bosque",
+          "price": 6500,
+          "description": "Barquilla con el fondo relleno de chocolate o arequipe.",
+          "image": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-cono-relleno",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla-barq",
+                  "option_id": "base-vainilla-barq",
+                  "name": "🍦 Base Vainilla",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego-barq",
+                  "option_id": "base-yogurt-griego-barq",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 1000,
+                  "extra_price": 1000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-cono-krispis",
+          "name": "Cono Krispis",
+          "category": "Barquillas Del Bosque",
+          "price": 7000,
+          "description": "Barquilla cubierta con chocolate y crujiente arroz inflado krispis.",
+          "image": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-cono-krispis",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla-barq",
+                  "option_id": "base-vainilla-barq",
+                  "name": "🍦 Base Vainilla",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego-barq",
+                  "option_id": "base-yogurt-griego-barq",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 1000,
+                  "extra_price": 1000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-cono-cremita-rellena",
+          "name": "Cono Cremita Rellena",
+          "category": "Barquillas Del Bosque",
+          "price": 6500,
+          "description": "Barquilla con cremita especial rellena en su interior.",
+          "image": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-cono-cremita",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla-barq",
+                  "option_id": "base-vainilla-barq",
+                  "name": "🍦 Base Vainilla",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego-barq",
+                  "option_id": "base-yogurt-griego-barq",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 1000,
+                  "extra_price": 1000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-cono-cremita-pastelado",
+          "name": "Cono Cremita Rellena y Pastelado",
+          "category": "Barquillas Del Bosque",
+          "price": 8000,
+          "description": "La barquilla más completa: cremita rellena por dentro y baño pastelado de chocolate por fuera.",
+          "image": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-cono-cp",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla-barq",
+                  "option_id": "base-vainilla-barq",
+                  "name": "🍦 Base Vainilla",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego-barq",
+                  "option_id": "base-yogurt-griego-barq",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 1000,
+                  "extra_price": 1000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-fresas-pequena",
+          "name": "Fresas con Crema (Pequeña)",
+          "category": "Fresas con Crema",
+          "price": 9000,
+          "description": "Fresas frescas seleccionadas con crema chantilly de la casa y leche condensada.",
+          "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-fresas-p",
+              "group_name": "Elige tu Base / Crema (Obligatorio)",
+              "title": "Elige tu Base / Crema (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "fresas-chantilly",
+                  "option_id": "fresas-chantilly",
+                  "name": "Crema Chantilly Tradicional",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "fresas-helado",
+                  "option_id": "fresas-helado",
+                  "name": "Con Helado de Vainilla",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "fresas-yogurt",
+                  "option_id": "fresas-yogurt",
+                  "name": "Con Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            },
+            {
+              "group_id": "grp-ext-fresas-p",
+              "group_name": "Adicionales Extra (Opcional)",
+              "title": "Adicionales Extra (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                {
+                  "id": "ext-queso-fr",
+                  "option_id": "ext-queso-fr",
+                  "name": "Extra Queso Rallado",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-nutella-fr",
+                  "option_id": "ext-nutella-fr",
+                  "name": "Extra Nutella",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "ext-barquillitas-fr",
+                  "option_id": "ext-barquillitas-fr",
+                  "name": "Barquillitas Crocantes",
+                  "price": 1500,
+                  "extra_price": 1500
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-fresas-mediana",
+          "name": "Fresas con Crema (Mediana)",
+          "category": "Fresas con Crema",
+          "price": 13000,
+          "description": "Porción mediana de fresas frescas con abundante crema suave y toques dulces.",
+          "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-fresas-m",
+              "group_name": "Elige tu Base / Crema (Obligatorio)",
+              "title": "Elige tu Base / Crema (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "fresas-chantilly-m",
+                  "option_id": "fresas-chantilly-m",
+                  "name": "Crema Chantilly Tradicional",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "fresas-helado-m",
+                  "option_id": "fresas-helado-m",
+                  "name": "Con Helado de Vainilla",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "fresas-yogurt-m",
+                  "option_id": "fresas-yogurt-m",
+                  "name": "Con Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            },
+            {
+              "group_id": "grp-ext-fresas-m",
+              "group_name": "Adicionales Extra (Opcional)",
+              "title": "Adicionales Extra (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                {
+                  "id": "ext-queso-fr",
+                  "option_id": "ext-queso-fr",
+                  "name": "Extra Queso Rallado",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-nutella-fr",
+                  "option_id": "ext-nutella-fr",
+                  "name": "Extra Nutella",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "ext-barquillitas-fr",
+                  "option_id": "ext-barquillitas-fr",
+                  "name": "Barquillitas Crocantes",
+                  "price": 1500,
+                  "extra_price": 1500
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-fresas-grande",
+          "name": "Fresas con Crema (Grande)",
+          "category": "Fresas con Crema",
+          "price": 18000,
+          "description": "Copa grande bien resuelta con capas generosas de fresas frescas y crema.",
+          "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-fresas-g",
+              "group_name": "Elige tu Base / Crema (Obligatorio)",
+              "title": "Elige tu Base / Crema (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "fresas-chantilly-g",
+                  "option_id": "fresas-chantilly-g",
+                  "name": "Crema Chantilly Tradicional",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "fresas-helado-g",
+                  "option_id": "fresas-helado-g",
+                  "name": "Con Helado de Vainilla",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "fresas-yogurt-g",
+                  "option_id": "fresas-yogurt-g",
+                  "name": "Con Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            },
+            {
+              "group_id": "grp-ext-fresas-g",
+              "group_name": "Adicionales Extra (Opcional)",
+              "title": "Adicionales Extra (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                {
+                  "id": "ext-queso-fr",
+                  "option_id": "ext-queso-fr",
+                  "name": "Extra Queso Rallado",
+                  "price": 2500,
+                  "extra_price": 2500
+                },
+                {
+                  "id": "ext-nutella-fr",
+                  "option_id": "ext-nutella-fr",
+                  "name": "Extra Nutella",
+                  "price": 3000,
+                  "extra_price": 3000
+                },
+                {
+                  "id": "ext-barquillitas-fr",
+                  "option_id": "ext-barquillitas-fr",
+                  "name": "Barquillitas Crocantes",
+                  "price": 1500,
+                  "extra_price": 1500
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-ensalada-pequena",
+          "name": "Ensalada de Frutas (Pequeña)",
+          "category": "Ensaladas de Frutas",
+          "price": 22000,
+          "description": "Mix de frutas frescas (fresas, kiwi, melocotón, manzana, cambur), queso rallado y helado cremoso.",
+          "image": "https://images.unsplash.com/photo-1519996529931-28324d5a630e?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-ens-p",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-ensalada-mediana",
+          "name": "Ensalada de Frutas (Mediana)",
+          "category": "Ensaladas de Frutas",
+          "price": 28000,
+          "description": "Porción mediana con abundante fruta fresca, queso blanco rallado, barquillitas y helado.",
+          "image": "https://images.unsplash.com/photo-1519996529931-28324d5a630e?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-ens-m",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-ensalada-grande",
+          "name": "Ensalada de Frutas (Grande Familiar)",
+          "category": "Ensaladas de Frutas",
+          "price": 35000,
+          "description": "Mega porción para compartir con todas las frutas frescas del bosque, queso rallado, barquillos y helado.",
+          "image": "https://images.unsplash.com/photo-1519996529931-28324d5a630e?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-ens-g",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-banana-split",
+          "name": "Banana Split Especial Del Bosque",
+          "category": "Ensaladas de Frutas",
+          "price": 16000,
+          "description": "Banana madura fresca con 3 bolas de helado, barquillos, crema chantilly, cerezas y siropes de chocolate, fresa y caramelo.",
+          "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-bs",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-malteada-del-bosque",
+          "name": "Malteada Del Bosque",
+          "category": "Malteadas Del Bosque",
+          "price": 14000,
+          "description": "Cremosa y fría malteada batida al instante en tu sabor favorito.",
+          "image": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-malt",
+              "group_name": "1. Elige tu Base (Obligatorio)",
+              "title": "1. Elige tu Base (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-malt-vainilla",
+                  "option_id": "base-malt-vainilla",
+                  "name": "🍦 Base Vainilla Tradicional ($14.000)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-malt-yogurt",
+                  "option_id": "base-malt-yogurt",
+                  "name": "🥣 Base Yogurt Griego ($16.000)",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            },
+            {
+              "group_id": "grp-sabor-malt",
+              "group_name": "2. Sabor de la Malteada (Obligatorio)",
+              "title": "2. Sabor de la Malteada (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "sabor-m-oreo",
+                  "option_id": "sabor-m-oreo",
+                  "name": "🍪 Oreo",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "sabor-m-cafe",
+                  "option_id": "sabor-m-cafe",
+                  "name": "☕ Café",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "sabor-m-cocosette",
+                  "option_id": "sabor-m-cocosette",
+                  "name": "🥥 Cocosette",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "sabor-m-fresa",
+                  "option_id": "sabor-m-fresa",
+                  "name": "🍓 Fresa Natural",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "sabor-m-parchita",
+                  "option_id": "sabor-m-parchita",
+                  "name": "🍈 Parchita (Maracuyá)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "sabor-m-toddy",
+                  "option_id": "sabor-m-toddy",
+                  "name": "🍫 Toddy Chocolate",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "sabor-m-mora",
+                  "option_id": "sabor-m-mora",
+                  "name": "🫐 Mora",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-ext-malt",
+              "group_name": "Toques Extra (Opcional)",
+              "title": "Toques Extra (Opcional)",
+              "selection_type": "multiple",
+              "required": false,
+              "options": [
+                {
+                  "id": "ext-m-chantilly",
+                  "option_id": "ext-m-chantilly",
+                  "name": "Corona de Crema Chantilly",
+                  "price": 1500,
+                  "extra_price": 1500
+                },
+                {
+                  "id": "ext-m-pirulin",
+                  "option_id": "ext-m-pirulin",
+                  "name": "Barquillo Pirulin",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-brownie-solo",
+          "name": "Brownie / Brookie Solo",
+          "category": "Postres y Brownies",
+          "price": 8500,
+          "description": "Cuadro de brownie / brookie suave, melcochudo y con intenso sabor a chocolate.",
+          "image": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": []
+        },
+        {
+          "id": "fruty-brownie-con-helado",
+          "name": "Brownie / Brookie con Helado",
+          "category": "Postres y Brownies",
+          "price": 13000,
+          "description": "Brownie caliente servido con bola de helado cremoso y baño de sirope de chocolate.",
+          "image": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-base-brw-helado",
+              "group_name": "Elige tu Base de Helado (Obligatorio)",
+              "title": "Elige tu Base de Helado (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "base-vainilla",
+                  "option_id": "base-vainilla",
+                  "name": "🍦 Base Vainilla Cremosa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "base-yogurt-griego",
+                  "option_id": "base-yogurt-griego",
+                  "name": "🥣 Yogurt Griego",
+                  "price": 2000,
+                  "extra_price": 2000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-sandwich-tostado",
+          "name": "Sandwich Tostado Especial",
+          "category": "Sandwiches",
+          "price": 10000,
+          "description": "Pan tostado dorado con jamón, doble queso derretido, mantequilla y toques especiales de la casa.",
+          "image": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": []
+        },
+        {
+          "id": "fruty-frappes",
+          "name": "Frappes Del Bosque",
+          "category": "Bebidas Frías",
+          "price": 10000,
+          "description": "Bebida frappé bien fría y refrescante.",
+          "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-sabor-frappe",
+              "group_name": "Sabor de Frappé (Obligatorio)",
+              "title": "Sabor de Frappé (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "frappe-fresa",
+                  "option_id": "frappe-fresa",
+                  "name": "🍓 Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "frappe-parchita",
+                  "option_id": "frappe-parchita",
+                  "name": "🍈 Parchita (Maracuyá)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "frappe-limon",
+                  "option_id": "frappe-limon",
+                  "name": "🍋 Limón",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-parchimix",
+          "name": "Parchimix Frío",
+          "category": "Bebidas Frías",
+          "price": 11000,
+          "description": "Refrescante y deliciosa combinación cítrica de parchita frappé.",
+          "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": []
+        },
+        {
+          "id": "fruty-toddy-cerelac-frio",
+          "name": "Toddy Frío / Cerelac Frío",
+          "category": "Bebidas Frías",
+          "price": 11000,
+          "description": "Bebida espesa y fría preparada con leche y Toddy o Cerelac.",
+          "image": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-tipo-tc-frio",
+              "group_name": "Elige tu Bebida (Obligatorio)",
+              "title": "Elige tu Bebida (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "tc-toddy",
+                  "option_id": "tc-toddy",
+                  "name": "🍫 Toddy Frío",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "tc-cerelac",
+                  "option_id": "tc-cerelac",
+                  "name": "🥣 Cerelac Frío",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-toddy-con-chantilly",
+          "name": "Toddy Frío con Chantilly",
+          "category": "Bebidas Frías",
+          "price": 12500,
+          "description": "Toddy frío espeso coronado con abundante crema chantilly y lluvia de chocolate.",
+          "image": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": []
+        },
+        {
+          "id": "fruty-cerelac-con-chantilly",
+          "name": "Cerelac Frío con Chantilly",
+          "category": "Bebidas Frías",
+          "price": 12500,
+          "description": "Cerelac frío cremoso coronado con suave crema chantilly.",
+          "image": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": []
+        },
+        {
+          "id": "fruty-frapuccino-moccacino",
+          "name": "Frapuccino / Moccacino Frío",
+          "category": "Bebidas Frías",
+          "price": 12500,
+          "description": "Bebida helada de café con hielo frappé y toques de chocolate.",
+          "image": "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-tipo-frap-mocc",
+              "group_name": "Elige tu Bebida (Obligatorio)",
+              "title": "Elige tu Bebida (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "frap-frapuccino",
+                  "option_id": "frap-frapuccino",
+                  "name": "☕ Frapuccino de Café",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "frap-moccacino",
+                  "option_id": "frap-moccacino",
+                  "name": "🍫 Moccacino (Café y Chocolate)",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fruty-cafe-express-pequeno",
+          "name": "Café Express Pequeño",
+          "category": "Bebidas Calientes",
+          "price": 3500,
+          "description": "Café express caliente recién colado con intenso aroma.",
+          "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": []
+        },
+        {
+          "id": "fruty-cafe-express-grande",
+          "name": "Café Express Grande",
+          "category": "Bebidas Calientes",
+          "price": 5500,
+          "description": "Taza grande de café express caliente.",
+          "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": []
+        },
+        {
+          "id": "fruty-capuccino",
+          "name": "Capuccino",
+          "category": "Bebidas Calientes",
+          "price": 6500,
+          "description": "Café expreso con deliciosa espuma de leche cremosa y toque de canela o cacao.",
+          "image": "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": []
+        },
+        {
+          "id": "fruty-moccacino-caliente",
+          "name": "Moccacino Caliente",
+          "category": "Bebidas Calientes",
+          "price": 6500,
+          "description": "Combinación perfecta de café expreso con chocolate caliente y leche espumada.",
+          "image": "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": []
+        },
+        {
+          "id": "fruty-cerelac-caliente",
+          "name": "Cerelac Caliente",
+          "category": "Bebidas Calientes",
+          "price": 7000,
+          "description": "Taza caliente y cremosa de Cerelac espeso tradicional.",
+          "image": "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": []
+        },
+        {
+          "id": "fruty-chocolate-caliente",
+          "name": "Chocolate Caliente",
+          "category": "Bebidas Calientes",
+          "price": 7000,
+          "description": "Cremoso y reconfortante chocolate caliente tradicional.",
+          "image": "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": []
+        },
+        {
+          "id": "fruty-jugos-naturales",
+          "name": "Jugo Natural Del Bosque",
+          "category": "Jugos Naturales",
+          "price": 8500,
+          "description": "Jugo natural de fruta fresca preparada al instante en agua o en leche.",
+          "image": "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=600",
+          "available_days": [
+            "todos"
+          ],
+          "exclusions": [],
+          "modifiers": [
+            {
+              "group_id": "grp-sabor-jugo",
+              "group_name": "1. Sabor de Fruta (Obligatorio)",
+              "title": "1. Sabor de Fruta (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "jugo-lechosa",
+                  "option_id": "jugo-lechosa",
+                  "name": "🍈 Lechosa (Papaya)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "jugo-fresa",
+                  "option_id": "jugo-fresa",
+                  "name": "🍓 Fresa",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "jugo-melon",
+                  "option_id": "jugo-melon",
+                  "name": "🍈 Melón",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "jugo-cambur",
+                  "option_id": "jugo-cambur",
+                  "name": "🍌 Cambur (Banano)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "jugo-guanabana",
+                  "option_id": "jugo-guanabana",
+                  "name": "🍈 Guanábana",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "jugo-parchita",
+                  "option_id": "jugo-parchita",
+                  "name": "🍈 Parchita (Maracuyá)",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "jugo-mora",
+                  "option_id": "jugo-mora",
+                  "name": "🫐 Mora",
+                  "price": 0,
+                  "extra_price": 0
+                }
+              ]
+            },
+            {
+              "group_id": "grp-prep-jugo",
+              "group_name": "2. Tipo de Preparación (Obligatorio)",
+              "title": "2. Tipo de Preparación (Obligatorio)",
+              "selection_type": "single",
+              "required": true,
+              "options": [
+                {
+                  "id": "prep-agua",
+                  "option_id": "prep-agua",
+                  "name": "💧 En Agua",
+                  "price": 0,
+                  "extra_price": 0
+                },
+                {
+                  "id": "prep-leche",
+                  "option_id": "prep-leche",
+                  "name": "🥛 En Leche (+1.500)",
+                  "price": 1500,
+                  "extra_price": 1500
+                }
+              ]
+            }
+          ]
         }
       ],
       "prep_time": null,
