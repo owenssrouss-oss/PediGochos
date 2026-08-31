@@ -21855,6 +21855,43 @@
       "paymentStatus": "Cancelado",
       "createdAt": "2026-08-30T02:25:53.137Z",
       "updatedAt": "2026-08-30T02:37:53.137Z"
+    },
+    {
+      "id": "ord-test-mcachapa-23h-cancelado",
+      "orderCode": "9142",
+      "establishmentId": "m-ster-cachapa-1785973083758",
+      "establishmentName": "Míster Cachapa",
+      "items": [
+        {
+          "id": "p-1785976944291-98",
+          "name": "Cachapa sencilla",
+          "price": 17000,
+          "quantity": 1,
+          "specifications": "Cachapa sencilla con queso de mano tradicional",
+          "unit_total_calculated": 17000,
+          "subtotal_combined": 17000,
+          "selected_specifications": {
+            "single_selections": [],
+            "add_ons": [],
+            "exclusions": [],
+            "special_notes": "Pedido de prueba en panel admin"
+          }
+        }
+      ],
+      "total": 17000,
+      "orderType": "delivery",
+      "customerName": "Cliente de Prueba (Admin)",
+      "tableNumber": null,
+      "deliveryDetails": {
+        "phone": "+58 414 1234567",
+        "address": "San Antonio del Táchira - Prueba Admin",
+        "code": "9142"
+      },
+      "status": "Cancelado",
+      "cancelReason": "Cancelado en prueba administrativa",
+      "paymentStatus": "Cancelado",
+      "createdAt": "2026-08-30T02:27:49.315Z",
+      "updatedAt": "2026-08-30T02:39:49.316Z"
     }
   ],
   "drivers": [
