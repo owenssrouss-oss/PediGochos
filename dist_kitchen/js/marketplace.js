@@ -653,12 +653,26 @@ class MarketplaceController {
       if (container) container.style.display = 'none';
       if (viewAllBtn) viewAllBtn.style.display = 'none';
 
+      // Hide featured carousel & daily promo until 'Restaurantes' category is selected
+      const featSection = document.getElementById('featured-carousel-section');
+      if (featSection) {
+        featSection.style.display = 'none';
+        featSection.classList.add('hidden');
+      }
+      const promoSection = document.getElementById('daily-promotions-section');
+      if (promoSection) {
+        promoSection.style.display = 'none';
+        promoSection.classList.add('hidden');
+      }
+
       grid.style.cssText = 'display: block; width: 100%;';
       grid.innerHTML = `
-        <div class="cart-empty-state" style="grid-column: 1 / -1; padding: 36px 20px; text-align: center; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1); border-radius: 20px;">
-          <span style="font-size: 42px; display: block; margin-bottom: 10px;">👆</span>
-          <h3 style="font-size: 16px; font-weight: 800; color: #ffffff; margin: 0 0 6px 0;">¡Bienvenido a Pedi Gochos!</h3>
-          <p style="font-size: 13px; color: #94A3B8; margin: 0; line-height: 1.4;">Presiona una de las categorías arriba (<strong>Restaurantes, Farmacias, Mercados o Ferreterías</strong>) para ver los comercios disponibles.</p>
+        <div class="cart-empty-state welcome-home-card" style="grid-column: 1 / -1; padding: 28px 18px; text-align: center; background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.12); margin-top: 6px;">
+          <span style="font-size: 44px; display: block; margin-bottom: 8px;">👆</span>
+          <h3 style="font-size: 18px; font-weight: 900; color: #0F172A; margin: 0 0 6px 0; letter-spacing: -0.2px;">¡Bienvenido a Pedi Gochos!</h3>
+          <p style="font-size: 13.5px; color: #334155; font-weight: 600; margin: 0; line-height: 1.5;">
+            Presiona una de las categorías arriba (<strong style="color: #EA580C; font-weight: 800;">Restaurantes, Farmacias, Mercados o Ferreterías</strong>) para ver los comercios disponibles.
+          </p>
         </div>
       `;
       return;
@@ -829,12 +843,21 @@ class MarketplaceController {
     const section = document.getElementById('featured-carousel-section');
     if (!container || !section) return;
 
+    // Only display Destacados del Día if the selected category is Restaurantes (comidas)
+    if (this.currentCategory !== 'comidas') {
+      section.style.display = 'none';
+      section.classList.add('hidden');
+      return;
+    }
+
     if (!this.establishments || this.establishments.length === 0) {
       section.style.display = 'none';
+      section.classList.add('hidden');
       return;
     }
 
     section.style.display = 'block';
+    section.classList.remove('hidden');
     container.innerHTML = '';
 
     // Shuffle featured items with session seed (excluding disabled stores)
