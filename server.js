@@ -313,6 +313,15 @@ async function uploadToSupabase() {
   }
 }
 
+async function saveChangesToCloud() {
+  try {
+    await uploadToSupabase();
+    await saveToPostgres();
+  } catch (err) {
+    console.error('Error in saveChangesToCloud:', err);
+  }
+}
+
 // Sync database state from Supabase PostgreSQL tables
 async function syncFromPostgres() {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
@@ -1033,11 +1042,13 @@ REGLAS ESTRICTAS DE EXTRACCIÓN:
   }
 });
 
-// Get all establishments (Sanitized for habitual users)
+// Get all establishments (Sanitized for client marketplace; strictly filters out disabled establishments)
 app.get('/api/establishments', (req, res) => {
   const db = readDB();
+  const includeDisabled = req.query.include_disabled === 'true' || req.query.all === 'true';
+  const filtered = includeDisabled ? db.establishments : db.establishments.filter(e => !e.disabled);
   // Strip linkKey before sending to client for security
-  const sanitized = db.establishments.map(({ linkKey, ...rest }) => rest);
+  const sanitized = filtered.map(({ linkKey, ...rest }) => rest);
   res.json(sanitized);
 });
 

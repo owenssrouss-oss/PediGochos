@@ -442,6 +442,12 @@ class MarketplaceController {
     const est = this.establishments.find(e => e.id === estId);
     if (!est) return;
 
+    if (est.disabled) {
+      this.showToast('⚠️ Este comercio se encuentra temporalmente inactivo.');
+      this.goHome();
+      return;
+    }
+
     this.selectedEstablishment = est;
 
     if (!this.isEstablishmentOpen(est)) {
@@ -721,8 +727,9 @@ class MarketplaceController {
     const titleEl = document.getElementById('establishments-title');
     if (titleEl) titleEl.innerHTML = displayTitle;
 
-    // Get session seed for fair play rotation
-    const rawList = filtered || this.establishments.filter(e => {
+    // Get session seed for fair play rotation (Strictly exclude disabled establishments from ANY list)
+    const baseList = filtered ? filtered.filter(e => !e.disabled) : this.establishments;
+    const rawList = baseList.filter(e => {
       if (e.disabled === true) return false;
       if (e.category !== this.currentCategory) return false;
       if (!this.currentLocation || this.currentLocation === 'all') return true;
@@ -989,7 +996,15 @@ class MarketplaceController {
     }
 
     window.activeFoodTypeFilter = foodTypeId;
-    const allEsts = this.establishments.filter(e => e.category === 'comidas' && (e.location === this.currentLocation || !e.location));
+    const allEsts = this.establishments.filter(e => {
+      if (e.disabled === true) return false;
+      if (e.category !== 'comidas') return false;
+      if (!this.currentLocation || this.currentLocation === 'all') return true;
+      if (!e.location) return true;
+      const normEstLoc = (e.location || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const normUserLoc = (this.currentLocation || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return normEstLoc.includes(normUserLoc) || normUserLoc.includes(normEstLoc);
+    });
 
     if (foodTypeId === 'all') {
       this.renderEstablishments(allEsts, true);
@@ -4094,12 +4109,15 @@ class MarketplaceController {
       return;
     }
 
-    // Filter establishments that match query (or have matching products) and active location
+    // Filter establishments that match query (or have matching products) and active location (excluding disabled)
     const filtered = this.establishments.filter(est => {
-      const matchLoc = est.location === this.currentLocation || !est.location;
+      if (est.disabled === true) return false;
+      const matchLoc = !this.currentLocation || this.currentLocation === 'all' || !est.location ||
+        (est.location || '').toLowerCase().includes(this.currentLocation.toLowerCase()) ||
+        this.currentLocation.toLowerCase().includes((est.location || '').toLowerCase());
       if (!matchLoc) return false;
-      const matchEst = est.name.toLowerCase().includes(query) || est.description.toLowerCase().includes(query);
-      const matchProd = est.products.some(p => p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query));
+      const matchEst = (est.name || '').toLowerCase().includes(query) || (est.description || '').toLowerCase().includes(query);
+      const matchProd = Array.isArray(est.products) && est.products.some(p => (p.name || '').toLowerCase().includes(query) || (p.description || '').toLowerCase().includes(query));
       return matchEst || matchProd;
     });
 
