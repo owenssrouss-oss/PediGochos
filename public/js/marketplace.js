@@ -1952,9 +1952,7 @@ class MarketplaceController {
     }
 
     // Group 2: Base Ingredients / Exclusions ($0 de base incluido, contador en 0 para adicionales)
-    // Omit base ingredients completely for arepas (arepas only use contornos, optional salsas/toques, and optional extras)
-    const isArepaProduct = (activeProduct.category || '').toLowerCase().includes('arepa') || (activeProduct.name || '').toLowerCase().includes('arepa');
-    if (!isArepaProduct && activeProduct.exclusions && Array.isArray(activeProduct.exclusions) && activeProduct.exclusions.length > 0) {
+    if (activeProduct.exclusions && Array.isArray(activeProduct.exclusions) && activeProduct.exclusions.length > 0) {
       const groupDiv = document.createElement('div');
       groupDiv.className = 'modifier-group';
       const colId = `collapsible-base-ingredients-${sideKey}`;
