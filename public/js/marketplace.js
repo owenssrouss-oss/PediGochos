@@ -190,9 +190,6 @@ class MarketplaceController {
         this.showLocationTutorial();
       }, 1000);
     }
-
-    // Render Mini Official App QR on Home View
-    this.renderAppOfficialQr();
   }
 
   checkFirstTimeWelcome() {
