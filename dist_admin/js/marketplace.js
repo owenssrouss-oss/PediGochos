@@ -190,6 +190,9 @@ class MarketplaceController {
         this.showLocationTutorial();
       }, 1000);
     }
+
+    // Render Mini Official App QR on Home View
+    this.renderAppOfficialQr();
   }
 
   checkFirstTimeWelcome() {
@@ -5775,6 +5778,232 @@ class MarketplaceController {
     window.open(waUrl, '_blank');
     this.closeMerchantRegistrationModal();
     this.showToast('✅ Solicitud lista para enviar por WhatsApp');
+  }
+
+  getAppOfficialUrl() {
+    let origin = window.location.origin;
+    if (!origin || origin === 'null' || origin.includes('file://') || origin.includes('localhost')) {
+      return 'https://pedigochos.onrender.com';
+    }
+    return origin;
+  }
+
+  renderAppOfficialQr() {
+    const url = this.getAppOfficialUrl();
+    
+    // 1. Update text label in modal
+    const urlTextEl = document.getElementById('app-official-url-text');
+    if (urlTextEl) {
+      urlTextEl.textContent = url;
+    }
+
+    // 2. Render Mini QR on Home Banner
+    const miniContainer = document.getElementById('home-mini-qr');
+    if (miniContainer) {
+      miniContainer.innerHTML = '';
+      if (typeof QRCode !== 'undefined') {
+        try {
+          new QRCode(miniContainer, {
+            text: url,
+            width: 44,
+            height: 44,
+            colorDark: '#0F172A',
+            colorLight: '#FFFFFF',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        } catch(e) {
+          miniContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=44x44&data=${encodeURIComponent(url)}" style="width: 40px; height: 40px; border-radius: 6px;">`;
+        }
+      } else {
+        miniContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=44x44&data=${encodeURIComponent(url)}" style="width: 40px; height: 40px; border-radius: 6px;">`;
+      }
+    }
+  }
+
+  openAppQrModal() {
+    const modal = document.getElementById('app-qr-modal');
+    if (!modal) return;
+
+    const url = this.getAppOfficialUrl();
+    const qrContainer = document.getElementById('app-official-qr-container');
+    if (qrContainer) {
+      qrContainer.innerHTML = '';
+      if (typeof QRCode !== 'undefined') {
+        try {
+          new QRCode(qrContainer, {
+            text: url,
+            width: 220,
+            height: 220,
+            colorDark: '#0F172A',
+            colorLight: '#FFFFFF',
+            correctLevel: QRCode.CorrectLevel.H
+          });
+        } catch(e) {
+          qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url)}" style="width: 200px; height: 200px; border-radius: 12px;">`;
+        }
+      } else {
+        qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url)}" style="width: 200px; height: 200px; border-radius: 12px;">`;
+      }
+    }
+
+    const urlTextEl = document.getElementById('app-official-url-text');
+    if (urlTextEl) urlTextEl.textContent = url;
+
+    modal.style.display = 'flex';
+    modal.classList.add('open');
+    modal.classList.add('active');
+
+    try {
+      window.history.pushState({ view: 'modal', modalId: 'app-qr-modal' }, '');
+    } catch(e) {}
+  }
+
+  closeAppQrModal() {
+    const modal = document.getElementById('app-qr-modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('open');
+      modal.classList.remove('active');
+    }
+  }
+
+  copyAppOfficialLink() {
+    const url = this.getAppOfficialUrl();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        this.showToast('📋 ¡Enlace oficial de PediGochos copiado!');
+      }).catch(() => {
+        this.fallbackCopyText(url);
+      });
+    } else {
+      this.fallbackCopyText(url);
+    }
+  }
+
+  fallbackCopyText(text) {
+    const inp = document.createElement('input');
+    inp.value = text;
+    document.body.appendChild(inp);
+    inp.select();
+    try {
+      document.execCommand('copy');
+      this.showToast('📋 ¡Enlace oficial copiado al portapapeles!');
+    } catch(e) {
+      prompt('Copia el siguiente enlace:', text);
+    }
+    document.body.removeChild(inp);
+  }
+
+  shareAppOnWhatsApp() {
+    const url = this.getAppOfficialUrl();
+    const message = 
+      `🍔 *¡Pide tu comida favorita en PediGochos!* 🛵💨\n\n` +
+      `Explora los mejores restaurantes, catálogos digitales interactivos y pide a domicilio o a tu mesa desde cualquier celular:\n\n` +
+      `👉 ${url}\n\n` +
+      `¡Pide fácil, rápido y seguro con PediGochos! ✨`;
+
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, '_blank');
+  }
+
+  downloadAppQrImage() {
+    const url = this.getAppOfficialUrl();
+    const canvas = document.createElement('canvas');
+    const width = 800;
+    const height = 1050;
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    // Background Gradient Dark Premium
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+    bgGrad.addColorStop(0, '#0F172A');
+    bgGrad.addColorStop(1, '#020617');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, width, height);
+
+    // Decorative Orange Neon Top Border
+    const topGrad = ctx.createLinearGradient(0, 0, width, 0);
+    topGrad.addColorStop(0, '#FF5E3A');
+    topGrad.addColorStop(0.5, '#EA580C');
+    topGrad.addColorStop(1, '#F59E0B');
+    ctx.fillStyle = topGrad;
+    ctx.fillRect(0, 0, width, 14);
+
+    // Header Logo & Branding
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '900 54px system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('PediGochos', width / 2, 90);
+
+    ctx.fillStyle = '#10B981';
+    ctx.font = '800 20px system-ui, -apple-system, sans-serif';
+    ctx.fillText('🛵 DELIVERY & RESTAURANTES A DOMICILIO', width / 2, 130);
+
+    ctx.fillStyle = '#94A3B8';
+    ctx.font = '600 24px system-ui, -apple-system, sans-serif';
+    ctx.fillText('Escanea con tu cámara para pedir comida', width / 2, 180);
+
+    // White Rounded Card for QR Code
+    const cardX = 130;
+    const cardY = 220;
+    const cardW = 540;
+    const cardH = 540;
+    const radius = 32;
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.roundRect(cardX, cardY, cardW, cardH, radius);
+    ctx.fill();
+
+    // Helper to draw QR on canvas
+    const drawQRAndSave = (qrDrawable) => {
+      const qrPadding = 30;
+      ctx.drawImage(qrDrawable, cardX + qrPadding, cardY + qrPadding, cardW - (qrPadding * 2), cardH - (qrPadding * 2));
+
+      // Bottom Footer Card
+      ctx.fillStyle = '#1E293B';
+      ctx.beginPath();
+      ctx.roundRect(100, 800, 600, 110, 20);
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(255, 94, 58, 0.4)';
+      ctx.stroke();
+
+      ctx.fillStyle = '#F59E0B';
+      ctx.font = '800 22px system-ui, -apple-system, sans-serif';
+      ctx.fillText('⭐ PIDE DIRECTO EN LÍNEA ⭐', width / 2, 842);
+
+      ctx.fillStyle = '#38BDF8';
+      ctx.font = '700 20px monospace';
+      ctx.fillText(url, width / 2, 882);
+
+      // Subtitle footer
+      ctx.fillStyle = '#64748B';
+      ctx.font = '600 16px system-ui, -apple-system, sans-serif';
+      ctx.fillText('San Antonio del Táchira • Ureña • La Frontera', width / 2, 970);
+
+      // Trigger Download
+      const link = document.createElement('a');
+      link.download = 'pedigochos-qr-oficial.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      this.showToast('📥 ¡Código QR Oficial descargado con éxito!');
+    };
+
+    // Try finding rendered canvas or generate from QR image
+    const modalQrCanvas = document.querySelector('#app-official-qr-container canvas');
+    if (modalQrCanvas) {
+      drawQRAndSave(modalQrCanvas);
+    } else {
+      const qrImg = new Image();
+      qrImg.crossOrigin = 'anonymous';
+      qrImg.onload = () => drawQRAndSave(qrImg);
+      qrImg.onerror = () => {
+        this.showToast('⚠️ No se pudo descargar la imagen, intenta de nuevo.');
+      };
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(url)}&color=0F172A&bgcolor=FFFFFF&margin=1`;
+    }
   }
 }
 

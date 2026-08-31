@@ -39,6 +39,11 @@
       </div>
 
       <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
+        <!-- Official App QR Button -->
+        <button type="button" id="header-qr-btn" onclick="MarketplaceApp.openAppQrModal()" title="Código QR de la App" style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid #10B981; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          📲 <span>QR</span>
+        </button>
+
         <!-- GochoPoints Badge -->
         <button type="button" id="header-gochopoints-btn" onclick="MarketplaceApp.openGochoPointsModal()" title="Ver tus GochoPoints" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid #F59E0B; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;">
           ⭐ <span id="header-gochopoints-val">0</span> Pts
@@ -133,6 +138,26 @@
           🗺️ Ver Mapa ⤢
         </button>
       </div>
+
+      <!-- Banner Hero: Código QR Oficial de la App -->
+      <section class="app-qr-hero-card" onclick="MarketplaceApp.openAppQrModal()" style="margin: 0 0 16px 0; background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); border: 1.5px solid rgba(16, 185, 129, 0.45); border-radius: 20px; padding: 12px 16px; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: transform 0.2s, border-color 0.2s;">
+        <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+          <div id="home-mini-qr" style="width: 48px; height: 48px; background: #FFFFFF; border-radius: 10px; padding: 3px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); flex-shrink: 0;">
+            <span style="font-size: 24px;">📲</span>
+          </div>
+          <div style="min-width: 0;">
+            <div style="font-size: 9.5px; font-weight: 900; color: #10B981; text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
+              <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10B981; box-shadow: 0 0 6px #10B981;"></span>
+              ENLACE OFICIAL DE PEDIGOCHOS
+            </div>
+            <h4 style="font-size: 14px; font-weight: 900; color: #FFFFFF; margin: 0 0 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">📲 Código QR Oficial</h4>
+            <p style="font-size: 11px; color: #94A3B8; margin: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Toca para escanear, compartir o descargar el QR</p>
+          </div>
+        </div>
+        <button type="button" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFFFFF; border: none; padding: 8px 12px; border-radius: 12px; font-size: 11.5px; font-weight: 900; display: flex; align-items: center; gap: 4px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); cursor: pointer;">
+          Ver QR ➔
+        </button>
+      </section>
       
       <!-- Categories Section (Asymmetrical Grid) -->
       <section class="categories-section">
@@ -993,14 +1018,54 @@
     </div>
   </div>
 
+  <!-- Modal del Código QR Oficial de la App -->
+  <div class="modal-overlay" id="app-qr-modal" style="display: none; z-index: 5000; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+    <div class="modal-content" style="max-width: 420px; width: 92%; margin: auto; border-radius: 24px; background: #0F172A; border: 1.5px solid rgba(16, 185, 129, 0.45); color: #FFFFFF; box-shadow: 0 25px 60px rgba(0,0,0,0.7); padding: 24px 20px; text-align: center; position: relative;">
+      
+      <button class="btn-close" onclick="MarketplaceApp.closeAppQrModal()" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.1); border: none; font-size: 18px; color: #cbd5e1; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+
+      <div style="margin-bottom: 14px;">
+        <span style="font-size: 36px; display: inline-block; margin-bottom: 4px;">📲✨</span>
+        <h3 style="margin: 0; font-size: 19px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.2px;">Código QR Oficial</h3>
+        <p style="font-size: 12.5px; color: #94A3B8; margin: 4px 0 0 0; line-height: 1.4;">
+          Escanea con tu teléfono para abrir <strong>PediGochos</strong> directamente.
+        </p>
+      </div>
+
+      <!-- Main QR Render Container -->
+      <div style="background: #FFFFFF; padding: 16px; border-radius: 20px; display: inline-flex; justify-content: center; align-items: center; box-shadow: 0 12px 30px rgba(0,0,0,0.5); margin-bottom: 14px; min-width: 220px; min-height: 220px;">
+        <div id="app-official-qr-container" style="display: flex; justify-content: center; align-items: center;"></div>
+      </div>
+
+      <!-- Official Link Display + Copy Button -->
+      <div style="background: #1E293B; border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px;">
+        <span id="app-official-url-text" style="font-size: 12px; font-weight: 700; color: #10B981; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace; text-align: left; flex: 1;">https://pedigochos.onrender.com</span>
+        <button type="button" onclick="MarketplaceApp.copyAppOfficialLink()" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10B981; color: #10B981; border-radius: 8px; padding: 5px 10px; font-size: 11px; font-weight: 800; cursor: pointer; white-space: nowrap;">
+          📋 Copiar
+        </button>
+      </div>
+
+      <!-- Action Buttons: WhatsApp & Download -->
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <button type="button" onclick="MarketplaceApp.shareAppOnWhatsApp()" style="width: 100%; padding: 12px; border-radius: 14px; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: #FFFFFF; border: none; font-size: 13.5px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);">
+          <span>💬</span> Compartir por WhatsApp
+        </button>
+        <button type="button" onclick="MarketplaceApp.downloadAppQrImage()" style="width: 100%; padding: 12px; border-radius: 14px; background: linear-gradient(135deg, #FF5E3A 0%, #EA580C 100%); color: #FFFFFF; border: none; font-size: 13.5px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35);">
+          <span>📥</span> Descargar Código QR (PNG)
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast notification -->
   <div id="toast" class="toast hidden">Mensaje de notificación</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/supabase-helper.js?v=217"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="/js/qrcode.min.js?v=225"></script>
   <script src="/js/sound.js?v=217"></script>
-  <script src="/js/marketplace.js?v=217"></script>
+  <script src="/js/marketplace.js?v=225"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
