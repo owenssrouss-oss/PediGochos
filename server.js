@@ -186,8 +186,7 @@ async function syncFromSupabase() {
             cloudData.establishments.push(localEst);
           } else {
             const cloudEst = cloudData.establishments[cloudIndex];
-            // Only use local products if cloud has no products defined
-            if (!Array.isArray(cloudEst.products) || cloudEst.products.length === 0) {
+            if (!Array.isArray(cloudEst.products) || cloudEst.products.length === 0 || (Array.isArray(localEst.products) && localEst.products.length > cloudEst.products.length)) {
               cloudEst.products = localEst.products || [];
             }
           }
@@ -355,8 +354,7 @@ async function syncFromPostgres() {
         establishments.forEach(est => {
           const localMatch = localEsts.find(l => String(l.id).trim() === String(est.id).trim());
           if (localMatch) {
-            // Only use local products if Postgres has no products defined
-            if (!Array.isArray(est.products) || est.products.length === 0) {
+            if (!Array.isArray(est.products) || est.products.length === 0 || (Array.isArray(localMatch.products) && localMatch.products.length > est.products.length)) {
               est.products = localMatch.products || [];
             }
             if (localMatch.linkKey && !est.linkKey) est.linkKey = localMatch.linkKey;
