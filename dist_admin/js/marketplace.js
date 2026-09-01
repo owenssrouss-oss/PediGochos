@@ -149,12 +149,16 @@ class MarketplaceController {
     // Auto-detect user's GPS coordinates immediately on startup
     this.requestAutomaticGPS(false);
 
-    this.currentCategory = null;
+    this.currentCategory = 'comidas';
     window.activeFoodTypeFilter = null;
     
-    // Remove active class from main category cards on entry
+    // Set active class on Restaurantes category card by default
     document.querySelectorAll('.category-card-delivercity').forEach(card => {
-      card.classList.remove('active');
+      if (card.dataset.category === 'comidas') {
+        card.classList.add('active');
+      } else {
+        card.classList.remove('active');
+      }
     });
 
     this.renderEstablishments();
@@ -995,7 +999,17 @@ class MarketplaceController {
       return;
     }
 
+    this.currentCategory = 'comidas';
     window.activeFoodTypeFilter = foodTypeId;
+
+    document.querySelectorAll('.category-card-delivercity').forEach(card => {
+      if (card.dataset.category === 'comidas') {
+        card.classList.add('active');
+      } else {
+        card.classList.remove('active');
+      }
+    });
+
     const allEsts = this.establishments.filter(e => {
       if (e.disabled === true) return false;
       if (e.category !== 'comidas') return false;
@@ -1011,54 +1025,61 @@ class MarketplaceController {
       return;
     }
 
-    const term = foodTypeId.toLowerCase();
-    const filtered = allEsts.filter(est => {
-      const nameMatch = (est.name || '').toLowerCase().includes(term);
-      const descMatch = (est.description || '').toLowerCase().includes(term);
-      const productMatch = est.products && est.products.some(p => {
-        const pName = (p.name || '').toLowerCase();
-        const pCat = (p.category || p.category_id || '').toLowerCase();
-        const pDesc = (p.description || '').toLowerCase();
-        return pName.includes(term) || pCat.includes(term) || pDesc.includes(term);
+    const filtered = allEsts.filter(est => this.doesEstMatchFoodType(est, foodTypeId));
+
+    this.renderEstablishments(filtered, true);
+  }
+
+  doesEstMatchFoodType(est, foodTypeId) {
+    if (!foodTypeId || foodTypeId === 'all') return true;
+    const tid = foodTypeId.toLowerCase();
+
+    const normalize = (str) => (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const estName = normalize(est.name);
+    const products = Array.isArray(est.products) ? est.products : [];
+
+    const hasProductMatching = (regex) => {
+      return products.some(p => {
+        const pName = normalize(p.name);
+        const pCat = normalize(p.category || p.category_id || '');
+        return regex.test(pName) || regex.test(pCat);
       });
+    };
 
-      let aliasMatch = false;
-      if (term === 'hamburguesas') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/hamburguesa|burguer|burger/i) !== null;
-      } else if (term === 'perros') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/perro|hotdog|salchicha/i) !== null;
-      } else if (term === 'pizzas') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/pizza|pizzeria|pizzería/i) !== null;
-      } else if (term === 'patacones') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/patacon|patacones|platano|plátano/i) !== null;
-      } else if (term === 'arepas') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/arepa|arepas|pepiada/i) !== null;
-      } else if (term === 'cachapas') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/cachapa|cachapas|jocote|jocoto|choclo/i) !== null;
-      } else if (term === 'sushi') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/sushi|roll|maki|niguiri|tempura|asiatica/i) !== null;
-      } else if (term === 'mariscos') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/marisco|mariscos|pescado|camaron|camarones|calamar|paella/i) !== null;
-      } else if (term === 'sandwiches') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/sandwich|sandwiches|sándwich|sanduche|club house|sub/i) !== null;
-      } else if (term === 'pepitos') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/pepito|pepitos|baguette|pan/i) !== null;
-      } else if (term === 'alitas') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/alita|alitas|wings|chicken|pollo/i) !== null;
-      } else if (term === 'salchipapas') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/salchipapa|salchipapas|entradas|raciones/i) !== null;
-      } else if (term === 'picadas') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/picada|picadas|parrilla|carne/i) !== null;
-      } else if (term === 'bebidas') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/bebida|jugo|batido|frappe|soda|malta|refresco|merengada|malteada/i) !== null;
-      } else if (term === 'postres') {
-        aliasMatch = (est.name + ' ' + est.description).toLowerCase().match(/postre|dulce|torta|helado|marquesa|copa|paleta|brownie/i) !== null;
-      }
-
-      return nameMatch || descMatch || productMatch || aliasMatch;
-    });
-
-    this.renderEstablishments(filtered.length > 0 ? filtered : allEsts, true);
+    switch (tid) {
+      case 'hamburguesas':
+        return /hamburguesa|burger|burguer/i.test(estName) || hasProductMatching(/hamburguesa|burger|burguer/i);
+      case 'perros':
+        return /perro|hotdog|hot dog/i.test(estName) || hasProductMatching(/perro|hotdog|hot dog|salchicha frankfurt/i);
+      case 'pizzas':
+        return /pizza|pizzeria|pizzería/i.test(estName) || hasProductMatching(/pizza|calzone/i);
+      case 'patacones':
+        return /patacon|patacón/i.test(estName) || hasProductMatching(/patacon|patacón/i);
+      case 'arepas':
+        return /arepera|arepa/i.test(estName) || hasProductMatching(/^arepa|\barepas\b|arepa rellena|reina pepiada|pelua/i);
+      case 'cachapas':
+        return /cachapa/i.test(estName) || hasProductMatching(/cachapa/i);
+      case 'sushi':
+        return /sushi|roll|maki|niguiri|tempura|asiatica/i.test(estName) || hasProductMatching(/sushi|roll|maki|niguiri/i);
+      case 'mariscos':
+        return /marisco|pescado|ceviche/i.test(estName) || hasProductMatching(/marisco|camaron|calamar|pescado|paella/i);
+      case 'sandwiches':
+        return /sandwich|sanducheria/i.test(estName) || hasProductMatching(/sandwich|sándwich|sanduche|club house/i);
+      case 'pepitos':
+        return /pepito/i.test(estName) || hasProductMatching(/pepito/i);
+      case 'alitas':
+        return /alita|wings/i.test(estName) || hasProductMatching(/alita|wings|boneless/i);
+      case 'salchipapas':
+        return /salchipapa/i.test(estName) || hasProductMatching(/salchipapa/i);
+      case 'picadas':
+        return /picada|parrilla/i.test(estName) || hasProductMatching(/picada|parrilla|churrasco/i);
+      case 'bebidas':
+        return /batido|jugo|bebida/i.test(estName) || hasProductMatching(/jugo|batido|malteada|frappe|cafe|café|refresco|malta|soda|merengada/i);
+      case 'postres':
+        return /helado|postre|dulce/i.test(estName) || hasProductMatching(/helado|waffle|wafle|fresas con crema|torta|marquesa|brownie|paleta|dulce/i);
+      default:
+        return estName.includes(tid) || hasProductMatching(new RegExp(tid, 'i'));
+    }
   }
 
   renderInternalCategories(est) {
