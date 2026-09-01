@@ -412,7 +412,7 @@ class MarketplaceController {
 
   goHome(pushState = true) {
     this.selectedEstablishment = null;
-    this.currentCategory = null;
+    this.currentCategory = 'comidas';
     window.activeFoodTypeFilter = null;
 
     // Reset URL query parameters (clear ?shop=... or #...)
@@ -420,12 +420,18 @@ class MarketplaceController {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    document.getElementById('establishment-view').classList.remove('active');
-    document.getElementById('home-view').classList.add('active');
+    const estView = document.getElementById('establishment-view');
+    const homeView = document.getElementById('home-view');
+    if (estView) estView.classList.remove('active');
+    if (homeView) homeView.classList.add('active');
 
-    // Remove active state from main category cards
+    // Restore active state to main Restaurantes category card
     document.querySelectorAll('.category-card-delivercity').forEach(card => {
-      card.classList.remove('active');
+      if (card.dataset.category === 'comidas') {
+        card.classList.add('active');
+      } else {
+        card.classList.remove('active');
+      }
     });
     
     // Reset global theme to default
@@ -434,8 +440,13 @@ class MarketplaceController {
     
     this.renderEstablishments();
     this.setActiveMobileTab('home');
-
     this.closeAllModals();
+
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch(e) {
+      window.scrollTo(0, 0);
+    }
 
     if (pushState) {
       window.history.pushState({ view: 'home' }, '');
@@ -1229,7 +1240,7 @@ class MarketplaceController {
     const todayDay = dayMap[new Date().getDay()];
 
     products.forEach((prod, index) => {
-      const isPaused = prod.is_paused === true || prod.available === false;
+      const isAgotado = prod.out_of_stock === true || prod.agotado === true || prod.is_paused === true || prod.available === false;
       const days = (prod.available_days && Array.isArray(prod.available_days) && prod.available_days.length > 0)
         ? prod.available_days.map(d => String(d).toLowerCase())
         : ['todos'];
@@ -1238,7 +1249,9 @@ class MarketplaceController {
       const isAvailableToday = days.includes('todos') || days.includes(todayDay);
 
       let dayBadgeHTML = '';
-      if (isDaySpecific) {
+      if (isAgotado) {
+        dayBadgeHTML = `<span style="display: inline-block; font-size: 10px; font-weight: 800; background: rgba(239,68,68,0.2); color: #EF4444; border: 1px solid rgba(239,68,68,0.4); padding: 2px 6px; border-radius: 4px; margin-bottom: 4px;">🚫 Agotado por Hoy</span>`;
+      } else if (isDaySpecific) {
         if (isAvailableToday) {
           dayBadgeHTML = `<span style="display: inline-block; font-size: 10px; font-weight: 800; background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); padding: 2px 6px; border-radius: 4px; margin-bottom: 4px;">🔥 Especial de Hoy (${todayDay.toUpperCase()})</span>`;
         } else {
@@ -1247,7 +1260,7 @@ class MarketplaceController {
         }
       }
 
-      const isItemDisabled = !isStoreOpen || isPaused || !isAvailableToday;
+      const isItemDisabled = !isStoreOpen || isAgotado || !isAvailableToday;
 
       const card = document.createElement('div');
       card.className = `product-card animate-fade-in-up ${isItemDisabled ? 'product-disabled' : ''}`;
@@ -1255,7 +1268,7 @@ class MarketplaceController {
       card.style.animationDelay = `${index * 0.05}s`;
       if (!isStoreOpen) {
         card.style.opacity = '0.6';
-      } else if (isPaused) {
+      } else if (isAgotado) {
         card.style.opacity = '0.5';
       } else if (!isAvailableToday) {
         card.style.opacity = '0.65';
@@ -1268,8 +1281,8 @@ class MarketplaceController {
           if (!isStoreOpen) {
             const est = this.selectedEstablishment;
             alert(`🔴 "${est ? est.name : 'Este comercio'}" se encuentra CERRADO en este momento.\nHorario de atención: ${this.formatTime12h(est?.open_time)} a ${this.formatTime12h(est?.close_time)}.\n\nSolo se pueden realizar pedidos cuando el restaurante esté abierto.`);
-          } else if (isPaused) {
-            alert(`⚠️ "${prod.name}" no está disponible en este momento.`);
+          } else if (isAgotado) {
+            alert(`⛔ "${prod.name}" se encuentra AGOTADO POR HOY en la cocina.`);
           } else {
             const daysNames = days.map(d => d.toUpperCase()).join(', ');
             alert(`📅 "${prod.name}" solo se prepara los días: ${daysNames}.`);
@@ -1289,8 +1302,8 @@ class MarketplaceController {
 
       const actionButtonHTML = !isStoreOpen
         ? `<span style="font-size: 10px; color: #ef4444; font-weight: 800; background: rgba(239,68,68,0.12); padding: 3px 6px; border-radius: 6px; border: 1px solid rgba(239,68,68,0.3);">🔴 Cerrado</span>`
-        : (isPaused
-          ? `<span style="font-size: 10px; color: #ef4444; font-weight: 800;">Agotado</span>`
+        : (isAgotado
+          ? `<span style="font-size: 10px; color: #EF4444; font-weight: 800; background: rgba(239,68,68,0.12); padding: 3px 6px; border-radius: 6px; border: 1px solid rgba(239,68,68,0.3);">🚫 Agotado</span>`
           : (!isAvailableToday
             ? `<span style="font-size: 10px; color: var(--text-muted); font-weight: 700;">No hoy</span>`
             : `<button class="btn-add-product" onclick="event.stopPropagation(); MarketplaceApp.openCustomizerModalById('${prod.id}')">+</button>`));
@@ -3259,6 +3272,14 @@ class MarketplaceController {
     }
     
     document.getElementById('cart-grand-total').innerText = this.formatPesos(grandTotal);
+
+    // Multi-currency calculation for Frontera (Bs and USD)
+    const copPerBs = 100;
+    const copPerUsd = 4000;
+    const bsEl = document.getElementById('cart-total-bs');
+    const usdEl = document.getElementById('cart-total-usd');
+    if (bsEl) bsEl.innerText = 'Bs. ' + (grandTotal / copPerBs).toFixed(2);
+    if (usdEl) usdEl.innerText = '$' + (grandTotal / copPerUsd).toFixed(2) + ' USD';
     
     const deliveryRow = document.querySelector('.delivery-cost-row');
     if (this.orderType === 'delivery') {
@@ -3537,133 +3558,212 @@ class MarketplaceController {
     this.checkBeveragesAndPrompt();
   }
 
+  getAvailableDessertsFromStores() {
+    const desserts = [];
+    const seenIds = new Set();
+    const cartStoreIds = new Set(this.cart.items.map(i => i.restaurant_id || i.restaurantId || (this.selectedEstablishment ? this.selectedEstablishment.id : null)).filter(Boolean));
+
+    (this.establishments || []).forEach(est => {
+      if (est.disabled) return;
+      const isCartStore = cartStoreIds.has(est.id);
+      const isDessertShop = (est.name || '').toLowerCase().match(/fruty|helado|batido|dulce|postre|waffle/i) !== null;
+      if (!isCartStore && !isDessertShop) return;
+
+      if (Array.isArray(est.products)) {
+        est.products.forEach(p => {
+          if (p.out_of_stock || p.agotado) return;
+          const pName = (p.name || '').toLowerCase();
+          const pCat = (p.category || '').toLowerCase();
+          const isDessert = pCat.includes('postre') || pCat.includes('helado') || pCat.includes('waffle') || pCat.includes('fresas') || pCat.includes('ensalada') || pName.includes('helado') || pName.includes('waffle') || pName.includes('fresas con crema') || pName.includes('dulce') || pName.includes('marquesa') || pName.includes('brownie');
+          if (isDessert && !seenIds.has(p.id)) {
+            seenIds.add(p.id);
+            desserts.push({
+              ...p,
+              restaurant_id: est.id,
+              restaurant_name: est.name,
+              isFromSameStore: isCartStore
+            });
+          }
+        });
+      }
+    });
+
+    return desserts.slice(0, 10);
+  }
+
+  switchUpsellTab(tabName) {
+    this.activeUpsellTab = tabName || 'all';
+    document.querySelectorAll('.upsell-tab-btn').forEach(btn => {
+      if (btn.id === `tab-btn-upsell-${this.activeUpsellTab}`) {
+        btn.classList.add('active');
+        btn.style.background = 'var(--primary)';
+        btn.style.color = '#fff';
+      } else {
+        btn.classList.remove('active');
+        btn.style.background = 'transparent';
+        btn.style.color = '#94A3B8';
+      }
+    });
+    this.renderUpsellContent();
+  }
+
+  renderUpsellContent() {
+    const listContainer = document.getElementById('beverage-upsell-list');
+    if (!listContainer) return;
+
+    const activeTab = this.activeUpsellTab || 'all';
+    const pizzasWithoutCrust = this.getPizzasWithoutSpecialCrustInCart();
+    const availableDrinks = this.getAvailableBeveragesFromCartStores();
+    const availableDesserts = this.getAvailableDessertsFromStores();
+
+    let html = '';
+
+    // 1. Pizza Crust Section
+    if ((activeTab === 'all' || activeTab === 'crusts') && pizzasWithoutCrust.length > 0) {
+      html += `
+        <div style="background: rgba(245, 158, 11, 0.08); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 14px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+            <span style="font-size: 20px;">🧀</span>
+            <h4 style="margin: 0; color: #FCD34D; font-size: 14px; font-weight: 800;">Bordes Rellenos para tus Pizzas</h4>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            ${pizzasWithoutCrust.map(pizza => {
+              const restId = pizza.restaurant_id || pizza.restaurantId || pizza.establishmentId;
+              let availCrusts = this.getPizzaCrustOptions({ restaurant_id: restId }).filter(c => (c.price || 0) > 0);
+              if (availCrusts.length === 0) {
+                availCrusts = [
+                  { id: 'queso', name: 'Borde de Queso', icon: '🧀', price: 6000 },
+                  { id: 'salchicha', name: 'Borde de Salchicha', icon: '🌭', price: 6000 },
+                  { id: 'bocadillo_queso', name: 'Borde Queso y Bocadillo', icon: '🍯', price: 6000 }
+                ];
+              }
+              return `
+                <div style="background: rgba(0,0,0,0.35); border-radius: 12px; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.08);">
+                  <div style="font-weight: 800; font-size: 13px; color: #FFF; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>🍕 ${pizza.product_name || pizza.name}</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">${pizza.restaurant_name || ''}</span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px;">
+                    ${availCrusts.map(c => `
+                      <button type="button" onclick="MarketplaceApp.addCrustToCartItem('${pizza.cart_item_id}', '${c.name}', ${c.price})" style="background: rgba(245,158,11,0.15); border: 1px solid #F59E0B; color: #FFF; padding: 8px 10px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s;">
+                        ${c.icon || '🧀'} ${c.name} (+${this.formatPesos(c.price)})
+                      </button>
+                    `).join('')}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // 2. Drinks Section
+    if ((activeTab === 'all' || activeTab === 'drinks') && availableDrinks.length > 0) {
+      html += `
+        <div style="background: rgba(59, 130, 246, 0.08); border: 1.5px solid rgba(59, 130, 246, 0.35); border-radius: 16px; padding: 14px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 20px;">🥤</span>
+              <h4 style="margin: 0; color: #93C5FD; font-size: 14px; font-weight: 800;">Bebidas Frías y Refrescos</h4>
+            </div>
+            <span style="font-size: 11px; color: #93C5FD; font-weight: 700; background: rgba(59,130,246,0.2); padding: 2px 8px; border-radius: 8px;">${availableDrinks.length} opciones</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            ${availableDrinks.map(drink => {
+              const rawPrice = drink.price || 0;
+              const priceCop = rawPrice < 1000 ? rawPrice * 1000 : rawPrice;
+              const imgUrl = drink.image || '/images/burger_royale.jpg';
+              return `
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); padding: 9px 12px; border-radius: 12px; gap: 10px;">
+                  <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+                    <img src="${imgUrl}" alt="${drink.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">
+                    <div style="min-width: 0; flex: 1;">
+                      <div style="font-weight: 800; font-size: 13px; color: #FFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${drink.name}</div>
+                      <div style="font-size: 11px; color: var(--text-muted);">${drink.restaurant_name}</div>
+                      <div style="font-size: 12px; font-weight: 800; color: var(--primary); margin-top: 1px;">${this.formatPesos(priceCop)}</div>
+                    </div>
+                  </div>
+                  <button type="button" onclick="MarketplaceApp.addUpsellProductAndRefresh('${drink.id}', '${drink.restaurant_id}', '🥤')" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFF; border: none; padding: 7px 12px; border-radius: 9px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(16,185,129,0.3); white-space: nowrap; flex-shrink: 0;">
+                    ➕ Agregar
+                  </button>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // 3. Desserts Section
+    if ((activeTab === 'all' || activeTab === 'desserts') && availableDesserts.length > 0) {
+      html += `
+        <div style="background: rgba(236, 72, 153, 0.08); border: 1.5px solid rgba(236, 72, 153, 0.35); border-radius: 16px; padding: 14px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 20px;">🍨</span>
+              <h4 style="margin: 0; color: #F472B6; font-size: 14px; font-weight: 800;">Postres & Antojos Dulces</h4>
+            </div>
+            <span style="font-size: 11px; color: #F472B6; font-weight: 700; background: rgba(236,72,153,0.2); padding: 2px 8px; border-radius: 8px;">${availableDesserts.length} opciones</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            ${availableDesserts.map(dessert => {
+              const rawPrice = dessert.price || 0;
+              const priceCop = rawPrice < 1000 ? rawPrice * 1000 : rawPrice;
+              const imgUrl = dessert.image || '/images/burger_royale.jpg';
+              return `
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); padding: 9px 12px; border-radius: 12px; gap: 10px;">
+                  <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+                    <img src="${imgUrl}" alt="${dessert.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">
+                    <div style="min-width: 0; flex: 1;">
+                      <div style="font-weight: 800; font-size: 13px; color: #FFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${dessert.name}</div>
+                      <div style="font-size: 11px; color: var(--text-muted);">${dessert.restaurant_name}</div>
+                      <div style="font-size: 12px; font-weight: 800; color: #EC4899; margin-top: 1px;">${this.formatPesos(priceCop)}</div>
+                    </div>
+                  </div>
+                  <button type="button" onclick="MarketplaceApp.addUpsellProductAndRefresh('${dessert.id}', '${dessert.restaurant_id}', '🍨')" style="background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%); color: #FFF; border: none; padding: 7px 12px; border-radius: 9px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(236,72,153,0.3); white-space: nowrap; flex-shrink: 0;">
+                    ➕ Agregar
+                  </button>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    if (!html) {
+      html = `
+        <div style="text-align: center; padding: 30px 10px; color: #94A3B8;">
+          <span style="font-size: 32px; display: block; margin-bottom: 8px;">🎉</span>
+          <p style="font-size: 13px; font-weight: 700; margin: 0; color: #FFF;">¡Tu carrito ya está súper completo!</p>
+          <p style="font-size: 11.5px; margin-top: 4px;">Presiona Continuar para finalizar tu pedido.</p>
+        </div>
+      `;
+    }
+
+    listContainer.innerHTML = html;
+
+    // Update live subtotal badge
+    const subtotalEl = document.getElementById('upsell-subtotal-val');
+    if (subtotalEl) {
+      subtotalEl.innerText = this.formatPesos(this.calculateSubtotal());
+    }
+  }
+
   checkBeveragesAndPrompt() {
     const pizzasWithoutCrust = this.getPizzasWithoutSpecialCrustInCart();
     const hasBeverages = this.cart.items.some(i => this.isDrinkOrBeverage(i));
     const availableDrinks = this.getAvailableBeveragesFromCartStores();
+    const availableDesserts = this.getAvailableDessertsFromStores();
 
-    // If no pizzas need crusts AND user already has drinks, skip modal
-    if (pizzasWithoutCrust.length === 0 && hasBeverages) {
+    // If no pizzas need crusts AND already has drinks AND no desserts available, skip
+    if (pizzasWithoutCrust.length === 0 && hasBeverages && availableDesserts.length === 0) {
       return false;
     }
 
-    const iconEl = document.getElementById('upsell-modal-icon');
-    const titleEl = document.getElementById('upsell-modal-title');
-    const subEl = document.getElementById('upsell-modal-subtitle');
-
-    if (iconEl) iconEl.innerText = '🍕🥤';
-    if (titleEl) titleEl.innerText = 'Sugerencias y Personalización';
-    if (subEl) subEl.innerText = 'Personaliza tu pizza con deliciosos bordes rellenos y acompaña tu orden con bebidas frías.';
-
-    const listContainer = document.getElementById('beverage-upsell-list');
-    if (listContainer) {
-      let html = '';
-
-      // 1. Pizza Crust Suggestions Section
-      if (pizzasWithoutCrust.length > 0) {
-        html += `
-          <div style="background: rgba(245, 158, 11, 0.08); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 14px;">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-              <span style="font-size: 20px;">🧀</span>
-              <h4 style="margin: 0; color: #FCD34D; font-size: 14px; font-weight: 800;">Bordes Rellenos para tus Pizzas</h4>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-              ${pizzasWithoutCrust.map(pizza => {
-                const restId = pizza.restaurant_id || pizza.restaurantId || pizza.establishmentId;
-                let availCrusts = this.getPizzaCrustOptions({ restaurant_id: restId }).filter(c => (c.price || 0) > 0);
-                if (availCrusts.length === 0) {
-                  availCrusts = [
-                    { id: 'queso', name: 'Borde de Queso', icon: '🧀', price: 6000 },
-                    { id: 'salchicha', name: 'Borde de Salchicha', icon: '🌭', price: 6000 },
-                    { id: 'bocadillo_queso', name: 'Borde Queso y Bocadillo', icon: '🍯', price: 6000 }
-                  ];
-                }
-                return `
-                  <div style="background: rgba(0,0,0,0.35); border-radius: 12px; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.08);">
-                    <div style="font-weight: 800; font-size: 13px; color: #FFF; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                      <span>🍕 ${pizza.product_name || pizza.name}</span>
-                      <span style="font-size: 11px; color: var(--text-muted);">${pizza.restaurant_name || ''}</span>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px;">
-                      ${availCrusts.map(c => `
-                        <button type="button" onclick="MarketplaceApp.addCrustToCartItem('${pizza.cart_item_id}', '${c.name}', ${c.price})" style="background: rgba(245,158,11,0.15); border: 1px solid #F59E0B; color: #FFF; padding: 8px 10px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s;">
-                          ${c.icon || '🧀'} ${c.name} (+${this.formatPesos(c.price)})
-                        </button>
-                      `).join('')}
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-        `;
-      }
-
-      // 2. Beverage Suggestions Section
-      if (availableDrinks.length > 0) {
-        html += `
-          <div style="background: rgba(59, 130, 246, 0.08); border: 1.5px solid rgba(59, 130, 246, 0.35); border-radius: 16px; padding: 14px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 20px;">🥤</span>
-                <h4 style="margin: 0; color: #93C5FD; font-size: 14px; font-weight: 800;">Bebidas del Restaurante</h4>
-              </div>
-              <span style="font-size: 11px; color: #93C5FD; font-weight: 700; background: rgba(59,130,246,0.2); padding: 2px 8px; border-radius: 8px;">${availableDrinks.length} disponibles</span>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              ${availableDrinks.map(drink => {
-                const rawPrice = drink.price || 0;
-                const priceCop = rawPrice < 1000 ? rawPrice * 1000 : rawPrice;
-                const imgUrl = drink.image || '/images/burger_royale.jpg';
-                return `
-                  <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); padding: 9px 12px; border-radius: 12px; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
-                      <img src="${imgUrl}" alt="${drink.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-                      <div>
-                        <div style="font-weight: 800; font-size: 13px; color: #FFF;">${drink.name}</div>
-                        <div style="font-size: 11px; color: var(--text-muted);">${drink.restaurant_name}</div>
-                        <div style="font-size: 12px; font-weight: 800; color: var(--primary); margin-top: 1px;">$${priceCop.toLocaleString('de-DE')} COP</div>
-                      </div>
-                    </div>
-                    <button type="button" onclick="MarketplaceApp.addBeverageAndRefresh('${drink.id}', '${drink.restaurant_id}')" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFF; border: none; padding: 7px 12px; border-radius: 9px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(16,185,129,0.3); white-space: nowrap;">
-                      ➕ Agregar
-                    </button>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-        `;
-      }
-
-      listContainer.innerHTML = html;
-    }
-
-    // 3. Live Beverage Status Indicator at the Bottom
-    const statusContainer = document.getElementById('upsell-beverage-status-container');
-    if (statusContainer) {
-      if (hasBeverages) {
-        statusContainer.innerHTML = `
-          <div style="background: rgba(16, 185, 129, 0.15); border: 1.5px solid #10B981; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 18px;">✅</span>
-              <div style="font-size: 12.5px; font-weight: 800; color: #6EE7B7;">Con Bebida Incluida en tu pedido</div>
-            </div>
-            <span style="font-size: 12px; color: #10B981; font-weight: 900; background: rgba(16,185,129,0.2); padding: 3px 8px; border-radius: 6px;">✓ Listo</span>
-          </div>
-        `;
-      } else {
-        statusContainer.innerHTML = `
-          <div class="beverage-missing-pulse" style="border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1.5px solid #EF4444; background: rgba(239, 68, 68, 0.15);">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 18px;">⚠️</span>
-              <div style="font-size: 12px; font-weight: 800; color: #FCA5A5;">Tu pedido aún NO incluye bebidas</div>
-            </div>
-            <span style="font-size: 11px; color: #FCD34D; font-weight: 800;">¡Elige una arriba! 👆</span>
-          </div>
-        `;
-      }
-    }
+    this.activeUpsellTab = 'all';
+    this.renderUpsellContent();
 
     const modal = document.getElementById('beverage-upsell-modal');
     if (modal) {
@@ -3675,17 +3775,21 @@ class MarketplaceController {
     return false;
   }
 
-  addBeverageAndRefresh(prodId, restId) {
+  addUpsellProductAndRefresh(prodId, restId, emoji) {
     const est = (this.establishments || []).find(e => e.id === restId);
     if (!est) return;
     const prod = (est.products || []).find(p => p.id === prodId);
     if (!prod) return;
 
     this.addDirectToCart(prod);
-    this.showToast(`🥤 ${prod.name} agregada al carrito`);
+    this.showToast(`${emoji || '✨'} ${prod.name} agregado al carrito`);
 
-    // Re-render the upsell list
-    this.checkBeveragesAndPrompt();
+    // Re-render upsell content with updated subtotal
+    this.renderUpsellContent();
+  }
+
+  addBeverageAndRefresh(prodId, restId) {
+    this.addUpsellProductAndRefresh(prodId, restId, '🥤');
   }
 
   closeBeverageModalAndProceed() {
@@ -5703,27 +5807,58 @@ class MarketplaceController {
     }
   }
 
+  setReviewStarRating(rating) {
+    this.currentRatingValue = rating;
+    const stars = document.querySelectorAll('#star-rating-selector .star-rating-item');
+    stars.forEach((s, idx) => {
+      if (idx < rating) {
+        s.style.opacity = '1';
+        s.style.transform = 'scale(1.2)';
+      } else {
+        s.style.opacity = '0.3';
+        s.style.transform = 'scale(1)';
+      }
+    });
+    const textEl = document.getElementById('star-rating-text');
+    const texts = [
+      '⭐ Malo (1/5)',
+      '⭐⭐ Regular (2/5)',
+      '⭐⭐⭐ Bueno (3/5)',
+      '⭐⭐⭐⭐ Muy Bueno (4/5)',
+      '⭐⭐⭐⭐⭐ ¡Excelente! (5/5)'
+    ];
+    if (textEl) textEl.innerText = texts[rating - 1] || '⭐⭐⭐⭐⭐ ¡Excelente! (5/5)';
+  }
+
   openRatingModal(orderId, estId) {
-    const modal = document.getElementById('rating-modal');
-    if (!modal) return;
+    this.ratingTargetOrderId = orderId;
+    this.ratingTargetEstId = estId;
+    this.currentRatingValue = 5;
+    this.setReviewStarRating(5);
 
-    document.getElementById('rating-order-id').value = orderId || '';
-    document.getElementById('rating-est-id').value = estId || '';
-    document.getElementById('rating-comment-text').value = '';
-    this.setRatingStars(5);
+    const commentInput = document.getElementById('rating-modal-comment');
+    if (commentInput) commentInput.value = '';
 
-    modal.classList.add('active');
+    const modal = document.getElementById('post-order-rating-modal');
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+    }
   }
 
   closeRatingModal() {
-    const modal = document.getElementById('rating-modal');
-    if (modal) modal.classList.remove('active');
+    const modal = document.getElementById('post-order-rating-modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active');
+    }
   }
 
-  async submitReview() {
-    const orderId = document.getElementById('rating-order-id').value;
-    const estId = document.getElementById('rating-est-id').value;
-    const comment = document.getElementById('rating-comment-text').value.trim();
+  async submitPostOrderReview() {
+    const estId = this.ratingTargetEstId;
+    const orderId = this.ratingTargetOrderId;
+    const commentInput = document.getElementById('rating-modal-comment');
+    const comment = commentInput ? commentInput.value.trim() : '';
     const rating = this.currentRatingValue || 5;
 
     if (!estId) {
@@ -5745,17 +5880,22 @@ class MarketplaceController {
       });
 
       if (res.ok) {
-        this.showToast('🌟 ¡Gracias por calificar tu pedido!');
+        this.showToast('🌟 ¡Muchas gracias por calificar tu pedido!');
         this.closeRatingModal();
         this.loadEstablishments();
       } else {
         const err = await res.json();
-        alert(err.error || 'No se pudo enviar la calificación.');
+        alert(err.error || 'No se pudo registrar la reseña.');
+        this.closeRatingModal();
       }
     } catch(e) {
       console.error(e);
       this.closeRatingModal();
     }
+  }
+
+  async submitReview() {
+    return this.submitPostOrderReview();
   }
 
   async openReviewsListModal(estId) {

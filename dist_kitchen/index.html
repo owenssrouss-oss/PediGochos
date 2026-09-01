@@ -51,6 +51,7 @@
           <!-- Filled dynamically -->
         </select>
         <button id="btn-manage-prices" class="btn-manage-prices hidden" onclick="KitchenApp.openMenuTablesModal()" style="margin-left:12px; background-color:#10b981; border:1px solid #10b981; color:#121216; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🍔 Taller de Local</button>
+        <button id="btn-manage-stock" class="btn-manage-prices hidden" onclick="KitchenApp.openStockAvailabilityModal()" style="margin-left:8px; background-color:#F59E0B; border:1px solid #F59E0B; color:#121216; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">📦 Agotados por Hoy</button>
         <button id="btn-customize-shop" class="btn-manage-prices hidden" onclick="KitchenApp.openCustomizeShopModal()" style="margin-left:8px; background-color:#3b82f6; border:1px solid #3b82f6; color:#ffffff; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🏪 Sede Comercial</button>
         <button id="btn-daily-promo" class="btn-manage-prices hidden" onclick="KitchenApp.openDailyPromoModal()" style="margin-left:8px; background-color:#ff5e3a; border:1px solid #ff5e3a; color:#ffffff; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🔥 Promociones del Día</button>
         <button id="btn-panic-high-traffic" class="btn-panic-toggle hidden" onclick="KitchenApp.toggleHighTrafficPanicMode()" style="margin-left:8px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: var(--radius-sm); padding: 8px 12px; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px;" title="Activar/Desactivar tiempo extra por alto tráfico de personas en cocina">
@@ -1031,7 +1032,30 @@
           <input type="url" id="promo-image" placeholder="https://..." style="width: 100%; padding: 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 13px;">
         </div>
 
-        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+  <!-- Quick Stock / Agotados por Hoy Manager Modal -->
+  <div class="modal-overlay" id="stock-availability-modal" style="z-index: 4700; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: none;">
+    <div class="modal-content" style="background: #16161c; border: 1.5px solid #F59E0B; box-shadow: 0 20px 60px rgba(0,0,0,0.8); margin: auto; max-width: 680px; width: 95%; max-height: 90vh; border-radius: 22px; padding: 20px; display: flex; flex-direction: column;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 24px;">📦</span>
+          <div>
+            <h3 style="margin: 0; color: #FFF; font-size: 17px; font-weight: 900;">Gestionar Agotados por Hoy</h3>
+            <p style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted);">Pausa con 1 toque cualquier plato que se haya terminado en cocina.</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close" onclick="KitchenApp.closeStockAvailabilityModal()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.08); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <input type="text" id="stock-search-input" oninput="KitchenApp.filterStockProducts(this.value)" placeholder="🔍 Buscar plato en la carta..." style="width: 100%; padding: 10px 14px; border-radius: 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); color: #FFF; font-size: 13.5px; outline: none; box-sizing: border-box;">
+      </div>
+
+      <div id="stock-products-list" class="premium-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; max-height: 480px; padding-right: 4px;">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: Generador de Código QR y Display de Mesa Estilo PediGochos -->
   <div class="modal-overlay" id="admin-store-qr-modal" style="z-index: 3950; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
     <div class="modal-content" style="max-width: 520px; width: 94%; max-height: 94vh; overflow-y: auto; padding: 22px; border-radius: 24px; background: rgba(14, 14, 18, 0.98); border: 1.5px solid rgba(255, 107, 0, 0.35); box-shadow: 0 20px 60px rgba(0,0,0,0.8); margin: auto;">

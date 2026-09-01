@@ -70,43 +70,16 @@ class KitchenController {
     }
 
     // Set up auto-stop listeners and audio unlock for persistent alarm
+    // Audio Context unlock on initial interaction & Persistent Alarm setup
     if (typeof Sound !== 'undefined') {
-      const stopAlarmAndUnlock = (e) => {
+      const unlockAudio = () => {
         try {
           Sound.init();
-          // Do not silence if user clicked on the test button itself or banner silence button
-          if (e && e.target && (e.target.closest('.sound-test-btn') || e.target.closest('.alarm-btn-silence'))) {
-            return;
-          }
-          // Debounce: do not silence if alarm was triggered in the last 750ms
-          if (Date.now() - Sound.lastStartedAt < 750) {
-            return;
-          }
-          if (Sound.isPlayingAlarm) {
-            Sound.stopAlarm();
-            this.hideAlarmBanner();
-          }
         } catch(err) {}
       };
 
-      // Stop alarm automatically when opening/focusing the app or tab
-      window.addEventListener('focus', () => {
-        if (Sound.isPlayingAlarm && Date.now() - Sound.lastStartedAt > 750) {
-          Sound.stopAlarm();
-          this.hideAlarmBanner();
-        }
-      });
-
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && Sound.isPlayingAlarm && Date.now() - Sound.lastStartedAt > 750) {
-          Sound.stopAlarm();
-          this.hideAlarmBanner();
-        }
-      });
-
-      document.addEventListener('click', stopAlarmAndUnlock, { passive: true });
-      document.addEventListener('touchstart', stopAlarmAndUnlock, { passive: true });
-      document.addEventListener('keydown', stopAlarmAndUnlock, { passive: true });
+      document.addEventListener('click', unlockAudio, { passive: true, once: true });
+      document.addEventListener('touchstart', unlockAudio, { passive: true, once: true });
 
       // Link SoundManager callbacks to UI banner
       Sound.onAlarmStart(() => this.showAlarmBanner());
@@ -682,6 +655,7 @@ class KitchenController {
 
   updatePricesButtonVisibility(visible) {
     const btn = document.getElementById('btn-manage-prices');
+    const btnStock = document.getElementById('btn-manage-stock');
     const btnCust = document.getElementById('btn-customize-shop');
     const btnPanic = document.getElementById('btn-panic-high-traffic');
     if (btn) {
@@ -689,6 +663,13 @@ class KitchenController {
         btn.classList.remove('hidden');
       } else {
         btn.classList.add('hidden');
+      }
+    }
+    if (btnStock) {
+      if (visible) {
+        btnStock.classList.remove('hidden');
+      } else {
+        btnStock.classList.add('hidden');
       }
     }
     if (btnCust) {
@@ -5247,6 +5228,113 @@ class KitchenController {
     } catch (err) {
       console.error(err);
       alert('Error de conexión al eliminar adicionales.');
+    }
+  }
+
+  openStockAvailabilityModal() {
+    const modal = document.getElementById('stock-availability-modal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+    const searchInput = document.getElementById('stock-search-input');
+    if (searchInput) searchInput.value = '';
+    this.renderStockProductsList();
+  }
+
+  closeStockAvailabilityModal() {
+    const modal = document.getElementById('stock-availability-modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active');
+    }
+  }
+
+  filterStockProducts(query) {
+    this.renderStockProductsList(query);
+  }
+
+  renderStockProductsList(filterQuery = '') {
+    const container = document.getElementById('stock-products-list');
+    if (!container) return;
+
+    const est = (this.establishments || []).find(e => String(e.id) === String(this.selectedId));
+    if (!est || !Array.isArray(est.products) || est.products.length === 0) {
+      container.innerHTML = '<div style="color: #94A3B8; text-align: center; padding: 20px;">No hay platos registrados en este comercio.</div>';
+      return;
+    }
+
+    const q = (filterQuery || '').toLowerCase().trim();
+    const products = est.products.filter(p => {
+      if (!q) return true;
+      const pName = (p.name || '').toLowerCase();
+      const pCat = (p.category || '').toLowerCase();
+      return pName.includes(q) || pCat.includes(q);
+    });
+
+    if (products.length === 0) {
+      container.innerHTML = '<div style="color: #94A3B8; text-align: center; padding: 20px;">No se encontraron platos que coincidan con la búsqueda.</div>';
+      return;
+    }
+
+    container.innerHTML = products.map(p => {
+      const isOut = p.out_of_stock === true || p.agotado === true;
+      const statusBadge = isOut 
+        ? '<span style="background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 1px solid #EF4444; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;">🔴 AGOTADO POR HOY</span>'
+        : '<span style="background: rgba(16, 185, 129, 0.2); color: #10B981; border: 1px solid #10B981; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;">🟢 DISPONIBLE</span>';
+
+      const toggleBtn = isOut
+        ? `<button type="button" onclick="KitchenApp.toggleProductStock('${p.id}', false)" style="background: #10B981; color: #FFF; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(16,185,129,0.3); white-space: nowrap;">
+             ✅ Habilitar
+           </button>`
+        : `<button type="button" onclick="KitchenApp.toggleProductStock('${p.id}', true)" style="background: #EF4444; color: #FFF; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(239,68,68,0.3); white-space: nowrap;">
+             ⛔ Pausar / Agotado
+           </button>`;
+
+      const priceStr = '$' + Math.round(p.price < 1000 ? p.price * 1000 : p.price).toLocaleString('de-DE');
+
+      return `
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 10px 14px; border-radius: 14px; gap: 10px; ${isOut ? 'opacity: 0.65; border-color: rgba(239,68,68,0.3);' : ''}">
+          <div style="flex: 1; min-width: 0;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span style="font-weight: 800; font-size: 13.5px; color: #FFF;">${p.name}</span>
+              ${statusBadge}
+            </div>
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
+              📁 ${p.category || 'General'} • <strong style="color: var(--primary);">${priceStr} COP</strong>
+            </div>
+          </div>
+          ${toggleBtn}
+        </div>
+      `;
+    }).join('');
+  }
+
+  async toggleProductStock(productId, setOutOfStock) {
+    if (!this.selectedId) return;
+    try {
+      const res = await fetch(`/api/establishments/${this.selectedId}/toggle-product-stock`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, outOfStock: setOutOfStock })
+      });
+
+      if (res.ok) {
+        const est = (this.establishments || []).find(e => String(e.id) === String(this.selectedId));
+        if (est && Array.isArray(est.products)) {
+          const prod = est.products.find(p => p.id === productId);
+          if (prod) {
+            prod.out_of_stock = setOutOfStock;
+            prod.agotado = setOutOfStock;
+          }
+        }
+        const searchInput = document.getElementById('stock-search-input');
+        this.renderStockProductsList(searchInput ? searchInput.value : '');
+      } else {
+        alert('Error al actualizar disponibilidad en el servidor.');
+      }
+    } catch(e) {
+      console.error(e);
+      alert('Error de conexión al actualizar disponibilidad.');
     }
   }
 }

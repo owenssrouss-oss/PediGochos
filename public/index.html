@@ -247,7 +247,7 @@
     <!-- Establishment Details View -->
     <section id="establishment-view" class="view">
       <div class="establishment-header" id="est-banner">
-        <button class="btn-back" onclick="MarketplaceApp.goHome()">⬅ Volver a Categorías</button>
+        <button class="btn-back" onclick="MarketplaceApp.goHome()">⬅ Volver al Inicio</button>
         <div class="est-header-content">
           <div class="est-logo" id="est-logo">🍔</div>
           <div class="est-details-text">
@@ -510,6 +510,13 @@
             <span>Total</span>
             <span id="cart-grand-total">$0.00</span>
           </div>
+
+          <!-- Multi-Currency Display (Frontera COP, Bs, USD) -->
+          <div id="cart-multicurrency-preview" style="margin-top: 10px; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; font-size: 11.5px; display: flex; justify-content: space-around; align-items: center;">
+            <span style="color: #60A5FA; font-weight: 700;">🇻🇪 Pago Móvil: <strong id="cart-total-bs" style="color: #93C5FD;">Bs. 0.00</strong></span>
+            <span style="color: #52525B;">|</span>
+            <span style="color: #34D399; font-weight: 700;">💵 Dólares / Zelle: <strong id="cart-total-usd" style="color: #6EE7B7;">$0.00</strong></span>
+          </div>
         </div>
 
         <!-- Terms & verification checkbox -->
@@ -524,6 +531,32 @@
           🚀 Enviar Pedido en Tiempo Real
         </button>
       </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Calificaciones y Reseñas Post-Entrega (1-5 Estrellas) -->
+  <div class="modal-overlay" id="post-order-rating-modal" style="z-index: 3800; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: none;">
+    <div class="modal-content" style="max-width: 460px; width: 92%; padding: 24px; border-radius: 22px; background: rgba(18, 18, 24, 0.98); border: 1.5px solid #FFCC00; box-shadow: 0 20px 50px rgba(0,0,0,0.8); margin: auto; text-align: center;">
+      <div style="font-size: 40px; margin-bottom: 6px;">⭐🎉</div>
+      <h3 id="rating-modal-title" style="color: #FFF; font-size: 18px; font-weight: 900; margin: 0 0 6px 0;">¡Califica tu Pedido!</h3>
+      <p id="rating-modal-sub" style="color: #94A3B8; font-size: 12.5px; margin-bottom: 16px;">¿Qué tal estuvo la comida y el servicio de tu restaurante?</p>
+
+      <!-- Star Rating Input -->
+      <div id="star-rating-selector" style="display: flex; justify-content: center; gap: 8px; font-size: 32px; margin-bottom: 16px; cursor: pointer;">
+        <span class="star-rating-item" data-val="1" onclick="MarketplaceApp.setReviewStarRating(1)">⭐</span>
+        <span class="star-rating-item" data-val="2" onclick="MarketplaceApp.setReviewStarRating(2)">⭐</span>
+        <span class="star-rating-item" data-val="3" onclick="MarketplaceApp.setReviewStarRating(3)">⭐</span>
+        <span class="star-rating-item" data-val="4" onclick="MarketplaceApp.setReviewStarRating(4)">⭐</span>
+        <span class="star-rating-item" data-val="5" onclick="MarketplaceApp.setReviewStarRating(5)">⭐</span>
+      </div>
+      <div id="star-rating-text" style="font-size: 13px; font-weight: 800; color: #FFCC00; margin-bottom: 14px;">⭐⭐⭐⭐⭐ ¡Excelente! (5/5)</div>
+
+      <textarea id="rating-modal-comment" placeholder="Escribe un comentario o felicitación (opcional)..." rows="3" style="width: 100%; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: #FFF; font-size: 13px; outline: none; box-sizing: border-box; resize: none; margin-bottom: 16px;"></textarea>
+
+      <div style="display: flex; gap: 10px;">
+        <button type="button" onclick="MarketplaceApp.closeRatingModal()" style="flex: 1; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.08); color: #94A3B8; border: none; font-weight: 800; font-size: 13px; cursor: pointer;">Omitir</button>
+        <button type="button" onclick="MarketplaceApp.submitPostOrderReview()" style="flex: 2; padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #FFCC00 0%, #F59E0B 100%); color: #000; border: none; font-weight: 900; font-size: 13.5px; cursor: pointer; box-shadow: 0 4px 15px rgba(245,158,11,0.4);">⭐ Enviar Calificación</button>
       </div>
     </div>
   </div>
@@ -707,27 +740,36 @@
     </div>
   </div>
 
-  <!-- Upsell Suggestion Modal (Bordes de Pizza & Bebidas) -->
+  <!-- Upsell Suggestion Modal (Sugerencias y Personalización) -->
   <div class="modal-overlay" id="beverage-upsell-modal" style="z-index: 3600; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
-    <div class="modal-content" style="max-width: 490px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; padding: 20px; border-radius: 24px; background: rgba(18, 18, 24, 0.98); border: 1px solid rgba(255, 255, 255, 0.12); margin: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.8);">
-      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+    <div class="modal-content" style="max-width: 520px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; padding: 18px; border-radius: 24px; background: rgba(18, 18, 24, 0.98); border: 1px solid rgba(255, 255, 255, 0.12); margin: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.8);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
         <div style="display: flex; align-items: center; gap: 10px;">
-          <span id="upsell-modal-icon" style="font-size: 28px;">🍕🥤</span>
+          <span id="upsell-modal-icon" style="font-size: 26px;">🍰🥤🧀</span>
           <div>
-            <h3 id="upsell-modal-title" style="margin: 0; color: #FFF; font-size: 16.5px; font-weight: 900;">Sugerencias y Personalización</h3>
-            <p id="upsell-modal-subtitle" style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted);">Personaliza tu pizza con deliciosos bordes rellenos y acompaña tu orden con bebidas frías.</p>
+            <h3 id="upsell-modal-title" style="margin: 0; color: #FFF; font-size: 16px; font-weight: 900;">Sugerencias y Personalización</h3>
+            <p id="upsell-modal-subtitle" style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted);">Completa tu orden con bordes rellenos, bebidas frías o un postre delicioso.</p>
           </div>
         </div>
         <button class="modal-close" onclick="MarketplaceApp.closeBeverageModalAndProceed()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.08); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
       </div>
 
-      <div id="beverage-upsell-list" class="premium-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; max-height: 380px; padding-right: 4px;">
-        <!-- Filled dynamically with pizza crusts and drinks -->
+      <!-- Segmented Tabs for Upselling -->
+      <div id="upsell-tabs-bar" style="display: flex; gap: 6px; margin-bottom: 12px; background: rgba(255,255,255,0.05); padding: 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+        <button type="button" id="tab-btn-upsell-all" onclick="MarketplaceApp.switchUpsellTab('all')" class="upsell-tab-btn active" style="flex: 1; padding: 8px 6px; border: none; border-radius: 9px; font-size: 11.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; background: var(--primary); color: #fff;">✨ Todo</button>
+        <button type="button" id="tab-btn-upsell-crusts" onclick="MarketplaceApp.switchUpsellTab('crusts')" class="upsell-tab-btn" style="flex: 1; padding: 8px 6px; border: none; border-radius: 9px; font-size: 11.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; background: transparent; color: #94A3B8;">🧀 Bordes</button>
+        <button type="button" id="tab-btn-upsell-drinks" onclick="MarketplaceApp.switchUpsellTab('drinks')" class="upsell-tab-btn" style="flex: 1; padding: 8px 6px; border: none; border-radius: 9px; font-size: 11.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; background: transparent; color: #94A3B8;">🥤 Bebidas</button>
+        <button type="button" id="tab-btn-upsell-desserts" onclick="MarketplaceApp.switchUpsellTab('desserts')" class="upsell-tab-btn" style="flex: 1; padding: 8px 6px; border: none; border-radius: 9px; font-size: 11.5px; font-weight: 800; cursor: pointer; transition: all 0.2s; background: transparent; color: #94A3B8;">🍨 Postres</button>
       </div>
 
-      <!-- Live Beverage Status Indicator -->
-      <div id="upsell-beverage-status-container" style="margin-top: 14px;">
-        <!-- Filled dynamically: blinking warning or green checkmark -->
+      <div id="beverage-upsell-list" class="premium-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; max-height: 380px; padding-right: 4px;">
+        <!-- Filled dynamically with pizza crusts, drinks, and desserts -->
+      </div>
+
+      <!-- Live Cart Subtotal Bar -->
+      <div id="upsell-live-total-bar" style="margin-top: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;">
+        <span style="font-size: 12.5px; color: #CBD5E1; font-weight: 700;">Subtotal de tu Carrito:</span>
+        <span id="upsell-subtotal-val" style="font-size: 15px; font-weight: 900; color: #10B981;">$0 COP</span>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">

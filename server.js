@@ -1505,6 +1505,60 @@ app.post('/api/establishments/:id/orders/reset', (req, res) => {
   res.json({ success: true });
 });
 
+// POST toggle product stock (Agotado por hoy)
+app.post('/api/establishments/:id/toggle-product-stock', (req, res) => {
+  const { id } = req.params;
+  const { productId, outOfStock } = req.body;
+  const db = readDB();
+  const est = db.establishments.find(e => e.id === id);
+  if (!est) return res.status(404).json({ error: 'Comercio no encontrado' });
+
+  const prod = (est.products || []).find(p => p.id === productId);
+  if (!prod) return res.status(404).json({ error: 'Producto no encontrado' });
+
+  prod.out_of_stock = Boolean(outOfStock);
+  prod.agotado = Boolean(outOfStock);
+
+  writeDB(db);
+  saveChangesToCloud(db);
+
+  if (typeof broadcastWS === 'function') {
+    broadcastWS({ type: 'product_stock_updated', establishmentId: id, productId, outOfStock: Boolean(outOfStock) });
+  }
+
+  res.json({ success: true, productId, outOfStock: Boolean(outOfStock) });
+});
+
+// GET & POST Multi-Currency Exchange Rates
+app.get('/api/settings/exchange-rates', (req, res) => {
+  const db = readDB();
+  const rates = db.settings?.exchange_rates || {
+    cop_per_usd: 4000,
+    cop_per_bs: 100,
+    bs_per_usd: 40
+  };
+  res.json(rates);
+});
+
+app.post('/api/settings/exchange-rates', (req, res) => {
+  const { cop_per_usd, cop_per_bs, bs_per_usd } = req.body;
+  const db = readDB();
+  if (!db.settings) db.settings = {};
+  db.settings.exchange_rates = {
+    cop_per_usd: parseFloat(cop_per_usd) || 4000,
+    cop_per_bs: parseFloat(cop_per_bs) || 100,
+    bs_per_usd: parseFloat(bs_per_usd) || 40
+  };
+  writeDB(db);
+  saveChangesToCloud(db);
+
+  if (typeof broadcastWS === 'function') {
+    broadcastWS({ type: 'exchange_rates_updated', rates: db.settings.exchange_rates });
+  }
+
+  res.json({ success: true, rates: db.settings.exchange_rates });
+});
+
 // ==========================================
 // REVIEWS & RATINGS (5-STAR SYSTEM) ENDPOINTS
 // ==========================================

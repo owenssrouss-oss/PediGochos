@@ -130,8 +130,8 @@ class SoundManager {
     }
   }
 
-  // Starts a continuous, scandalous 20-second alarm loop until user acknowledges / opens app
-  startPersistentOrderAlarm(durationSeconds = 20) {
+  // Starts an insistent, penetrating alarm loop until cook acknowledges / accepts order
+  startPersistentOrderAlarm(durationSeconds = 60) {
     try {
       this.init();
       this.lastStartedAt = Date.now();
@@ -151,7 +151,7 @@ class SoundManager {
       // Play first burst immediately
       this.playLoudAlarmBurst();
 
-      // Repeat burst every 1.15 seconds
+      // Repeat burst every 2.5 seconds insistently
       this.alarmInterval = setInterval(() => {
         if (this.isPlayingAlarm) {
           this.playLoudAlarmBurst();
@@ -159,9 +159,9 @@ class SoundManager {
           clearInterval(this.alarmInterval);
           this.alarmInterval = null;
         }
-      }, 1150);
+      }, 2500);
 
-      // Stop automatically after durationSeconds
+      // Timeout after 60 seconds if not stopped manually
       this.alarmTimeout = setTimeout(() => {
         this.stopAlarm();
       }, durationSeconds * 1000);

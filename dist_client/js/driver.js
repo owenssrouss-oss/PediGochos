@@ -278,11 +278,20 @@ class DriverController {
     const deliveryFee = order.deliveryDetails?.deliveryFee || 0;
 
     const gmapsStoreUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(estName)}`;
-    const gmapsCustUrl = (order.deliveryDetails?.latitude && order.deliveryDetails?.longitude)
+    const hasGps = Boolean(order.deliveryDetails?.latitude && order.deliveryDetails?.longitude);
+    const gmapsCustUrl = hasGps
       ? `https://www.google.com/maps/search/?api=1&query=${order.deliveryDetails.latitude},${order.deliveryDetails.longitude}`
       : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(custAddress)}`;
 
+    const wazeCustUrl = hasGps
+      ? `https://waze.com/ul?ll=${order.deliveryDetails.latitude},${order.deliveryDetails.longitude}&navigate=yes`
+      : `https://waze.com/ul?q=${encodeURIComponent(custAddress)}&navigate=yes`;
+
     const whatsappUrl = custPhone ? `https://wa.me/${custPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hola ' + custName + ', soy tu repartidor de Pedi Gochos 🛵. Voy en camino con tu pedido.')}` : '#';
+
+    const totalCop = Math.round(order.total < 1000 ? order.total * 1000 : order.total);
+    const totalBs = (totalCop / 100).toFixed(2);
+    const totalUsd = (totalCop / 4000).toFixed(2);
 
     detailsCard.innerHTML = `
       <div class="order-card-3d" style="border: 2px solid #10B981;">
@@ -306,8 +315,13 @@ class DriverController {
         <!-- Payment & Change Section -->
         <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 12px; border-radius: 12px; margin-bottom: 12px;">
           <strong style="color: #10B981; font-size: 13px; display: block; margin-bottom: 4px;">💵 Cobro en Destino:</strong>
-          <div style="font-size: 16px; font-weight: 900; color: #FFF;">Total a Cobrar: $${Math.round(order.total < 1000 ? order.total * 1000 : order.total).toLocaleString('de-DE')} COP</div>
-          <div style="font-size: 12.5px; font-weight: 800; color: #34D399; margin-top: 4px;">
+          <div style="font-size: 16px; font-weight: 900; color: #FFF;">Total: $${totalCop.toLocaleString('de-DE')} COP</div>
+          <div style="display: flex; gap: 8px; font-size: 11.5px; color: #CBD5E1; margin-top: 4px;">
+            <span>🇻🇪 Bs. ${totalBs}</span>
+            <span>•</span>
+            <span>💵 $${totalUsd} USD</span>
+          </div>
+          <div style="font-size: 12.5px; font-weight: 800; color: #34D399; margin-top: 6px;">
             ${order.paymentMethod === 'Transferencia' ? '📲 Transferencia / Pago Móvil (Ya Pagado)' : `💵 Efectivo: ${order.paymentNotes || 'Monto exacto'}`}
           </div>
         </div>
@@ -318,7 +332,7 @@ class DriverController {
           <div style="font-size: 14px; font-weight: 800; color: #FFF; margin-bottom: 4px;">${custName}</div>
           <div style="font-size: 12.5px; color: #CBD5E1; margin-bottom: 10px;">📍 ${custAddress}</div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
             <a href="tel:${custPhone}" class="btn-3d btn-3d-emerald" style="font-size: 12px; padding: 8px;">
               📞 Llamar Cliente
             </a>
@@ -327,9 +341,15 @@ class DriverController {
             </a>
           </div>
 
-          <a href="${gmapsCustUrl}" target="_blank" class="btn-3d btn-3d-blue" style="margin-top: 8px; width: 100%; font-size: 12px; padding: 8px;">
-            📍 Navegar a Dirección del Cliente (GPS)
-          </a>
+          <!-- Dual GPS Navigation Buttons -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <a href="${gmapsCustUrl}" target="_blank" class="btn-3d btn-3d-blue" style="font-size: 12px; padding: 8px;">
+              📍 Google Maps
+            </a>
+            <a href="${wazeCustUrl}" target="_blank" class="btn-3d btn-3d-blue" style="font-size: 12px; padding: 8px; background: #33CCFF; box-shadow: 0 5px 0 #0099CC; color: #000; font-weight: 900;">
+              🗺️ Waze GPS
+            </a>
+          </div>
         </div>
 
         <!-- Complete Delivery Action Button -->
