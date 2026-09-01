@@ -623,7 +623,15 @@ class AdminController {
       seenRenderIds.add(sid);
       return true;
     });
-    this.establishments = uniqueEsts;
+
+    // Sort: Active/Enabled restaurants at the top, Disabled restaurants at the bottom
+    const sortedEsts = [...uniqueEsts].sort((a, b) => {
+      const aDis = a.disabled === true ? 1 : 0;
+      const bDis = b.disabled === true ? 1 : 0;
+      if (aDis !== bDis) return aDis - bDis;
+      return (a.name || '').localeCompare(b.name || '', undefined, { numeric: true, sensitivity: 'base' });
+    });
+    this.establishments = sortedEsts;
 
     if (this.establishments.length === 0) {
       tbody.innerHTML = `
@@ -675,6 +683,10 @@ class AdminController {
 
       const row = document.createElement('tr');
       row.style.cursor = 'pointer';
+      if (est.disabled) {
+        row.style.opacity = '0.72';
+        row.style.background = 'rgba(239, 68, 68, 0.03)';
+      }
       row.onclick = () => AdminApp.showEstablishmentActions(est.id);
 
       const disabledBadge = est.disabled 
