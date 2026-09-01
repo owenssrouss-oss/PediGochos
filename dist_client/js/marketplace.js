@@ -734,8 +734,12 @@ class MarketplaceController {
     // Get session seed for fair play rotation (Strictly exclude disabled establishments from ANY list)
     const baseList = filtered ? filtered.filter(e => !e.disabled) : this.establishments;
     const rawList = baseList.filter(e => {
-      if (e.disabled === true) return false;
-      if (e.category !== this.currentCategory) return false;
+      if (this.currentCategory === 'comidas') {
+        const estCat = (e.category || '').toLowerCase();
+        if (estCat !== 'comidas' && estCat !== 'pizzas' && estCat !== 'pizza' && estCat !== 'hamburguesas' && estCat !== 'arepas' && estCat !== 'restaurantes') return false;
+      } else if (e.category !== this.currentCategory) {
+        return false;
+      }
       if (!this.currentLocation || this.currentLocation === 'all') return true;
       if (!e.location) return true;
       const normEstLoc = (e.location || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -882,7 +886,8 @@ class MarketplaceController {
     // Shuffle featured items with session seed (strictly excluding disabled stores)
     const activeEsts = (this.establishments || []).filter(e => {
       if (e.disabled === true) return false;
-      if (e.category !== 'comidas') return false;
+      const estCat = (e.category || '').toLowerCase();
+      if (estCat !== 'comidas' && estCat !== 'pizzas' && estCat !== 'pizza' && estCat !== 'hamburguesas' && estCat !== 'arepas' && estCat !== 'restaurantes') return false;
       if (!this.currentLocation || this.currentLocation === 'all') return true;
       if (!e.location) return true;
       const normEstLoc = (e.location || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -1012,7 +1017,8 @@ class MarketplaceController {
 
     const allEsts = this.establishments.filter(e => {
       if (e.disabled === true) return false;
-      if (e.category !== 'comidas') return false;
+      const estCat = (e.category || '').toLowerCase();
+      if (estCat !== 'comidas' && estCat !== 'pizzas' && estCat !== 'pizza' && estCat !== 'hamburguesas' && estCat !== 'arepas' && estCat !== 'restaurantes') return false;
       if (!this.currentLocation || this.currentLocation === 'all') return true;
       if (!e.location) return true;
       const normEstLoc = (e.location || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');

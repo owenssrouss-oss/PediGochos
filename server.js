@@ -376,6 +376,11 @@ async function syncFromPostgres() {
             if (localMatch.working_days && (!est.working_days || est.working_days.length === 0)) est.working_days = localMatch.working_days;
           }
 
+          // Normalize food sub-categories to main 'comidas' category
+          if (!est.category || ['pizzas', 'pizza', 'hamburguesas', 'arepas', 'comida', 'restaurante', 'restaurantes'].includes(String(est.category).toLowerCase())) {
+            est.category = 'comidas';
+          }
+
           // Respect authoritative disabled state from disabledMap / establishment record
           if (disabledMap[est.id] !== undefined) {
             est.disabled = Boolean(disabledMap[est.id]);
