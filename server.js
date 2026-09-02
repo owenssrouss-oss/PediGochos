@@ -1608,40 +1608,12 @@ app.get('/api/establishments/:id/payment-methods', (req, res) => {
   const db = readDB();
   const est = (db.establishments || []).find(e => e.id === id);
 
-  const defaultMethods = db.settings?.payment_methods || [
-    {
-      id: 'pm-bcv-1',
-      title: 'Pago Móvil (Bolívares)',
-      type: 'pago_movil',
-      bank: 'Banesco / Banco de Venezuela',
-      phone: '0414-1234567',
-      idNumber: 'V-20123456',
-      titular: 'Pedi Gochos',
-      qrImage: '',
-      notes: 'Transferir a la tasa del día e indicar número de referencia',
-      active: true
-    },
-    {
-      id: 'pm-cop-1',
-      title: 'Bancolombia / Nequi (COP)',
-      type: 'transferencia',
-      bank: 'Bancolombia',
-      phone: '310-1234567',
-      account: '123-456789-01',
-      accountType: 'Ahorros',
-      idNumber: '1090123456',
-      titular: 'Pedi Gochos Delivery',
-      qrImage: '',
-      notes: 'Transferencia directa o Nequi',
-      active: true
-    }
-  ];
-
-  if (est && Array.isArray(est.payment_methods) && est.payment_methods.length > 0) {
+  if (est && Array.isArray(est.payment_methods)) {
     return res.json({ establishmentId: id, paymentMethods: est.payment_methods });
   }
 
-  res.json({ establishmentId: id, paymentMethods: defaultMethods });
+  const globalMethods = db.settings?.payment_methods || [];
+  res.json({ establishmentId: id, paymentMethods: globalMethods });
 });
 
 // POST update payment methods for an establishment
