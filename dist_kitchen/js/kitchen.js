@@ -657,6 +657,7 @@ class KitchenController {
     const btn = document.getElementById('btn-manage-prices');
     const btnStock = document.getElementById('btn-manage-stock');
     const btnPay = document.getElementById('btn-manage-payment-methods');
+    const btnManual = document.getElementById('btn-create-manual-order');
     const btnCust = document.getElementById('btn-customize-shop');
     const btnPanic = document.getElementById('btn-panic-high-traffic');
     if (btn) {
@@ -664,6 +665,13 @@ class KitchenController {
         btn.classList.remove('hidden');
       } else {
         btn.classList.add('hidden');
+      }
+    }
+    if (btnManual) {
+      if (visible) {
+        btnManual.classList.remove('hidden');
+      } else {
+        btnManual.classList.add('hidden');
       }
     }
     if (btnStock) {
@@ -5695,6 +5703,315 @@ class KitchenController {
     if (modal) {
       modal.style.display = 'none';
       modal.classList.remove('active');
+    }
+  }
+
+  // ==========================================
+  // MANUAL DELIVERY & POS ORDER (KITCHEN)
+  // ==========================================
+
+  openCreateManualOrderModal() {
+    if (!this.selectedId) {
+      alert('Por favor selecciona tu negocio primero.');
+      return;
+    }
+
+    const modal = document.getElementById('kitchen-create-manual-order-modal');
+    if (!modal) return;
+
+    this.manualOrderItems = [];
+
+    // Reset customer fields
+    const custName = document.getElementById('manual-order-customer-name');
+    const custPhone = document.getElementById('manual-order-customer-phone');
+    const custAddr = document.getElementById('manual-order-address');
+    const custNotes = document.getElementById('manual-order-notes');
+    const payMethod = document.getElementById('manual-order-payment-method');
+    const cashAmount = document.getElementById('manual-order-cash-amount');
+    const customName = document.getElementById('manual-custom-item-name');
+    const customPrice = document.getElementById('manual-custom-item-price');
+
+    if (custName) custName.value = '';
+    if (custPhone) custPhone.value = '';
+    if (custAddr) custAddr.value = '';
+    if (custNotes) custNotes.value = '';
+    if (payMethod) payMethod.value = 'Efectivo';
+    if (cashAmount) cashAmount.value = '';
+    if (customName) customName.value = '';
+    if (customPrice) customPrice.value = '';
+
+    const deliveryFeeInp = document.getElementById('manual-order-delivery-fee');
+    if (deliveryFeeInp) deliveryFeeInp.value = '4000';
+
+    // Populate menu select
+    const select = document.getElementById('manual-order-product-select');
+    if (select) {
+      const est = (this.establishments || []).find(e => String(e.id) === String(this.selectedId));
+      const prods = (est && Array.isArray(est.products)) ? est.products : [];
+      select.innerHTML = `
+        <option value="">-- Seleccionar plato de la carta --</option>
+        ${prods.map(p => {
+          const priceCop = Number(p.price || 0);
+          const priceFmt = priceCop < 1000 ? priceCop * 1000 : priceCop;
+          return `<option value="${p.id}">${p.name} ($${Math.round(priceFmt).toLocaleString('de-DE')} COP)</option>`;
+        }).join('')}
+      `;
+    }
+
+    this.onManualPaymentMethodChanged();
+    this.renderManualOrderItemsList();
+
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+  }
+
+  closeCreateManualOrderModal() {
+    const modal = document.getElementById('kitchen-create-manual-order-modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active');
+    }
+  }
+
+  onManualPaymentMethodChanged() {
+    const methodSelect = document.getElementById('manual-order-payment-method');
+    const cashBox = document.getElementById('manual-order-cash-details');
+    if (!methodSelect || !cashBox) return;
+
+    if (methodSelect.value === 'Efectivo') {
+      cashBox.style.display = 'block';
+    } else {
+      cashBox.style.display = 'none';
+    }
+  }
+
+  addManualOrderItemFromSelect() {
+    const select = document.getElementById('manual-order-product-select');
+    if (!select || !select.value) {
+      alert('Por favor selecciona un plato de la lista.');
+      return;
+    }
+
+    const est = (this.establishments || []).find(e => String(e.id) === String(this.selectedId));
+    const prod = est?.products?.find(p => String(p.id) === String(select.value));
+    if (!prod) return;
+
+    let priceCop = Number(prod.price || 0);
+    if (priceCop < 1000) priceCop = priceCop * 1000;
+
+    const existing = (this.manualOrderItems || []).find(it => String(it.id) === String(prod.id));
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      if (!this.manualOrderItems) this.manualOrderItems = [];
+      this.manualOrderItems.push({
+        id: prod.id,
+        name: prod.name,
+        price: priceCop,
+        quantity: 1
+      });
+    }
+
+    select.value = '';
+    this.renderManualOrderItemsList();
+  }
+
+  addCustomManualOrderItem() {
+    const nameInp = document.getElementById('manual-custom-item-name');
+    const priceInp = document.getElementById('manual-custom-item-price');
+    if (!nameInp || !priceInp) return;
+
+    const name = nameInp.value.trim();
+    let price = parseFloat(priceInp.value);
+
+    if (!name || isNaN(price) || price <= 0) {
+      alert('Por favor escribe el nombre y el precio del producto.');
+      return;
+    }
+
+    if (price < 1000) price = price * 1000;
+
+    if (!this.manualOrderItems) this.manualOrderItems = [];
+    this.manualOrderItems.push({
+      id: 'custom-' + Date.now(),
+      name: name,
+      price: price,
+      quantity: 1
+    });
+
+    nameInp.value = '';
+    priceInp.value = '';
+    this.renderManualOrderItemsList();
+  }
+
+  updateManualItemQty(index, delta) {
+    if (!this.manualOrderItems || !this.manualOrderItems[index]) return;
+    this.manualOrderItems[index].quantity += delta;
+    if (this.manualOrderItems[index].quantity <= 0) {
+      this.manualOrderItems.splice(index, 1);
+    }
+    this.renderManualOrderItemsList();
+  }
+
+  removeManualOrderItem(index) {
+    if (!this.manualOrderItems || !this.manualOrderItems[index]) return;
+    this.manualOrderItems.splice(index, 1);
+    this.renderManualOrderItemsList();
+  }
+
+  renderManualOrderItemsList() {
+    const container = document.getElementById('manual-order-items-list');
+    if (!container) return;
+
+    const items = this.manualOrderItems || [];
+    if (items.length === 0) {
+      container.innerHTML = '<div style="color: #64748B; font-size: 11.5px; text-align: center; padding: 12px;">No has agregado productos al pedido aún.</div>';
+      this.calculateManualOrderTotals();
+      return;
+    }
+
+    container.innerHTML = items.map((it, idx) => {
+      const subtotal = it.price * it.quantity;
+      return `
+        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 8px 10px; border-radius: 8px; font-size: 12px;">
+          <div style="flex: 1; min-width: 0;">
+            <strong style="color: #FFF; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${it.name}</strong>
+            <span style="color: #94A3B8; font-size: 11px;">$${Math.round(it.price).toLocaleString('de-DE')} c/u</span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.4); border-radius: 6px; padding: 2px;">
+              <button type="button" onclick="KitchenApp.updateManualItemQty(${idx}, -1)" style="background: rgba(255,255,255,0.1); border: none; color: #FFF; width: 24px; height: 24px; border-radius: 4px; font-weight: 900; cursor: pointer;">-</button>
+              <span style="font-weight: 800; min-width: 18px; text-align: center; color: #F59E0B;">${it.quantity}</span>
+              <button type="button" onclick="KitchenApp.updateManualItemQty(${idx}, 1)" style="background: rgba(255,255,255,0.1); border: none; color: #FFF; width: 24px; height: 24px; border-radius: 4px; font-weight: 900; cursor: pointer;">+</button>
+            </div>
+
+            <strong style="color: #34D399; font-size: 12px; min-width: 65px; text-align: right;">$${Math.round(subtotal).toLocaleString('de-DE')}</strong>
+
+            <button type="button" onclick="KitchenApp.removeManualOrderItem(${idx})" style="background: rgba(239,68,68,0.2); border: none; color: #FCA5A5; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-size: 11px;">✕</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    this.calculateManualOrderTotals();
+  }
+
+  calculateManualOrderTotals() {
+    const items = this.manualOrderItems || [];
+    const prodSubtotal = items.reduce((sum, it) => sum + (it.price * it.quantity), 0);
+
+    const feeInp = document.getElementById('manual-order-delivery-fee');
+    const deliveryFee = feeInp ? (parseFloat(feeInp.value) || 0) : 0;
+
+    const total = prodSubtotal + deliveryFee;
+    const totalEl = document.getElementById('manual-order-total-display');
+    if (totalEl) {
+      totalEl.innerText = `$${Math.round(total).toLocaleString('de-DE')} COP`;
+    }
+  }
+
+  async submitManualKitchenOrder(immediateCallDelivery = true) {
+    if (!this.selectedId) {
+      alert('Por favor selecciona tu negocio primero.');
+      return;
+    }
+
+    const custName = document.getElementById('manual-order-customer-name')?.value.trim();
+    const custPhone = document.getElementById('manual-order-customer-phone')?.value.trim();
+    const custAddr = document.getElementById('manual-order-address')?.value.trim();
+    const custNotes = document.getElementById('manual-order-notes')?.value.trim();
+    const payMethod = document.getElementById('manual-order-payment-method')?.value || 'Efectivo';
+    const cashAmount = document.getElementById('manual-order-cash-amount')?.value.trim();
+
+    if (!custName) {
+      alert('Por favor ingresa el Nombre del Cliente.');
+      document.getElementById('manual-order-customer-name')?.focus();
+      return;
+    }
+
+    if (!custAddr) {
+      alert('Por favor ingresa la Dirección de Entrega.');
+      document.getElementById('manual-order-address')?.focus();
+      return;
+    }
+
+    const items = this.manualOrderItems || [];
+    if (items.length === 0) {
+      alert('Por favor agrega al menos un plato o producto al pedido.');
+      return;
+    }
+
+    const prodSubtotal = items.reduce((sum, it) => sum + (it.price * it.quantity), 0);
+    const feeInp = document.getElementById('manual-order-delivery-fee');
+    const deliveryFee = feeInp ? (parseFloat(feeInp.value) || 0) : 0;
+    const total = prodSubtotal + deliveryFee;
+
+    const est = (this.establishments || []).find(e => String(e.id) === String(this.selectedId));
+    const storeName = est?.name || 'Local';
+
+    let paymentNotes = '';
+    if (payMethod === 'Efectivo' && cashAmount) {
+      paymentNotes = `Paga con: ${cashAmount}`;
+    } else if (payMethod === 'Transferencia') {
+      paymentNotes = 'Pagado por transferencia / pago móvil';
+    } else if (payMethod === 'Local') {
+      paymentNotes = 'Pagado directamente en el local';
+    }
+
+    const randomCode = Math.floor(1000 + Math.random() * 9000).toString();
+
+    const orderData = {
+      establishmentId: this.selectedId,
+      establishmentName: storeName,
+      items: items.map(it => ({
+        id: it.id,
+        name: it.name,
+        price: it.price,
+        quantity: it.quantity,
+        specifications: 'Pedido directo de local',
+        unit_total_calculated: it.price,
+        subtotal_combined: it.price * it.quantity
+      })),
+      total: total,
+      orderType: 'delivery',
+      paymentMethod: payMethod === 'Local' ? 'Transferencia' : payMethod,
+      paymentNotes: paymentNotes,
+      customerName: custName,
+      deliveryDetails: {
+        phone: custPhone || 'N/A',
+        address: custAddr,
+        notes: custNotes || null,
+        code: randomCode
+      },
+      status: immediateCallDelivery ? 'Listo' : 'Preparando'
+    };
+
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al generar el pedido en el servidor');
+      }
+
+      const createdOrder = await response.json();
+      this.closeCreateManualOrderModal();
+
+      if (immediateCallDelivery && createdOrder && createdOrder.id) {
+        // Automatically dispatch and call rotated delivery driver
+        await this.callDelivery(createdOrder.id);
+      } else {
+        alert('✅ Pedido creado exitosamente y pasado a preparación.');
+      }
+
+      await this.loadActiveOrders();
+    } catch(err) {
+      console.error('Error creating manual kitchen order:', err);
+      alert('Error al crear el pedido: ' + err.message);
     }
   }
 }

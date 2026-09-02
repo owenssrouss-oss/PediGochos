@@ -50,7 +50,8 @@
           <option value="">-- Selecciona tu negocio --</option>
           <!-- Filled dynamically -->
         </select>
-        <button id="btn-manage-prices" class="btn-manage-prices hidden" onclick="KitchenApp.openMenuTablesModal()" style="margin-left:12px; background-color:#10b981; border:1px solid #10b981; color:#121216; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🍔 Taller de Local</button>
+        <button id="btn-create-manual-order" class="btn-manage-prices hidden" onclick="KitchenApp.openCreateManualOrderModal()" style="margin-left:12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color:#FFFFFF; border:none; border-radius: var(--radius-sm); padding: 8px 14px; font-weight:900; font-size:13px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(16,185,129,0.35); display: inline-flex; align-items: center; gap: 6px;">🛵 Pedir Domiciliario</button>
+        <button id="btn-manage-prices" class="btn-manage-prices hidden" onclick="KitchenApp.openMenuTablesModal()" style="margin-left:8px; background-color:#10b981; border:1px solid #10b981; color:#121216; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🍔 Taller de Local</button>
         <button id="btn-manage-stock" class="btn-manage-prices hidden" onclick="KitchenApp.openStockAvailabilityModal()" style="margin-left:8px; background-color:#F59E0B; border:1px solid #F59E0B; color:#121216; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">📦 Agotados por Hoy</button>
         <button id="btn-manage-payment-methods" class="btn-manage-prices hidden" onclick="KitchenApp.openPaymentMethodsModal()" style="margin-left:8px; background-color:#38BDF8; border:1px solid #38BDF8; color:#0F172A; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">💳 Cuentas & QR</button>
         <button id="btn-customize-shop" class="btn-manage-prices hidden" onclick="KitchenApp.openCustomizeShopModal()" style="margin-left:8px; background-color:#3b82f6; border:1px solid #3b82f6; color:#ffffff; border-radius: var(--radius-sm); padding: 8px 12px; font-weight:800; font-size:13px; cursor: pointer; transition: all 0.2s;">🏪 Sede Comercial</button>
@@ -1054,6 +1055,133 @@
       <div id="stock-products-list" class="premium-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; max-height: 480px; padding-right: 4px;">
         <!-- Filled dynamically -->
       </div>
+    </div>
+  </div>
+
+  <!-- Modal: Crear Pedido Directo y Pedir Domiciliario (POS Cocina) -->
+  <div class="modal-overlay" id="kitchen-create-manual-order-modal" style="z-index: 4900; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: none;">
+    <div class="modal-content" style="background: #14141A; border: 1.5px solid #10B981; box-shadow: 0 20px 60px rgba(0,0,0,0.9); margin: auto; max-width: 620px; width: 95%; max-height: 92vh; border-radius: 24px; padding: 20px; display: flex; flex-direction: column;">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 26px;">🛵💨</span>
+          <div>
+            <h3 style="margin: 0; color: #FFF; font-size: 17.5px; font-weight: 900;">Generar Pedido & Pedir Domiciliario</h3>
+            <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #94A3B8;">Ingresa los datos del cliente y solicita un repartidor de PediGochos al instante.</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close" onclick="KitchenApp.closeCreateManualOrderModal()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.08); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Scrollable Form Body -->
+      <div class="premium-scroll" style="flex: 1; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 12px;">
+        
+        <!-- Customer Details Box -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px;">
+          <h4 style="margin: 0 0 10px 0; color: #34D399; font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+            <span>👤</span> Datos del Cliente y Entrega
+          </h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div>
+              <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Nombre del Cliente *</label>
+              <input type="text" id="manual-order-customer-name" placeholder="Ej. Carlos Pérez" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0A0A0F; border: 1px solid rgba(255,255,255,0.12); color: #FFF; font-size: 12.5px; box-sizing: border-box;">
+            </div>
+            <div>
+              <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Teléfono WhatsApp *</label>
+              <input type="text" id="manual-order-customer-phone" placeholder="0414-1234567 / 310..." style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0A0A0F; border: 1px solid rgba(255,255,255,0.12); color: #FFF; font-size: 12.5px; box-sizing: border-box;">
+            </div>
+          </div>
+          <div style="margin-bottom: 8px;">
+            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Dirección de Entrega / Punto de Referencia *</label>
+            <input type="text" id="manual-order-address" placeholder="Ej. Barrio Obrero, Carrera 19 con Calle 12, Casa #4-20 frente a la panadería..." style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0A0A0F; border: 1px solid rgba(255,255,255,0.12); color: #FFF; font-size: 12.5px; box-sizing: border-box;">
+          </div>
+          <div>
+            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Observaciones para el Domiciliario (Opcional)</label>
+            <input type="text" id="manual-order-notes" placeholder="Ej. Tocar timbre portón blanco, entregar en portería..." style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0A0A0F; border: 1px solid rgba(255,255,255,0.12); color: #FFF; font-size: 12px; box-sizing: border-box;">
+          </div>
+        </div>
+
+        <!-- Products / Order Items Section -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h4 style="margin: 0; color: #F59E0B; font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+              <span>🍔</span> Platos y Productos del Pedido
+            </h4>
+          </div>
+
+          <!-- Quick Add from Menu -->
+          <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+            <select id="manual-order-product-select" style="flex: 1; padding: 8px 10px; border-radius: 8px; background: #0A0A0F; border: 1px solid rgba(255,255,255,0.15); color: #FFF; font-size: 12px;">
+              <option value="">-- Seleccionar plato de la carta --</option>
+              <!-- Filled dynamically with store's products -->
+            </select>
+            <button type="button" onclick="KitchenApp.addManualOrderItemFromSelect()" style="background: #F59E0B; color: #1E293B; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer;">
+              ➕ Agregar
+            </button>
+          </div>
+
+          <!-- Quick Free-Form Item Add (Optional / Direct) -->
+          <details style="margin-bottom: 10px; font-size: 11.5px; color: #94A3B8;">
+            <summary style="cursor: pointer; color: #38BDF8; font-weight: 700; margin-bottom: 6px;">✏️ O escribir plato/producto personalizado</summary>
+            <div style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 6px; margin-top: 6px;">
+              <input type="text" id="manual-custom-item-name" placeholder="Nombre (Ej. Combo 2 Arepas Mixtas)" style="padding: 7px 10px; border-radius: 8px; background: #0A0A0F; border: 1px solid rgba(255,255,255,0.12); color: #FFF; font-size: 12px;">
+              <input type="number" id="manual-custom-item-price" placeholder="Precio ($ COP)" style="padding: 7px 10px; border-radius: 8px; background: #0A0A0F; border: 1px solid rgba(255,255,255,0.12); color: #FFF; font-size: 12px;">
+              <button type="button" onclick="KitchenApp.addCustomManualOrderItem()" style="background: #3B82F6; color: #FFF; border: none; padding: 7px 12px; border-radius: 8px; font-weight: 800; font-size: 11.5px; cursor: pointer;">+ Añadir</button>
+            </div>
+          </details>
+
+          <!-- List of Added Items -->
+          <div id="manual-order-items-list" style="display: flex; flex-direction: column; gap: 6px; min-height: 50px;">
+            <div style="color: #64748B; font-size: 11.5px; text-align: center; padding: 12px;">No has agregado productos al pedido aún.</div>
+          </div>
+        </div>
+
+        <!-- Totals & Payment Method Section -->
+        <div style="background: rgba(16, 185, 129, 0.05); border: 1.5px solid rgba(16, 185, 129, 0.25); border-radius: 14px; padding: 12px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div>
+              <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Costo de Domicilio ($ COP)</label>
+              <input type="number" id="manual-order-delivery-fee" value="4000" oninput="KitchenApp.calculateManualOrderTotals()" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0A0A0F; border: 1px solid rgba(255,255,255,0.12); color: #10B981; font-weight: 800; font-size: 12.5px; box-sizing: border-box;">
+            </div>
+            <div>
+              <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Método de Pago</label>
+              <select id="manual-order-payment-method" onchange="KitchenApp.onManualPaymentMethodChanged()" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0A0A0F; border: 1px solid rgba(255,255,255,0.12); color: #FFF; font-size: 12px;">
+                <option value="Efectivo">💵 Efectivo (Cobrar al cliente)</option>
+                <option value="Transferencia">📲 Pagado por Transferencia / Pago Móvil</option>
+                <option value="Local">🏠 Pagado directamente en el local</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Cash payment change helper -->
+          <div id="manual-order-cash-details" style="margin-bottom: 8px;">
+            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">¿Con cuánto paga el cliente? (Para el vuelto)</label>
+            <input type="text" id="manual-order-cash-amount" placeholder="Ej. $50.000 COP, Pago Exacto..." style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0A0A0F; border: 1px solid rgba(255,255,255,0.12); color: #FDE047; font-weight: 700; font-size: 12px; box-sizing: border-box;">
+          </div>
+
+          <!-- Summary Bar -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 6px;">
+            <span style="font-size: 13px; color: #E2E8F0; font-weight: 700;">Total a Cobrar al Cliente:</span>
+            <span id="manual-order-total-display" style="font-size: 18px; font-weight: 900; color: #34D399;">$0 COP</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 8px; margin-top: 14px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
+        <button type="button" onclick="KitchenApp.closeCreateManualOrderModal()" style="padding: 11px 16px; border-radius: 12px; background: rgba(255,255,255,0.08); color: #CBD5E1; border: none; font-weight: 700; font-size: 12.5px; cursor: pointer;">
+          Cancelar
+        </button>
+        <button type="button" onclick="KitchenApp.submitManualKitchenOrder(false)" style="flex: 1; padding: 11px 14px; border-radius: 12px; background: #3B82F6; color: #FFF; border: none; font-weight: 800; font-size: 12.5px; cursor: pointer;">
+          🍳 Pasar a Preparación
+        </button>
+        <button type="button" onclick="KitchenApp.submitManualKitchenOrder(true)" style="flex: 1.3; padding: 11px 14px; border-radius: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFF; border: none; font-weight: 900; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 15px rgba(16,185,129,0.4);">
+          <span>🛵💨</span> Pedir Domiciliario Ahora
+        </button>
+      </div>
+
     </div>
   </div>
 
