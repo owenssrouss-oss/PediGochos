@@ -2268,25 +2268,34 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
           <div>
-            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Teléfono / Cuenta / Correo *</label>
-            <input type="text" id="admin-pm-form-phone" placeholder="0414-1234567 / 310..." style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px; box-sizing: border-box;">
+            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Teléfono / N° Cuenta / Correo *</label>
+            <input type="text" id="admin-pm-form-phone" placeholder="0414-1234567 / 310... / N° Cuenta" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px; box-sizing: border-box;">
           </div>
           <div>
-            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Cédula / RIF / ID</label>
-            <input type="text" id="admin-pm-form-idnumber" placeholder="V-12345678" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px; box-sizing: border-box;">
+            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Tipo de Cuenta (Opcional)</label>
+            <select id="admin-pm-form-account-type" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px;">
+              <option value="">-- No aplica / Ninguno (Nequi, Zelle...) --</option>
+              <option value="Ahorros">Cuenta de Ahorros</option>
+              <option value="Corriente">Cuenta Corriente</option>
+            </select>
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
           <div>
+            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Cédula / RIF / ID</label>
+            <input type="text" id="admin-pm-form-idnumber" placeholder="V-12345678" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px; box-sizing: border-box;">
+          </div>
+          <div>
             <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Titular de la Cuenta</label>
             <input type="text" id="admin-pm-form-titular" placeholder="Nombre completo" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px; box-sizing: border-box;">
           </div>
-          <div>
-            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Foto Código QR (Opcional)</label>
-            <input type="file" id="admin-pm-form-qr-file" accept="image/*" onchange="AdminApp.handleAdminQRFileSelected(event)" style="width: 100%; font-size: 11px; color: #CBD5E1;">
-            <input type="hidden" id="admin-pm-form-qr-url" value="">
-          </div>
+        </div>
+
+        <div style="margin-bottom: 8px;">
+          <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Foto Código QR (Opcional)</label>
+          <input type="file" id="admin-pm-form-qr-file" accept="image/*" onchange="AdminApp.handleAdminQRFileSelected(event)" style="width: 100%; font-size: 11px; color: #CBD5E1;">
+          <input type="hidden" id="admin-pm-form-qr-url" value="">
         </div>
 
         <div style="margin-bottom: 10px;">

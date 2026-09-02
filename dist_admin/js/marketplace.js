@@ -3420,6 +3420,14 @@ class MarketplaceController {
             </div>
           `;
         }
+        if (m.accountType && String(m.accountType).trim()) {
+          fieldsHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="color: #94A3B8;">📋 Tipo de Cuenta:</span>
+              <strong style="color: #93C5FD; font-size: 11.5px;">${m.accountType}</strong>
+            </div>
+          `;
+        }
         if (m.email) {
           fieldsHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">

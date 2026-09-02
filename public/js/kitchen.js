@@ -5429,10 +5429,12 @@ class KitchenController {
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
               <span style="font-weight: 900; font-size: 13.5px; color: #FFF;">${typeIcon} ${m.title || m.bank}</span>
               <span style="font-size: 10.5px; font-weight: 800; background: rgba(56,189,248,0.2); color: #38BDF8; padding: 2px 6px; border-radius: 4px;">${m.bank || m.type}</span>
+              ${m.accountType ? `<span style="font-size: 10.5px; font-weight: 800; background: rgba(59,130,246,0.2); color: #93C5FD; padding: 2px 6px; border-radius: 4px;">${m.accountType}</span>` : ''}
               ${m.qrImage ? '<span style="font-size: 10px; font-weight: 800; background: rgba(16,185,129,0.2); color: #10B981; padding: 2px 6px; border-radius: 4px;">QR Adjunto</span>' : ''}
             </div>
             <div style="font-size: 12px; color: #CBD5E1; margin-top: 4px;">
-              ${m.phone ? `<span>📞 ${m.phone}</span> • ` : ''}
+              ${m.phone ? `<span>📞/💳 ${m.phone}</span> • ` : ''}
+              ${m.accountType ? `<span>(${m.accountType})</span> • ` : ''}
               ${m.idNumber ? `<span>🪪 ${m.idNumber}</span> • ` : ''}
               ${m.account ? `<span>💳 ${m.account}</span> • ` : ''}
               ${m.titular ? `<span>👤 ${m.titular}</span>` : ''}
@@ -5469,6 +5471,8 @@ class KitchenController {
       document.getElementById('pm-form-type').value = existingData.type || 'pago_movil';
       document.getElementById('pm-form-bank').value = existingData.bank || '';
       document.getElementById('pm-form-phone').value = existingData.phone || existingData.account || '';
+      const accTypeEl = document.getElementById('pm-form-account-type');
+      if (accTypeEl) accTypeEl.value = existingData.accountType || '';
       document.getElementById('pm-form-idnumber').value = existingData.idNumber || '';
       document.getElementById('pm-form-titular').value = existingData.titular || '';
       document.getElementById('pm-form-notes').value = existingData.notes || '';
@@ -5479,6 +5483,8 @@ class KitchenController {
       document.getElementById('pm-form-type').value = 'pago_movil';
       document.getElementById('pm-form-bank').value = '';
       document.getElementById('pm-form-phone').value = '';
+      const accTypeEl = document.getElementById('pm-form-account-type');
+      if (accTypeEl) accTypeEl.value = '';
       document.getElementById('pm-form-idnumber').value = '';
       document.getElementById('pm-form-titular').value = '';
       document.getElementById('pm-form-notes').value = '';
@@ -5543,6 +5549,8 @@ class KitchenController {
     const type = document.getElementById('pm-form-type').value;
     const bank = document.getElementById('pm-form-bank').value.trim();
     const phone = document.getElementById('pm-form-phone').value.trim();
+    const accTypeEl = document.getElementById('pm-form-account-type');
+    const accountType = accTypeEl ? accTypeEl.value : '';
     const idNumber = document.getElementById('pm-form-idnumber').value.trim();
     const titular = document.getElementById('pm-form-titular').value.trim();
     const notes = document.getElementById('pm-form-notes').value.trim();
@@ -5567,6 +5575,7 @@ class KitchenController {
       type,
       bank,
       phone,
+      accountType: accountType || null,
       idNumber,
       titular,
       notes,
