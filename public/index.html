@@ -475,10 +475,50 @@
             </div>
           </div>
 
-          <!-- Transfer Payment Helper Details -->
-          <div id="payment-transfer-details" class="hidden" style="margin-top: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); padding: 10px 12px; border-radius: 12px; font-size: 12px; color: #60A5FA;">
-            <div style="font-weight: 700;">📲 Pago Móvil / Transferencia Bancaria / Zelle / Binance.</div>
-            <div style="font-size: 11.5px; opacity: 0.9; margin-top: 2px;">Podrás acordar los datos o transferir directamente con el comercio al confirmar tu orden.</div>
+          <!-- Transfer / Pago Móvil / QR Payment Helper Details -->
+          <div id="payment-transfer-details" class="hidden" style="margin-top: 10px; background: rgba(59, 130, 246, 0.05); border: 1.5px solid rgba(59, 130, 246, 0.3); padding: 14px; border-radius: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+              <div style="font-weight: 900; font-size: 13.5px; color: #93C5FD; display: flex; align-items: center; gap: 6px;">
+                <span>📲</span> Datos para Transferencia o Pago Móvil
+              </div>
+              <span style="font-size: 11px; color: #60A5FA; background: rgba(59,130,246,0.15); padding: 2px 8px; border-radius: 6px; font-weight: 800;">Copiar datos 👇</span>
+            </div>
+
+            <!-- Dynamic Accounts List -->
+            <div id="checkout-payment-methods-list" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;">
+              <div style="color: #94A3B8; font-size: 12px; text-align: center; padding: 10px;">Cargando cuentas disponibles...</div>
+            </div>
+
+            <!-- Attach Payment Receipt (Comprobante / Captura) -->
+            <div style="background: rgba(0,0,0,0.35); border: 1px dashed rgba(255,255,255,0.18); border-radius: 14px; padding: 12px; margin-top: 10px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <label style="font-size: 12.5px; font-weight: 800; color: #FFF; margin: 0; display: flex; align-items: center; gap: 6px;">
+                  <span>📸</span> Adjuntar Captura / Comprobante de Pago
+                </label>
+                <span style="font-size: 10px; color: #34D399; font-weight: 800;">(Recomendado)</span>
+              </div>
+
+              <input type="file" id="order-payment-receipt-file" accept="image/*" onchange="MarketplaceApp.handlePaymentReceiptSelected(event)" style="display: none;">
+              
+              <button type="button" onclick="document.getElementById('order-payment-receipt-file').click()" style="width: 100%; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #FFF; font-size: 12.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
+                <span>📷</span> <span id="btn-receipt-upload-text">Seleccionar o Tomar Foto del Comprobante</span>
+              </button>
+
+              <!-- Receipt Preview Box -->
+              <div id="payment-receipt-preview-container" class="hidden" style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 8px 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <img id="payment-receipt-preview-img" src="" alt="Comprobante" style="width: 44px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;" onclick="MarketplaceApp.zoomPaymentReceipt()">
+                  <div>
+                    <span style="display: block; font-size: 12px; font-weight: 800; color: #34D399;">✅ Comprobante adjunto</span>
+                    <span id="payment-receipt-size-label" style="font-size: 10.5px; color: #94A3B8;">Comprimido listo para enviar</span>
+                  </div>
+                </div>
+                <button type="button" onclick="MarketplaceApp.removePaymentReceipt()" style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #FCA5A5; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: 800; cursor: pointer;">✕ Quitar</button>
+              </div>
+
+              <!-- Reference notes -->
+              <input type="text" id="order-payment-ref-number" placeholder="Número de referencia o banco emisor (opcional)..." style="width: 100%; margin-top: 8px; font-size: 12px; padding: 8px 10px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: #FFF; outline: none; box-sizing: border-box;">
+            </div>
           </div>
         </div>
 
@@ -1032,6 +1072,25 @@
         </p>
       </div>
 
+  <!-- Modal: Visualizador de Código QR de Pago en Alta Resolución -->
+  <div class="modal-overlay" id="payment-qr-zoom-modal" style="display: none; z-index: 5200; align-items: center; justify-content: center; background: rgba(0,0,0,0.88); backdrop-filter: blur(12px);">
+    <div class="modal-content" style="max-width: 420px; width: 92%; background: #121218; border: 2px solid #3B82F6; border-radius: 24px; padding: 22px 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); color: #FFF; text-align: center; position: relative;">
+      <button type="button" class="btn-close" onclick="MarketplaceApp.closePaymentQRZoom()" style="position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.1); border: none; color: #FFF; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: 800;">✕</button>
+      
+      <div style="font-size: 28px; margin-bottom: 4px;">📲✨</div>
+      <h3 id="qr-zoom-title" style="color: #FFF; font-size: 17px; font-weight: 900; margin: 0 0 4px 0;">Código QR de Pago</h3>
+      <p id="qr-zoom-subtitle" style="color: #94A3B8; font-size: 12px; margin: 0 0 14px 0;">Escanea este código desde tu app bancaria para transferir</p>
+
+      <div style="background: #FFFFFF; padding: 14px; border-radius: 16px; display: inline-block; box-shadow: 0 8px 24px rgba(0,0,0,0.4); margin-bottom: 14px;">
+        <img id="qr-zoom-img" src="" alt="QR de Pago" style="width: 240px; height: 240px; object-fit: contain; display: block; border-radius: 8px;">
+      </div>
+
+      <div id="qr-zoom-details" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px; font-size: 12px; color: #CBD5E1; margin-bottom: 14px; text-align: left;">
+      </div>
+
+      <button type="button" onclick="MarketplaceApp.closePaymentQRZoom()" style="width: 100%; padding: 12px; border-radius: 12px; background: #3B82F6; color: #FFF; border: none; font-weight: 800; font-size: 13px; cursor: pointer;">
+        Cerrar Visualizador
+      </button>
     </div>
   </div>
 

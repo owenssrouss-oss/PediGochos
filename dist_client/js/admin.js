@@ -4347,6 +4347,12 @@ class AdminController {
             <span style="font-size: 20px; font-weight: 800; color: #FFD700;">$${total}</span>
           </div>
 
+          ${order.paymentReceiptUrl ? `
+            <button type="button" onclick="AdminApp.openReceiptViewer('${order.id}')" style="width: 100%; margin-bottom: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFF; border: none; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(16,185,129,0.35);">
+              <span>📸</span> Ver Comprobante de Pago Adjunto
+            </button>
+          ` : ''}
+
           <div style="display: flex; gap: 8px; margin-bottom: 12px;">
             <button type="button" onclick="if(window.Sound) Sound.stopAlarm(); AdminApp.hideAlarmBanner(); document.getElementById('admin-new-order-modal').style.display='none'; AdminApp.openEstActionModal('${estId}');" class="btn-primary" style="flex: 1; padding: 10px; font-size: 12px; font-weight: 800; border-radius: 10px; cursor: pointer; background: #3B82F6; border: none; color: #FFF;">
               📋 Administrar Comercio
@@ -5975,6 +5981,365 @@ class AdminController {
     } catch (err) {
       console.error(err);
       alert('Error de conexión al eliminar adicionales.');
+    }
+  }
+
+  // ==========================================
+  // PAYMENT METHODS & QR MANAGEMENT (ADMIN)
+  // ==========================================
+
+  async openPaymentMethodsModal(initialStoreId = null) {
+    const modal = document.getElementById('admin-payment-methods-modal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+
+    // Populate store select
+    const select = document.getElementById('admin-pm-store-select');
+    if (select) {
+      const stores = (this.establishments || []).map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+      select.innerHTML = `
+        <option value="global">🌐 Plataforma Global (Por Defecto)</option>
+        ${stores}
+      `;
+      if (initialStoreId) {
+        select.value = initialStoreId;
+      }
+    }
+
+    this.cancelPaymentMethodForm();
+    await this.loadAdminPaymentMethods();
+  }
+
+  closePaymentMethodsModal() {
+    const modal = document.getElementById('admin-payment-methods-modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active');
+    }
+  }
+
+  async onPaymentStoreChanged() {
+    this.cancelPaymentMethodForm();
+    await this.loadAdminPaymentMethods();
+  }
+
+  async loadAdminPaymentMethods() {
+    const container = document.getElementById('admin-payment-methods-list');
+    const select = document.getElementById('admin-pm-store-select');
+    if (!container) return;
+
+    const storeId = select ? select.value : 'global';
+    container.innerHTML = '<div style="color: #94A3B8; text-align: center; padding: 20px;">Cargando cuentas...</div>';
+
+    try {
+      let url = storeId === 'global' ? '/api/settings/payment-methods' : `/api/establishments/${storeId}/payment-methods`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Error al consultar métodos');
+      const data = await res.json();
+      this.currentAdminPaymentMethods = Array.isArray(data) ? data : (data.paymentMethods || []);
+      this.renderAdminPaymentMethodsList();
+    } catch(err) {
+      console.error(err);
+      container.innerHTML = '<div style="color: #EF4444; text-align: center; padding: 20px;">Error al cargar cuentas de pago.</div>';
+    }
+  }
+
+  renderAdminPaymentMethodsList() {
+    const container = document.getElementById('admin-payment-methods-list');
+    if (!container) return;
+
+    const methods = this.currentAdminPaymentMethods || [];
+    if (methods.length === 0) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 30px; background: rgba(255,255,255,0.02); border-radius: 14px;">
+          <span style="font-size: 32px; display: block; margin-bottom: 6px;">💳</span>
+          <strong style="color: #FFF; font-size: 13.5px;">No hay cuentas registradas para esta sede</strong>
+          <p style="color: #94A3B8; font-size: 12px; margin: 4px 0 0 0;">Haz clic en <strong>"+ Nueva Cuenta o QR"</strong> para registrar una cuenta.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = methods.map((m) => {
+      const typeIcon = m.type === 'pago_movil' ? '📲' : (m.type === 'zelle' ? '💵' : (m.type === 'binance' ? '🟡' : '🏦'));
+      const isActive = m.active !== false;
+
+      return `
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; ${!isActive ? 'opacity: 0.5;' : ''}">
+          <div style="flex: 1; min-width: 0;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span style="font-weight: 900; font-size: 13.5px; color: #FFF;">${typeIcon} ${m.title || m.bank}</span>
+              <span style="font-size: 10.5px; font-weight: 800; background: rgba(20,184,166,0.2); color: #5EEAD4; padding: 2px 6px; border-radius: 4px;">${m.bank || m.type}</span>
+              ${m.qrImage ? '<span style="font-size: 10px; font-weight: 800; background: rgba(16,185,129,0.2); color: #10B981; padding: 2px 6px; border-radius: 4px;">QR Adjunto</span>' : ''}
+            </div>
+            <div style="font-size: 12px; color: #CBD5E1; margin-top: 4px;">
+              ${m.phone ? `<span>📞 ${m.phone}</span> • ` : ''}
+              ${m.idNumber ? `<span>🪪 ${m.idNumber}</span> • ` : ''}
+              ${m.account ? `<span>💳 ${m.account}</span> • ` : ''}
+              ${m.titular ? `<span>👤 ${m.titular}</span>` : ''}
+            </div>
+            ${m.notes ? `<div style="font-size: 11px; color: #FDE047; margin-top: 2px; font-style: italic;">Nota: ${m.notes}</div>` : ''}
+          </div>
+
+          <div style="display: flex; gap: 6px; align-items: center; flex-shrink: 0;">
+            <button type="button" onclick="AdminApp.toggleAdminPaymentMethodActive('${m.id}')" style="background: ${isActive ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}; border: 1px solid ${isActive ? '#10B981' : '#EF4444'}; color: ${isActive ? '#10B981' : '#EF4444'}; padding: 5px 9px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer;">
+              ${isActive ? '🟢 Activo' : '🔴 Pausado'}
+            </button>
+            <button type="button" onclick="AdminApp.editAdminPaymentMethod('${m.id}')" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #FFF; padding: 5px 9px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer;">
+              ✏️
+            </button>
+            <button type="button" onclick="AdminApp.deleteAdminPaymentMethod('${m.id}')" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #FCA5A5; padding: 5px 9px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer;">
+              🗑️
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  openAddPaymentMethodForm(existingData = null) {
+    const form = document.getElementById('admin-payment-method-form-container');
+    const title = document.getElementById('admin-payment-form-title');
+    if (!form) return;
+
+    form.classList.remove('hidden');
+
+    if (existingData) {
+      if (title) title.innerText = 'Editar Cuenta Bancaria';
+      document.getElementById('admin-pm-form-id').value = existingData.id || '';
+      document.getElementById('admin-pm-form-type').value = existingData.type || 'pago_movil';
+      document.getElementById('admin-pm-form-bank').value = existingData.bank || '';
+      document.getElementById('admin-pm-form-phone').value = existingData.phone || existingData.account || '';
+      document.getElementById('admin-pm-form-idnumber').value = existingData.idNumber || '';
+      document.getElementById('admin-pm-form-titular').value = existingData.titular || '';
+      document.getElementById('admin-pm-form-notes').value = existingData.notes || '';
+      document.getElementById('admin-pm-form-qr-url').value = existingData.qrImage || '';
+    } else {
+      if (title) title.innerText = 'Agregar Nueva Cuenta Bancaria / QR';
+      document.getElementById('admin-pm-form-id').value = '';
+      document.getElementById('admin-pm-form-type').value = 'pago_movil';
+      document.getElementById('admin-pm-form-bank').value = '';
+      document.getElementById('admin-pm-form-phone').value = '';
+      document.getElementById('admin-pm-form-idnumber').value = '';
+      document.getElementById('admin-pm-form-titular').value = '';
+      document.getElementById('admin-pm-form-notes').value = '';
+      document.getElementById('admin-pm-form-qr-url').value = '';
+    }
+    const fileInp = document.getElementById('admin-pm-form-qr-file');
+    if (fileInp) fileInp.value = '';
+  }
+
+  cancelPaymentMethodForm() {
+    const form = document.getElementById('admin-payment-method-form-container');
+    if (form) form.classList.add('hidden');
+  }
+
+  editAdminPaymentMethod(id) {
+    const method = (this.currentAdminPaymentMethods || []).find(m => m.id === id);
+    if (method) this.openAddPaymentMethodForm(method);
+  }
+
+  async handleAdminQRFileSelected(event) {
+    const input = event.target;
+    if (!input || !input.files || !input.files[0]) return;
+    const file = input.files[0];
+
+    try {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 800;
+          let width = img.width;
+          let height = img.height;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL('image/jpeg', 0.8);
+          document.getElementById('admin-pm-form-qr-url').value = compressed;
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  async savePaymentMethod() {
+    const select = document.getElementById('admin-pm-store-select');
+    const storeId = select ? select.value : 'global';
+
+    const id = document.getElementById('admin-pm-form-id').value || ('pm-' + Date.now());
+    const type = document.getElementById('admin-pm-form-type').value;
+    const bank = document.getElementById('admin-pm-form-bank').value.trim();
+    const phone = document.getElementById('admin-pm-form-phone').value.trim();
+    const idNumber = document.getElementById('admin-pm-form-idnumber').value.trim();
+    const titular = document.getElementById('admin-pm-form-titular').value.trim();
+    const notes = document.getElementById('admin-pm-form-notes').value.trim();
+    const qrImage = document.getElementById('admin-pm-form-qr-url').value;
+
+    if (!bank || !phone) {
+      alert('Por favor indica al menos el Banco y el Teléfono/Cuenta.');
+      return;
+    }
+
+    const typeTitles = {
+      pago_movil: 'Pago Móvil (Bolívares)',
+      transferencia: 'Bancolombia / Nequi (COP)',
+      zelle: 'Zelle (USD)',
+      binance: 'Binance Pay USDT',
+      otro: bank
+    };
+
+    const newMethod = {
+      id,
+      title: `${typeTitles[type] || bank}`,
+      type,
+      bank,
+      phone,
+      idNumber,
+      titular,
+      notes,
+      qrImage,
+      active: true
+    };
+
+    let methods = [...(this.currentAdminPaymentMethods || [])];
+    const existingIdx = methods.findIndex(m => m.id === id);
+    if (existingIdx !== -1) {
+      methods[existingIdx] = newMethod;
+    } else {
+      methods.push(newMethod);
+    }
+
+    try {
+      const url = storeId === 'global' ? '/api/settings/payment-methods' : `/api/establishments/${storeId}/payment-methods`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentMethods: methods })
+      });
+
+      if (res.ok) {
+        this.currentAdminPaymentMethods = methods;
+        this.renderAdminPaymentMethodsList();
+        this.cancelPaymentMethodForm();
+        this.markPendingChanges();
+      } else {
+        alert('Error al guardar la cuenta en el servidor.');
+      }
+    } catch(err) {
+      console.error(err);
+      alert('Error de conexión al guardar cuenta.');
+    }
+  }
+
+  async deleteAdminPaymentMethod(id) {
+    if (!confirm('¿Deseas eliminar esta cuenta de pago?')) return;
+    const select = document.getElementById('admin-pm-store-select');
+    const storeId = select ? select.value : 'global';
+    const methods = (this.currentAdminPaymentMethods || []).filter(m => m.id !== id);
+
+    try {
+      const url = storeId === 'global' ? '/api/settings/payment-methods' : `/api/establishments/${storeId}/payment-methods`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentMethods: methods })
+      });
+
+      if (res.ok) {
+        this.currentAdminPaymentMethods = methods;
+        this.renderAdminPaymentMethodsList();
+        this.markPendingChanges();
+      }
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  async toggleAdminPaymentMethodActive(id) {
+    const select = document.getElementById('admin-pm-store-select');
+    const storeId = select ? select.value : 'global';
+    const methods = (this.currentAdminPaymentMethods || []).map(m => {
+      if (m.id === id) {
+        return { ...m, active: m.active === false ? true : false };
+      }
+      return m;
+    });
+
+    try {
+      const url = storeId === 'global' ? '/api/settings/payment-methods' : `/api/establishments/${storeId}/payment-methods`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentMethods: methods })
+      });
+
+      if (res.ok) {
+        this.currentAdminPaymentMethods = methods;
+        this.renderAdminPaymentMethodsList();
+        this.markPendingChanges();
+      }
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  // ==========================================
+  // RECEIPT VIEWER MODAL (ADMIN ZOOM)
+  // ==========================================
+
+  openReceiptViewer(orderId) {
+    const order = (this.orders || []).find(o => String(o.id) === String(orderId));
+    if (!order || !order.paymentReceiptUrl) return;
+
+    const modal = document.getElementById('admin-receipt-viewer-modal');
+    const infoEl = document.getElementById('admin-receipt-modal-order-info');
+    const imgEl = document.getElementById('admin-receipt-modal-full-img');
+    const downloadLink = document.getElementById('admin-receipt-modal-download-link');
+
+    const orderTimeFormatted = order.createdAt ? new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
+    const locText = order.orderType === 'mesa' ? `🍽️ Mesa #${order.tableNumber || '1'}` : `🚴 Domicilio (${order.deliveryDetails?.phone || 'Sin tlf'})`;
+
+    if (infoEl) {
+      infoEl.innerHTML = `
+        <span><strong>Pedido:</strong> #${String(order.id).slice(-4)}</span>
+        <span><strong>Comercio:</strong> ${order.establishmentName || ''}</span>
+        <span><strong>Ubicación:</strong> ${locText}</span>
+        <span><strong>Hora:</strong> ${orderTimeFormatted}</span>
+        <span><strong>Cliente:</strong> ${order.customerName || 'Cliente'}</span>
+        <span><strong>Total:</strong> $${Math.round(order.total || 0).toLocaleString('de-DE')} COP</span>
+      `;
+    }
+
+    if (imgEl) imgEl.src = order.paymentReceiptUrl;
+    if (downloadLink) downloadLink.href = order.paymentReceiptUrl;
+
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+    }
+  }
+
+  closeReceiptViewerModal() {
+    const modal = document.getElementById('admin-receipt-viewer-modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active');
     }
   }
 }

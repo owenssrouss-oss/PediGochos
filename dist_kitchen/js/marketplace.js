@@ -3343,7 +3343,275 @@ class MarketplaceController {
       if (transferBtn) transferBtn.classList.add('active');
       if (cashDetails) cashDetails.classList.add('hidden');
       if (transferDetails) transferDetails.classList.remove('hidden');
+      this.loadCheckoutPaymentMethods();
     }
+  }
+
+  async loadCheckoutPaymentMethods() {
+    const container = document.getElementById('checkout-payment-methods-list');
+    if (!container) return;
+
+    // Get active store from cart
+    const firstItem = this.cart.items[0];
+    const estId = firstItem ? (firstItem.restaurant_id || firstItem.restaurantId || (this.selectedEstablishment ? this.selectedEstablishment.id : null)) : (this.selectedEstablishment ? this.selectedEstablishment.id : null);
+    
+    if (!estId) {
+      container.innerHTML = '<div style="color: #94A3B8; font-size: 12px; text-align: center; padding: 10px;">Agrega productos al carrito para ver las cuentas bancarias del restaurante.</div>';
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/establishments/${estId}/payment-methods`);
+      if (!res.ok) throw new Error('Error al cargar métodos');
+      const data = await res.json();
+      const methods = (data.paymentMethods || []).filter(m => m.active !== false);
+
+      if (methods.length === 0) {
+        container.innerHTML = '<div style="color: #94A3B8; font-size: 12px; text-align: center; padding: 10px;">El restaurante no tiene cuentas configuradas aún. Puedes acordar el pago por WhatsApp.</div>';
+        return;
+      }
+
+      container.innerHTML = methods.map(m => {
+        const typeIcon = m.type === 'pago_movil' ? '📲' : (m.type === 'zelle' ? '💵' : (m.type === 'binance' ? '🟡' : '🏦'));
+        const typeLabel = m.type === 'pago_movil' ? 'Pago Móvil (Bs)' : (m.type === 'zelle' ? 'Zelle (USD)' : (m.type === 'binance' ? 'Binance USDT' : 'Transferencia Bancaria'));
+
+        let fieldsHTML = '';
+        if (m.bank) {
+          fieldsHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="color: #94A3B8;">🏦 Banco:</span>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <strong style="color: #FFF;">${m.bank}</strong>
+                <button type="button" onclick="MarketplaceApp.copyTextToClipboard('${m.bank}', 'Banco')" style="background: rgba(255,255,255,0.1); border: none; color: #60A5FA; border-radius: 4px; padding: 2px 6px; font-size: 10.5px; font-weight: 800; cursor: pointer;">📋 Copiar</button>
+              </div>
+            </div>
+          `;
+        }
+        if (m.phone) {
+          fieldsHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="color: #94A3B8;">📞 Teléfono:</span>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <strong style="color: #FDE047;">${m.phone}</strong>
+                <button type="button" onclick="MarketplaceApp.copyTextToClipboard('${m.phone.replace(/[^0-9]/g, '')}', 'Teléfono')" style="background: rgba(255,255,255,0.1); border: none; color: #60A5FA; border-radius: 4px; padding: 2px 6px; font-size: 10.5px; font-weight: 800; cursor: pointer;">📋 Copiar</button>
+              </div>
+            </div>
+          `;
+        }
+        if (m.idNumber) {
+          fieldsHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="color: #94A3B8;">🪪 Cédula / RIF:</span>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <strong style="color: #FFF;">${m.idNumber}</strong>
+                <button type="button" onclick="MarketplaceApp.copyTextToClipboard('${m.idNumber.replace(/[^0-9a-zA-Z]/g, '')}', 'Cédula/RIF')" style="background: rgba(255,255,255,0.1); border: none; color: #60A5FA; border-radius: 4px; padding: 2px 6px; font-size: 10.5px; font-weight: 800; cursor: pointer;">📋 Copiar</button>
+              </div>
+            </div>
+          `;
+        }
+        if (m.account) {
+          fieldsHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="color: #94A3B8;">💳 N° Cuenta:</span>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <strong style="color: #FFF; font-size: 11px;">${m.account}</strong>
+                <button type="button" onclick="MarketplaceApp.copyTextToClipboard('${m.account.replace(/[^0-9]/g, '')}', 'Número de Cuenta')" style="background: rgba(255,255,255,0.1); border: none; color: #60A5FA; border-radius: 4px; padding: 2px 6px; font-size: 10.5px; font-weight: 800; cursor: pointer;">📋 Copiar</button>
+              </div>
+            </div>
+          `;
+        }
+        if (m.email) {
+          fieldsHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="color: #94A3B8;">📧 Correo:</span>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <strong style="color: #FFF; font-size: 11.5px;">${m.email}</strong>
+                <button type="button" onclick="MarketplaceApp.copyTextToClipboard('${m.email}', 'Correo')" style="background: rgba(255,255,255,0.1); border: none; color: #60A5FA; border-radius: 4px; padding: 2px 6px; font-size: 10.5px; font-weight: 800; cursor: pointer;">📋 Copiar</button>
+              </div>
+            </div>
+          `;
+        }
+        if (m.titular) {
+          fieldsHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="color: #94A3B8;">👤 Titular:</span>
+              <strong style="color: #CBD5E1;">${m.titular}</strong>
+            </div>
+          `;
+        }
+
+        let qrSection = '';
+        if (m.qrImage) {
+          const qrDetailsEscaped = encodeURIComponent(`${m.title || ''} - ${m.bank || ''} - ${m.phone || m.account || ''}`);
+          qrSection = `
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);">
+              <span style="font-size: 11.5px; color: #38BDF8; font-weight: 700;">📸 Código QR de Pago</span>
+              <button type="button" onclick="MarketplaceApp.openPaymentQRZoom('${encodeURIComponent(m.title || 'QR de Pago')}', '${encodeURIComponent(m.qrImage)}', '${qrDetailsEscaped}')" style="background: #3B82F6; color: #FFF; border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: gap: 4px;">
+                🔍 Ver QR en Grande
+              </button>
+            </div>
+          `;
+        }
+
+        return `
+          <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px; padding: 12px; font-size: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 6px;">
+              <span style="font-weight: 900; color: #FFF; font-size: 13px;">${typeIcon} ${m.title || typeLabel}</span>
+              <span style="font-size: 10px; font-weight: 800; background: rgba(59,130,246,0.2); color: #93C5FD; padding: 2px 6px; border-radius: 4px;">${m.bank || typeLabel}</span>
+            </div>
+            ${fieldsHTML}
+            ${m.notes ? `<div style="font-size: 11px; color: #FDE047; font-style: italic; margin-top: 4px;">⚠️ ${m.notes}</div>` : ''}
+            ${qrSection}
+          </div>
+        `;
+      }).join('');
+
+    } catch (e) {
+      console.error(e);
+      container.innerHTML = '<div style="color: #EF4444; font-size: 12px; text-align: center; padding: 10px;">Error al cargar cuentas de pago.</div>';
+    }
+  }
+
+  copyTextToClipboard(text, label = 'Dato') {
+    if (!text) return;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          this.showToast(`✅ ${label} copiado al portapapeles: ${text}`);
+        }).catch(() => {
+          this.fallbackCopyText(text, label);
+        });
+      } else {
+        this.fallbackCopyText(text, label);
+      }
+    } catch(e) {
+      this.fallbackCopyText(text, label);
+    }
+  }
+
+  fallbackCopyText(text, label) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      this.showToast(`✅ ${label} copiado: ${text}`);
+    } catch (err) {
+      prompt(`Copia el ${label} manualmente:`, text);
+    }
+    document.body.removeChild(textArea);
+  }
+
+  openPaymentQRZoom(encodedTitle, encodedUrl, encodedDetails) {
+    const title = decodeURIComponent(encodedTitle);
+    const url = decodeURIComponent(encodedUrl);
+    const details = decodeURIComponent(encodedDetails);
+
+    const modal = document.getElementById('payment-qr-zoom-modal');
+    const titleEl = document.getElementById('qr-zoom-title');
+    const imgEl = document.getElementById('qr-zoom-img');
+    const detailsEl = document.getElementById('qr-zoom-details');
+
+    if (titleEl) titleEl.innerText = title;
+    if (imgEl) imgEl.src = url;
+    if (detailsEl) detailsEl.innerText = details;
+
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+    }
+  }
+
+  closePaymentQRZoom() {
+    const modal = document.getElementById('payment-qr-zoom-modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active');
+    }
+  }
+
+  // Client-side image compression: Canvas resize to max 1200px & JPEG 0.75 quality
+  async compressImageFile(file, maxDimension = 1200, quality = 0.75) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedDataUrl);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async handlePaymentReceiptSelected(event) {
+    const input = event.target;
+    if (!input || !input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+    const previewContainer = document.getElementById('payment-receipt-preview-container');
+    const previewImg = document.getElementById('payment-receipt-preview-img');
+    const sizeLabel = document.getElementById('payment-receipt-size-label');
+    const btnText = document.getElementById('btn-receipt-upload-text');
+
+    if (btnText) btnText.innerText = '⏳ Comprimiendo imagen...';
+
+    try {
+      const compressedBase64 = await this.compressImageFile(file, 1200, 0.75);
+      this.attachedReceiptBase64 = compressedBase64;
+      
+      const approxKb = Math.round(compressedBase64.length * (3/4) / 1024);
+
+      if (previewImg) previewImg.src = compressedBase64;
+      if (sizeLabel) sizeLabel.innerText = `${approxKb} KB • Listo para enviar`;
+      if (previewContainer) previewContainer.classList.remove('hidden');
+      if (btnText) btnText.innerText = '🔄 Cambiar Comprobante';
+
+      this.showToast(`📸 Comprobante listo (${approxKb} KB)`);
+    } catch(err) {
+      console.error('Error compressing receipt:', err);
+      alert('Error al procesar la imagen del comprobante.');
+      if (btnText) btnText.innerText = 'Seleccionar o Tomar Foto del Comprobante';
+    }
+  }
+
+  removePaymentReceipt() {
+    this.attachedReceiptBase64 = null;
+    const fileInput = document.getElementById('order-payment-receipt-file');
+    if (fileInput) fileInput.value = '';
+    const previewContainer = document.getElementById('payment-receipt-preview-container');
+    if (previewContainer) previewContainer.classList.add('hidden');
+    const btnText = document.getElementById('btn-receipt-upload-text');
+    if (btnText) btnText.innerText = 'Seleccionar o Tomar Foto del Comprobante';
+  }
+
+  zoomPaymentReceipt() {
+    if (!this.attachedReceiptBase64) return;
+    this.openPaymentQRZoom('Comprobante de Pago', this.attachedReceiptBase64, 'Vista previa de tu comprobante antes de enviar el pedido.');
   }
 
   selectCashDenomination(val) {
@@ -3997,6 +4265,30 @@ class MarketplaceController {
       }
     }
 
+    // Upload payment receipt if attached
+    let paymentReceiptUrl = null;
+    if (this.attachedReceiptBase64) {
+      try {
+        const uploadRes = await fetch('/api/upload-payment-receipt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageBase64: this.attachedReceiptBase64 })
+        });
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          paymentReceiptUrl = uploadData.url;
+        }
+      } catch (err) {
+        console.error('Error uploading payment receipt:', err);
+      }
+    }
+
+    const refInput = document.getElementById('order-payment-ref-number');
+    const refNum = refInput ? refInput.value.trim() : '';
+    if (refNum) {
+      paymentNotes = paymentNotes ? `${paymentNotes} | Ref: ${refNum}` : `Ref: ${refNum}`;
+    }
+
     const shopIds = Object.keys(groupedItems);
     let lastCreatedOrderId = null;
     
@@ -4028,6 +4320,7 @@ class MarketplaceController {
           orderType: this.orderType,
           paymentMethod,
           paymentNotes,
+          paymentReceiptUrl: paymentReceiptUrl || null,
           customerName,
           tableNumber: tableNumber ? parseInt(tableNumber, 10) : null,
           deliveryDetails: this.orderType === 'delivery' ? { 

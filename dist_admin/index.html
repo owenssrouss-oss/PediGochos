@@ -104,6 +104,7 @@
             <span id="online-owners-count">1 activo</span>
           </div>
           <button class="btn-logout" onclick="AdminApp.forceCleanUpdate()" style="background-color: rgba(239, 68, 68, 0.15); color: #F87171; font-weight: 800; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer;" title="Limpiar caché y forzar descarga de la última versión">⚡ Forzar Actualización</button>
+          <button class="btn-logout" onclick="AdminApp.openPaymentMethodsModal()" style="background-color: #0F766E; color: #5EEAD4; font-weight: 800; border: 1px solid #14B8A6; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer;" title="Configurar cuentas de pago bancarias y códigos QR">💳 Cuentas & QR</button>
           <button class="btn-logout" onclick="AdminApp.requestNotificationPermission()" style="background-color: #3B82F6; color: #FFFFFF; font-weight: 800; border: 1px solid #3B82F6;">🔔 Notificaciones</button>
           <button id="btn-cloud-load" class="btn-logout" onclick="AdminApp.loadLatestVersionFromCloud()" style="background-color: #1E293B; color: #38BDF8; font-weight: 800; border: 1px solid #38BDF8; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer;" title="Cargar última versión guardada en la nube">📥 Cargar Última Versión</button>
           <button id="btn-cloud-save" class="btn-logout" onclick="AdminApp.saveChangesToCloud()" style="background-color: #374151; color: #9CA3AF; font-weight: 800; border: 1px solid #4B5563; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; transition: all 0.3s ease;" title="Guardar cambios pendientes en la nube">💾 Guardar Cambios</button>
@@ -467,6 +468,9 @@
       <div style="display: flex; flex-direction: column; gap: 12px;">
         <button class="btn-neumorphic" onclick="AdminApp.closeEstActionModal(); AdminApp.openStoreKitchen(AdminApp.activeShopId);" style="width: 100%; justify-content: center; gap: 8px; font-weight: 800; background-color: #F59E0B; color: #1E293B; border-color: #F59E0B; cursor: pointer; box-shadow: 0 4px 12px rgba(245,158,11,0.35);">
           🍳 Abrir Cocina de este Comercio (KDS)
+        </button>
+        <button class="btn-neumorphic" onclick="AdminApp.closeEstActionModal(); AdminApp.openPaymentMethodsModal(AdminApp.activeShopId);" style="width: 100%; justify-content: center; gap: 8px; font-weight: 800; background-color: #0F766E; color: #5EEAD4; border-color: #14B8A6; cursor: pointer; box-shadow: 0 4px 12px rgba(20,184,166,0.35);">
+          💳 Configurar Cuentas Bancarias & QR de Pago
         </button>
         <button class="btn-neumorphic" onclick="AdminApp.closeEstActionModal(); AdminApp.openStoreQRModal(AdminApp.activeShopId);" style="width: 100%; justify-content: center; gap: 8px; font-weight: 800; background-color: #4F46E5; color: #FFF; border-color: #6366F1; cursor: pointer; box-shadow: 0 4px 12px rgba(99,102,241,0.35);">
           📱 Generar Link y Código QR para Mesas
@@ -2212,6 +2216,124 @@
       }, 4000);
     }
   </script>
+
+  <!-- Modal: Gestión de Cuentas y QR de Pago (Admin) -->
+  <div class="modal-overlay" id="admin-payment-methods-modal" style="z-index: 4800; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: none;">
+    <div class="modal-content" style="background: #16161c; border: 1.5px solid #14B8A6; box-shadow: 0 20px 60px rgba(0,0,0,0.85); margin: auto; max-width: 720px; width: 95%; max-height: 90vh; border-radius: 22px; padding: 20px; display: flex; flex-direction: column;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 24px;">💳</span>
+          <div>
+            <h3 style="margin: 0; color: #FFF; font-size: 17px; font-weight: 900;">Cuentas Bancarias & QR de Pago</h3>
+            <p style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted);">Administra los métodos de pago, datos de transferencia y códigos QR.</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close" onclick="AdminApp.closePaymentMethodsModal()" style="font-size: 18px; color: #fff; background: rgba(255,255,255,0.08); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Store selector for admin -->
+      <div style="margin-bottom: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 12px; font-weight: 800; color: #5EEAD4;">Negocio / Sede:</label>
+          <select id="admin-pm-store-select" onchange="AdminApp.onPaymentStoreChanged()" style="padding: 6px 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px; font-weight: 700;">
+            <!-- Filled dynamically -->
+          </select>
+        </div>
+        <button type="button" onclick="AdminApp.openAddPaymentMethodForm()" style="background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%); color: #042F2E; border: none; padding: 7px 14px; border-radius: 10px; font-weight: 900; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          ➕ Nueva Cuenta o QR
+        </button>
+      </div>
+
+      <!-- Add/Edit Form (hidden by default) -->
+      <div id="admin-payment-method-form-container" class="hidden" style="background: rgba(0,0,0,0.45); border: 1px solid rgba(20,184,166,0.3); border-radius: 14px; padding: 14px; margin-bottom: 14px;">
+        <h4 id="admin-payment-form-title" style="margin: 0 0 10px 0; color: #5EEAD4; font-size: 13.5px; font-weight: 800;">Agregar Nueva Cuenta</h4>
+        <input type="hidden" id="admin-pm-form-id" value="">
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div>
+            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Tipo de Pago *</label>
+            <select id="admin-pm-form-type" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px;">
+              <option value="pago_movil">Pago Móvil (Bolívares)</option>
+              <option value="transferencia">Bancolombia / Nequi / Cuenta COP</option>
+              <option value="zelle">Zelle (USD)</option>
+              <option value="binance">Binance Pay / USDT</option>
+              <option value="otro">Otro Método</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Banco / Plataforma *</label>
+            <input type="text" id="admin-pm-form-bank" placeholder="Ej. Banesco, Bancolombia, Nequi..." style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px; box-sizing: border-box;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div>
+            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Teléfono / Cuenta / Correo *</label>
+            <input type="text" id="admin-pm-form-phone" placeholder="0414-1234567 / 310..." style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px; box-sizing: border-box;">
+          </div>
+          <div>
+            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Cédula / RIF / ID</label>
+            <input type="text" id="admin-pm-form-idnumber" placeholder="V-12345678" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px; box-sizing: border-box;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div>
+            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Titular de la Cuenta</label>
+            <input type="text" id="admin-pm-form-titular" placeholder="Nombre completo" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px; box-sizing: border-box;">
+          </div>
+          <div>
+            <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Foto Código QR (Opcional)</label>
+            <input type="file" id="admin-pm-form-qr-file" accept="image/*" onchange="AdminApp.handleAdminQRFileSelected(event)" style="width: 100%; font-size: 11px; color: #CBD5E1;">
+            <input type="hidden" id="admin-pm-form-qr-url" value="">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+          <label style="font-size: 11px; color: #94A3B8; font-weight: 700; display: block; margin-bottom: 3px;">Instrucciones / Notas para el cliente</label>
+          <input type="text" id="admin-pm-form-notes" placeholder="Ej. Enviar comprobante con número de referencia..." style="width: 100%; padding: 8px 10px; border-radius: 8px; background: #0F172A; border: 1px solid #334155; color: #FFF; font-size: 12px; box-sizing: border-box;">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" onclick="AdminApp.cancelPaymentMethodForm()" style="background: rgba(255,255,255,0.08); color: #CBD5E1; border: none; padding: 7px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer;">Cancelar</button>
+          <button type="button" onclick="AdminApp.savePaymentMethod()" style="background: #10B981; color: #FFF; border: none; padding: 7px 16px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer;">💾 Guardar Cuenta</button>
+        </div>
+      </div>
+
+      <!-- Payment Methods List -->
+      <div id="admin-payment-methods-list" class="premium-scroll" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; max-height: 480px; padding-right: 4px;">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Visualizador de Comprobante de Pago Adjunto (Admin Zoom) -->
+  <div class="modal-overlay" id="admin-receipt-viewer-modal" style="display: none; z-index: 5500; align-items: center; justify-content: center; background: rgba(0,0,0,0.92); backdrop-filter: blur(14px);">
+    <div class="modal-content" style="max-width: 540px; width: 94%; max-height: 94vh; overflow-y: auto; background: #121218; border: 2px solid #14B8A6; border-radius: 24px; padding: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.95); color: #FFF; text-align: center; position: relative;">
+      <button type="button" class="btn-close" onclick="AdminApp.closeReceiptViewerModal()" style="position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.1); border: none; color: #FFF; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-weight: 800;">✕</button>
+      
+      <div style="font-size: 28px; margin-bottom: 2px;">📸🧾</div>
+      <h3 style="color: #FFF; font-size: 17.5px; font-weight: 900; margin: 0 0 4px 0;">Comprobante de Pago Adjunto</h3>
+      
+      <!-- Order details pill -->
+      <div id="admin-receipt-modal-order-info" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 8px 12px; font-size: 12px; color: #E2E8F0; margin-bottom: 12px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 6px;">
+      </div>
+
+      <!-- High-res image -->
+      <div style="background: #000; border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; overflow: hidden; margin-bottom: 14px; max-height: 60vh; display: flex; align-items: center; justify-content: center;">
+        <img id="admin-receipt-modal-full-img" src="" alt="Comprobante de Transferencia" style="max-width: 100%; max-height: 58vh; object-fit: contain; display: block;">
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <a id="admin-receipt-modal-download-link" href="#" target="_blank" download="comprobante.jpg" class="btn-primary" style="flex: 1; padding: 10px; border-radius: 10px; font-size: 12.5px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #14B8A6; border-color: #14B8A6; color: #042F2E;">
+          📥 Abrir en Pestaña Nueva
+        </a>
+        <button type="button" onclick="AdminApp.closeReceiptViewerModal()" style="flex: 1; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.08); color: #FFF; border: none; font-size: 12.5px; font-weight: 800; cursor: pointer;">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Modal: Crear Nuevo Producto Maestro para Catálogo Global -->
   <div class="modal-overlay" id="admin-create-master-product-modal" style="z-index: 4500; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">

@@ -656,6 +656,7 @@ class KitchenController {
   updatePricesButtonVisibility(visible) {
     const btn = document.getElementById('btn-manage-prices');
     const btnStock = document.getElementById('btn-manage-stock');
+    const btnPay = document.getElementById('btn-manage-payment-methods');
     const btnCust = document.getElementById('btn-customize-shop');
     const btnPanic = document.getElementById('btn-panic-high-traffic');
     if (btn) {
@@ -670,6 +671,13 @@ class KitchenController {
         btnStock.classList.remove('hidden');
       } else {
         btnStock.classList.add('hidden');
+      }
+    }
+    if (btnPay) {
+      if (visible) {
+        btnPay.classList.remove('hidden');
+      } else {
+        btnPay.classList.add('hidden');
       }
     }
     if (btnCust) {
@@ -966,6 +974,8 @@ class KitchenController {
       const orderTimeRaw = order.createdAt || order.created_at;
       const elapsedMins = orderTimeRaw ? Math.floor((new Date() - new Date(orderTimeRaw)) / 60000) : 0;
       const isLate = elapsedMins >= 15 ? 'late' : '';
+      const orderDateObj = orderTimeRaw ? new Date(orderTimeRaw) : new Date();
+      const orderTimeFormatted = orderDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
 
       const paymentBadge = order.paymentStatus === 'Pagado' ? '<span class="payment-badge paid" style="background-color: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 6px;">💳 Pagado</span>' : '<span class="payment-badge pending" style="background-color: #f59e0b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 6px;">💳 Pendiente</span>';
       
@@ -974,6 +984,15 @@ class KitchenController {
         : '<span style="background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 4px;">💵 Efectivo</span>';
 
       const payNotesHTML = order.paymentNotes ? `<div style="font-size: 11.5px; color: #F59E0B; font-weight: 800; margin-top: 6px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); padding: 6px 10px; border-radius: 8px;">💵 <strong>Detalle de Pago:</strong> ${order.paymentNotes}</div>` : '';
+
+      let receiptBtnHTML = '';
+      if (order.paymentReceiptUrl) {
+        receiptBtnHTML = `
+          <button type="button" onclick="KitchenApp.openReceiptViewer('${order.id}')" style="margin-top: 6px; width: 100%; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFF; border: none; padding: 7px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 3px 10px rgba(16,185,129,0.3);">
+            <span>📸</span> Ver Comprobante de Pago
+          </button>
+        `;
+      }
 
       // Collect all kitchen observations (exclusions, customer notes, item notes)
       const allObservations = [];
@@ -1046,8 +1065,9 @@ class KitchenController {
             <span class="order-id-label">#${order.id.split('-')[2] || 'ORD'}</span>
             <h4 class="customer-name">${order.customerName} ${paymentBadge} ${payMethodBadge}</h4>
           </div>
-          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
             ${typeBadge}
+            <span style="font-size: 11px; font-weight: 800; color: #38BDF8;">🕒 ${orderTimeFormatted}</span>
             <span class="order-timer ${isLate}" data-created="${order.createdAt || order.created_at || ''}">⏱️ hace ${elapsedMins} min</span>
           </div>
         </div>
@@ -1059,6 +1079,7 @@ class KitchenController {
         ${observationsHTML}
         ${detailsHTML}
         ${payNotesHTML}
+        ${receiptBtnHTML}
         
         <div class="order-total-price">Total: $${Math.round(order.total).toLocaleString('de-DE')}</div>
 
@@ -5335,6 +5356,336 @@ class KitchenController {
     } catch(e) {
       console.error(e);
       alert('Error de conexión al actualizar disponibilidad.');
+    }
+  }
+
+  // ==========================================
+  // PAYMENT METHODS & QR MANAGEMENT (KITCHEN)
+  // ==========================================
+
+  async openPaymentMethodsModal() {
+    const modal = document.getElementById('kitchen-payment-methods-modal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+    this.cancelPaymentMethodForm();
+    await this.loadPaymentMethods();
+  }
+
+  closePaymentMethodsModal() {
+    const modal = document.getElementById('kitchen-payment-methods-modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active');
+    }
+  }
+
+  async loadPaymentMethods() {
+    const container = document.getElementById('kitchen-payment-methods-list');
+    if (!container) return;
+
+    if (!this.selectedId) {
+      container.innerHTML = '<div style="color: #94A3B8; text-align: center; padding: 20px;">Vincula un comercio primero.</div>';
+      return;
+    }
+
+    container.innerHTML = '<div style="color: #94A3B8; text-align: center; padding: 20px;">Cargando cuentas bancarias...</div>';
+
+    try {
+      const res = await fetch(`/api/establishments/${this.selectedId}/payment-methods`);
+      if (!res.ok) throw new Error('Error al consultar métodos');
+      const data = await res.json();
+      this.currentPaymentMethods = data.paymentMethods || [];
+      this.renderPaymentMethodsList();
+    } catch(err) {
+      console.error(err);
+      container.innerHTML = '<div style="color: #EF4444; text-align: center; padding: 20px;">Error al cargar cuentas de pago.</div>';
+    }
+  }
+
+  renderPaymentMethodsList() {
+    const container = document.getElementById('kitchen-payment-methods-list');
+    if (!container) return;
+
+    const methods = this.currentPaymentMethods || [];
+    if (methods.length === 0) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 30px; background: rgba(255,255,255,0.02); border-radius: 14px;">
+          <span style="font-size: 32px; display: block; margin-bottom: 6px;">💳</span>
+          <strong style="color: #FFF; font-size: 13.5px;">No tienes cuentas bancarias registradas</strong>
+          <p style="color: #94A3B8; font-size: 12px; margin: 4px 0 0 0;">Haz clic en <strong>"+ Nueva Cuenta o QR"</strong> para registrar tu Pago Móvil o cuenta.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = methods.map((m) => {
+      const typeIcon = m.type === 'pago_movil' ? '📲' : (m.type === 'zelle' ? '💵' : (m.type === 'binance' ? '🟡' : '🏦'));
+      const isActive = m.active !== false;
+
+      return `
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; ${!isActive ? 'opacity: 0.5;' : ''}">
+          <div style="flex: 1; min-width: 0;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span style="font-weight: 900; font-size: 13.5px; color: #FFF;">${typeIcon} ${m.title || m.bank}</span>
+              <span style="font-size: 10.5px; font-weight: 800; background: rgba(56,189,248,0.2); color: #38BDF8; padding: 2px 6px; border-radius: 4px;">${m.bank || m.type}</span>
+              ${m.qrImage ? '<span style="font-size: 10px; font-weight: 800; background: rgba(16,185,129,0.2); color: #10B981; padding: 2px 6px; border-radius: 4px;">QR Adjunto</span>' : ''}
+            </div>
+            <div style="font-size: 12px; color: #CBD5E1; margin-top: 4px;">
+              ${m.phone ? `<span>📞 ${m.phone}</span> • ` : ''}
+              ${m.idNumber ? `<span>🪪 ${m.idNumber}</span> • ` : ''}
+              ${m.account ? `<span>💳 ${m.account}</span> • ` : ''}
+              ${m.titular ? `<span>👤 ${m.titular}</span>` : ''}
+            </div>
+            ${m.notes ? `<div style="font-size: 11px; color: #FDE047; margin-top: 2px; font-style: italic;">Nota: ${m.notes}</div>` : ''}
+          </div>
+
+          <div style="display: flex; gap: 6px; align-items: center; flex-shrink: 0;">
+            <button type="button" onclick="KitchenApp.togglePaymentMethodActive('${m.id}')" style="background: ${isActive ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}; border: 1px solid ${isActive ? '#10B981' : '#EF4444'}; color: ${isActive ? '#10B981' : '#EF4444'}; padding: 5px 9px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer;">
+              ${isActive ? '🟢 Activo' : '🔴 Pausado'}
+            </button>
+            <button type="button" onclick="KitchenApp.editPaymentMethod('${m.id}')" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #FFF; padding: 5px 9px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer;">
+              ✏️
+            </button>
+            <button type="button" onclick="KitchenApp.deletePaymentMethod('${m.id}')" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #FCA5A5; padding: 5px 9px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer;">
+              🗑️
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  openAddPaymentMethodForm(existingData = null) {
+    const form = document.getElementById('payment-method-form-container');
+    const title = document.getElementById('payment-form-title');
+    if (!form) return;
+
+    form.classList.remove('hidden');
+
+    if (existingData) {
+      if (title) title.innerText = 'Editar Cuenta Bancaria';
+      document.getElementById('pm-form-id').value = existingData.id || '';
+      document.getElementById('pm-form-type').value = existingData.type || 'pago_movil';
+      document.getElementById('pm-form-bank').value = existingData.bank || '';
+      document.getElementById('pm-form-phone').value = existingData.phone || existingData.account || '';
+      document.getElementById('pm-form-idnumber').value = existingData.idNumber || '';
+      document.getElementById('pm-form-titular').value = existingData.titular || '';
+      document.getElementById('pm-form-notes').value = existingData.notes || '';
+      document.getElementById('pm-form-qr-url').value = existingData.qrImage || '';
+    } else {
+      if (title) title.innerText = 'Agregar Nueva Cuenta Bancaria / QR';
+      document.getElementById('pm-form-id').value = '';
+      document.getElementById('pm-form-type').value = 'pago_movil';
+      document.getElementById('pm-form-bank').value = '';
+      document.getElementById('pm-form-phone').value = '';
+      document.getElementById('pm-form-idnumber').value = '';
+      document.getElementById('pm-form-titular').value = '';
+      document.getElementById('pm-form-notes').value = '';
+      document.getElementById('pm-form-qr-url').value = '';
+    }
+    const fileInp = document.getElementById('pm-form-qr-file');
+    if (fileInp) fileInp.value = '';
+  }
+
+  cancelPaymentMethodForm() {
+    const form = document.getElementById('payment-method-form-container');
+    if (form) form.classList.add('hidden');
+  }
+
+  editPaymentMethod(id) {
+    const method = (this.currentPaymentMethods || []).find(m => m.id === id);
+    if (method) this.openAddPaymentMethodForm(method);
+  }
+
+  async handleQRFileSelected(event) {
+    const input = event.target;
+    if (!input || !input.files || !input.files[0]) return;
+    const file = input.files[0];
+
+    try {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 800;
+          let width = img.width;
+          let height = img.height;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL('image/jpeg', 0.8);
+          document.getElementById('pm-form-qr-url').value = compressed;
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  async savePaymentMethod() {
+    if (!this.selectedId) return;
+
+    const id = document.getElementById('pm-form-id').value || ('pm-' + Date.now());
+    const type = document.getElementById('pm-form-type').value;
+    const bank = document.getElementById('pm-form-bank').value.trim();
+    const phone = document.getElementById('pm-form-phone').value.trim();
+    const idNumber = document.getElementById('pm-form-idnumber').value.trim();
+    const titular = document.getElementById('pm-form-titular').value.trim();
+    const notes = document.getElementById('pm-form-notes').value.trim();
+    const qrImage = document.getElementById('pm-form-qr-url').value;
+
+    if (!bank || !phone) {
+      alert('Por favor indica al menos el Banco y el Teléfono/Cuenta.');
+      return;
+    }
+
+    const typeTitles = {
+      pago_movil: 'Pago Móvil (Bolívares)',
+      transferencia: 'Bancolombia / Nequi (COP)',
+      zelle: 'Zelle (USD)',
+      binance: 'Binance Pay USDT',
+      otro: bank
+    };
+
+    const newMethod = {
+      id,
+      title: `${typeTitles[type] || bank}`,
+      type,
+      bank,
+      phone,
+      idNumber,
+      titular,
+      notes,
+      qrImage,
+      active: true
+    };
+
+    let methods = [...(this.currentPaymentMethods || [])];
+    const existingIdx = methods.findIndex(m => m.id === id);
+    if (existingIdx !== -1) {
+      methods[existingIdx] = newMethod;
+    } else {
+      methods.push(newMethod);
+    }
+
+    try {
+      const res = await fetch(`/api/establishments/${this.selectedId}/payment-methods`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentMethods: methods })
+      });
+
+      if (res.ok) {
+        this.currentPaymentMethods = methods;
+        this.renderPaymentMethodsList();
+        this.cancelPaymentMethodForm();
+      } else {
+        alert('Error al guardar la cuenta en el servidor.');
+      }
+    } catch(err) {
+      console.error(err);
+      alert('Error de conexión al guardar cuenta.');
+    }
+  }
+
+  async deletePaymentMethod(id) {
+    if (!confirm('¿Deseas eliminar esta cuenta de pago?')) return;
+    const methods = (this.currentPaymentMethods || []).filter(m => m.id !== id);
+
+    try {
+      const res = await fetch(`/api/establishments/${this.selectedId}/payment-methods`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentMethods: methods })
+      });
+
+      if (res.ok) {
+        this.currentPaymentMethods = methods;
+        this.renderPaymentMethodsList();
+      }
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  async togglePaymentMethodActive(id) {
+    const methods = (this.currentPaymentMethods || []).map(m => {
+      if (m.id === id) {
+        return { ...m, active: m.active === false ? true : false };
+      }
+      return m;
+    });
+
+    try {
+      const res = await fetch(`/api/establishments/${this.selectedId}/payment-methods`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentMethods: methods })
+      });
+
+      if (res.ok) {
+        this.currentPaymentMethods = methods;
+        this.renderPaymentMethodsList();
+      }
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  // ==========================================
+  // RECEIPT VIEWER MODAL (KITCHEN ZOOM)
+  // ==========================================
+
+  openReceiptViewer(orderId) {
+    const order = (this.orders || []).find(o => o.id === orderId);
+    if (!order || !order.paymentReceiptUrl) return;
+
+    const modal = document.getElementById('receipt-viewer-modal');
+    const infoEl = document.getElementById('receipt-modal-order-info');
+    const imgEl = document.getElementById('receipt-modal-full-img');
+    const downloadLink = document.getElementById('receipt-modal-download-link');
+
+    const orderTimeFormatted = order.createdAt ? new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
+    const locText = order.orderType === 'mesa' ? `🍽️ Mesa #${order.tableNumber || '1'}` : `🚴 Domicilio (${order.deliveryDetails?.phone || 'Sin tlf'})`;
+
+    if (infoEl) {
+      infoEl.innerHTML = `
+        <span><strong>Pedido:</strong> #${order.id.slice(-4)}</span>
+        <span><strong>Ubicación:</strong> ${locText}</span>
+        <span><strong>Hora:</strong> ${orderTimeFormatted}</span>
+        <span><strong>Cliente:</strong> ${order.customerName || 'Cliente'}</span>
+        <span><strong>Total:</strong> $${Math.round(order.total).toLocaleString('de-DE')} COP</span>
+      `;
+    }
+
+    if (imgEl) imgEl.src = order.paymentReceiptUrl;
+    if (downloadLink) downloadLink.href = order.paymentReceiptUrl;
+
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+    }
+  }
+
+  closeReceiptViewerModal() {
+    const modal = document.getElementById('receipt-viewer-modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active');
     }
   }
 }

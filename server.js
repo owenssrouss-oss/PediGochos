@@ -1289,6 +1289,7 @@ app.post('/api/orders', (req, res) => {
     orderType: orderDetails.orderType, // 'mesa' or 'delivery'
     paymentMethod: orderDetails.paymentMethod || 'Efectivo', // 'Efectivo' or 'Transferencia'
     paymentNotes: orderDetails.paymentNotes || '',
+    paymentReceiptUrl: orderDetails.paymentReceiptUrl || null,
     customerName: orderDetails.customerName,
     tableNumber: orderDetails.tableNumber || null,
     deliveryDetails: orderDetails.deliveryDetails || null,
@@ -1557,6 +1558,132 @@ app.post('/api/settings/exchange-rates', (req, res) => {
   }
 
   res.json({ success: true, rates: db.settings.exchange_rates });
+});
+
+// ==========================================
+// PAYMENT METHODS & RECEIPT UPLOAD ENDPOINTS
+// ==========================================
+
+// POST Upload Payment Receipt Image (Compressed base64 or file payload)
+app.post('/api/upload-payment-receipt', (req, res) => {
+  try {
+    const { imageBase64, fileName } = req.body;
+    if (!imageBase64) {
+      return res.status(400).json({ error: 'No image payload provided' });
+    }
+
+    const matches = imageBase64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    let buffer;
+    let extension = 'jpg';
+
+    if (matches && matches.length === 3) {
+      const mime = matches[1];
+      if (mime.includes('png')) extension = 'png';
+      else if (mime.includes('webp')) extension = 'webp';
+      buffer = Buffer.from(matches[2], 'base64');
+    } else {
+      buffer = Buffer.from(imageBase64, 'base64');
+    }
+
+    const safeFileName = `rec_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}.${extension}`;
+    const uploadDir = path.join(__dirname, 'public/uploads/receipts');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    const filePath = path.join(uploadDir, safeFileName);
+    fs.writeFileSync(filePath, buffer);
+
+    const relativeUrl = `/uploads/receipts/${safeFileName}`;
+    res.json({ success: true, url: relativeUrl });
+  } catch (err) {
+    console.error('Error in /api/upload-payment-receipt:', err);
+    res.status(500).json({ error: 'Error guardando comprobante de pago' });
+  }
+});
+
+// GET payment methods for an establishment (with global defaults fallback)
+app.get('/api/establishments/:id/payment-methods', (req, res) => {
+  const { id } = req.params;
+  const db = readDB();
+  const est = (db.establishments || []).find(e => e.id === id);
+
+  const defaultMethods = db.settings?.payment_methods || [
+    {
+      id: 'pm-bcv-1',
+      title: 'Pago Móvil (Bolívares)',
+      type: 'pago_movil',
+      bank: 'Banesco / Banco de Venezuela',
+      phone: '0414-1234567',
+      idNumber: 'V-20123456',
+      titular: 'Pedi Gochos',
+      qrImage: '',
+      notes: 'Transferir a la tasa del día e indicar número de referencia',
+      active: true
+    },
+    {
+      id: 'pm-cop-1',
+      title: 'Bancolombia / Nequi (COP)',
+      type: 'transferencia',
+      bank: 'Bancolombia',
+      phone: '310-1234567',
+      account: 'Ahorros 123-456789-01',
+      idNumber: '1090123456',
+      titular: 'Pedi Gochos Delivery',
+      qrImage: '',
+      notes: 'Transferencia directa o Nequi',
+      active: true
+    }
+  ];
+
+  if (est && Array.isArray(est.payment_methods) && est.payment_methods.length > 0) {
+    return res.json({ establishmentId: id, paymentMethods: est.payment_methods });
+  }
+
+  res.json({ establishmentId: id, paymentMethods: defaultMethods });
+});
+
+// POST update payment methods for an establishment
+app.post('/api/establishments/:id/payment-methods', (req, res) => {
+  const { id } = req.params;
+  const { paymentMethods } = req.body;
+  if (!Array.isArray(paymentMethods)) {
+    return res.status(400).json({ error: 'paymentMethods array is required' });
+  }
+
+  const db = readDB();
+  const est = (db.establishments || []).find(e => e.id === id);
+  if (!est) return res.status(404).json({ error: 'Establecimiento no encontrado' });
+
+  est.payment_methods = paymentMethods;
+  writeDB(db);
+  saveChangesToCloud(db);
+
+  if (typeof broadcastWS === 'function') {
+    broadcastWS({ type: 'payment_methods_updated', establishmentId: id, paymentMethods });
+  }
+
+  res.json({ success: true, paymentMethods });
+});
+
+// GET & POST global payment methods
+app.get('/api/settings/payment-methods', (req, res) => {
+  const db = readDB();
+  const methods = db.settings?.payment_methods || [];
+  res.json(methods);
+});
+
+app.post('/api/settings/payment-methods', (req, res) => {
+  const { paymentMethods } = req.body;
+  if (!Array.isArray(paymentMethods)) {
+    return res.status(400).json({ error: 'paymentMethods array is required' });
+  }
+  const db = readDB();
+  if (!db.settings) db.settings = {};
+  db.settings.payment_methods = paymentMethods;
+  writeDB(db);
+  saveChangesToCloud(db);
+  res.json({ success: true, paymentMethods });
 });
 
 // ==========================================
